@@ -271,6 +271,24 @@ class LLMPlanner:
 
 # ---------------- 工厂 ----------------
 
+def _llm_config_problem(env: dict[str, str], explicit: bool) -> Optional[str]:
+    """诊断 LLM 配置为何不可用；完全未配置且未显式要求时返回 None（属正常规则模式）。
+
+    「一个都没配」与「配了一半」必须区别对待：前者是用户本就要用规则模式，
+    不该产生告警；后者是用户明确想用模型却写错了变量名，静默回退会让人
+    误以为模型生效了，属于必须暴露的配置错误。
+    """
+    base = (env.get("MTSA_LLM_BASE_URL") or "").strip()
+    key = (env.get("MTSA_LLM_API_KEY") or "").strip()
+    if base and key:
+        return None
+    if not base and not key and not explicit:
+        return None
+    missing = [n for n, v in (("MTSA_LLM_BASE_URL", base), ("MTSA_LLM_API_KEY", key)) if not v]
+    return ("已要求使用模型计划，但缺少环境变量：" + "、".join(missing)
+            if explicit else "LLM 配置不完整，已回退规则计划，缺少环境变量：" + "、".join(missing))
+
+
 def build_planner(adapter, env: Optional[dict[str, str]] = None) -> Planner:
     """按配置选择计划器。无配置即规则计划，保证零成本可用。"""
     import os
@@ -285,7 +303,10 @@ def build_planner(adapter, env: Optional[dict[str, str]] = None) -> Planner:
     if mode in ("llm", "auto"):
         client = client_from_env(env)
         if client is None:
-            return RulePlanner()
+            planner = RulePlanner()
+            # 配置不全时留下原因，engine 会把它写进 result.warnings，避免静默回退
+            planner.last_error = _llm_config_problem(env, explicit=(mode == "llm"))
+            return planner
         cache_dir = env.get("MTSA_PLAN_CACHE", "artifacts/plan_cache")
         return LLMPlanner(client, cache_dir.strip() or None)
     return RulePlanner()

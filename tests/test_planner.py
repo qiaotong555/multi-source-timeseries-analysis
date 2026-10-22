@@ -75,6 +75,33 @@ def test_build_planner_falls_back_without_config(ctx):
     assert isinstance(p3, RulePlanner)          # 显式 rule 优先
 
 
+def test_partial_llm_config_is_reported_not_silent(ctx):
+    """配了一半必须留痕：用户以为模型生效、实际走规则，是最难发现的配置错误。"""
+    p = build_planner(ctx[3], env={"MTSA_LLM_API_KEY": "sk-test"})
+    assert isinstance(p, RulePlanner)
+    assert p.last_error and "MTSA_LLM_BASE_URL" in p.last_error
+    assert "MTSA_LLM_API_KEY" not in p.last_error      # 只报真正缺的那个
+
+    p2 = build_planner(ctx[3], env={"MTSA_LLM_BASE_URL": "https://api.deepseek.com/v1"})
+    assert isinstance(p2, RulePlanner)
+    assert p2.last_error and "MTSA_LLM_API_KEY" in p2.last_error
+
+
+def test_fully_absent_llm_config_stays_silent(ctx):
+    """一个都没配是正常的规则模式，不应产生告警——否则每次运行都多一条噪音。"""
+    p = build_planner(ctx[3], env={})
+    assert isinstance(p, RulePlanner)
+    assert p.last_error is None
+
+
+def test_explicit_llm_mode_without_config_reports_error(ctx):
+    """显式要求用模型却没配，必须报出来，不能静默降级。"""
+    p = build_planner(ctx[3], env={"MTSA_PLANNER": "llm"})
+    assert isinstance(p, RulePlanner)
+    assert p.last_error and "MTSA_LLM_BASE_URL" in p.last_error
+    assert "MTSA_LLM_API_KEY" in p.last_error
+
+
 def test_build_planner_uses_llm_when_configured(ctx):
     p = build_planner(ctx[3], env={
         "MTSA_LLM_BASE_URL": "https://api.deepseek.com/v1",
