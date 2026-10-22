@@ -98,6 +98,14 @@ def run_analysis(request: AnalysisRequest, verbose: bool = True) -> AnalysisResu
         result.error = ErrorDetail(code=code, message=message, details=details)
         result.events = events
         result.warnings = warnings
+        # 失败也要落盘：既便于事后排查，也让进程隔离的调用方能区分
+        # 「分析失败」与「子进程崩溃」——后者根本没有 result.json。
+        try:
+            os.makedirs(outdir, exist_ok=True)
+            with open(os.path.join(outdir, "result.json"), "w", encoding="utf-8") as f:
+                f.write(result.model_dump_json(indent=2))
+        except OSError:
+            pass                                  # 目录不可写不应掩盖原始错误
         if verbose:
             print(f"[{code}] {message}")
         return result
