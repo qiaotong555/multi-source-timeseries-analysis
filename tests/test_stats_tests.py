@@ -96,3 +96,82 @@ def test_short_sample_skips_instead_of_guessing():
     rows = _run(pd.Series(np.arange(5, dtype=float)), ["stationarity", "normality"])
     assert rows and rows[0].name == "样本不足"
     assert all(r.p_value is None for r in rows)
+
+
+# ---------------- Ljung-Box 的 FFT 实现 ----------------
+# 这组测试锁住「换实现不改结论」：数值必须与 statsmodels 一致，
+# 异常输入必须回退，且大样本下不能退化为 O(n·lag) 的慢路径。
+
+def test_ljungbox_fft_matches_statsmodels_numerically():
+    from statsmodels.stats.diagnostic import acorr_ljungbox
+
+    rng = np.random.default_rng(20260927)
+    cases = {
+        "white_noise": rng.normal(0, 1, 500),
+        "random_walk": np.cumsum(rng.normal(0, 1, 500)),
+        "ar1": None,
+    }
+    ar = np.zeros(500)
+    e = rng.normal(0, 1, 500)
+    for i in range(1, 500):
+        ar[i] = 0.9 * ar[i - 1] + e[i]
+    cases["ar1"] = ar
+
+    for label, x in cases.items():
+        for lags in (1, 5, 10):
+            q1, p1 = stats_tests.ljungbox_fft(x, lags)
+            lb = acorr_ljungbox(x, lags=[lags], return_df=True)
+            q2 = float(lb["lb_stat"].iloc[0])
+            p2 = float(lb["lb_pvalue"].iloc[0])
+            assert abs(q1 - q2) / max(abs(q2), 1e-12) < 1e-9, f"{label} lag={lags} Q 不一致"
+            assert abs(p1 - p2) < 1e-12, f"{label} lag={lags} p 不一致"
+
+
+def test_ljungbox_fft_rejects_short_series():
+    q, p = stats_tests.ljungbox_fft(np.arange(5, dtype=float), 10)
+    assert np.isnan(q) and np.isnan(p)
+
+
+def test_ljungbox_fft_rejects_constant_series():
+    """常数列方差为零，自相关无定义，必须返回 nan 而不是 0 或崩溃。"""
+    q, p = stats_tests.ljungbox_fft(np.ones(100), 5)
+    assert np.isnan(q) and np.isnan(p)
+
+
+def test_ljungbox_falls_back_when_fft_unusable(monkeypatch):
+    """FFT 路径算不出结果时要回退 statsmodels，不能因为优化而丢结论。"""
+    monkeypatch.setattr(stats_tests, "ljungbox_fft",
+                        lambda x, lags: (float("nan"), float("nan")))
+    vals = np.random.default_rng(1).normal(0, 1, 300)
+    q, p = stats_tests._ljungbox(vals, 10)
+    assert np.isfinite(q) and np.isfinite(p)
+
+
+def test_run_stat_tests_ljungbox_same_with_and_without_fft(monkeypatch):
+    """整条检验链上，FFT 与 statsmodels 给出的 Ljung-Box 结果必须一致。"""
+    rng = np.random.default_rng(9)
+    series = pd.Series(np.cumsum(rng.normal(0, 1, 800)))
+
+    rows_fft = _run(series, ["autocorr"])
+    original = stats_tests._ljungbox
+    monkeypatch.setattr(stats_tests, "_ljungbox",
+                        lambda vals, lags, use_fft=True: original(vals, lags, use_fft=False))
+    rows_sm = _run(series, ["autocorr"])
+
+    a = next(r for r in rows_fft if r.name.startswith("Ljung-Box"))
+    b = next(r for r in rows_sm if r.name.startswith("Ljung-Box"))
+    assert abs(a.statistic - b.statistic) / max(abs(b.statistic), 1e-12) < 1e-9
+    assert abs(a.p_value - b.p_value) < 1e-12
+    assert a.reject_null == b.reject_null
+
+
+def test_ljungbox_fft_stays_fast_on_large_series():
+    """10 万点应在毫秒级；阈值放宽到 1 秒，只用于拦截退化为 O(n·lag) 的实现。"""
+    import time
+
+    x = np.cumsum(np.random.default_rng(3).normal(0, 1, 100_000))
+    started = time.perf_counter()
+    q, _ = stats_tests.ljungbox_fft(x, 10)
+    elapsed = time.perf_counter() - started
+    assert np.isfinite(q)
+    assert elapsed < 1.0, f"FFT 实现耗时 {elapsed:.3f}s，疑似退化为慢路径"

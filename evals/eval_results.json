@@ -985,39 +985,39 @@
   },
   "_benchmark": {
     "available": true,
-    "generated_at": null,
+    "generated_at": "2026-10-23T00:21:10",
     "env": {
       "python": "3.13.14",
       "platform": "win32",
       "cpu": 12
     },
     "scale_1e4": {
-      "total_s": 2.924,
+      "total_s": 3.5928,
       "peak_mb": 82.7,
       "status": "ok"
     },
     "scale_1e5": {
-      "total_s": 68.9264,
-      "peak_mb": 849.0,
+      "total_s": 37.1095,
+      "peak_mb": 849.1,
       "status": "ok",
       "timings": {
-        "load": 0.1292,
-        "profile": 1.843,
-        "quality": 0.6966,
+        "load": 0.1254,
+        "profile": 1.6648,
+        "quality": 0.5829,
         "plan": 0.0002,
-        "clean": 0.038,
-        "metrics": 3.014,
-        "scenario_metrics": 0.1232,
-        "spectrum": 0.1096,
-        "stat_tests": 62.3279,
-        "anomalies": 0.2418,
-        "change_points": 0.4029
+        "clean": 0.0386,
+        "metrics": 2.9387,
+        "scenario_metrics": 0.1351,
+        "spectrum": 0.101,
+        "stat_tests": 30.8876,
+        "anomalies": 0.2115,
+        "change_points": 0.4237
       }
     },
     "scale_1e6_status": "timeout"
   },
-  "1e5行分析耗时": 68.9264,
-  "1e5行峰值内存": 849.0,
+  "1e5行分析耗时": 37.1095,
+  "1e5行峰值内存": 849.1,
   "_llm_eval": {
     "available": true,
     "generated_at": "2026-10-23T00:04:31",

@@ -4,26 +4,27 @@
     "platform": "win32",
     "cpu": 12
   },
+  "generated_at": "2026-10-23T00:21:10",
   "timeout_s": 300,
   "scales": [
     {
       "label": "1e4",
       "rows": 10000,
       "status": "ok",
-      "total_s": 2.924,
+      "total_s": 3.5928,
       "peak_mb": 82.7,
       "timings": {
-        "load": 0.0258,
-        "profile": 0.1863,
-        "quality": 0.5247,
+        "load": 0.0242,
+        "profile": 0.1706,
+        "quality": 0.5121,
         "plan": 0.0002,
-        "clean": 0.0128,
-        "metrics": 0.7296,
-        "scenario_metrics": 0.0493,
-        "spectrum": 0.0262,
-        "stat_tests": 1.2458,
-        "anomalies": 0.0344,
-        "change_points": 0.0889
+        "clean": 0.0133,
+        "metrics": 0.7367,
+        "scenario_metrics": 0.0636,
+        "spectrum": 0.0298,
+        "stat_tests": 1.9188,
+        "anomalies": 0.0468,
+        "change_points": 0.0767
       },
       "summary": {
         "rows": 5000,
@@ -39,20 +40,20 @@
       "label": "1e5",
       "rows": 100000,
       "status": "ok",
-      "total_s": 68.9264,
-      "peak_mb": 849.0,
+      "total_s": 37.1095,
+      "peak_mb": 849.1,
       "timings": {
-        "load": 0.1292,
-        "profile": 1.843,
-        "quality": 0.6966,
+        "load": 0.1254,
+        "profile": 1.6648,
+        "quality": 0.5829,
         "plan": 0.0002,
-        "clean": 0.038,
-        "metrics": 3.014,
-        "scenario_metrics": 0.1232,
-        "spectrum": 0.1096,
-        "stat_tests": 62.3279,
-        "anomalies": 0.2418,
-        "change_points": 0.4029
+        "clean": 0.0386,
+        "metrics": 2.9387,
+        "scenario_metrics": 0.1351,
+        "spectrum": 0.101,
+        "stat_tests": 30.8876,
+        "anomalies": 0.2115,
+        "change_points": 0.4237
       },
       "summary": {
         "rows": 50000,
@@ -61,7 +62,7 @@
         "anomalies": 401,
         "change_points": 0
       },
-      "prep_s": 0.8346,
+      "prep_s": 0.4367,
       "memory_status": "ok"
     },
     {

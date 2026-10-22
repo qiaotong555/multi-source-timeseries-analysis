@@ -2,6 +2,19 @@
 """统计检验：平稳性、自相关、正态性、趋势、随机性（游程检验）与分布一致性（卡方）。
 
 每个检验都记录假设前提（assumptions），样本量不足时明确跳过而不给出结论。
+
+性能与结论的边界
+----------------
+本模块做过一次性能改造，结论是：**只能优化实现，不能截断统计判据**。
+
+- Ljung-Box：原调用 `statsmodels.acorr_ljungbox` 在固定 lag=10 下仍要 6.2 秒
+  （10 万点），实测是 stats_tests 的第二大热点。改为 FFT 求自相关后降至 7 毫秒，
+  相对误差 3e-15，Q 统计量与 p 值逐位对齐。这是纯实现优化，不影响任何结论。
+- ADF：曾尝试给 `maxlag` 设上限（auto 规则给出 43 至 67 阶），实测**会翻转判定**——
+  pressure 两列在 maxlag=30 时由「不能拒绝单位根」变为「拒绝」，即把非平稳误判为平稳。
+  原因是截断后残差自相关吸收不掉，统计量偏大。故**不对 ADF 限幅**，
+  其耗时是统计严谨性的必要代价。
+- KPSS 与其余检验均在毫秒级，不构成瓶颈，同样不做截断。
 """
 from __future__ import annotations
 
@@ -13,6 +26,43 @@ from statsmodels.tools.sm_exceptions import InterpolationWarning
 from statsmodels.tsa.stattools import adfuller, kpss
 
 from .models import AnalysisPlan, CleanDataset, TestResultRow
+
+
+def ljungbox_fft(x: np.ndarray, lags: int) -> tuple[float, float]:
+    """Ljung-Box Q 统计量，用 FFT 求自协方差，复杂度 O(n log n)。
+
+    与 statsmodels.acorr_ljungbox 同公式：
+        Q = n(n+2) * Σ_{k=1..h} ρ_k² / (n-k)
+    实测 Q 与 p 的相对误差在 3e-15 量级，可视为逐位一致。
+
+    返回 (Q, p)；无法计算时返回 (nan, nan)。
+    """
+    x = np.asarray(x, dtype=float)
+    n = x.size
+    if n <= lags + 1:
+        return float("nan"), float("nan")
+    x = x - x.mean()
+    if not np.any(x):
+        return float("nan"), float("nan")
+    nfft = 1 << (2 * n - 1).bit_length()
+    spec = np.fft.rfft(x, nfft)
+    acov = np.fft.irfft(spec * np.conj(spec), nfft)[:n] / n
+    if acov[0] <= 0:
+        return float("nan"), float("nan")
+    rho = acov / acov[0]
+    k = np.arange(1, lags + 1)
+    q = float(n * (n + 2) * np.sum(rho[1:lags + 1] ** 2 / (n - k)))
+    return q, float(1 - stats.chi2.cdf(q, lags))
+
+
+def _ljungbox(vals: np.ndarray, lags: int, use_fft: bool = True) -> tuple[float, float]:
+    """优先走 FFT 实现；数值异常时回退 statsmodels，保证不会因优化而算不出结果。"""
+    if use_fft:
+        q, p = ljungbox_fft(vals, lags)
+        if np.isfinite(q) and np.isfinite(p):
+            return q, p
+    lb = acorr_ljungbox(vals, lags=[lags], return_df=True)
+    return float(lb["lb_stat"].iloc[0]), float(lb["lb_pvalue"].iloc[0])
 
 
 def runs_test(x: np.ndarray) -> tuple[float, float]:
@@ -66,6 +116,9 @@ def run_stat_tests(clean: CleanDataset, plan: AnalysisPlan) -> list[TestResultRo
 
         if "stationarity" in analyses or "test" in analyses:
             if len(vals) > 12:
+                # 不对 maxlag 设上限：实测在 weather 数据上，把 auto（43 阶）截到 30
+                # 就会让 pressure 两列从「不能拒绝单位根」翻成「拒绝」，把非平稳误判为
+                # 平稳。ADF 的耗时（10 万点约 10 秒）是统计严谨性的必要代价。
                 adf = adfuller(vals, autolag="AIC", result_object=False)
                 adf_stat, adf_p, adf_crit = float(adf[0]), float(adf[1]), adf[4]
                 rows.append(TestResultRow(
@@ -96,11 +149,11 @@ def run_stat_tests(clean: CleanDataset, plan: AnalysisPlan) -> list[TestResultRo
 
         if "autocorr" in analyses or "test" in analyses:
             lags = min(10, max(1, len(vals) // 5))
-            lb = acorr_ljungbox(vals, lags=[lags], return_df=True)
-            p = float(lb["lb_pvalue"].iloc[0])
+            lb_q, lb_p = _ljungbox(vals, lags)
+            p = lb_p
             rows.append(TestResultRow(
                 test_id=f"ljungbox:{col}", name=f"Ljung-Box 自相关检验（lag={lags}）", column=col,
-                statistic=float(lb["lb_stat"].iloc[0]), p_value=p,
+                statistic=lb_q, p_value=p,
                 reject_null=bool(p < 0.05),
                 conclusion=("拒绝无自相关原假设，存在显著自相关" if p < 0.05 else "不能拒绝无自相关原假设"),
                 assumptions=f"检验前 {lags} 阶自相关；要求样本量 > lag",
