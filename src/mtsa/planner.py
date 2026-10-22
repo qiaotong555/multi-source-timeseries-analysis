@@ -35,17 +35,29 @@ from .models import AnalysisPlan
 
 PLANNER_VERSION = "v1"
 
-# 模型可选的分析项（工具），键为工具名，值为给模型看的说明
+# 模型可选的分析项（工具）。
+# 键必须与下游真正的消费点一致：engine 判断 spectrum/anomaly/changepoint，
+# metrics 判断 corr/lag，stats_tests 判断 stationarity/autocorr/normality/trend/test/randomness。
+# 用粗粒度的自造名字（如 correlation）会导致「模型选了但下游不执行」，是静默失效。
 TOOL_SPECS: dict[str, str] = {
-    "trend": "趋势与斜率，判断序列是否存在单调变化；适用于有长期走向的数据。",
-    "volatility": "波动率与滚动标准差，衡量稳定性；适用于关注风险或异常波动的场景。",
-    "correlation": "列间相关与滞后相关，衡量变量间同步与领先滞后关系；需至少两列。",
-    "spectrum": "Welch 功率谱与主频，识别周期成分；要求采样均匀且样本量足够。",
-    "stat_tests": "平稳性、自相关、正态性、趋势与随机性等六类检验；用于推断性结论。",
-    "anomaly": "异常点检测，定位离群值与故障点；关注数据质量或设备异常时使用。",
-    "changepoint": "均值与方差突变检测，识别结构性变化；关注行为拐点时使用。",
-    "scenario_metrics": "场景专属指标，如天气的月均振幅、股票的收益与回撤；通用指标之外的业务口径。",
+    "trend": "趋势与斜率：序列是否存在单调变化、趋势强度。适用于有长期走向的数据。",
+    "corr": "列间相关：多列之间的同步关系。需要至少两列。",
+    "lag": "滞后相关：变量间的领先滞后关系，给出最优滞后阶。需要至少两列。",
+    "extreme": "极值统计：最大最小、分位数与超阈值事件。关注极端情形时使用。",
+    "spectrum": "频域分析：Welch 功率谱、主频与周期。要求采样均匀且样本量足够。",
+    "changepoint": "变化点检测：均值与方差突变。关注结构性变化或行为拐点时使用。",
+    "anomaly": "异常检测：离群点与故障点定位。关注数据质量或设备异常时使用。",
+    "test": "统计检验总开关：一次开启平稳性、自相关、正态性、趋势四类检验。",
+    "stationarity": "平稳性检验（ADF 与 KPSS）：序列是否适合直接建模。",
+    "autocorr": "自相关检验（Ljung-Box）：残差是否仍有结构。",
+    "normality": "正态性检验（Jarque-Bera）：是否需要改用非参数方法。",
+    "seasonal": "季节分解：剥离周期成分，输出趋势项与季节项。存在明显周期时使用。",
+    "randomness": "随机性检验（游程）：序列是否近似随机。",
 }
+
+# 场景必需项：由适配器决定，不受模型控制。
+# 例如股票的 scenario_metrics 承载回测与风险指标，若被模型裁掉，专属指标会静默消失。
+FORCED_ANALYSES = frozenset({"scenario_metrics"})
 
 # 允许模型调整的参数键（分析配置类）
 PARAM_OVERRIDABLE = frozenset({"seasonal_period", "max_lag", "rolling_window", "change_point_depth"})
@@ -170,7 +182,13 @@ class LLMPlanner:
 
         # 通过校验：在基底上覆盖，未覆盖的字段保持适配器默认
         merged = base.model_copy(deep=True)
-        merged.analyses = list(dict.fromkeys(analyses))       # 去重并保持顺序
+        chosen = list(dict.fromkeys(analyses))                 # 去重并保持顺序
+        # 场景必需项不受模型控制，否则股票的 scenario_metrics 会被裁掉，
+        # 回测与风险指标静默消失，而评估里的「方法选择准确率」会立刻失败。
+        for forced in FORCED_ANALYSES:
+            if forced in base.analyses and forced not in chosen:
+                chosen.append(forced)
+        merged.analyses = chosen
         merged.target_columns = list(dict.fromkeys(columns))
         merged.parameters.update(params)
         return merged
@@ -188,7 +206,8 @@ class LLMPlanner:
             "要求：\n"
             "1. 只输出 JSON 对象，不要任何解释性文字或代码块标记。\n"
             "2. analyses 必须是上述工具名的子集，至少一项，一般不超过五项；"
-            "没有依据的工具不要选。\n"
+            "没有依据的工具不要选。'test' 会一次性开启四类检验，"
+            "若只需其中某一类，直接选 stationarity、autocorr、normality 或 trend。\n"
             "3. target_columns 只能取数据摘要中列出的数值列。\n"
             f"4. parameters 只允许调整这些键：{allowed}，且必须为正整数。\n"
             f"5. 严禁修改这些已标定的参数：{locked}。\n"

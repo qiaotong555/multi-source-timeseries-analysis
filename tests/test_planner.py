@@ -9,8 +9,9 @@ import pytest
 
 from mtsa import io_loaders, profiler, quality
 from mtsa.llm_client import LLMError
-from mtsa.planner import (PARAM_LOCKED, PLANNER_VERSION, RulePlanner, LLMPlanner,
-                          PlannerValidationError, build_planner)
+from mtsa.models import AnalysisPlan
+from mtsa.planner import (FORCED_ANALYSES, PARAM_LOCKED, PLANNER_VERSION, TOOL_SPECS,
+                          RulePlanner, LLMPlanner, PlannerValidationError, build_planner)
 from mtsa.scenarios import stock as _stock  # noqa: F401  适配器靠 import 副作用注册
 from mtsa.scenarios import weather as _weather  # noqa: F401
 from mtsa.scenarios.base import get_adapter
@@ -198,3 +199,41 @@ def test_locked_params_are_declared(ctx):
     """锁定参数清单必须非空，否则「模型不得改阈值」这条约束没有落点。"""
     assert PARAM_LOCKED
     assert "anomaly_threshold" in PARAM_LOCKED
+
+
+# ---------------- 与下游的一致性 ----------------
+
+def test_tool_names_match_downstream_consumers():
+    """工具名必须与下游真正判断的字符串一致。
+
+    下游消费点：engine 判断 spectrum / anomaly / changepoint；metrics 判断 corr / lag；
+    stats_tests 判断 stationarity / autocorr / normality / trend / test / randomness。
+    若这里改了名字而下游没改，模型选的工具会被静默忽略——计划看起来成功，实际什么都没跑。
+    """
+    downstream = {
+        "trend", "corr", "lag", "extreme", "spectrum", "changepoint", "anomaly",
+        "test", "stationarity", "autocorr", "normality", "seasonal", "randomness",
+    }
+    assert set(TOOL_SPECS) == downstream
+
+
+def test_rule_plan_analyses_all_selectable(ctx):
+    """规则计划产出的分析项必须都在工具白名单内，否则模型无从表达同样的选择。"""
+    plan, _ = _plan(RulePlanner(), ctx)
+    unexpected = set(plan.analyses) - set(TOOL_SPECS) - set(FORCED_ANALYSES)
+    assert not unexpected, f"规则计划的这些分析项不在白名单内：{sorted(unexpected)}"
+
+
+def test_forced_analysis_survives_model_selection(ctx):
+    """场景必需项不受模型控制：base 里有、模型没选，合并后仍要保留。"""
+    frame = ctx[0]
+    base = AnalysisPlan(scene_id="stock", scene_confidence=1.0, question="回测",
+                        target_columns=["temperature"],
+                        analyses=["trend", "scenario_metrics"], parameters={})
+    planner = LLMPlanner(FakeClient(payload={}), cache_dir=None)
+    merged = planner._validate_and_merge(
+        {"analyses": ["trend"], "target_columns": ["temperature"],
+         "parameters": {}, "reason": "只关注趋势"},
+        base, frame)
+    assert "scenario_metrics" in merged.analyses
+    assert merged.analyses[0] == "trend"
