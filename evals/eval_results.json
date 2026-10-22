@@ -1,0 +1,1036 @@
+{
+  "数据类型识别率": 1.0,
+  "时间字段识别率": 1.0,
+  "采样异常检出率": 1.0,
+  "方法选择准确率": 1.0,
+  "关键指标复算误差": 3.9910002321396025e-15,
+  "_split_eval": {
+    "folds": [
+      {
+        "fold": "fold1",
+        "status": "succeeded",
+        "dev": {
+          "start": "2024-01-01 00:00:00",
+          "end": "2025-03-14 18:00:00",
+          "rows": 20880,
+          "unique_timepoints": 10519
+        },
+        "holdout": {
+          "start": "2025-03-14 18:00:00",
+          "end": "2025-08-07 21:00:00",
+          "rows": 6950,
+          "unique_timepoints": 3507
+        },
+        "dev_truth_count": 148,
+        "holdout_truth_count": 43,
+        "scan": [
+          {
+            "threshold": 4.0,
+            "precision": 0.5159,
+            "recall": 0.9865,
+            "f1": 0.6775,
+            "tp": 146,
+            "fp": 137,
+            "fn": 2,
+            "detected_count": 283
+          },
+          {
+            "threshold": 5.0,
+            "precision": 0.6348,
+            "recall": 0.9865,
+            "f1": 0.7725,
+            "tp": 146,
+            "fp": 84,
+            "fn": 2,
+            "detected_count": 230
+          },
+          {
+            "threshold": 6.0,
+            "precision": 0.6603,
+            "recall": 0.9324,
+            "f1": 0.7731,
+            "tp": 138,
+            "fp": 71,
+            "fn": 10,
+            "detected_count": 209
+          },
+          {
+            "threshold": 7.0,
+            "precision": 0.7356,
+            "recall": 0.8649,
+            "f1": 0.795,
+            "tp": 128,
+            "fp": 46,
+            "fn": 20,
+            "detected_count": 174
+          },
+          {
+            "threshold": 8.0,
+            "precision": 0.8108,
+            "recall": 0.8108,
+            "f1": 0.8108,
+            "tp": 120,
+            "fp": 28,
+            "fn": 28,
+            "detected_count": 148
+          },
+          {
+            "threshold": 9.0,
+            "precision": 0.8852,
+            "recall": 0.7297,
+            "f1": 0.8,
+            "tp": 108,
+            "fp": 14,
+            "fn": 40,
+            "detected_count": 122
+          },
+          {
+            "threshold": 10.0,
+            "precision": 0.9423,
+            "recall": 0.6622,
+            "f1": 0.7778,
+            "tp": 98,
+            "fp": 6,
+            "fn": 50,
+            "detected_count": 104
+          },
+          {
+            "threshold": 12.0,
+            "precision": 0.9884,
+            "recall": 0.5743,
+            "f1": 0.7265,
+            "tp": 85,
+            "fp": 1,
+            "fn": 63,
+            "detected_count": 86
+          }
+        ],
+        "selected_threshold": 7.0,
+        "selection_rule": "precision>=0.7 前提下召回最高",
+        "dev_precision": 0.7356,
+        "dev_recall": 0.8649,
+        "holdout_precision": 0.8043,
+        "holdout_recall": 0.8605,
+        "holdout_tp": 37,
+        "holdout_fp": 9,
+        "holdout_fn": 6,
+        "degradation_precision": -0.0687,
+        "degradation_recall": 0.0044,
+        "gap_precision": 0.0687,
+        "gap_recall": 0.0044,
+        "holdout_precision_lower95": 0.6683,
+        "holdout_recall_lower95": 0.7274,
+        "holdout_event_precision": 1.0,
+        "holdout_event_recall": 0.8125,
+        "holdout_event_truth": 16,
+        "holdout_event_detected": 13,
+        "holdout_recall_by_type": {
+          "point": 0.8333,
+          "collective": 0.75
+        },
+        "holdout_truth_by_type": {
+          "point": 12,
+          "collective": 4
+        },
+        "insufficient_truth": false
+      },
+      {
+        "fold": "fold2",
+        "status": "succeeded",
+        "dev": {
+          "start": "2024-01-01 00:00:00",
+          "end": "2025-05-26 20:00:00",
+          "rows": 24355,
+          "unique_timepoints": 12273
+        },
+        "holdout": {
+          "start": "2025-05-26 20:00:00",
+          "end": "2025-10-19 22:00:00",
+          "rows": 6948,
+          "unique_timepoints": 3506
+        },
+        "dev_truth_count": 178,
+        "holdout_truth_count": 44,
+        "scan": [
+          {
+            "threshold": 4.0,
+            "precision": 0.5208,
+            "recall": 0.9887,
+            "f1": 0.6822,
+            "tp": 175,
+            "fp": 161,
+            "fn": 2,
+            "detected_count": 336
+          },
+          {
+            "threshold": 5.0,
+            "precision": 0.641,
+            "recall": 0.9887,
+            "f1": 0.7778,
+            "tp": 175,
+            "fp": 98,
+            "fn": 2,
+            "detected_count": 273
+          },
+          {
+            "threshold": 6.0,
+            "precision": 0.6694,
+            "recall": 0.9379,
+            "f1": 0.7812,
+            "tp": 166,
+            "fp": 82,
+            "fn": 11,
+            "detected_count": 248
+          },
+          {
+            "threshold": 7.0,
+            "precision": 0.7371,
+            "recall": 0.887,
+            "f1": 0.8051,
+            "tp": 157,
+            "fp": 56,
+            "fn": 20,
+            "detected_count": 213
+          },
+          {
+            "threshold": 8.0,
+            "precision": 0.8,
+            "recall": 0.8362,
+            "f1": 0.8177,
+            "tp": 148,
+            "fp": 37,
+            "fn": 29,
+            "detected_count": 185
+          },
+          {
+            "threshold": 9.0,
+            "precision": 0.8844,
+            "recall": 0.7345,
+            "f1": 0.8025,
+            "tp": 130,
+            "fp": 17,
+            "fn": 47,
+            "detected_count": 147
+          },
+          {
+            "threshold": 10.0,
+            "precision": 0.9508,
+            "recall": 0.6554,
+            "f1": 0.7759,
+            "tp": 116,
+            "fp": 6,
+            "fn": 61,
+            "detected_count": 122
+          },
+          {
+            "threshold": 12.0,
+            "precision": 0.9901,
+            "recall": 0.565,
+            "f1": 0.7194,
+            "tp": 100,
+            "fp": 1,
+            "fn": 77,
+            "detected_count": 101
+          }
+        ],
+        "selected_threshold": 7.0,
+        "selection_rule": "precision>=0.7 前提下召回最高",
+        "dev_precision": 0.7371,
+        "dev_recall": 0.887,
+        "holdout_precision": 0.7391,
+        "holdout_recall": 0.7727,
+        "holdout_tp": 34,
+        "holdout_fp": 12,
+        "holdout_fn": 10,
+        "degradation_precision": -0.002,
+        "degradation_recall": 0.1143,
+        "gap_precision": 0.002,
+        "gap_recall": 0.1143,
+        "holdout_precision_lower95": 0.5974,
+        "holdout_recall_lower95": 0.6301,
+        "holdout_event_precision": 1.0,
+        "holdout_event_recall": 0.8125,
+        "holdout_event_truth": 16,
+        "holdout_event_detected": 13,
+        "holdout_recall_by_type": {
+          "point": 0.75,
+          "collective": 1.0
+        },
+        "holdout_truth_by_type": {
+          "point": 12,
+          "collective": 4
+        },
+        "insufficient_truth": false
+      },
+      {
+        "fold": "fold3",
+        "status": "succeeded",
+        "dev": {
+          "start": "2024-01-01 00:00:00",
+          "end": "2025-08-07 21:00:00",
+          "rows": 27830,
+          "unique_timepoints": 14026
+        },
+        "holdout": {
+          "start": "2025-08-07 21:00:00",
+          "end": null,
+          "rows": 6963,
+          "unique_timepoints": 3507
+        },
+        "dev_truth_count": 192,
+        "holdout_truth_count": 60,
+        "scan": [
+          {
+            "threshold": 4.0,
+            "precision": 0.5266,
+            "recall": 0.9843,
+            "f1": 0.6861,
+            "tp": 188,
+            "fp": 169,
+            "fn": 3,
+            "detected_count": 357
+          },
+          {
+            "threshold": 5.0,
+            "precision": 0.6538,
+            "recall": 0.9791,
+            "f1": 0.784,
+            "tp": 187,
+            "fp": 99,
+            "fn": 4,
+            "detected_count": 286
+          },
+          {
+            "threshold": 6.0,
+            "precision": 0.6795,
+            "recall": 0.9215,
+            "f1": 0.7822,
+            "tp": 176,
+            "fp": 83,
+            "fn": 15,
+            "detected_count": 259
+          },
+          {
+            "threshold": 7.0,
+            "precision": 0.7443,
+            "recall": 0.8534,
+            "f1": 0.7951,
+            "tp": 163,
+            "fp": 56,
+            "fn": 28,
+            "detected_count": 219
+          },
+          {
+            "threshold": 8.0,
+            "precision": 0.7969,
+            "recall": 0.801,
+            "f1": 0.7989,
+            "tp": 153,
+            "fp": 39,
+            "fn": 38,
+            "detected_count": 192
+          },
+          {
+            "threshold": 9.0,
+            "precision": 0.8758,
+            "recall": 0.7016,
+            "f1": 0.7791,
+            "tp": 134,
+            "fp": 19,
+            "fn": 57,
+            "detected_count": 153
+          },
+          {
+            "threshold": 10.0,
+            "precision": 0.9524,
+            "recall": 0.6283,
+            "f1": 0.7571,
+            "tp": 120,
+            "fp": 6,
+            "fn": 71,
+            "detected_count": 126
+          },
+          {
+            "threshold": 12.0,
+            "precision": 0.9905,
+            "recall": 0.5445,
+            "f1": 0.7027,
+            "tp": 104,
+            "fp": 1,
+            "fn": 87,
+            "detected_count": 105
+          }
+        ],
+        "selected_threshold": 7.0,
+        "selection_rule": "precision>=0.7 前提下召回最高",
+        "dev_precision": 0.7443,
+        "dev_recall": 0.8534,
+        "holdout_precision": 0.7429,
+        "holdout_recall": 0.8667,
+        "holdout_tp": 52,
+        "holdout_fp": 18,
+        "holdout_fn": 8,
+        "degradation_precision": 0.0014,
+        "degradation_recall": -0.0133,
+        "gap_precision": 0.0014,
+        "gap_recall": 0.0133,
+        "holdout_precision_lower95": 0.6297,
+        "holdout_recall_lower95": 0.7583,
+        "holdout_event_precision": 0.9444,
+        "holdout_event_recall": 0.9444,
+        "holdout_event_truth": 18,
+        "holdout_event_detected": 18,
+        "holdout_recall_by_type": {
+          "point": 0.9167,
+          "collective": 1.0
+        },
+        "holdout_truth_by_type": {
+          "point": 12,
+          "collective": 6
+        },
+        "insufficient_truth": false
+      }
+    ],
+    "summary": {
+      "passed": true,
+      "inconclusive": false,
+      "checks": {
+        "holdout_precision>=0.70": true,
+        "holdout_recall>=0.70": true,
+        "event_recall>=0.70": true,
+        "precision_degradation<=0.20": true,
+        "recall_degradation<=0.20": true,
+        "valid_folds>=2": true,
+        "collective_recall>=0.70": true
+      },
+      "mean_holdout_precision": 0.7621,
+      "mean_holdout_recall": 0.8333,
+      "mean_holdout_event_recall": 0.8565,
+      "mean_collective_recall": 0.9167,
+      "max_degradation_precision": 0.0014,
+      "max_degradation_recall": 0.1143,
+      "gap_tolerance": 0.2,
+      "selected_thresholds": [
+        7.0
+      ],
+      "threshold_stable": true,
+      "threshold_at_grid_edge": false,
+      "valid_folds": [
+        "fold1",
+        "fold2",
+        "fold3"
+      ],
+      "skipped_folds": [],
+      "valid_truth_total": 147,
+      "reason": null,
+      "note": "holdout 段存在重叠，不构成完全独立的重复实验；每折真值样本有限，应结合置信下界解读"
+    }
+  },
+  "异常检测 Precision": 0.7621,
+  "异常检测 Recall": 0.8333,
+  "事件级异常召回率": 0.8565,
+  "集体异常召回率": 0.9167,
+  "dev与holdout精度退化": 0.0014,
+  "dev与holdout召回退化": 0.1143,
+  "划分有效折数": 3,
+  "_anomaly_detail": {
+    "metric_scope": "holdout 段平均（阈值在 dev 段选定），数据为 weather_eval_v1",
+    "folds": [
+      {
+        "fold": "fold1",
+        "selected_threshold": 7.0,
+        "dev_precision": 0.7356,
+        "dev_recall": 0.8649,
+        "holdout_precision": 0.8043,
+        "holdout_recall": 0.8605,
+        "holdout_truth_count": 43,
+        "holdout_precision_lower95": 0.6683,
+        "holdout_recall_lower95": 0.7274,
+        "holdout_event_precision": 1.0,
+        "holdout_event_recall": 0.8125,
+        "holdout_event_truth": 16,
+        "holdout_recall_by_type": {
+          "point": 0.8333,
+          "collective": 0.75
+        },
+        "holdout_tp": 37,
+        "holdout_fp": 9,
+        "holdout_fn": 6,
+        "degradation_precision": -0.0687,
+        "degradation_recall": 0.0044,
+        "insufficient_truth": false
+      },
+      {
+        "fold": "fold2",
+        "selected_threshold": 7.0,
+        "dev_precision": 0.7371,
+        "dev_recall": 0.887,
+        "holdout_precision": 0.7391,
+        "holdout_recall": 0.7727,
+        "holdout_truth_count": 44,
+        "holdout_precision_lower95": 0.5974,
+        "holdout_recall_lower95": 0.6301,
+        "holdout_event_precision": 1.0,
+        "holdout_event_recall": 0.8125,
+        "holdout_event_truth": 16,
+        "holdout_recall_by_type": {
+          "point": 0.75,
+          "collective": 1.0
+        },
+        "holdout_tp": 34,
+        "holdout_fp": 12,
+        "holdout_fn": 10,
+        "degradation_precision": -0.002,
+        "degradation_recall": 0.1143,
+        "insufficient_truth": false
+      },
+      {
+        "fold": "fold3",
+        "selected_threshold": 7.0,
+        "dev_precision": 0.7443,
+        "dev_recall": 0.8534,
+        "holdout_precision": 0.7429,
+        "holdout_recall": 0.8667,
+        "holdout_truth_count": 60,
+        "holdout_precision_lower95": 0.6297,
+        "holdout_recall_lower95": 0.7583,
+        "holdout_event_precision": 0.9444,
+        "holdout_event_recall": 0.9444,
+        "holdout_event_truth": 18,
+        "holdout_recall_by_type": {
+          "point": 0.9167,
+          "collective": 1.0
+        },
+        "holdout_tp": 52,
+        "holdout_fp": 18,
+        "holdout_fn": 8,
+        "degradation_precision": 0.0014,
+        "degradation_recall": -0.0133,
+        "insufficient_truth": false
+      }
+    ],
+    "summary": {
+      "passed": true,
+      "inconclusive": false,
+      "checks": {
+        "holdout_precision>=0.70": true,
+        "holdout_recall>=0.70": true,
+        "event_recall>=0.70": true,
+        "precision_degradation<=0.20": true,
+        "recall_degradation<=0.20": true,
+        "valid_folds>=2": true,
+        "collective_recall>=0.70": true
+      },
+      "mean_holdout_precision": 0.7621,
+      "mean_holdout_recall": 0.8333,
+      "mean_holdout_event_recall": 0.8565,
+      "mean_collective_recall": 0.9167,
+      "max_degradation_precision": 0.0014,
+      "max_degradation_recall": 0.1143,
+      "gap_tolerance": 0.2,
+      "selected_thresholds": [
+        7.0
+      ],
+      "threshold_stable": true,
+      "threshold_at_grid_edge": false,
+      "valid_folds": [
+        "fold1",
+        "fold2",
+        "fold3"
+      ],
+      "skipped_folds": [],
+      "valid_truth_total": 147,
+      "reason": null,
+      "note": "holdout 段存在重叠，不构成完全独立的重复实验；每折真值样本有限，应结合置信下界解读"
+    }
+  },
+  "变化点检出率": 1.0,
+  "变化点定位误差90分位": 0.0,
+  "变化点伪报率": 0.0,
+  "_change_point_scan": {
+    "column": "pressure@STA_A",
+    "sse_ratio": 0.7,
+    "tolerance": 3,
+    "cells": [
+      {
+        "position": 0.25,
+        "true_index": 4383,
+        "delta": 0.0,
+        "detected": false,
+        "found": 0,
+        "nearest_index": null,
+        "error": null,
+        "statistic": null
+      },
+      {
+        "position": 0.25,
+        "true_index": 4383,
+        "delta": 4.0,
+        "detected": false,
+        "found": 0,
+        "nearest_index": null,
+        "error": null,
+        "statistic": null
+      },
+      {
+        "position": 0.25,
+        "true_index": 4383,
+        "delta": 8.0,
+        "detected": false,
+        "found": 0,
+        "nearest_index": null,
+        "error": null,
+        "statistic": null
+      },
+      {
+        "position": 0.25,
+        "true_index": 4383,
+        "delta": 12.0,
+        "detected": false,
+        "found": 0,
+        "nearest_index": null,
+        "error": null,
+        "statistic": null
+      },
+      {
+        "position": 0.25,
+        "true_index": 4383,
+        "delta": 14.0,
+        "detected": false,
+        "found": 2,
+        "nearest_index": 8242,
+        "error": 3859,
+        "statistic": 1.2254
+      },
+      {
+        "position": 0.25,
+        "true_index": 4383,
+        "delta": 16.0,
+        "detected": true,
+        "found": 3,
+        "nearest_index": 4383,
+        "error": 0,
+        "statistic": 1.2756
+      },
+      {
+        "position": 0.25,
+        "true_index": 4383,
+        "delta": 18.0,
+        "detected": true,
+        "found": 1,
+        "nearest_index": 4383,
+        "error": 0,
+        "statistic": 1.3956
+      },
+      {
+        "position": 0.25,
+        "true_index": 4383,
+        "delta": 24.0,
+        "detected": true,
+        "found": 1,
+        "nearest_index": 4383,
+        "error": 0,
+        "statistic": 1.771
+      },
+      {
+        "position": 0.4,
+        "true_index": 7013,
+        "delta": 0.0,
+        "detected": false,
+        "found": 0,
+        "nearest_index": null,
+        "error": null,
+        "statistic": null
+      },
+      {
+        "position": 0.4,
+        "true_index": 7013,
+        "delta": 4.0,
+        "detected": false,
+        "found": 0,
+        "nearest_index": null,
+        "error": null,
+        "statistic": null
+      },
+      {
+        "position": 0.4,
+        "true_index": 7013,
+        "delta": 8.0,
+        "detected": false,
+        "found": 0,
+        "nearest_index": null,
+        "error": null,
+        "statistic": null
+      },
+      {
+        "position": 0.4,
+        "true_index": 7013,
+        "delta": 12.0,
+        "detected": false,
+        "found": 3,
+        "nearest_index": 7667,
+        "error": 654,
+        "statistic": 1.2406
+      },
+      {
+        "position": 0.4,
+        "true_index": 7013,
+        "delta": 14.0,
+        "detected": false,
+        "found": 3,
+        "nearest_index": 7392,
+        "error": 379,
+        "statistic": 1.3266
+      },
+      {
+        "position": 0.4,
+        "true_index": 7013,
+        "delta": 16.0,
+        "detected": true,
+        "found": 3,
+        "nearest_index": 7013,
+        "error": 0,
+        "statistic": 1.3613
+      },
+      {
+        "position": 0.4,
+        "true_index": 7013,
+        "delta": 18.0,
+        "detected": true,
+        "found": 3,
+        "nearest_index": 7013,
+        "error": 0,
+        "statistic": 1.3514
+      },
+      {
+        "position": 0.4,
+        "true_index": 7013,
+        "delta": 24.0,
+        "detected": true,
+        "found": 3,
+        "nearest_index": 7013,
+        "error": 0,
+        "statistic": 1.3079
+      },
+      {
+        "position": 0.55,
+        "true_index": 9643,
+        "delta": 0.0,
+        "detected": false,
+        "found": 0,
+        "nearest_index": null,
+        "error": null,
+        "statistic": null
+      },
+      {
+        "position": 0.55,
+        "true_index": 9643,
+        "delta": 4.0,
+        "detected": false,
+        "found": 0,
+        "nearest_index": null,
+        "error": null,
+        "statistic": null
+      },
+      {
+        "position": 0.55,
+        "true_index": 9643,
+        "delta": 8.0,
+        "detected": false,
+        "found": 0,
+        "nearest_index": null,
+        "error": null,
+        "statistic": null
+      },
+      {
+        "position": 0.55,
+        "true_index": 9643,
+        "delta": 12.0,
+        "detected": false,
+        "found": 3,
+        "nearest_index": 9586,
+        "error": 57,
+        "statistic": 1.3055
+      },
+      {
+        "position": 0.55,
+        "true_index": 9643,
+        "delta": 14.0,
+        "detected": true,
+        "found": 3,
+        "nearest_index": 9643,
+        "error": 0,
+        "statistic": 1.3581
+      },
+      {
+        "position": 0.55,
+        "true_index": 9643,
+        "delta": 16.0,
+        "detected": true,
+        "found": 3,
+        "nearest_index": 9643,
+        "error": 0,
+        "statistic": 1.3685
+      },
+      {
+        "position": 0.55,
+        "true_index": 9643,
+        "delta": 18.0,
+        "detected": true,
+        "found": 3,
+        "nearest_index": 9643,
+        "error": 0,
+        "statistic": 1.3727
+      },
+      {
+        "position": 0.55,
+        "true_index": 9643,
+        "delta": 24.0,
+        "detected": true,
+        "found": 3,
+        "nearest_index": 9643,
+        "error": 0,
+        "statistic": 1.3525
+      },
+      {
+        "position": 0.7,
+        "true_index": 12273,
+        "delta": 0.0,
+        "detected": false,
+        "found": 0,
+        "nearest_index": null,
+        "error": null,
+        "statistic": null
+      },
+      {
+        "position": 0.7,
+        "true_index": 12273,
+        "delta": 4.0,
+        "detected": false,
+        "found": 0,
+        "nearest_index": null,
+        "error": null,
+        "statistic": null
+      },
+      {
+        "position": 0.7,
+        "true_index": 12273,
+        "delta": 8.0,
+        "detected": false,
+        "found": 0,
+        "nearest_index": null,
+        "error": null,
+        "statistic": null
+      },
+      {
+        "position": 0.7,
+        "true_index": 12273,
+        "delta": 12.0,
+        "detected": false,
+        "found": 2,
+        "nearest_index": 9403,
+        "error": 2870,
+        "statistic": 1.2326
+      },
+      {
+        "position": 0.7,
+        "true_index": 12273,
+        "delta": 14.0,
+        "detected": false,
+        "found": 2,
+        "nearest_index": 9585,
+        "error": 2688,
+        "statistic": 1.3324
+      },
+      {
+        "position": 0.7,
+        "true_index": 12273,
+        "delta": 16.0,
+        "detected": true,
+        "found": 3,
+        "nearest_index": 12273,
+        "error": 0,
+        "statistic": 1.2911
+      },
+      {
+        "position": 0.7,
+        "true_index": 12273,
+        "delta": 18.0,
+        "detected": true,
+        "found": 3,
+        "nearest_index": 12273,
+        "error": 0,
+        "statistic": 1.3573
+      },
+      {
+        "position": 0.7,
+        "true_index": 12273,
+        "delta": 24.0,
+        "detected": true,
+        "found": 2,
+        "nearest_index": 12273,
+        "error": 0,
+        "statistic": 1.4157
+      },
+      {
+        "position": 0.85,
+        "true_index": 14903,
+        "delta": 0.0,
+        "detected": false,
+        "found": 0,
+        "nearest_index": null,
+        "error": null,
+        "statistic": null
+      },
+      {
+        "position": 0.85,
+        "true_index": 14903,
+        "delta": 4.0,
+        "detected": false,
+        "found": 0,
+        "nearest_index": null,
+        "error": null,
+        "statistic": null
+      },
+      {
+        "position": 0.85,
+        "true_index": 14903,
+        "delta": 8.0,
+        "detected": false,
+        "found": 0,
+        "nearest_index": null,
+        "error": null,
+        "statistic": null
+      },
+      {
+        "position": 0.85,
+        "true_index": 14903,
+        "delta": 12.0,
+        "detected": false,
+        "found": 0,
+        "nearest_index": null,
+        "error": null,
+        "statistic": null
+      },
+      {
+        "position": 0.85,
+        "true_index": 14903,
+        "delta": 14.0,
+        "detected": false,
+        "found": 0,
+        "nearest_index": null,
+        "error": null,
+        "statistic": null
+      },
+      {
+        "position": 0.85,
+        "true_index": 14903,
+        "delta": 16.0,
+        "detected": false,
+        "found": 0,
+        "nearest_index": null,
+        "error": null,
+        "statistic": null
+      },
+      {
+        "position": 0.85,
+        "true_index": 14903,
+        "delta": 18.0,
+        "detected": true,
+        "found": 2,
+        "nearest_index": 14903,
+        "error": 0,
+        "statistic": 1.3479
+      },
+      {
+        "position": 0.85,
+        "true_index": 14903,
+        "delta": 24.0,
+        "detected": true,
+        "found": 2,
+        "nearest_index": 14903,
+        "error": 0,
+        "statistic": 2.037
+      }
+    ],
+    "grid_size": 40,
+    "detection_rate": 0.375,
+    "detection_rate_by_delta": {
+      "0.0": 0.0,
+      "4.0": 0.0,
+      "8.0": 0.0,
+      "12.0": 0.0,
+      "14.0": 0.2,
+      "16.0": 0.8,
+      "18.0": 1.0,
+      "24.0": 1.0
+    },
+    "detection_rate_by_position": {
+      "0.25": 0.375,
+      "0.4": 0.375,
+      "0.55": 0.5,
+      "0.7": 0.375,
+      "0.85": 0.25
+    },
+    "key_delta": 18.0,
+    "key_delta_detection_rate": 1.0,
+    "false_positive_rate_at_zero": 0.0,
+    "error_stats": {
+      "count": 15,
+      "median": 0.0,
+      "p90": 0.0,
+      "max": 0
+    },
+    "notes": "检出率按「定位误差 ≤ 容差」计；误差统计只含命中格子；false_positive_rate_at_zero 为不注入偏移时的伪变化点率"
+  },
+  "_benchmark": {
+    "available": true,
+    "generated_at": null,
+    "env": {
+      "python": "3.13.14",
+      "platform": "win32",
+      "cpu": 12
+    },
+    "scale_1e4": {
+      "total_s": 2.924,
+      "peak_mb": 82.7,
+      "status": "ok"
+    },
+    "scale_1e5": {
+      "total_s": 68.9264,
+      "peak_mb": 849.0,
+      "status": "ok",
+      "timings": {
+        "load": 0.1292,
+        "profile": 1.843,
+        "quality": 0.6966,
+        "plan": 0.0002,
+        "clean": 0.038,
+        "metrics": 3.014,
+        "scenario_metrics": 0.1232,
+        "spectrum": 0.1096,
+        "stat_tests": 62.3279,
+        "anomalies": 0.2418,
+        "change_points": 0.4029
+      }
+    },
+    "scale_1e6_status": "timeout"
+  },
+  "1e5行分析耗时": 68.9264,
+  "1e5行峰值内存": 849.0,
+  "图表字段映射准确率": 1.0,
+  "重复运行一致率": 1.0,
+  "未来数据泄漏检出率": 1.0,
+  "无证据结论数": 0,
+  "_datasets": {
+    "weather_v1": "586044dacea419b41dd70b56122abc7ccb2fd4de",
+    "weather_eval_v1": "745e5766664aab82ad85d7c6b41ce6e17541d062",
+    "stock_v1": "4883f10389d5e927fa8be8749627be5f54fc6a94",
+    "stock_leak_v1": "acc965bc20f9de32719c58f5c73e72218a4834dd"
+  },
+  "_status": {
+    "weather": "succeeded",
+    "stock": "succeeded",
+    "leak": "failed"
+  }
+}

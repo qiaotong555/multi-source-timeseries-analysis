@@ -1,0 +1,26 @@
+﻿column,timestamp,kind,station
+pressure,2025-05-15 00:00:00,level_shift_start,STA_A
+pressure,2025-05-15 00:00:00,level_shift_start,STA_B
+temperature,2025-10-14 03:00:00,anomaly,STA_A
+temperature,2025-09-01 09:00:00,anomaly,STA_A
+temperature,2024-02-17 16:00:00,anomaly,STA_A
+temperature,2024-12-17 19:00:00,anomaly,STA_A
+temperature,2024-12-04 09:00:00,anomaly,STA_A
+temperature,2024-10-13 19:00:00,anomaly,STA_A
+wind_speed,2024-05-06 22:00:00,anomaly,STA_A
+wind_speed,2024-02-02 02:00:00,anomaly,STA_A
+wind_speed,2025-01-09 04:00:00,anomaly,STA_A
+temperature,2025-02-01 16:00:00,anomaly,STA_B
+temperature,2025-07-14 16:00:00,anomaly,STA_B
+temperature,2024-06-13 15:00:00,anomaly,STA_B
+temperature,2025-05-21 02:00:00,anomaly,STA_B
+temperature,2024-03-28 08:00:00,anomaly,STA_B
+temperature,2025-06-12 22:00:00,anomaly,STA_B
+wind_speed,2025-09-15 11:00:00,anomaly,STA_B
+wind_speed,2025-03-22 17:00:00,anomaly,STA_B
+wind_speed,2024-01-16 17:00:00,anomaly,STA_B
+temperature,2024-05-05 00:00:00,unit_change_start,STA_A
+temperature,2024-07-27 08:00:00,missing_gap_start,STA_B
+timestamp,2024-11-29 08:00:00,sampling_gap_start,STA_A
+timestamp,2024-11-29 08:00:00,sampling_gap_start,STA_B
+timestamp,2025-05-19 20:00:00,out_of_order_block,—

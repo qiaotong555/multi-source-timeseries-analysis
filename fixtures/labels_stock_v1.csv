@@ -1,0 +1,4 @@
+﻿column,timestamp,kind,station
+close,2024-07-30,anomaly,—
+close,2025-04-08,anomaly,—
+adj_close,2025-02-25,adjust_inconsistent_start,—

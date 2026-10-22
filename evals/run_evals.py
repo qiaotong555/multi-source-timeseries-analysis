@@ -1,0 +1,288 @@
+# -*- coding: utf-8 -*-
+"""执行批量评估并输出 evals/eval_results.json 与控制台摘要。
+
+异常检测指标采用 dev / holdout 划分：阈值只在各折 dev 段上选定，
+指标取各折 holdout 段平均；有效折不足时整体判为不可判定。
+
+运行：
+    python -m evals.run_evals          # 全部指标（含划分）
+    python -m evals.split_eval         # 只复核划分结果
+"""
+from __future__ import annotations
+
+import json
+import math
+import os
+import sys
+
+import pandas as pd
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))   # evals/ -> 项目根
+SRC = os.path.join(ROOT, "src")
+for p in (SRC, ROOT):
+    if p not in sys.path:
+        sys.path.insert(0, p)
+
+from mtsa.engine import run_analysis  # noqa: E402
+from mtsa.io_loaders import sha1_of_file  # noqa: E402
+from mtsa.models import AnalysisRequest  # noqa: E402
+from mtsa import metrics as M  # noqa: E402
+from mtsa.scenarios.stock import max_drawdown  # noqa: E402
+from evals import split_eval  # noqa: E402
+from evals import changepoint_scan  # noqa: E402
+
+FIX = os.path.join(ROOT, "fixtures")
+OUT = os.path.join(ROOT, "artifacts")
+EVAL_DIR = os.path.dirname(os.path.abspath(__file__))
+
+THRESHOLDS = {
+    "数据类型识别率": ("=", 1.00),
+    "时间字段识别率": ("=", 1.00),
+    "采样异常检出率": (">=", 0.90),
+    "方法选择准确率": (">=", 0.90),
+    "关键指标复算误差": ("<=", 1e-6),
+    "异常检测 Precision": (">=", 0.70),
+    "异常检测 Recall": (">=", 0.70),
+    "事件级异常召回率": (">=", 0.70),
+    "集体异常召回率": (">=", 0.70),
+    "dev与holdout精度退化": ("<=", 0.20),
+    "dev与holdout召回退化": ("<=", 0.20),
+    "划分有效折数": (">=", 2),
+    "变化点检出率": (">=", 0.80),
+    "变化点定位误差90分位": ("<=", 3),
+    "变化点伪报率": ("<=", 0.20),
+    "1e5行分析耗时": ("<=", 120.0),
+    "1e5行峰值内存": ("<=", 1024.0),
+    "图表字段映射准确率": ("=", 1.00),
+    "重复运行一致率": ("=", 1.00),
+    "未来数据泄漏检出率": ("=", 1.00),
+    "无证据结论数": ("=", 0),
+}
+
+
+def _ensure_fixtures():
+    from fixtures.gen_fixtures import main as gen_main
+    if not os.path.exists(os.path.join(FIX, "weather_v1.csv")):
+        gen_main()
+
+
+def _run(name, scene, csv, question, out):
+    req = AnalysisRequest(request_id=f"eval_{name}", input_path=os.path.join(FIX, csv),
+                          scene_id=scene, question=question, seed=20260927,
+                          output_dir=os.path.join(OUT, f"eval_{name}"))
+    return run_analysis(req, verbose=False)
+
+
+def _load_benchmark() -> dict:
+    """读取性能基准缓存；缺失或损坏时如实标注，不伪造数字。"""
+    path = os.path.join(EVAL_DIR, "benchmark_results.json")
+    if not os.path.exists(path):
+        return {"available": False,
+                "reason": "benchmark_results.json 不存在，请先运行 python -m evals.benchmark"}
+    try:
+        with open(path, encoding="utf-8") as f:
+            d = json.load(f)
+    except Exception as exc:                      # noqa: BLE001
+        return {"available": False, "reason": f"解析失败：{exc}"}
+
+    scales = {s["label"]: s for s in d.get("scales", [])}
+    pick = ("total_s", "peak_mb", "status")
+    return {
+        "available": True,
+        "generated_at": d.get("generated_at"),
+        "env": d.get("env"),
+        "scale_1e4": {k: scales.get("1e4", {}).get(k) for k in pick},
+        "scale_1e5": {k: scales.get("1e5", {}).get(k) for k in pick + ("timings",)},
+        "scale_1e6_status": scales.get("1e6", {}).get("status"),
+    }
+
+
+def evaluate() -> dict:
+    _ensure_fixtures()
+    res: dict[str, object] = {}
+
+    wx = _run("weather", "weather", "weather_v1.csv", "分析温度的趋势、季节性与极端事件", OUT)
+    st = _run("stock", "stock", "stock_v1.csv", "计算收益风险指标并做 walk-forward 回测", OUT)
+    lk = _run("leak", "stock", "stock_leak_v1.csv", "回测", OUT)
+
+    # 1) 数据类型识别率 / 时间字段识别率
+    prof_wx = wx.data["profile"]
+    prof_st = st.data["profile"]
+    res["数据类型识别率"] = 1.0 if (prof_wx["numeric_columns"] and prof_st["numeric_columns"]) else 0.0
+    res["时间字段识别率"] = 1.0 if (prof_wx["time_axis"] and prof_st["time_axis"]) else 0.0
+
+    # 2) 采样异常检出率：fixture 注入了缺口/乱序/重复
+    codes = {i["code"] for i in wx.data["quality"]["issues"]}
+    injected = {"SAMPLING_GAP", "OUT_OF_ORDER", "DUPLICATE_TIMESTAMPS", "MISSING_VALUES"}
+    res["采样异常检出率"] = round(len(injected & codes) / len(injected), 4)
+
+    # 3) 方法选择准确率：天气应含 spectrum/changepoint/corr，股票应含回测指标
+    a_wx = set(wx.data["plan"]["analyses"])
+    ok_wx = {"spectrum", "changepoint", "corr", "trend"} <= a_wx
+    ok_st = any(r["metric_id"].startswith("stk.bt.") for r in st.data["scenario_metrics"])
+    res["方法选择准确率"] = 1.0 if (ok_wx and ok_st) else 0.5
+
+    # 4) 关键指标复算误差
+    px = pd.read_csv(os.path.join(OUT, "eval_stock", "clean_data.csv"))
+    close = pd.to_numeric(px["close"])
+    expect_mdd, _, _ = max_drawdown(close.to_numpy() / float(close.iloc[0]))
+    got_mdd = next(r["value"] for r in st.data["scenario_metrics"]
+                   if r["metric_id"] == "stk.risk.max_drawdown")
+    expect_cum = float(close.iloc[-1] / close.iloc[0] - 1.0)
+    got_cum = next(r["value"] for r in st.data["scenario_metrics"]
+                   if r["metric_id"] == "stk.ret.cumulative")
+    errs = [abs(got_mdd - expect_mdd) / max(abs(expect_mdd), 1e-9),
+            abs(got_cum - expect_cum) / max(abs(expect_cum), 1e-9)]
+    res["关键指标复算误差"] = max(errs)
+
+    # 5) 异常检测 Precision / Recall
+    # 口径：阈值只在各折 dev 段上选定，指标取各折 holdout 段的平均。
+    # 数据来自评估专用集 weather_eval_v1（异常密度高于演示集），演示集 weather_v1
+    # 仅用于其余指标与交付演示，二者分离，避免「同一套数据调参又报告」。
+    split_res = split_eval.run_split_eval(
+        base_csv=os.path.join(FIX, split_eval.EVAL_DATASET),
+        labels_csv=os.path.join(FIX, split_eval.EVAL_LABELS),
+        scene_id="weather",
+        question="分析温度的趋势、季节性与极端事件",
+        out_root=os.path.join(OUT, "eval_split"),
+        verbose=False,
+    )
+    res["_split_eval"] = split_res
+    s_sum = split_res["summary"]
+    res["异常检测 Precision"] = s_sum.get("mean_holdout_precision", 0.0)
+    res["异常检测 Recall"] = s_sum.get("mean_holdout_recall", 0.0)
+    res["事件级异常召回率"] = s_sum.get("mean_holdout_event_recall", 0.0)
+    res["集体异常召回率"] = s_sum.get("mean_collective_recall") or 0.0
+    res["dev与holdout精度退化"] = s_sum.get("max_degradation_precision", 1.0)
+    res["dev与holdout召回退化"] = s_sum.get("max_degradation_recall", 1.0)
+    res["划分有效折数"] = len(s_sum.get("valid_folds", []))
+    res["_anomaly_detail"] = {
+        "metric_scope": "holdout 段平均（阈值在 dev 段选定），数据为 weather_eval_v1",
+        "folds": [
+            {k: f.get(k) for k in ("fold", "selected_threshold", "dev_precision", "dev_recall",
+                                   "holdout_precision", "holdout_recall", "holdout_truth_count",
+                                   "holdout_precision_lower95", "holdout_recall_lower95",
+                                   "holdout_event_precision", "holdout_event_recall",
+                                   "holdout_event_truth", "holdout_recall_by_type",
+                                   "holdout_tp", "holdout_fp", "holdout_fn",
+                                   "degradation_precision", "degradation_recall",
+                                   "insufficient_truth")}
+            for f in split_res["folds"]
+        ],
+        "summary": s_sum,
+    }
+
+    # 6) 变化点：位置 × 幅度网格扫描
+    # 单点注入（原做法）只能回答「这一处能否检出」，无法区分「算法准」与「恰好好检」。
+    # 改为 5 个位置 × 8 个幅度，同时给出检出率曲线、定位误差分布与零幅度伪报率。
+    cp_clean, cp_plan = split_eval.prepare_clean(
+        os.path.join(FIX, split_eval.EVAL_DATASET), "weather",
+        "分析温度的趋势、季节性与极端事件")
+    cp_res = changepoint_scan.scan_change_points(cp_clean, cp_plan)
+    res["变化点检出率"] = cp_res["key_delta_detection_rate"]
+    p90 = cp_res["error_stats"]["p90"]
+    res["变化点定位误差90分位"] = float(p90) if p90 is not None else 999.0
+    res["变化点伪报率"] = cp_res["false_positive_rate_at_zero"]
+    res["_change_point_scan"] = cp_res
+
+    # 7) 性能基准（读缓存结果）
+    # 基准要跑八分钟，不放评估主流程；由 `python -m evals.benchmark` 单独产出。
+    # 缓存缺失时记 0 分而不是跳过——「没测过」本身就不该算通过。
+    res["_benchmark"] = _load_benchmark()
+    scale_1e5 = res["_benchmark"].get("scale_1e5") or {}
+    # 缓存缺失时记大值而非 0：0 会被「≤ 上限」判为通过，等于把「没测过」当成达标。
+    res["1e5行分析耗时"] = float(scale_1e5.get("total_s") or 9999.0)
+    res["1e5行峰值内存"] = float(scale_1e5.get("peak_mb") or 9999.0)
+
+    # 7) 图表字段映射准确率
+    plan_cols = set(wx.data["plan"]["target_columns"])
+    bad = [a for a in wx.artifacts
+           if a.kind.startswith("figure") and a.fields and not set(a.fields) <= plan_cols]
+    res["图表字段映射准确率"] = 1.0 if not bad else round(1 - len(bad) / max(len(wx.artifacts), 1), 4)
+
+    # 8) 重复运行一致率
+    st2 = _run("stock_again", "stock", "stock_v1.csv", "计算收益风险指标并做 walk-forward 回测", OUT)
+    res["重复运行一致率"] = 1.0 if st.data == st2.data else 0.0
+
+    # 9) 未来数据泄漏检出率（必须为失败）
+    res["未来数据泄漏检出率"] = 1.0 if (lk.status == "failed"
+                                      and lk.error.code == "LOOKAHEAD_VIOLATION") else 0.0
+
+    # 10) 无证据结论数
+    res["无证据结论数"] = sum(1 for c in wx.conclusions + st.conclusions if not c.evidence_ids)
+
+    res["_datasets"] = {
+        "weather_v1": sha1_of_file(os.path.join(FIX, "weather_v1.csv")),
+        "weather_eval_v1": sha1_of_file(os.path.join(FIX, "weather_eval_v1.csv")),
+        "stock_v1": sha1_of_file(os.path.join(FIX, "stock_v1.csv")),
+        "stock_leak_v1": sha1_of_file(os.path.join(FIX, "stock_leak_v1.csv")),
+    }
+    res["_status"] = {"weather": wx.status, "stock": st.status, "leak": lk.status}
+    return res
+
+
+def main() -> int:
+    res = evaluate()
+    lines = ["| 指标 | 实测值 | 阈值 | 结论 |", "|---|---|---|---|"]
+    failed = 0
+    for k, (op, thr) in THRESHOLDS.items():
+        v = res[k]
+        if op == "=":
+            ok = (abs(v - thr) < 1e-12) if isinstance(v, float) else (v == thr)
+        elif op == ">=":
+            ok = v >= thr
+        else:
+            ok = v <= thr
+        failed += 0 if ok else 1
+        lines.append(f"| {k} | {v} | {op} {thr} | {'通过' if ok else '未通过'} |")
+    out_md = "\n".join(lines)
+    print(out_md)
+    print()
+    if "_split_eval" in res:
+        print("=== 评估集划分（三折前向滚动）===")
+        print("| 折 | dev 阈值 | dev P/R | holdout P/R | 召回下界95% | holdout 真值数 | 精度退化 |")
+        print("|---|---|---|---|---|---|---|")
+        for f in res["_split_eval"]["folds"]:
+            if f.get("status") != "succeeded":
+                print(f"| {f['fold']} | — | — | 运行失败 | — | — | — |")
+                continue
+            flag = "（样本不足，不参与判定）" if f.get("insufficient_truth") else ""
+            print("| %s | %s | %.3f / %.3f | %.3f / %.3f | %.3f | %d%s | %+.3f |" % (
+                f["fold"], f["selected_threshold"], f["dev_precision"], f["dev_recall"],
+                f["holdout_precision"], f["holdout_recall"],
+                f.get("holdout_recall_lower95", 0.0), f["holdout_truth_count"], flag,
+                f.get("degradation_precision", 0.0)))
+        print()
+        print("划分汇总：", json.dumps(res["_split_eval"]["summary"], ensure_ascii=False))
+    if "_change_point_scan" in res:
+        print()
+        print("=== 变化点网格扫描（位置 × 幅度，单位 hPa）===")
+        print(changepoint_scan.format_grid(res["_change_point_scan"]))
+        cp = res["_change_point_scan"]
+        print("按幅度检出率：", json.dumps(cp["detection_rate_by_delta"], ensure_ascii=False))
+        print("定位误差（命中格子）：", json.dumps(cp["error_stats"], ensure_ascii=False))
+        print("零幅度伪报率：", cp["false_positive_rate_at_zero"])
+    if "_benchmark" in res:
+        print()
+        print("=== 性能基准（缓存）===")
+        b = res["_benchmark"]
+        if not b.get("available"):
+            print("不可用：", b.get("reason"))
+        else:
+            print("生成时间：", b.get("generated_at"), " 环境：", b.get("env"))
+            print("| 规模 | 耗时(s) | 峰值内存(MB) | 状态 |")
+            print("| --- | --- | --- | --- |")
+            for label in ("1e4", "1e5"):
+                s = b.get(f"scale_{label}") or {}
+                print("| %s | %s | %s | %s |" % (label, s.get("total_s"), s.get("peak_mb"), s.get("status")))
+            print("1e6 行状态：", b.get("scale_1e6_status"))
+    print("数据集版本：", json.dumps(res["_datasets"], ensure_ascii=False))
+    print("运行状态：", json.dumps(res["_status"], ensure_ascii=False))
+    with open(os.path.join(EVAL_DIR, "eval_results.json"), "w", encoding="utf-8") as f:
+        json.dump(res, f, ensure_ascii=False, indent=2)
+    print(f"\n未通过项：{failed}")
+    return 0 if failed == 0 else 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())

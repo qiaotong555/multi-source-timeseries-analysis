@@ -1,0 +1,79 @@
+{
+  "env": {
+    "python": "3.13.14",
+    "platform": "win32",
+    "cpu": 12
+  },
+  "timeout_s": 300,
+  "scales": [
+    {
+      "label": "1e4",
+      "rows": 10000,
+      "status": "ok",
+      "total_s": 2.924,
+      "peak_mb": 82.7,
+      "timings": {
+        "load": 0.0258,
+        "profile": 0.1863,
+        "quality": 0.5247,
+        "plan": 0.0002,
+        "clean": 0.0128,
+        "metrics": 0.7296,
+        "scenario_metrics": 0.0493,
+        "spectrum": 0.0262,
+        "stat_tests": 1.2458,
+        "anomalies": 0.0344,
+        "change_points": 0.0889
+      },
+      "summary": {
+        "rows": 5000,
+        "columns": 10,
+        "metrics": 350,
+        "anomalies": 37,
+        "change_points": 8
+      },
+      "prep_s": 0.048,
+      "memory_status": "ok"
+    },
+    {
+      "label": "1e5",
+      "rows": 100000,
+      "status": "ok",
+      "total_s": 68.9264,
+      "peak_mb": 849.0,
+      "timings": {
+        "load": 0.1292,
+        "profile": 1.843,
+        "quality": 0.6966,
+        "plan": 0.0002,
+        "clean": 0.038,
+        "metrics": 3.014,
+        "scenario_metrics": 0.1232,
+        "spectrum": 0.1096,
+        "stat_tests": 62.3279,
+        "anomalies": 0.2418,
+        "change_points": 0.4029
+      },
+      "summary": {
+        "rows": 50000,
+        "columns": 10,
+        "metrics": 350,
+        "anomalies": 401,
+        "change_points": 0
+      },
+      "prep_s": 0.8346,
+      "memory_status": "ok"
+    },
+    {
+      "label": "1e6",
+      "rows": 1000000,
+      "status": "timeout",
+      "total_s": null,
+      "peak_mb": null,
+      "timings": null,
+      "summary": null,
+      "prep_s": null,
+      "memory_status": "skipped"
+    }
+  ]
+}
