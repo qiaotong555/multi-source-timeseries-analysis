@@ -17,6 +17,7 @@ from . import io_loaders, profiler, quality, preprocess, metrics, freq, stats_te
 from .models import (
     DEFAULT_SEED,
     ERR_DATA_LOAD_FAILED,
+    ERR_DATASET_TOO_LARGE,
     ERR_EMPTY_NUMERIC_COLUMN,
     ERR_INTERNAL_ERROR,
     ERR_LOOKAHEAD_VIOLATION,
@@ -37,6 +38,21 @@ from .scenarios.base import ScenarioContext, detect_scene, get_adapter
 from . import report as report_mod
 from . import viz as viz_mod
 from .planner import build_planner
+
+# 规模上限。实测（10 列、含全部统计检验）：1e5 行 37 s、2e5 行 124 s、5e5 行 736 s，
+# 超线性来自 ADF 的自动滞后阶随样本量增长。上限取 2e5，最坏约 2 分钟。
+# 超过即明确拒绝——原先的行为是「给多少算多少」，表现为长时间无响应而非可预期的失败。
+DEFAULT_MAX_ROWS = 200_000
+WARN_ROWS = 100_000
+# 可用 MTSA_MAX_ROWS 临时放宽，便于确认更大的机器或更快的实现是否真的可行
+ENV_MAX_ROWS = "MTSA_MAX_ROWS"
+
+
+def _max_rows() -> int:
+    raw = os.environ.get(ENV_MAX_ROWS, "").strip()
+    if raw.isdigit() and int(raw) > 0:
+        return int(raw)
+    return DEFAULT_MAX_ROWS
 
 
 def _new_run_id() -> str:
@@ -103,6 +119,22 @@ def run_analysis(request: AnalysisRequest, verbose: bool = True) -> AnalysisResu
         return fail(ERR_DATA_LOAD_FAILED, str(exc), path=request.input_path)
     except Exception as exc:
         return fail(ERR_INTERNAL_ERROR, "导入节点发生未分类异常", detail=f"{type(exc).__name__}: {exc}")
+
+    # ---- 1b. 规模检查 ----
+    # 必须在摘要之前：否则摘要、清洗、指标、统计检验都要跑一遍才失败，
+    # 用户已经等了几分钟才看到报错，与「卡死」的体感没有区别。
+    _limit = _max_rows()
+    if raw.row_count > _limit:
+        return fail(ERR_DATASET_TOO_LARGE,
+                    f"数据行数 {raw.row_count} 超过本实现的上限 {_limit}，已在导入后中止",
+                    rows=raw.row_count, limit=_limit,
+                    measured={"1e5": "37 s", "2e5": "124 s", "5e5": "736 s"},
+                    hint=("统计检验的滞后阶随样本量增长，耗时超线性。请先降采样"
+                          "（如按小时聚合成日频）或按时间分片分别分析；"
+                          f"确需一次跑完可用环境变量 {ENV_MAX_ROWS} 放宽上限"))
+    if raw.row_count > WARN_ROWS:
+        warnings.append(
+            f"数据行数 {raw.row_count} 较大，统计检验预计耗时数分钟（实测 2e5 行约 124 s）")
 
     # ---- 2. 摘要 ----
     profile, parsed_time = profiler.profile_dataset(raw)
