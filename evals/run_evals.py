@@ -55,6 +55,7 @@ THRESHOLDS = {
     "1e5行峰值内存": ("<=", 1024.0),
     "图表字段映射准确率": ("=", 1.00),
     "重复运行一致率": ("=", 1.00),
+    "计划来源可追溯": ("=", 1.00),
     "未来数据泄漏检出率": ("=", 1.00),
     "无证据结论数": ("=", 0),
 }
@@ -203,6 +204,19 @@ def evaluate() -> dict:
     # 8) 重复运行一致率
     st2 = _run("stock_again", "stock", "stock_v1.csv", "计算收益风险指标并做 walk-forward 回测", OUT)
     res["重复运行一致率"] = 1.0 if st.data == st2.data else 0.0
+
+    # 8b) 计划来源可追溯
+    # 计划层引入 LLM 后，必须能回答「这次计划是模型给的还是规则给的」。
+    # 来源缺失或取值不在白名单，都说明审计链断了。
+    valid_sources = {"rule", "llm", "cache", "mock"}
+    plan_sources = {
+        "weather": (wx.data or {}).get("plan", {}).get("plan_source"),
+        "stock": (st.data or {}).get("plan", {}).get("plan_source"),
+        "leak": (lk.data or {}).get("plan", {}).get("plan_source") if lk.status == "succeeded" else None,
+    }
+    known = {k: v for k, v in plan_sources.items() if v is not None}
+    res["计划来源可追溯"] = 1.0 if (known and all(v in valid_sources for v in known.values())) else 0.0
+    res["_plan_sources"] = plan_sources
 
     # 9) 未来数据泄漏检出率（必须为失败）
     res["未来数据泄漏检出率"] = 1.0 if (lk.status == "failed"

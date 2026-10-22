@@ -159,6 +159,9 @@ class AnalysisPlan(MtsaModel):
     analyses: list[str] = Field(default_factory=list)
     parameters: dict[str, Any] = Field(default_factory=dict)
     not_supported: list[str] = Field(default_factory=list)
+    # 计划从哪来：rule（适配器规则）/ llm（模型生成）/ cache（命中缓存）/ mock（测试桩）
+    plan_source: str = "rule"
+    planner_version: str = "v1"
 
 
 # ---------------- 结果 ----------------

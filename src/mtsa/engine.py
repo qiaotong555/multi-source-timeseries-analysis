@@ -36,6 +36,7 @@ from .scenarios import weather as weather_scene  # noqa: F401
 from .scenarios.base import ScenarioContext, detect_scene, get_adapter
 from . import report as report_mod
 from . import viz as viz_mod
+from .planner import build_planner
 
 
 def _new_run_id() -> str:
@@ -125,6 +126,8 @@ def run_analysis(request: AnalysisRequest, verbose: bool = True) -> AnalysisResu
                                         "anomaly_candidates": qrep.anomaly_candidate_count})
 
     # ---- 4. 场景识别与计划 ----
+    # 计划由「计划层」产出：有 LLM 配置且校验通过则用模型计划，否则回退规则计划。
+    # 无论来源如何，节点 5 至 12 的执行逻辑完全一致，数值结论仍由代码产出。
     adapter, confidence, scores = detect_scene(raw.frame, profile)
     if request.scene_id:
         adapter = get_adapter(request.scene_id)
@@ -134,8 +137,12 @@ def run_analysis(request: AnalysisRequest, verbose: bool = True) -> AnalysisResu
                     f"场景识别置信度不足（最高 {confidence:.3f} < {SCENE_CONFIDENCE_THRESHOLD}），"
                     f"请显式指定 --scene",
                     scores={k: round(v, 4) for k, v in scores.items()})
-    plan = adapter.plan(request.question, profile, qrep, raw.frame)
+    planner = build_planner(adapter)
+    plan, plan_source = planner.plan(request.question, profile, qrep, adapter, raw.frame)
     plan.scene_confidence = round(float(confidence), 4)
+    plan.plan_source = plan_source
+    if getattr(planner, "last_error", None):
+        warnings.append(f"计划层回退到规则模式：{planner.last_error}")
 
     # ---- 4b. 参数覆盖（调参入口，不修改适配器默认值）----
     if request.param_overrides:
@@ -154,7 +161,8 @@ def run_analysis(request: AnalysisRequest, verbose: bool = True) -> AnalysisResu
 
     timer.run("plan", lambda: {"scene": plan.scene_id, "confidence": plan.scene_confidence,
                                 "analyses": len(plan.analyses),
-                                "overrides": len(request.param_overrides)})
+                                "overrides": len(request.param_overrides),
+                                "plan_source": plan.plan_source})
 
     # ---- 5. 清洗 ----
     clean = preprocess.clean_dataset(raw, profile, parsed_time, plan)
