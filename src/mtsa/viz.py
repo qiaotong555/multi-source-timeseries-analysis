@@ -3,10 +3,24 @@
 
 图表字段映射由场景适配器的 figure_specs 决定；渲染不修改任何数据。
 静态图导出失败时明确记录 warning，不静默跳过。
+
+静态图导出的稳定性
+------------------
+plotly 7 + kaleido 1.x 的 PNG 导出依赖外部浏览器（Chrome 优先，Edge 回退），
+浏览器启动失败是这类环境最常见的故障，典型报错是
+``BrowserFailedError: The browser seemed to close immediately after starting``。
+常见诱因：浏览器刚自动更新、已有同名实例占用、机器繁忙。
+
+因此导出做三件事：
+1. **重试**：失败后短暂等待再试，绝大多数据偶发失败可在第二次成功。
+2. **清理残留**：最终失败时删除同名旧 PNG。否则目录里留着上一次的图，
+   看起来「有图」，实际上本次没生成——这种掩盖比缺少文件更危险。
+3. **给可操作提示**：把「怎么修」写进 warning，而不是只把系统异常原文抛给人看。
 """
 from __future__ import annotations
 
 import os
+import time
 from typing import Any
 
 import numpy as np
@@ -19,6 +33,42 @@ from .scenarios.base import ScenarioContext
 
 FIG_WIDTH = 1280
 FIG_HEIGHT = 640
+
+# 静态图导出的总尝试次数与间隔。浏览器启动失败多为瞬时，重试一次即可覆盖多数情形；
+# 不设更高次数，因为持续失败意味着环境问题，反复重试只会拖长运行时间。
+PNG_ATTEMPTS = 2
+PNG_RETRY_DELAY_S = 1.5
+
+_BROWSER_HINT = (
+    "若持续失败，可依次尝试："
+    "① 重跑一次（浏览器刚自动更新时，重启后即可恢复）；"
+    "② 关闭所有已打开的浏览器进程后重试（同名实例会抢占启动）；"
+    "③ 安装本机 Chrome，并把环境变量 BROWSER_PATH 指向 chrome.exe——"
+    "kaleido 优先用 Chrome，不受 Edge 自动更新影响。"
+    "注意 kaleido 自带的 get_chrome_sync 需访问 storage.googleapis.com，国内网络通常不可达。"
+    "交互图（HTML）不受影响，已正常生成。"
+)
+
+
+def _export_png(fig: go.Figure, path: str) -> tuple[bool, str]:
+    """导出静态图；返回 (是否成功, 失败原因)。成功即写入文件。"""
+    last_exc: Exception | None = None
+    for attempt in range(PNG_ATTEMPTS):
+        try:
+            fig.write_image(path, width=FIG_WIDTH, height=FIG_HEIGHT)
+            return True, ""
+        except Exception as exc:                      # noqa: BLE001  导出失败原因不可枚举
+            last_exc = exc
+            if attempt + 1 < PNG_ATTEMPTS:
+                time.sleep(PNG_RETRY_DELAY_S)
+    # 全部尝试失败：删除可能残留的旧文件，避免「目录里有图」掩盖本次失败
+    try:
+        if os.path.exists(path):
+            os.remove(path)
+    except OSError:
+        pass
+    return False, f"{type(last_exc).__name__}: {last_exc}"
+
 
 
 def _downsample(frame: pd.DataFrame, n: int) -> pd.DataFrame:
@@ -221,6 +271,7 @@ def build_figures(ctx: ScenarioContext, specs: list[dict], outdir: str) -> tuple
     os.makedirs(outdir, exist_ok=True)
     artifacts: list[Artifact] = []
     warnings: list[str] = []
+    png_hint_given = False          # 修复建议只在首次失败时给一次，避免同样的长文本重复七遍
     for i, spec in enumerate(specs):
         kind = spec.get("kind")
         builder = _BUILDERS.get(kind)
@@ -243,12 +294,16 @@ def build_figures(ctx: ScenarioContext, specs: list[dict], outdir: str) -> tuple
         artifacts.append(Artifact(artifact_id=f"art_fig_{spec.get('id', kind)}",
                                   kind="figure_interactive", path=html_path,
                                   title=spec.get("title", kind), fields=spec.get("columns", [])))
-        try:
-            fig.write_image(png_path, width=FIG_WIDTH, height=FIG_HEIGHT)
+        ok, reason = _export_png(fig, png_path)
+        if ok:
             artifacts.append(Artifact(artifact_id=f"art_fig_{spec.get('id', kind)}_png",
                                       kind="figure_static", path=png_path,
                                       title=spec.get("title", kind) + "（静态）",
                                       fields=spec.get("columns", [])))
-        except Exception as exc:
-            warnings.append(f"静态图 {base}.png 导出失败（kaleido）：{type(exc).__name__}: {exc}")
+        else:
+            msg = f"静态图 {base}.png 导出失败（kaleido）：{reason}"
+            if not png_hint_given:
+                msg += "。" + _BROWSER_HINT
+                png_hint_given = True
+            warnings.append(msg)
     return artifacts, warnings
