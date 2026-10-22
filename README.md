@@ -1,25 +1,8 @@
 # 多源时序数据量化分析与可视化 Agent
 
-课题 12（AI for Science 类 S06）。`task_id = multi_source_timeseries_analysis`，
-`capability_id = science.multi_source_timeseries_analysis`。
-
 输入带时间顺序的数据，自动识别数据结构，完成质量检查、预处理、量化指标计算、时域/频域分析、
 异常检测、统计检验和可视化，输出可复现的分析报告。**引擎与场景解耦**，当前内置天气（主场景）
 与股票（扩展场景）两个适配器，用同一工作流验证可迁移性。
-
-## 快速开始
-
-| 报告 | 说明 | 状态 |
-| --- | --- | --- |
-| `doc/reports/第一阶段报告.md` | 分析引擎与双场景适配，对应第一份 Word 交付 | 现行，源稿入库 |
-| `doc/reports/第二阶段报告.md` | 可视化、样例、测试与评估闭环，对应第二份 Word 交付 | 现行，源稿入库 |
-| 中期检查报告 | T1 中期检查点快照（早期版本，已由两阶段报告取代） | 冻结，不再更新 |
-| 终期报告 | T1 完成时快照（早期版本，已由两阶段报告取代） | 冻结，不再更新 |
-| `doc/改进记录.md` | T1 之后所有改进的累积账本，格式即 Word 报告源稿 | 持续追加 |
-
-Word 版由 `doc/reports/` 下的 Markdown 源稿生成，不入库以避免二进制膨胀；生成方式见 `doc/reports/README.md`。
-
-T1 之后的任何修正、补强与新增，一律记入 `doc/改进记录.md`；两份报告保持冻结以保留可追溯性。
 
 ```bash
 # 环境：受管虚拟环境 ~/.workbuddy/binaries/python/envs/mtsa（Python 3.13.14）
