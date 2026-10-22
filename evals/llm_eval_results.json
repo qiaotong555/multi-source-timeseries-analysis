@@ -1,0 +1,220 @@
+{
+  "generated_at": "2026-10-23T00:04:31",
+  "model": "deepseek-chat",
+  "base_url": "https://api.deepseek.com/v1",
+  "planner_version": "v1",
+  "n_calls": 11,
+  "cases": [
+    {
+      "id": "wx_trend",
+      "scene": "weather",
+      "csv": "weather_v1.csv",
+      "question": "分析温度的趋势、季节性与极端事件",
+      "expect": [
+        "trend",
+        "seasonal",
+        "extreme"
+      ],
+      "selected": [
+        "trend",
+        "seasonal",
+        "extreme"
+      ],
+      "source": "llm",
+      "valid": true,
+      "error": null,
+      "tool_recall": 1.0,
+      "missing": [],
+      "elapsed_s": 0.95,
+      "repeat_selected": [
+        "trend",
+        "seasonal",
+        "extreme"
+      ],
+      "repeat_source": "llm",
+      "consistent": true
+    },
+    {
+      "id": "wx_anomaly",
+      "scene": "weather",
+      "csv": "weather_v1.csv",
+      "question": "检查数据中的异常点和突变更点",
+      "expect": [
+        "anomaly",
+        "changepoint"
+      ],
+      "selected": [
+        "anomaly",
+        "changepoint"
+      ],
+      "source": "llm",
+      "valid": true,
+      "error": null,
+      "tool_recall": 1.0,
+      "missing": [],
+      "elapsed_s": 1.0
+    },
+    {
+      "id": "wx_corr",
+      "scene": "weather",
+      "csv": "weather_v1.csv",
+      "question": "分析温度与湿度之间的相关性以及领先滞后关系",
+      "expect": [
+        "corr",
+        "lag"
+      ],
+      "selected": [
+        "corr",
+        "lag"
+      ],
+      "source": "llm",
+      "valid": true,
+      "error": null,
+      "tool_recall": 1.0,
+      "missing": [],
+      "elapsed_s": 1.13
+    },
+    {
+      "id": "wx_stationary",
+      "scene": "weather",
+      "csv": "weather_v1.csv",
+      "question": "评估这条时间序列是否平稳，并说明其自相关结构",
+      "expect": [
+        "stationarity"
+      ],
+      "selected": [
+        "stationarity",
+        "autocorr"
+      ],
+      "source": "llm",
+      "valid": true,
+      "error": null,
+      "tool_recall": 1.0,
+      "missing": [],
+      "elapsed_s": 1.11
+    },
+    {
+      "id": "st_trend",
+      "scene": "stock",
+      "csv": "stock_v1.csv",
+      "question": "分析股价的趋势与波动特征",
+      "expect": [
+        "trend"
+      ],
+      "selected": [
+        "trend",
+        "changepoint",
+        "extreme",
+        "autocorr"
+      ],
+      "source": "llm",
+      "valid": true,
+      "error": null,
+      "tool_recall": 1.0,
+      "missing": [],
+      "elapsed_s": 1.17
+    },
+    {
+      "id": "st_anomaly",
+      "scene": "stock",
+      "csv": "stock_v1.csv",
+      "question": "检查价格数据中的异常跳变与均值突变",
+      "expect": [
+        "anomaly",
+        "changepoint"
+      ],
+      "selected": [
+        "anomaly",
+        "changepoint"
+      ],
+      "source": "llm",
+      "valid": true,
+      "error": null,
+      "tool_recall": 1.0,
+      "missing": [],
+      "elapsed_s": 0.8,
+      "repeat_selected": [
+        "anomaly",
+        "changepoint"
+      ],
+      "repeat_source": "llm",
+      "consistent": true
+    },
+    {
+      "id": "st_corr",
+      "scene": "stock",
+      "csv": "stock_v1.csv",
+      "question": "分析股价与基准指数的相关性和领先滞后关系",
+      "expect": [
+        "corr",
+        "lag"
+      ],
+      "selected": [
+        "corr",
+        "lag"
+      ],
+      "source": "llm",
+      "valid": true,
+      "error": null,
+      "tool_recall": 1.0,
+      "missing": [],
+      "elapsed_s": 0.94
+    },
+    {
+      "id": "wx_open",
+      "scene": "weather",
+      "csv": "weather_v1.csv",
+      "question": "帮我看看这两年的温度数据有什么值得注意的地方",
+      "expect": [],
+      "selected": [
+        "trend",
+        "changepoint",
+        "extreme",
+        "anomaly"
+      ],
+      "source": "llm",
+      "valid": true,
+      "error": null,
+      "tool_recall": null,
+      "missing": [],
+      "elapsed_s": 0.97
+    },
+    {
+      "id": "st_open",
+      "scene": "stock",
+      "csv": "stock_v1.csv",
+      "question": "这份股价数据能看出什么问题",
+      "expect": [],
+      "selected": [
+        "trend",
+        "changepoint",
+        "anomaly",
+        "corr",
+        "extreme"
+      ],
+      "source": "llm",
+      "valid": true,
+      "error": null,
+      "tool_recall": null,
+      "missing": [],
+      "elapsed_s": 1.14
+    }
+  ],
+  "summary": {
+    "n_cases": 9,
+    "n_judged": 7,
+    "n_valid": 9,
+    "valid_rate": 1.0,
+    "fallback_rate": 0.0,
+    "mean_tool_recall": 1.0,
+    "plan_consistency": 1.0,
+    "consistency_samples": 2,
+    "checks": {
+      "合法率>=0.9": true,
+      "回退率<=0.1": true,
+      "覆盖率>=0.6": true
+    },
+    "passed": true,
+    "scope_note": "覆盖率仅统计合法且带期望项的用例；一致率仅对有重复调用的用例计算"
+  }
+}

@@ -1018,6 +1018,170 @@
   },
   "1e5行分析耗时": 68.9264,
   "1e5行峰值内存": 849.0,
+  "_llm_eval": {
+    "available": true,
+    "generated_at": "2026-10-23T00:04:31",
+    "model": "deepseek-chat",
+    "base_url": "https://api.deepseek.com/v1",
+    "planner_version": "v1",
+    "n_calls": 11,
+    "summary": {
+      "n_cases": 9,
+      "n_judged": 7,
+      "n_valid": 9,
+      "valid_rate": 1.0,
+      "fallback_rate": 0.0,
+      "mean_tool_recall": 1.0,
+      "plan_consistency": 1.0,
+      "consistency_samples": 2,
+      "checks": {
+        "合法率>=0.9": true,
+        "回退率<=0.1": true,
+        "覆盖率>=0.6": true
+      },
+      "passed": true,
+      "scope_note": "覆盖率仅统计合法且带期望项的用例；一致率仅对有重复调用的用例计算"
+    },
+    "cases": [
+      {
+        "id": "wx_trend",
+        "scene": "weather",
+        "question": "分析温度的趋势、季节性与极端事件",
+        "selected": [
+          "trend",
+          "seasonal",
+          "extreme"
+        ],
+        "valid": true,
+        "source": "llm",
+        "tool_recall": 1.0,
+        "missing": [],
+        "consistent": true
+      },
+      {
+        "id": "wx_anomaly",
+        "scene": "weather",
+        "question": "检查数据中的异常点和突变更点",
+        "selected": [
+          "anomaly",
+          "changepoint"
+        ],
+        "valid": true,
+        "source": "llm",
+        "tool_recall": 1.0,
+        "missing": [],
+        "consistent": null
+      },
+      {
+        "id": "wx_corr",
+        "scene": "weather",
+        "question": "分析温度与湿度之间的相关性以及领先滞后关系",
+        "selected": [
+          "corr",
+          "lag"
+        ],
+        "valid": true,
+        "source": "llm",
+        "tool_recall": 1.0,
+        "missing": [],
+        "consistent": null
+      },
+      {
+        "id": "wx_stationary",
+        "scene": "weather",
+        "question": "评估这条时间序列是否平稳，并说明其自相关结构",
+        "selected": [
+          "stationarity",
+          "autocorr"
+        ],
+        "valid": true,
+        "source": "llm",
+        "tool_recall": 1.0,
+        "missing": [],
+        "consistent": null
+      },
+      {
+        "id": "st_trend",
+        "scene": "stock",
+        "question": "分析股价的趋势与波动特征",
+        "selected": [
+          "trend",
+          "changepoint",
+          "extreme",
+          "autocorr"
+        ],
+        "valid": true,
+        "source": "llm",
+        "tool_recall": 1.0,
+        "missing": [],
+        "consistent": null
+      },
+      {
+        "id": "st_anomaly",
+        "scene": "stock",
+        "question": "检查价格数据中的异常跳变与均值突变",
+        "selected": [
+          "anomaly",
+          "changepoint"
+        ],
+        "valid": true,
+        "source": "llm",
+        "tool_recall": 1.0,
+        "missing": [],
+        "consistent": true
+      },
+      {
+        "id": "st_corr",
+        "scene": "stock",
+        "question": "分析股价与基准指数的相关性和领先滞后关系",
+        "selected": [
+          "corr",
+          "lag"
+        ],
+        "valid": true,
+        "source": "llm",
+        "tool_recall": 1.0,
+        "missing": [],
+        "consistent": null
+      },
+      {
+        "id": "wx_open",
+        "scene": "weather",
+        "question": "帮我看看这两年的温度数据有什么值得注意的地方",
+        "selected": [
+          "trend",
+          "changepoint",
+          "extreme",
+          "anomaly"
+        ],
+        "valid": true,
+        "source": "llm",
+        "tool_recall": null,
+        "missing": [],
+        "consistent": null
+      },
+      {
+        "id": "st_open",
+        "scene": "stock",
+        "question": "这份股价数据能看出什么问题",
+        "selected": [
+          "trend",
+          "changepoint",
+          "anomaly",
+          "corr",
+          "extreme"
+        ],
+        "valid": true,
+        "source": "llm",
+        "tool_recall": null,
+        "missing": [],
+        "consistent": null
+      }
+    ]
+  },
+  "LLM计划合法率": 1.0,
+  "LLM回退率": 0.0,
+  "LLM分析项覆盖率": 1.0,
   "图表字段映射准确率": 1.0,
   "重复运行一致率": 1.0,
   "计划来源可追溯": 1.0,

@@ -60,6 +60,15 @@ THRESHOLDS = {
     "无证据结论数": ("=", 0),
 }
 
+# LLM 模式指标：仅在 llm_eval_results.json 存在时才纳入判定。
+# 不放进 THRESHOLDS 的原因见 _load_llm_eval 的说明：依赖外部服务，
+# 环境不具备时本就无法评估，不能因此把整套评估判为失败。
+LLM_THRESHOLDS = {
+    "LLM计划合法率": (">=", 0.90),
+    "LLM回退率": ("<=", 0.10),
+    "LLM分析项覆盖率": (">=", 0.60),
+}
+
 
 def _ensure_fixtures():
     from fixtures.gen_fixtures import main as gen_main
@@ -95,6 +104,39 @@ def _load_benchmark() -> dict:
         "scale_1e4": {k: scales.get("1e4", {}).get(k) for k in pick},
         "scale_1e5": {k: scales.get("1e5", {}).get(k) for k in pick + ("timings",)},
         "scale_1e6_status": scales.get("1e6", {}).get("status"),
+    }
+
+
+def _load_llm_eval() -> dict:
+    """读取 LLM 模式评估缓存；缺失标记「未运行」，不判失败。
+
+    与性能基准的处理刻意不同：基准在本机一定跑得起来，缺了就是漏项，记 9999 判失败；
+    LLM 评估依赖外部服务与密钥，环境不具备时本就无法进行，若判失败等于用
+    「没配密钥」否定整个系统。因此这里用独立的「未运行」状态：
+    既不冒充通过，也不误判为失败。
+    """
+    path = os.path.join(EVAL_DIR, "llm_eval_results.json")
+    if not os.path.exists(path):
+        return {"available": False,
+                "reason": "llm_eval_results.json 不存在，请先运行 python -m evals.llm_eval"}
+    try:
+        with open(path, encoding="utf-8") as f:
+            d = json.load(f)
+    except Exception as exc:                      # noqa: BLE001
+        return {"available": False, "reason": f"解析失败：{exc}"}
+
+    s = d.get("summary") or {}
+    keep = ("id", "scene", "question", "selected", "valid", "source",
+            "tool_recall", "missing", "consistent")
+    return {
+        "available": True,
+        "generated_at": d.get("generated_at"),
+        "model": d.get("model"),
+        "base_url": d.get("base_url"),
+        "planner_version": d.get("planner_version"),
+        "n_calls": d.get("n_calls"),
+        "summary": s,
+        "cases": [{k: c.get(k) for k in keep} for c in d.get("cases", [])],
     }
 
 
@@ -195,6 +237,20 @@ def evaluate() -> dict:
     res["1e5行分析耗时"] = float(scale_1e5.get("total_s") or 9999.0)
     res["1e5行峰值内存"] = float(scale_1e5.get("peak_mb") or 9999.0)
 
+    # 8) LLM 模式评估（读缓存，缺失则不产生指标、不判失败）
+    # 改造前所有指标都跑在规则模式下，等于没度量过模型这条路径。
+    # 这里把「模型选择的工具是否合理」补进评估，口径为多用例真实调用。
+    llm_eval = _load_llm_eval()
+    res["_llm_eval"] = llm_eval
+    if llm_eval.get("available"):
+        s = llm_eval["summary"]
+        res["LLM计划合法率"] = float(s.get("valid_rate") or 0.0)
+        # 回退率缺失按 1.0 记（最差），不能用 0 冒充「没有回退」
+        res["LLM回退率"] = float(s["fallback_rate"]) if s.get("fallback_rate") is not None else 1.0
+        # 覆盖率为 None 表示没有任何带期望项的合法用例，记 0 而非 1
+        res["LLM分析项覆盖率"] = float(s["mean_tool_recall"]) \
+            if s.get("mean_tool_recall") is not None else 0.0
+
     # 7) 图表字段映射准确率
     plan_cols = set(wx.data["plan"]["target_columns"])
     bad = [a for a in wx.artifacts
@@ -237,9 +293,13 @@ def evaluate() -> dict:
 
 def main() -> int:
     res = evaluate()
+    # LLM 指标只在缓存存在时纳入判定：缺缓存是「未运行」，不是「未通过」
+    thresholds = dict(THRESHOLDS)
+    if res.get("_llm_eval", {}).get("available"):
+        thresholds.update(LLM_THRESHOLDS)
     lines = ["| 指标 | 实测值 | 阈值 | 结论 |", "|---|---|---|---|"]
     failed = 0
-    for k, (op, thr) in THRESHOLDS.items():
+    for k, (op, thr) in thresholds.items():
         v = res[k]
         if op == "=":
             ok = (abs(v - thr) < 1e-12) if isinstance(v, float) else (v == thr)
@@ -290,6 +350,25 @@ def main() -> int:
                 s = b.get(f"scale_{label}") or {}
                 print("| %s | %s | %s | %s |" % (label, s.get("total_s"), s.get("peak_mb"), s.get("status")))
             print("1e6 行状态：", b.get("scale_1e6_status"))
+    if "_llm_eval" in res:
+        print()
+        llm = res["_llm_eval"]
+        if not llm.get("available"):
+            print("=== LLM 模式评估：未运行 ===")
+            print("原因：", llm.get("reason"))
+        else:
+            print("=== LLM 模式评估（真实调用，读缓存）===")
+            print("模型：%s  生成于：%s  调用次数：%s" % (
+                llm.get("model"), llm.get("generated_at"), llm.get("n_calls")))
+            print("| 用例 | 场景 | 合法 | 选中分析项 | 覆盖率 | 未覆盖 |")
+            print("|---|---|---|---|---|---|")
+            for c in llm["cases"]:
+                cov = "—（探针）" if c.get("tool_recall") is None else "%.2f" % c["tool_recall"]
+                print("| %s | %s | %s | %s | %s | %s |" % (
+                    c["id"], c["scene"], "是" if c.get("valid") else "否",
+                    "、".join(c.get("selected") or []) or "—", cov,
+                    "、".join(c.get("missing") or []) or "无"))
+            print("汇总：", json.dumps(llm["summary"], ensure_ascii=False))
     print("数据集版本：", json.dumps(res["_datasets"], ensure_ascii=False))
     print("运行状态：", json.dumps(res["_status"], ensure_ascii=False))
     with open(os.path.join(EVAL_DIR, "eval_results.json"), "w", encoding="utf-8") as f:
