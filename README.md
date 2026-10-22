@@ -11,7 +11,7 @@
 # 测试（basetemp 每次独立，避免临时目录堆积被清理策略拦截）
 python -m pytest tests -q --basetemp=artifacts/_pt_<时间戳>
 
-# 运行分析
+# 运行分析（默认在子进程中执行，带 600 秒超时）
 python -m mtsa.cli run --scene weather \
     --input fixtures/weather_v1.csv --question "分析温度的趋势、季节性与极端事件"
 python -m mtsa.cli run --scene stock \
@@ -21,7 +21,24 @@ python -m mtsa.cli run --scene stock \
 python -m evals.run_evals
 # 只复核划分与阈值选择
 python -m evals.split_eval
+# 性能基准（约 8 分钟，结果供 run_evals 读取）
+python -m evals.benchmark
+# LLM 计划层评估（需配置 MTSA_LLM_BASE_URL / API_KEY / MODEL，约 15 秒）
+python -m evals.llm_eval
 ```
+
+## 运行保护
+
+| 限制 | 默认 | 调整方式 |
+| --- | --- | --- |
+| 数据规模 | 20 万行，超过即拒绝（`DATASET_TOO_LARGE`） | `MTSA_MAX_ROWS=500000` |
+| 整体超时 | 600 秒，超时终止子进程（`NODE_TIMEOUT`） | `--timeout 900`；`0` 表示不限制且不进子进程 |
+
+CLI 默认在**子进程**中执行分析：Python 无法中断正在执行的 C 扩展调用（numpy、statsmodels），
+主线程计时器拦不住卡死，只有进程级终止有效。代价是约 3 秒启动开销。
+库调用 `engine.run_analysis()` 不走子进程，行为与以前一致。
+
+**判断成败请读 `result.json` 的 `status`，不要以「产物目录非空」为准**——失败时也会落盘留档。
 
 评估口径：异常检测阈值只在各折 dev 段上选定，指标取各折 holdout 段平均；有效折不足时判为「不可判定」而非通过，详见 `doc/评估设计.md` 第 3 节。
 
@@ -48,7 +65,8 @@ doc/           架构设计、接口与字段、评估设计、改进记录、Ag
 - 输入文件只读，从不修改、移动或删除。
 - 股票场景不提供真实投资建议，不做自动交易；回测不含交易成本与滑点，结论中显式声明。
 - 不做彩票中奖号码预测；彩票场景不在当前任务范围。
-- 数值结论全部由计算代码产出；当前未接入 LLM，形态为确定性流水线而非 Agent，改造方案见 `doc/agent化改造方案.md`。
+- 数值结论全部由计算代码产出，模型不参与任何数值计算。LLM 仅用于**计划层**（从工具集中选择分析项），
+  未配置密钥时回退到确定性规则计划，两种模式都可运行；判定标准见 `doc/agent化改造方案.md`。
 - 对外 REST 服务不在当前任务范围，见 `spec/未来规划.md`。
 
 ## 文档约定
