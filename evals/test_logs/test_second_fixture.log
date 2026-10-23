@@ -1,5 +1,5 @@
 # test_second_fixture
-# status=PASS exit=0 duration=11.1s passed=3 failed=0 errors=0
+# status=PASS exit=0 duration=11.04s passed=3 failed=0 errors=0
 ...                                                                      [100%]
 ============================== warnings summary ===============================
 tests/test_second_fixture.py::test_short_pipeline_reproducible_and_warns
@@ -19,5 +19,5 @@ tests/test_second_fixture.py::test_short_pipeline_reproducible_and_warns
     kpss_res = kpss(vals, regression="c", nlags="auto", result_object=False)
 
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
-3 passed, 10 warnings in 9.85s
+3 passed, 10 warnings in 9.74s
 

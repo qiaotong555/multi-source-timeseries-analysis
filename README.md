@@ -37,7 +37,8 @@ python -m mtsa.cli run --replay artifacts/<run_id>/result.json
 python -m mtsa.cli run --mode auto --scene weather \
     --input fixtures/weather_v1.csv --question "分析温度的趋势、季节性和异常"
 
-# 批量评估（含 dev/holdout 划分）
+# 批量评估（含 dev/holdout 划分；固定 MTSA_PLANNER=rule，结果与远程模型无关）
+# A/B/C 结论级结果并入输出，但只报告、不参与通过/失败
 python -m evals.run_evals
 # 只复核划分与阈值选择
 python -m evals.split_eval
@@ -96,6 +97,10 @@ CLI 默认在**子进程**中执行分析：Python 无法中断正在执行的 C
 静态图 PNG、交互图 HTML、清洗后数据 CSV、可复现脚本。
 
 ## 当前状态与能力边界
+
+**评估状态（2026-10-23）**：A 结论级评估、B 差异溯源、C 第二份数据、D 探针与重复、
+评估收口均已完成。`run_evals` 固定规则计划，22 项阈值指标可复算；结论级结果
+（异常/变化点 P/R/F1、差异归因、短数据复核）只报告，尚未设阈值。
 
 **已实现（天气 Agent）**：观察—决策—行动循环、五工具白名单、预算受控的观察摘要、
 决策边界（锁定参数/未知参数/重复调用/步数上限）、失败重试与三态记录、

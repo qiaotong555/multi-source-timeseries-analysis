@@ -30,6 +30,7 @@ from mtsa import metrics as M  # noqa: E402
 from mtsa.scenarios.stock import max_drawdown  # noqa: E402
 from evals import split_eval  # noqa: E402
 from evals import changepoint_scan  # noqa: E402
+from evals import conclusion_cache  # noqa: E402
 
 FIX = os.path.join(ROOT, "fixtures")
 OUT = os.path.join(ROOT, "artifacts")
@@ -183,9 +184,23 @@ def _load_agent_eval() -> dict:
     }
 
 
+def _fmt_prf(d: dict) -> str:
+    if not d or d.get("precision") is None:
+        return "—"
+    return "%.3f / %.3f / %.3f" % (d["precision"], d["recall"], d["f1"])
+
+
 def evaluate() -> dict:
+    # 评估复算必须固定规则计划：MTSA_PLANNER=auto 且配置了模型时，LLM 会按问题
+    # 裁剪分析项（例如「极端事件」不选 anomaly），导致阈值指标随模型版本漂移，
+    # 同一条命令两次结果不同。LLM 计划能力由 evals.llm_eval 单独评估。
+    os.environ["MTSA_PLANNER"] = "rule"
     _ensure_fixtures()
     res: dict[str, object] = {}
+    res["_planner"] = {
+        "mode": "rule",
+        "reason": "评估复算固定规则计划，避免 LLM 按问题裁剪分析项；LLM 计划由 evals.llm_eval 单独评估",
+    }
 
     wx = _run("weather", "weather", "weather_v1.csv", "分析温度的趋势、季节性与极端事件", OUT)
     st = _run("stock", "stock", "stock_v1.csv", "计算收益风险指标并做 walk-forward 回测", OUT)
@@ -232,6 +247,7 @@ def evaluate() -> dict:
         question="分析温度的趋势、季节性与极端事件",
         out_root=os.path.join(OUT, "eval_split"),
         verbose=False,
+        planner_mode="rule",
     )
     res["_split_eval"] = split_res
     s_sum = split_res["summary"]
@@ -308,6 +324,16 @@ def evaluate() -> dict:
         res["Agent工具失败率"] = float(sa.get("mean_tool_failure_rate") or 0.0)
         res["Agent平均步数"] = float(sa.get("avg_steps") or 0.0)
         res["Agent越界拒绝总数"] = int(sa.get("guard_violations_total") or 0)
+
+    # 8c) 结论级评估收口（A/B/C）：只报告，不加入 THRESHOLDS。
+    # 缓存缺失时标「未运行」，不判失败；阈值须经单独标定后才能进入门禁。
+    conclusion = conclusion_cache.load_all()
+    res["_conclusion_eval"] = conclusion["conclusion_eval"]
+    res["_conclusion_diff"] = conclusion["conclusion_diff"]
+    res["_short_repro"] = conclusion["short_repro"]
+    res["_short_agent"] = conclusion["short_agent"]
+    res["_short_conclusion"] = conclusion["short_conclusion"]
+    res.update(conclusion["flattened"])
 
     # 7) 图表字段映射准确率
     plan_cols = set(wx.data["plan"]["target_columns"])
@@ -439,6 +465,86 @@ def main() -> int:
                       sa.get("avg_steps"), sa.get("mean_need_coverage"),
                       sa.get("mean_rule_plan_coverage"), sa.get("replayable_rate"),
                       sa.get("guard_violations_total"), sa.get("tokens_total")))
+    if "_conclusion_eval" in res:
+        ce = res["_conclusion_eval"]
+        print()
+        print("=== 结论级评估（A，缓存；只报告，不纳入通过/失败）===")
+        if not ce.get("available"):
+            print("未运行：", ce.get("reason"))
+        else:
+            print("结果目录：%s  生成：%s" % (ce.get("result_root"), ce.get("generated_at")))
+            print("| 模式 | 异常点 P/R/F1 | 异常事件 P/R/F1 | 变化点 P/R/F1 | 趋势 | 季节 | 结论需求覆盖 |")
+            print("|---|---|---|---|---|---|---|")
+            for mode in ("pipeline", "agent"):
+                m = ce.get(mode) or {}
+                print("| %s | %s | %s | %s | %s | %s | %s |" % (
+                    mode, _fmt_prf(m.get("anomaly_point")), _fmt_prf(m.get("anomaly_event")),
+                    _fmt_prf(m.get("changepoint")),
+                    "—" if (m.get("trend") or {}).get("accuracy") is None
+                    else "%.2f" % m["trend"]["accuracy"],
+                    "—" if (m.get("seasonal") or {}).get("accuracy") is None
+                    else "%.2f" % m["seasonal"]["accuracy"],
+                    "—" if (m.get("conclusion_need") or {}).get("coverage") is None
+                    else "%.2f" % m["conclusion_need"]["coverage"]))
+            av = ce.get("agent_vs_pipeline") or {}
+            if av.get("available") is not False and av.get("anomaly"):
+                a = av["anomaly"]
+                print("异常实例：pipeline TP=%s，agent TP=%s；agent 未执行 %s 个用例，"
+                      "少看 %s 个真值实例；去重后漏 %s 个真值事件。" % (
+                          a.get("pipeline_tp_instances"), a.get("agent_tp_instances"),
+                          a.get("agent_not_run_runs"), a.get("missed_instances_due_to_not_run"),
+                          a.get("agent_distinct_missed")))
+        cd = res.get("_conclusion_diff") or {}
+        print()
+        print("=== 结论差异溯源（B，缓存；只报告）===")
+        if not cd.get("available"):
+            print("未运行：", cd.get("reason"))
+        else:
+            s2 = cd.get("summary") or {}
+            print("pipeline %s / agent %s / 差 %s（平均 %.4f/用例）；无法归因 %s（%.2f%%）" % (
+                s2.get("pipeline_total"), s2.get("agent_total"), s2.get("missing_total"),
+                s2.get("mean_missing_per_case") or 0.0, s2.get("unattributed"),
+                100 * (s2.get("unattributed_rate") or 0.0)))
+            print("| 类别 | pipeline | agent | 差值 | 归因 |")
+            print("|---|---|---|---|---|")
+            for cat, x in (cd.get("category_matrix") or {}).items():
+                if x.get("missing"):
+                    reasons = []
+                    for k in ("tool_not_run", "no_detection", "plan_or_parameter_diff", "unattributed"):
+                        if x.get(k):
+                            reasons.append("%s %s" % (k, x[k]))
+                    print("| %s | %s | %s | %+d | %s |" % (
+                        cat, x.get("pipeline"), x.get("agent"),
+                        x.get("agent", 0) - x.get("pipeline", 0), "、".join(reasons) or "—"))
+        sr = res.get("_short_repro") or {}
+        sa = res.get("_short_agent") or {}
+        sc = res.get("_short_conclusion") or {}
+        print()
+        print("=== 第二份数据（C，缓存；只报告）===")
+        if not sr.get("available"):
+            print("复现检查未运行：", sr.get("reason"))
+        else:
+            print("pipeline 两次语义一致：%s；差异字段：%s；结论数：%s" % (
+                sr.get("identical"), sr.get("diffs"), sr.get("conclusions_count")))
+        if not sa.get("available"):
+            print("短数据 agent 未运行：", sa.get("reason"))
+        elif not sa.get("judged"):
+            print("短数据 agent 来源为 %s，仅验证管线，不纳入判定" % sa.get("source"))
+        else:
+            ss = sa.get("summary") or {}
+            print("短数据 agent：成功 %s/%s，需求覆盖 %s，可重放 %s，token %s" % (
+                ss.get("n_succeeded"), ss.get("n_runs"),
+                ss.get("mean_need_coverage"), ss.get("replayable_rate"),
+                ss.get("tokens_total")))
+        if not sc.get("available"):
+            print("短数据结论级复核未运行：", sc.get("reason"))
+        else:
+            sm = sc.get("agent") or {}
+            print("短数据结论：需求覆盖 %s，异常点 F1 %s，趋势正确率 %s" % (
+                (sm.get("conclusion_need") or {}).get("coverage"),
+                (sm.get("anomaly_point") or {}).get("f1"),
+                (sm.get("trend") or {}).get("accuracy")))
+
     if "_llm_eval" in res:
         print()
         llm = res["_llm_eval"]
@@ -458,6 +564,7 @@ def main() -> int:
                     "、".join(c.get("selected") or []) or "—", cov,
                     "、".join(c.get("missing") or []) or "无"))
             print("汇总：", json.dumps(llm["summary"], ensure_ascii=False))
+    print("计划层：", json.dumps(res.get("_planner"), ensure_ascii=False))
     print("数据集版本：", json.dumps(res["_datasets"], ensure_ascii=False))
     print("运行状态：", json.dumps(res["_status"], ensure_ascii=False))
     with open(os.path.join(EVAL_DIR, "eval_results.json"), "w", encoding="utf-8") as f:

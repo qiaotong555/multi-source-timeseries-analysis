@@ -25,6 +25,7 @@ holdout 样本与 dev 样本在时间上交错，等价于把答案泄漏给调�
 """
 from __future__ import annotations
 
+import contextlib
 import json
 import os
 from typing import Any, Iterable, Optional
@@ -54,6 +55,41 @@ MIN_RECALL_TARGET = 0.70
 MAX_GAP_TOLERANCE = 0.20
 MIN_TRUTH_FOR_JUDGEMENT = 5
 MIN_VALID_FOLDS = 2
+
+
+# ---------------- 计划层固定 ----------------
+
+@contextlib.contextmanager
+def rule_planner_env(mode: str = "rule"):
+    """在评估期间固定计划层，退出时恢复原值。
+
+    评估必须可复算。若沿用 MTSA_PLANNER=auto 且配置了模型，计划层会按问题
+    裁剪分析项（例如「极端事件」不会选 anomaly），holdout 端到端运行就不再执行
+    被评估的检测器，指标会静默变成 0。LLM 计划能力由 evals.llm_eval 单独评估，
+    不进入阈值指标的复算链。
+    """
+    old = os.environ.get("MTSA_PLANNER")
+    os.environ["MTSA_PLANNER"] = mode
+    try:
+        yield
+    finally:
+        if old is None:
+            os.environ.pop("MTSA_PLANNER", None)
+        else:
+            os.environ["MTSA_PLANNER"] = old
+
+
+def holdout_plan_problem(analyses, required=("anomaly",)):
+    """holdout 计划缺少被评估的分析项时返回原因，否则返回 None。
+
+    这是「静默 0 分」的护栏：检测器没执行与检测器全漏必须区分开。
+    """
+    have = set(analyses or ())
+    missing = [a for a in required if a not in have]
+    if missing:
+        return (f"holdout 计划未包含 {missing}，被评估的检测器没有执行；"
+                "本次指标无意义，记为 harness_error 而不是 0 分")
+    return None
 
 
 # ---------------- 切分 ----------------
@@ -341,8 +377,13 @@ def run_split_eval(
     out_root: str,
     folds: Optional[list[dict]] = None,
     verbose: bool = False,
+    planner_mode: str = "rule",
 ) -> dict:
-    """执行三折前向滚动评估，返回结构化结果。"""
+    """执行三折前向滚动评估，返回结构化结果。
+
+    planner_mode 默认 rule：阈值指标必须只依赖本地确定性代码。若用 LLM 计划，
+    问题措辞会改变分析项集合（例如不选 anomaly），指标随模型版本漂移。
+    """
     from mtsa.engine import run_analysis
     from mtsa.models import AnalysisRequest
 
@@ -351,85 +392,102 @@ def run_split_eval(
     time_col = "timestamp" if "timestamp" in frame.columns else frame.columns[0]
 
     fold_reports = []
-    for fold in (folds or FOLDS):
-        name = fold["name"]
-        dev_start, dev_end = 0.0, fold["dev_ratio"]
-        hold_start, hold_end = fold["dev_ratio"], min(1.0, fold["dev_ratio"] + fold["holdout_len"])
+    with rule_planner_env(planner_mode):
+        for fold in (folds or FOLDS):
+            name = fold["name"]
+            dev_start, dev_end = 0.0, fold["dev_ratio"]
+            hold_start, hold_end = fold["dev_ratio"], min(1.0, fold["dev_ratio"] + fold["holdout_len"])
 
-        fold_dir = os.path.join(out_root, name)
-        os.makedirs(fold_dir, exist_ok=True)
+            fold_dir = os.path.join(out_root, name)
+            os.makedirs(fold_dir, exist_ok=True)
 
-        dev_df, dev_info = split_by_time(frame, time_col, dev_start, dev_end)
-        hold_df, hold_info = split_by_time(frame, time_col, hold_start, hold_end)
-        dev_labels = split_labels(labels_all, dev_info["start"], dev_info["end"])
-        hold_labels = split_labels(labels_all, hold_info["start"], hold_info["end"])
+            dev_df, dev_info = split_by_time(frame, time_col, dev_start, dev_end)
+            hold_df, hold_info = split_by_time(frame, time_col, hold_start, hold_end)
+            dev_labels = split_labels(labels_all, dev_info["start"], dev_info["end"])
+            hold_labels = split_labels(labels_all, hold_info["start"], hold_info["end"])
 
-        dev_csv = os.path.join(fold_dir, "dev.csv")
-        hold_csv = os.path.join(fold_dir, "holdout.csv")
-        dev_df.to_csv(dev_csv, index=False, encoding="utf-8-sig")
-        hold_df.to_csv(hold_csv, index=False, encoding="utf-8-sig")
+            dev_csv = os.path.join(fold_dir, "dev.csv")
+            hold_csv = os.path.join(fold_dir, "holdout.csv")
+            dev_df.to_csv(dev_csv, index=False, encoding="utf-8-sig")
+            hold_df.to_csv(hold_csv, index=False, encoding="utf-8-sig")
 
-        # 1) 只在 dev 上扫描并选定阈值
-        clean_dev, plan_dev = prepare_clean(dev_csv, scene_id, question)
-        scan = scan_thresholds(clean_dev, plan_dev, dev_labels)
-        choice = select_threshold(scan)
+            # 1) 只在 dev 上扫描并选定阈值
+            clean_dev, plan_dev = prepare_clean(dev_csv, scene_id, question)
+            scan = scan_thresholds(clean_dev, plan_dev, dev_labels)
+            choice = select_threshold(scan)
 
-        # 2) 用选中的阈值在 holdout 上端到端重跑（不被 dev 结果参看）
-        req = AnalysisRequest(
-            request_id=f"split_{name}", input_path=hold_csv, scene_id=scene_id,
-            question=question, seed=20260927,
-            param_overrides={"anomaly_threshold": choice["threshold"]},
-            output_dir=os.path.join(fold_dir, "holdout_run"),
-        )
-        res = run_analysis(req, verbose=False)
-        if res.status != "succeeded":
+            # 2) 用选中的阈值在 holdout 上端到端重跑（不被 dev 结果参看）
+            req = AnalysisRequest(
+                request_id=f"split_{name}", input_path=hold_csv, scene_id=scene_id,
+                question=question, seed=20260927,
+                param_overrides={"anomaly_threshold": choice["threshold"]},
+                output_dir=os.path.join(fold_dir, "holdout_run"),
+            )
+            res = run_analysis(req, verbose=False)
+            if res.status != "succeeded":
+                fold_reports.append({
+                    "fold": name, "status": res.status,
+                    "error": res.error.model_dump() if res.error else None,
+                    "dev": dev_info, "holdout": hold_info,
+                })
+                continue
+
+            plan = res.data.get("plan") or {}
+            problem = holdout_plan_problem(plan.get("analyses"))
+            if problem:
+                # 检测器没执行，不能按 0 分计入指标：那是评估链路的错误，不是模型/算法的失败。
+                fold_reports.append({
+                    "fold": name, "status": "harness_error", "error": problem,
+                    "plan_source": plan.get("plan_source"),
+                    "plan_analyses": plan.get("analyses") or [],
+                    "dev": dev_info, "holdout": hold_info,
+                })
+                if verbose:
+                    print(f"  {name}: harness_error —— {problem}")
+                continue
+
+            pr_hold = anomaly_pr(res.data["anomalies"], hold_labels)
+            ev_hold = event_pr(res.data["anomalies"], hold_labels)
+            type_recall = ev_hold.get("recall_by_type", {})
+
             fold_reports.append({
-                "fold": name, "status": res.status,
-                "error": res.error.model_dump() if res.error else None,
+                "fold": name,
+                "status": "succeeded",
+                "plan_source": plan.get("plan_source"),
+                "plan_analyses": plan.get("analyses") or [],
                 "dev": dev_info, "holdout": hold_info,
+                "dev_truth_count": int((dev_labels["kind"] == "anomaly").sum()),
+                "holdout_truth_count": pr_hold["truth_count"],
+                "scan": scan,
+                "selected_threshold": choice["threshold"],
+                "selection_rule": choice["rule"],
+                "dev_precision": choice["dev_precision"],
+                "dev_recall": choice["dev_recall"],
+                "holdout_precision": pr_hold["precision"],
+                "holdout_recall": pr_hold["recall"],
+                "holdout_tp": pr_hold["tp"], "holdout_fp": pr_hold["fp"], "holdout_fn": pr_hold["fn"],
+                # 差距取有方向的「退化量」= dev − holdout。holdout 反而更好时为正数以外的
+                # 负值，说明没有过拟合，不应判为不稳定。
+                "degradation_precision": round(choice["dev_precision"] - pr_hold["precision"], 4),
+                "degradation_recall": round(choice["dev_recall"] - pr_hold["recall"], 4),
+                "gap_precision": round(abs(choice["dev_precision"] - pr_hold["precision"]), 4),
+                "gap_recall": round(abs(choice["dev_recall"] - pr_hold["recall"]), 4),
+                "holdout_precision_lower95": wilson_lower(pr_hold["tp"], pr_hold["tp"] + pr_hold["fp"]),
+                "holdout_recall_lower95": wilson_lower(pr_hold["tp"], pr_hold["tp"] + pr_hold["fn"]),
+                "holdout_event_precision": ev_hold["precision"],
+                "holdout_event_recall": ev_hold["recall"],
+                "holdout_event_truth": ev_hold["truth_events"],
+                "holdout_event_detected": ev_hold["detected_events"],
+                "holdout_recall_by_type": type_recall,
+                "holdout_truth_by_type": ev_hold.get("truth_by_type", {}),
+                "insufficient_truth": pr_hold["truth_count"] < MIN_TRUTH_FOR_JUDGEMENT,
             })
-            continue
-
-        pr_hold = anomaly_pr(res.data["anomalies"], hold_labels)
-        ev_hold = event_pr(res.data["anomalies"], hold_labels)
-        type_recall = ev_hold.get("recall_by_type", {})
-
-        fold_reports.append({
-            "fold": name,
-            "status": "succeeded",
-            "dev": dev_info, "holdout": hold_info,
-            "dev_truth_count": int((dev_labels["kind"] == "anomaly").sum()),
-            "holdout_truth_count": pr_hold["truth_count"],
-            "scan": scan,
-            "selected_threshold": choice["threshold"],
-            "selection_rule": choice["rule"],
-            "dev_precision": choice["dev_precision"],
-            "dev_recall": choice["dev_recall"],
-            "holdout_precision": pr_hold["precision"],
-            "holdout_recall": pr_hold["recall"],
-            "holdout_tp": pr_hold["tp"], "holdout_fp": pr_hold["fp"], "holdout_fn": pr_hold["fn"],
-            # 差距取有方向的「退化量」= dev − holdout。holdout 反而更好时为正数以外的
-            # 负值，说明没有过拟合，不应判为不稳定。
-            "degradation_precision": round(choice["dev_precision"] - pr_hold["precision"], 4),
-            "degradation_recall": round(choice["dev_recall"] - pr_hold["recall"], 4),
-            "gap_precision": round(abs(choice["dev_precision"] - pr_hold["precision"]), 4),
-            "gap_recall": round(abs(choice["dev_recall"] - pr_hold["recall"]), 4),
-            "holdout_precision_lower95": wilson_lower(pr_hold["tp"], pr_hold["tp"] + pr_hold["fp"]),
-            "holdout_recall_lower95": wilson_lower(pr_hold["tp"], pr_hold["tp"] + pr_hold["fn"]),
-            "holdout_event_precision": ev_hold["precision"],
-            "holdout_event_recall": ev_hold["recall"],
-            "holdout_event_truth": ev_hold["truth_events"],
-            "holdout_event_detected": ev_hold["detected_events"],
-            "holdout_recall_by_type": type_recall,
-            "holdout_truth_by_type": ev_hold.get("truth_by_type", {}),
-            "insufficient_truth": pr_hold["truth_count"] < MIN_TRUTH_FOR_JUDGEMENT,
-        })
-        if verbose:
-            print(f"  {name}: dev阈值={choice['threshold']} "
-                  f"dev P/R={choice['dev_precision']}/{choice['dev_recall']} "
-                  f"hold P/R={pr_hold['precision']}/{pr_hold['recall']} "
-                  f"事件 P/R={ev_hold['precision']}/{ev_hold['recall']} "
-                  f"分类型={type_recall} truth={pr_hold['truth_count']}")
+            if verbose:
+                print(f"  {name}: dev阈值={choice['threshold']} "
+                      f"dev P/R={choice['dev_precision']}/{choice['dev_recall']} "
+                      f"hold P/R={pr_hold['precision']}/{pr_hold['recall']} "
+                      f"事件 P/R={ev_hold['precision']}/{ev_hold['recall']} "
+                      f"分类型={type_recall} truth={pr_hold['truth_count']}")
 
     return summarize(fold_reports)
 

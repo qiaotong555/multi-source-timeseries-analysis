@@ -358,3 +358,25 @@ def test_eval_fixture_covers_every_fold():
             mask &= anom_ts < pd.Timestamp(info["end"])
         cnt = int(mask.sum())
         assert cnt >= 10, f"{fold['name']} holdout 真值仅 {cnt} 个，低于可判定要求"
+
+# ---------------- 评估链路护栏 ----------------
+
+def test_holdout_plan_missing_anomaly_is_harness_error():
+    """检测器没执行不能按 0 分算：必须显式标成评估链路错误。"""
+    assert SE.holdout_plan_problem(["trend", "seasonal"]) is not None
+    assert SE.holdout_plan_problem([]) is not None
+    assert SE.holdout_plan_problem(["trend", "anomaly"]) is None
+
+
+def test_rule_planner_env_forces_and_restores(monkeypatch):
+    monkeypatch.setenv("MTSA_PLANNER", "auto")
+    with SE.rule_planner_env():
+        assert os.environ["MTSA_PLANNER"] == "rule"
+    assert os.environ["MTSA_PLANNER"] == "auto"
+
+
+def test_rule_planner_env_removes_when_unset(monkeypatch):
+    monkeypatch.delenv("MTSA_PLANNER", raising=False)
+    with SE.rule_planner_env():
+        assert os.environ["MTSA_PLANNER"] == "rule"
+    assert "MTSA_PLANNER" not in os.environ
