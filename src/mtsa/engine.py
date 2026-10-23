@@ -5,6 +5,8 @@
 """
 from __future__ import annotations
 
+import json
+import math
 import os
 import time
 import uuid
@@ -166,12 +168,65 @@ class _Timer:
             raise
 
 
+def _json_safe(value):
+    """把非有限浮点替换成 null，保证失败结果也能写成合法 JSON。"""
+    if isinstance(value, float):
+        return value if math.isfinite(value) else None
+    if isinstance(value, dict):
+        return {str(k): _json_safe(v) for k, v in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_json_safe(v) for v in value]
+    return value
+
+
+def _unexpected_failure(request: AnalysisRequest, run_id: str, outdir: str,
+                        events: list[EventRecord], warnings: list[str],
+                        exc: Exception, verbose: bool) -> AnalysisResult:
+    """把未覆盖的节点异常收敛成 INTERNAL_ERROR，而不是让调用方看到崩溃。
+
+    这是鲁棒性矩阵的底线：任何输入都必须有 result.json，且能看出失败在哪个节点。
+    """
+    last = next((e for e in reversed(events) if e.status == "failed"), None)
+    node = last.node if last else "unknown"
+    result = AnalysisResult(request_id=request.request_id, run_id=run_id, status="failed")
+    result.error = ErrorDetail(
+        code=ERR_INTERNAL_ERROR,
+        message=f"分析节点 {node} 发生未分类异常，已中止并保留结果",
+        details={
+            "node": node,
+            "exception": f"{type(exc).__name__}: {exc}"[:500],
+            "hint": "该输入触发了未覆盖的边界条件；请保留原始输入与 result.json 以便复现",
+        },
+    )
+    result.events = events
+    result.warnings = warnings
+    try:
+        os.makedirs(outdir, exist_ok=True)
+        with open(os.path.join(outdir, "result.json"), "w", encoding="utf-8") as f:
+            json.dump(_json_safe(result.model_dump(mode="python")), f,
+                      ensure_ascii=False, indent=2, default=str)
+    except OSError:
+        pass
+    if verbose:
+        print(f"[{ERR_INTERNAL_ERROR}] 节点 {node}: {type(exc).__name__}: {exc}")
+    return result
+
+
 def run_analysis(request: AnalysisRequest, verbose: bool = True) -> AnalysisResult:
     run_id = _new_run_id()
     outdir = request.output_dir or os.path.join("artifacts", run_id)
     events: list[EventRecord] = []
-    timer = _Timer(events)
     warnings: list[str] = []
+    try:
+        return _run_analysis_impl(request, verbose, run_id, outdir, events, warnings)
+    except Exception as exc:                      # noqa: BLE001
+        return _unexpected_failure(request, run_id, outdir, events, warnings, exc, verbose)
+
+
+def _run_analysis_impl(request: AnalysisRequest, verbose: bool, run_id: str,
+                       outdir: str, events: list[EventRecord],
+                       warnings: list[str]) -> AnalysisResult:
+    timer = _Timer(events)
     result = AnalysisResult(request_id=request.request_id, run_id=run_id, status="running")
 
     def fail(code: str, message: str, **details) -> AnalysisResult:
@@ -251,9 +306,9 @@ def run_analysis(request: AnalysisRequest, verbose: bool = True) -> AnalysisResu
     })
     if profile.time_axis is None:
         return fail(ERR_TIME_AXIS_NOT_FOUND,
-                    "未识别到时间字段，无法执行时序分析",
+                    "未识别到可解析的时间字段（格式不一致、混合时区或全为空都会导致此结果）",
                     columns=list(raw.frame.columns),
-                    hint="请通过 --time-column 显式指定时间列")
+                    hint="请先统一时间格式与时区，或用 --time-column 显式指定时间列")
     if not profile.numeric_columns:
         return fail(ERR_EMPTY_NUMERIC_COLUMN, "未识别到任何有效数值列",
                     columns=list(raw.frame.columns))
@@ -320,6 +375,12 @@ def run_analysis(request: AnalysisRequest, verbose: bool = True) -> AnalysisResu
     for msg in _sample_scale_warnings(clean, qrep, profile, plan):
         if msg not in warnings:
             warnings.append(msg)
+    if any(op.get("op") == "replace_nonfinite_with_nan" for op in clean.operations):
+        warnings.append("检测到 inf/-inf 等非有限数值，已按缺失处理并插值；相关结论需谨慎。")
+    const_cols = [c for c in plan.target_columns
+                  if c in clean.frame.columns and clean.frame[c].nunique(dropna=True) <= 1]
+    if const_cols:
+        warnings.append(f"常数列（方差为 0）不参与统计检验：{const_cols}")
 
     # ---- 5b. 运行模式解析 ----
     # auto：有模型且场景支持 → agent；否则回退 pipeline，并把原因写进 warnings。
@@ -455,9 +516,13 @@ def run_analysis(request: AnalysisRequest, verbose: bool = True) -> AnalysisResu
             warnings.append("频域分析未产出结果：采样率无法识别或样本长度不足")
     else:
         # ---- 6. 指标 ----
-        mtab = metrics.compute_metrics(clean, plan)
-        extra = adapter.extra_metrics(clean, plan)
-        timer.run("compute_metrics", lambda: {"generic": len(mtab.rows), "scenario": len(extra.rows)})
+        # 计算必须放进 timer.run：否则 compute_metrics 抛异常时没有失败节点记录，
+        # 顶层护栏只能报 node=unknown。
+        def _compute_metrics():
+            return metrics.compute_metrics(clean, plan), adapter.extra_metrics(clean, plan)
+
+        mtab, extra = timer.run("compute_metrics", _compute_metrics)
+        events[-1].summary = {"generic": len(mtab.rows), "scenario": len(extra.rows)}
 
         # ---- 7. 频域 ----
         spectra = []

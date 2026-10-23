@@ -24,7 +24,12 @@ def _try_parse(values: pd.Series) -> tuple[pd.Series, float]:
     non_null = values.dropna()
     if len(non_null) == 0:
         return pd.Series([pd.NaT] * len(values), index=values.index), 0.0
-    parsed = pd.to_datetime(non_null, errors="coerce", utc=False)
+    try:
+        parsed = pd.to_datetime(non_null, errors="coerce", utc=False)
+    except (ValueError, TypeError, OverflowError):
+        # errors="coerce" 不覆盖「混合时区」这类输入级异常；按不可解析处理，
+        # 由上层返回 TIME_AXIS_NOT_FOUND，而不是把 ValueError 抛到调用方。
+        return pd.Series([pd.NaT] * len(values), index=values.index), 0.0
     ratio = float(parsed.notna().sum()) / float(len(non_null))
     full = pd.Series(pd.NaT, index=values.index, dtype="datetime64[ns]")
     full.loc[non_null.index] = parsed

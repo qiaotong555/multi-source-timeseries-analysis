@@ -113,6 +113,14 @@ def run_stat_tests(clean: CleanDataset, plan: AnalysisPlan) -> list[TestResultRo
             ))
             continue
         vals = s.to_numpy(dtype=float)
+        if float(vals.max() - vals.min()) == 0.0:
+            # ADF/KPSS/正态性/趋势对常数列无定义；跳过并留下记录，不能让整次分析崩掉。
+            rows.append(TestResultRow(
+                test_id=f"skip:{col}", name="常数列", column=col,
+                conclusion="序列方差为 0，统计检验无定义，已跳过",
+                assumptions="常数列不适用 ADF/KPSS/自相关/正态性/趋势检验",
+            ))
+            continue
 
         if "stationarity" in analyses or "test" in analyses:
             if len(vals) > 12:

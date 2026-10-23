@@ -1,15 +1,5 @@
 # test_stats_tests
-# status=PASS exit=0 duration=2.24s passed=15 failed=0 errors=0
+# status=PASS exit=0 duration=2.27s passed=15 failed=0 errors=0
 ...............                                                          [100%]
-============================== warnings summary ===============================
-tests/test_stats_tests.py::test_adf_detects_random_walk_as_nonstationary
-  <repo>\src\mtsa\stats_tests.py:133: InterpolationWarning: The test statistic is outside of the range of p-values available in the look-up table. The actual p-value is smaller than the p-value returned.
-    kpss_res = kpss(vals, regression="c", nlags="auto", result_object=False)
-
-tests/test_stats_tests.py::test_adf_detects_white_noise_as_stationary
-  <repo>\src\mtsa\stats_tests.py:133: InterpolationWarning: The test statistic is outside of the range of p-values available in the look-up table. The actual p-value is greater than the p-value returned.
-    kpss_res = kpss(vals, regression="c", nlags="auto", result_object=False)
-
--- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
-15 passed, 2 warnings in 1.14s
+15 passed in 1.14s
 

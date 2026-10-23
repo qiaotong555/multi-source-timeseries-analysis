@@ -68,6 +68,11 @@ python -m evals.agent_eval --input fixtures/weather_short_v1.csv     --out evals
 python -m evals.repro_check     artifacts/c_short_pipeline_rule_1/result.json     artifacts/c_short_pipeline_rule_2/result.json
 python -m evals.conclusion_eval --result-root artifacts/c_short_agent_eval     --labels fixtures/labels_weather_short_v1.csv     --truth fixtures/truth_weather_short_v1.json     --out evals/conclusion_eval_short_agent_results.json
 
+# 鲁棒性矩阵：37 个坏输入/边界用例（固定 rule 计划，约 72 秒）
+python -m evals.robustness_eval
+# 只跑某一组
+python -m evals.robustness_eval --only 导入,时间轴,数值
+
 # D 探针与重复：6 个开放/风险/对比问题；free 5 次/用例，guided 1 次/用例
 python -m evals.probe_eval --dry
 MTSA_PLANNER=rule python -m evals.probe_eval --plan free:5,guided:1 --max-tokens 6000 --out evals/probe_eval_results.json --out-root artifacts/d_probe_eval

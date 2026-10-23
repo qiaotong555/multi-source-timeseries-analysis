@@ -152,6 +152,21 @@ def clean_dataset(
         operations.append({"op": "resample", "rule": rule, "rows_before": before, "rows_after": len(frame)})
         numeric_cols = [c for c in numeric_cols if c in frame.columns]
 
+    # 4b) 非有限值：inf/-inf 不是可观测值，按缺失处理并在 operations 留痕。
+    # 不做静默丢弃：后续插值会填补，engine 会据此写 warning。
+    nonfinite = 0
+    for c in numeric_cols:
+        if c not in frame.columns:
+            continue
+        s = pd.to_numeric(frame[c], errors="coerce")
+        mask = s.notna() & ~np.isfinite(s)
+        n = int(mask.sum())
+        if n:
+            frame.loc[mask, c] = np.nan
+            nonfinite += n
+    if nonfinite:
+        operations.append({"op": "replace_nonfinite_with_nan", "cells": nonfinite})
+
     # 5) 插值
     imputed = 0
     imputed_index: list[str] = []

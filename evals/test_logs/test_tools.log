@@ -1,11 +1,5 @@
 # test_tools
-# status=PASS exit=0 duration=3.7s passed=21 failed=0 errors=0
+# status=PASS exit=0 duration=3.84s passed=21 failed=0 errors=0
 .....................                                                    [100%]
-============================== warnings summary ===============================
-tests/test_tools.py: 40 warnings
-  <repo>\src\mtsa\stats_tests.py:133: InterpolationWarning: The test statistic is outside of the range of p-values available in the look-up table. The actual p-value is greater than the p-value returned.
-    kpss_res = kpss(vals, regression="c", nlags="auto", result_object=False)
-
--- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
-21 passed, 40 warnings in 2.59s
+21 passed in 2.68s
 

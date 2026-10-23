@@ -1,15 +1,5 @@
 # test_agent_scope
-# status=PASS exit=0 duration=3.49s passed=15 failed=0 errors=0
+# status=PASS exit=0 duration=2.58s passed=15 failed=0 errors=0
 ...............                                                          [100%]
-============================== warnings summary ===============================
-tests/test_agent_scope.py::test_finish_before_floor_is_rejected_then_completes
-tests/test_agent_scope.py::test_finish_before_floor_is_rejected_then_completes
-tests/test_agent_scope.py::test_finish_before_floor_is_rejected_then_completes
-tests/test_agent_scope.py::test_finish_before_floor_is_rejected_then_completes
-tests/test_agent_scope.py::test_finish_before_floor_is_rejected_then_completes
-  <repo>\src\mtsa\stats_tests.py:133: InterpolationWarning: The test statistic is outside of the range of p-values available in the look-up table. The actual p-value is greater than the p-value returned.
-    kpss_res = kpss(vals, regression="c", nlags="auto", result_object=False)
-
--- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
-15 passed, 5 warnings in 2.32s
+15 passed in 1.44s
 
