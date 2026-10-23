@@ -230,6 +230,16 @@ raw → profile → quality → plan → clean → metrics → spectrum → test
 | 结果 | guided 2.75 步 / 31 结论 / 54,305 token；free 5.00 / 39 / 86,642；极差 0 vs 跨批次 2 |
 | 取舍 | 范围裁量权收缩，结论数 −20.5%；`free` 仅用于单次探索 |
 
+#### T2.12 评估集扩容
+
+| 项目 | 内容 |
+| --- | --- |
+| 目标 | 让需求覆盖率与规则覆盖率有区分度，并覆盖长问题/脏数据/否定句 |
+| 做法 | 9 → 13 用例（2 个探针）；用例数断言与 id 唯一性检查同步 |
+| 评估 | `python -m evals.agent_eval`、`python -m evals.mode_compare` |
+| 结果 | 13/13；2.54 步；需求覆盖 1.00；规则覆盖 0.66；结论 29.92 vs pipeline 39（−23.3%） |
+| 限制 | 同一 fixture、人工出题、探针仅 2 个 |
+
 ## 五、依赖与建议顺序
 
 ```text

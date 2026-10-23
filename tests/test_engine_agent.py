@@ -76,6 +76,10 @@ def test_weather_agent_runs_through_engine(monkeypatch, tmp_path):
     assert res.status == "succeeded", res.error
     agent = res.data["agent"]
     assert agent["mode"] == "agent"
+    # T2.11：报告必须写出范围下限与达标情况，不能只给步数
+    md = open(os.path.join(out, "report.md"), encoding="utf-8").read()
+    assert "范围下限" in md
+    assert "范围策略" in md
     assert agent["allowed_tools"] == [
         "compute_metrics", "analyze_spectrum", "run_stat_tests",
         "detect_anomalies", "detect_change_points",

@@ -70,7 +70,7 @@ RULE_PLAN_ITEMS: tuple[str, ...] = (
     "anomaly", "test", "stationarity", "autocorr", "normality", "seasonal",
 )
 
-# 9 个天气用例：8 个有明确需求项 + 1 个探针。
+# 13 个天气用例：11 个有明确需求项 + 2 个探针（T2.12 扩容）。
 # expect 是「这个问题明显需要什么」，不是穷举；探针不参与需求覆盖率统计。
 CASES: list[dict[str, Any]] = [
     {"id": "wx_trend", "question": "分析温度的趋势、季节性与极端事件",
@@ -90,6 +90,23 @@ CASES: list[dict[str, Any]] = [
     {"id": "wx_normal", "question": "检验温度数据是否服从正态分布",
      "expect": ["normality"]},
     {"id": "wx_open", "question": "帮我看看这两年的温度数据有什么值得注意的地方",
+     "expect": [], "probe": True},
+    # ---- T2.12 扩容：长问题、缺失数据、否定表述、第二个开放探针 ----
+    # 复合问题：一句话里含 5 个需求项，用来测「长问题会不会漏项」。
+    {"id": "wx_composite",
+     "question": "先看温度的趋势和季节结构，再判断序列是否平稳，最后给出异常点和变化点的位置",
+     "expect": ["trend", "seasonal", "stationarity", "anomaly", "changepoint"]},
+    # 数据里确实有缺失段与注入异常：问题指向数据质量，期望至少覆盖异常检测。
+    {"id": "wx_missing",
+     "question": "数据里有缺失和异常值，请说明缺失怎么处理，并给出异常点结论",
+     "expect": ["anomaly"]},
+    # 否定/条件表述：不能因为「没有」二字就跳过趋势分析。
+    {"id": "wx_trend_neg",
+     "question": "温度有没有明显上升趋势？如果没有，请说明判断依据",
+     "expect": ["trend"]},
+    # 第二个开放探针：没有明确分析项，只用于观察范围选择，不参与需求覆盖率。
+    {"id": "wx_risk_open",
+     "question": "这两年的天气对户外作业有什么风险",
      "expect": [], "probe": True},
 ]
 

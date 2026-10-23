@@ -115,6 +115,7 @@ def render_report(
         failed = [x for x in allowed if states.get(x) == "failed"]
         skipped = [x for x in allowed if states.get(x) == "skipped"]
         cov = agent.get("coverage") or {}
+        scope = agent.get("scope") or {}
         lines.append("### 3.1 Agent 执行轨迹")
         lines.append("")
         lines.append(_md_table(
@@ -122,6 +123,13 @@ def render_report(
             [["运行模式", "agent"],
              ["模型", agent.get("model") or "—"],
              ["终止原因", agent.get("terminate_reason") or "—"],
+             ["范围策略", agent.get("scope_mode") or "—"],
+             ["范围下限", (("、".join(scope.get("tools") or []) or "—")
+                          + ("（已覆盖）" if scope.get("met")
+                             else "（未覆盖：" + "、".join(scope.get("missing") or []) + "）"))
+                         if scope.get("enforced") else "—（free：范围由模型决定）"],
+             ["下限外追加步数", (f"{scope.get('extra_used', 0)}/{scope.get('max_extra_steps', 0)}"
+                               if scope.get("enforced") else "—")],
              ["步数", str(agent.get("step_count", 0))],
              ["已执行工具", "、".join(executed) or "—"],
              ["未执行工具", "、".join(not_run) or "—"],

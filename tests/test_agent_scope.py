@@ -123,7 +123,8 @@ def test_one_extra_step_allowed_second_rejected():
     assert traj.step_count == 2
     assert traj.tools_run == ["compute_metrics", "analyze_spectrum"]
     assert traj.rejects[0]["kind"] == "scope_exceeded"
-    assert traj.guard_stats["by_kind"]["extra_step_budget"] == 1
+    # 预算是预算，不是越界：guard_events 不应因此增加
+    assert traj.guard_stats["violations"] == 0
     assert traj.scope["extra_used"] == 1
     # 预算用尽即结束：不再问模型，避免 3 次无意义的拒绝往返
     assert traj.terminate_reason == "budget_exhausted"

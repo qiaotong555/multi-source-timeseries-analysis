@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-23T17:59:51",
+  "generated_at": "2026-10-23T21:58:03",
   "source": "real",
   "model": "deepseek-chat",
   "planner": "rule",
@@ -19,78 +19,12 @@
   ],
   "cases": [
     {
-      "run_id": "run_20261023_314c8427",
-      "status": "succeeded",
-      "mode": "agent",
-      "steps": 5,
-      "max_steps": 8,
-      "terminate_reason": "model_finished",
-      "allowed_tools": [
-        "compute_metrics",
-        "analyze_spectrum",
-        "run_stat_tests",
-        "detect_anomalies",
-        "detect_change_points"
-      ],
-      "executed_tools": [
-        "compute_metrics",
-        "analyze_spectrum",
-        "run_stat_tests",
-        "detect_anomalies",
-        "detect_change_points"
-      ],
-      "tool_coverage": 1.0,
-      "planned_analyses": [
-        "trend",
-        "corr",
-        "lag",
-        "extreme",
-        "spectrum",
-        "changepoint",
-        "anomaly",
-        "test",
-        "stationarity",
-        "autocorr",
-        "normality",
-        "seasonal"
-      ],
-      "analysis_coverage": 1.0,
-      "rule_plan_coverage": 1.0,
-      "rule_plan_missing": [],
-      "need": [
-        "trend",
-        "seasonal",
-        "extreme"
-      ],
-      "need_coverage": 1.0,
-      "need_missing": [],
-      "attempted_steps": 5,
-      "failed_steps": 0,
-      "tool_failure_rate": 0.0,
-      "guard_violations": 0,
-      "guard_by_kind": {},
-      "rejects": 0,
-      "elapsed_ms": 14576,
-      "tokens": {
-        "calls": 6,
-        "prompt_tokens": 6608,
-        "completion_tokens": 302,
-        "total_tokens": 6910,
-        "cached_tokens": 3968
-      },
-      "trajectory_sha256": "c5a11ee2476174bdfcabaab3492b23ad6835736b739f8416214d4a9606ea5309",
-      "replay_ok": true,
-      "replay_source": "<repo>\\artifacts\\t28_agent_eval_real2\\wx_trend\\result.json",
-      "case": "wx_trend",
-      "question": "分析温度的趋势、季节性与极端事件"
-    },
-    {
-      "run_id": "run_20261023_155fa8ec",
+      "run_id": "run_20261023_d88b3443",
       "status": "succeeded",
       "mode": "agent",
       "steps": 2,
       "max_steps": 8,
-      "terminate_reason": "model_finished",
+      "terminate_reason": "budget_exhausted",
       "allowed_tools": [
         "compute_metrics",
         "analyze_spectrum",
@@ -99,8 +33,8 @@
         "detect_change_points"
       ],
       "executed_tools": [
-        "detect_anomalies",
-        "detect_change_points"
+        "compute_metrics",
+        "analyze_spectrum"
       ],
       "tool_coverage": 0.4,
       "planned_analyses": [
@@ -117,23 +51,20 @@
         "normality",
         "seasonal"
       ],
-      "analysis_coverage": 0.1667,
-      "rule_plan_coverage": 0.1667,
+      "analysis_coverage": 0.5,
+      "rule_plan_coverage": 0.5,
       "rule_plan_missing": [
-        "trend",
-        "corr",
-        "lag",
-        "extreme",
-        "spectrum",
+        "changepoint",
+        "anomaly",
         "test",
         "stationarity",
         "autocorr",
-        "normality",
-        "seasonal"
+        "normality"
       ],
       "need": [
-        "anomaly",
-        "changepoint"
+        "trend",
+        "seasonal",
+        "extreme"
       ],
       "need_coverage": 1.0,
       "need_missing": [],
@@ -142,28 +73,28 @@
       "tool_failure_rate": 0.0,
       "guard_violations": 0,
       "guard_by_kind": {},
-      "rejects": 0,
-      "elapsed_ms": 3196,
+      "rejects": 1,
+      "elapsed_ms": 4483,
       "tokens": {
         "calls": 3,
-        "prompt_tokens": 2793,
-        "completion_tokens": 138,
-        "total_tokens": 2931,
-        "cached_tokens": 1920
+        "prompt_tokens": 3176,
+        "completion_tokens": 136,
+        "total_tokens": 3312,
+        "cached_tokens": 2048
       },
-      "trajectory_sha256": "48ef8b35c7c3f4c0d27b794b785e00974a3cd2276754e99d9afdb3f5b5defb56",
+      "trajectory_sha256": "6af9967054933c91b05d127323906d144c527a613c4fa588ca223d890a5f4006",
       "replay_ok": true,
-      "replay_source": "<repo>\\artifacts\\t28_agent_eval_real2\\wx_anomaly\\result.json",
-      "case": "wx_anomaly",
-      "question": "检查数据中的异常点和突变更点"
+      "replay_source": "<repo>\\artifacts\\t212_agent_eval\\wx_trend\\result.json",
+      "case": "wx_trend",
+      "question": "分析温度的趋势、季节性与极端事件"
     },
     {
-      "run_id": "run_20261023_6a276ce4",
+      "run_id": "run_20261023_df6e0a18",
       "status": "succeeded",
       "mode": "agent",
-      "steps": 5,
+      "steps": 4,
       "max_steps": 8,
-      "terminate_reason": "model_finished",
+      "terminate_reason": "budget_exhausted",
       "allowed_tools": [
         "compute_metrics",
         "analyze_spectrum",
@@ -173,12 +104,11 @@
       ],
       "executed_tools": [
         "compute_metrics",
-        "analyze_spectrum",
         "run_stat_tests",
         "detect_anomalies",
         "detect_change_points"
       ],
-      "tool_coverage": 1.0,
+      "tool_coverage": 0.8,
       "planned_analyses": [
         "trend",
         "corr",
@@ -193,42 +123,110 @@
         "normality",
         "seasonal"
       ],
-      "analysis_coverage": 1.0,
-      "rule_plan_coverage": 1.0,
-      "rule_plan_missing": [],
+      "analysis_coverage": 0.9167,
+      "rule_plan_coverage": 0.9167,
+      "rule_plan_missing": [
+        "spectrum"
+      ],
+      "need": [
+        "anomaly",
+        "changepoint"
+      ],
+      "need_coverage": 1.0,
+      "need_missing": [],
+      "attempted_steps": 4,
+      "failed_steps": 0,
+      "tool_failure_rate": 0.0,
+      "guard_violations": 0,
+      "guard_by_kind": {},
+      "rejects": 1,
+      "elapsed_ms": 11957,
+      "tokens": {
+        "calls": 5,
+        "prompt_tokens": 5913,
+        "completion_tokens": 224,
+        "total_tokens": 6137,
+        "cached_tokens": 3840
+      },
+      "trajectory_sha256": "3a15d22ff30c2014fe831e4d8eb427c544a34bb90cafa9c1d4dd63530e7a2756",
+      "replay_ok": true,
+      "replay_source": "<repo>\\artifacts\\t212_agent_eval\\wx_anomaly\\result.json",
+      "case": "wx_anomaly",
+      "question": "检查数据中的异常点和突变更点"
+    },
+    {
+      "run_id": "run_20261023_7bd03052",
+      "status": "succeeded",
+      "mode": "agent",
+      "steps": 2,
+      "max_steps": 8,
+      "terminate_reason": "budget_exhausted",
+      "allowed_tools": [
+        "compute_metrics",
+        "analyze_spectrum",
+        "run_stat_tests",
+        "detect_anomalies",
+        "detect_change_points"
+      ],
+      "executed_tools": [
+        "compute_metrics",
+        "run_stat_tests"
+      ],
+      "tool_coverage": 0.4,
+      "planned_analyses": [
+        "trend",
+        "corr",
+        "lag",
+        "extreme",
+        "spectrum",
+        "changepoint",
+        "anomaly",
+        "test",
+        "stationarity",
+        "autocorr",
+        "normality",
+        "seasonal"
+      ],
+      "analysis_coverage": 0.75,
+      "rule_plan_coverage": 0.75,
+      "rule_plan_missing": [
+        "spectrum",
+        "changepoint",
+        "anomaly"
+      ],
       "need": [
         "corr",
         "lag"
       ],
       "need_coverage": 1.0,
       "need_missing": [],
-      "attempted_steps": 5,
+      "attempted_steps": 2,
       "failed_steps": 0,
       "tool_failure_rate": 0.0,
       "guard_violations": 0,
       "guard_by_kind": {},
-      "rejects": 0,
-      "elapsed_ms": 14739,
+      "rejects": 1,
+      "elapsed_ms": 9602,
       "tokens": {
-        "calls": 6,
-        "prompt_tokens": 6752,
-        "completion_tokens": 311,
-        "total_tokens": 7063,
-        "cached_tokens": 3712
+        "calls": 3,
+        "prompt_tokens": 3350,
+        "completion_tokens": 147,
+        "total_tokens": 3497,
+        "cached_tokens": 2048
       },
-      "trajectory_sha256": "7ee6498385ed5f6dc1d5caf5ec69d7b048cf7df9bd87de28782bb0081bc7b814",
+      "trajectory_sha256": "7247b4b877cfa4df50452e383c122518a55dbb8ed258e579a5b89e0424eb659c",
       "replay_ok": true,
-      "replay_source": "<repo>\\artifacts\\t28_agent_eval_real2\\wx_corr\\result.json",
+      "replay_source": "<repo>\\artifacts\\t212_agent_eval\\wx_corr\\result.json",
       "case": "wx_corr",
       "question": "分析温度与湿度之间的相关性以及领先滞后关系"
     },
     {
-      "run_id": "run_20261023_e61bf059",
+      "run_id": "run_20261023_16832128",
       "status": "succeeded",
       "mode": "agent",
       "steps": 3,
       "max_steps": 8,
-      "terminate_reason": "model_finished",
+      "terminate_reason": "budget_exhausted",
       "allowed_tools": [
         "compute_metrics",
         "analyze_spectrum",
@@ -273,23 +271,23 @@
       "tool_failure_rate": 0.0,
       "guard_violations": 0,
       "guard_by_kind": {},
-      "rejects": 0,
-      "elapsed_ms": 12668,
+      "rejects": 1,
+      "elapsed_ms": 10602,
       "tokens": {
         "calls": 4,
-        "prompt_tokens": 4497,
-        "completion_tokens": 226,
-        "total_tokens": 4723,
-        "cached_tokens": 2560
+        "prompt_tokens": 4884,
+        "completion_tokens": 208,
+        "total_tokens": 5092,
+        "cached_tokens": 2816
       },
-      "trajectory_sha256": "152d987db8e89fa0b8214e7f633ec5259f0c90aa26cd954ea4de89b7772e6e1a",
+      "trajectory_sha256": "c2adbb7ce1cfaa2c015f16500cff07d17c47082780e6652dc31755c709d3a5de",
       "replay_ok": true,
-      "replay_source": "<repo>\\artifacts\\t28_agent_eval_real2\\wx_stationary\\result.json",
+      "replay_source": "<repo>\\artifacts\\t212_agent_eval\\wx_stationary\\result.json",
       "case": "wx_stationary",
       "question": "评估这条时间序列是否平稳，并说明其自相关结构"
     },
     {
-      "run_id": "run_20261023_3bf269ee",
+      "run_id": "run_20261023_2fc04eff",
       "status": "succeeded",
       "mode": "agent",
       "steps": 2,
@@ -303,8 +301,8 @@
         "detect_change_points"
       ],
       "executed_tools": [
-        "analyze_spectrum",
-        "run_stat_tests"
+        "compute_metrics",
+        "analyze_spectrum"
       ],
       "tool_coverage": 0.4,
       "planned_analyses": [
@@ -321,16 +319,15 @@
         "normality",
         "seasonal"
       ],
-      "analysis_coverage": 0.4167,
-      "rule_plan_coverage": 0.4167,
+      "analysis_coverage": 0.5,
+      "rule_plan_coverage": 0.5,
       "rule_plan_missing": [
-        "trend",
-        "corr",
-        "lag",
-        "extreme",
         "changepoint",
         "anomaly",
-        "seasonal"
+        "test",
+        "stationarity",
+        "autocorr",
+        "normality"
       ],
       "need": [
         "spectrum"
@@ -343,25 +340,25 @@
       "guard_violations": 0,
       "guard_by_kind": {},
       "rejects": 0,
-      "elapsed_ms": 9168,
+      "elapsed_ms": 4117,
       "tokens": {
         "calls": 3,
-        "prompt_tokens": 3181,
-        "completion_tokens": 167,
-        "total_tokens": 3348,
+        "prompt_tokens": 3231,
+        "completion_tokens": 164,
+        "total_tokens": 3395,
         "cached_tokens": 1920
       },
-      "trajectory_sha256": "b4e835689c1a2d33fbf38982b4ee1226725a02bc41d2a058ade563416d3960ba",
+      "trajectory_sha256": "9b260eed16585d142c43b1b74e7df12ec1c54d9081e7720753ad118eec55a9df",
       "replay_ok": true,
-      "replay_source": "<repo>\\artifacts\\t28_agent_eval_real2\\wx_spectrum\\result.json",
+      "replay_source": "<repo>\\artifacts\\t212_agent_eval\\wx_spectrum\\result.json",
       "case": "wx_spectrum",
       "question": "温度序列的周期性与主要频率成分是什么"
     },
     {
-      "run_id": "run_20261023_192b6ee1",
+      "run_id": "run_20261023_787a2a04",
       "status": "succeeded",
       "mode": "agent",
-      "steps": 2,
+      "steps": 3,
       "max_steps": 8,
       "terminate_reason": "model_finished",
       "allowed_tools": [
@@ -372,8 +369,76 @@
         "detect_change_points"
       ],
       "executed_tools": [
+        "compute_metrics",
         "detect_anomalies",
         "detect_change_points"
+      ],
+      "tool_coverage": 0.6,
+      "planned_analyses": [
+        "trend",
+        "corr",
+        "lag",
+        "extreme",
+        "spectrum",
+        "changepoint",
+        "anomaly",
+        "test",
+        "stationarity",
+        "autocorr",
+        "normality",
+        "seasonal"
+      ],
+      "analysis_coverage": 0.5833,
+      "rule_plan_coverage": 0.5833,
+      "rule_plan_missing": [
+        "spectrum",
+        "test",
+        "stationarity",
+        "autocorr",
+        "normality"
+      ],
+      "need": [
+        "changepoint"
+      ],
+      "need_coverage": 1.0,
+      "need_missing": [],
+      "attempted_steps": 3,
+      "failed_steps": 0,
+      "tool_failure_rate": 0.0,
+      "guard_violations": 0,
+      "guard_by_kind": {},
+      "rejects": 0,
+      "elapsed_ms": 5699,
+      "tokens": {
+        "calls": 4,
+        "prompt_tokens": 4447,
+        "completion_tokens": 213,
+        "total_tokens": 4660,
+        "cached_tokens": 2816
+      },
+      "trajectory_sha256": "1bf9ca1c5efe1db5f10da12cb449ac2f187d66d2fbf7d64424702ccd4e363a6d",
+      "replay_ok": true,
+      "replay_source": "<repo>\\artifacts\\t212_agent_eval\\wx_change\\result.json",
+      "case": "wx_change",
+      "question": "找出温度序列中的均值突变位置"
+    },
+    {
+      "run_id": "run_20261023_36dc4294",
+      "status": "succeeded",
+      "mode": "agent",
+      "steps": 2,
+      "max_steps": 8,
+      "terminate_reason": "budget_exhausted",
+      "allowed_tools": [
+        "compute_metrics",
+        "analyze_spectrum",
+        "run_stat_tests",
+        "detect_anomalies",
+        "detect_change_points"
+      ],
+      "executed_tools": [
+        "compute_metrics",
+        "detect_anomalies"
       ],
       "tool_coverage": 0.4,
       "planned_analyses": [
@@ -390,116 +455,46 @@
         "normality",
         "seasonal"
       ],
-      "analysis_coverage": 0.1667,
-      "rule_plan_coverage": 0.1667,
+      "analysis_coverage": 0.5,
+      "rule_plan_coverage": 0.5,
       "rule_plan_missing": [
-        "trend",
-        "corr",
-        "lag",
-        "extreme",
         "spectrum",
+        "changepoint",
         "test",
         "stationarity",
         "autocorr",
-        "normality",
-        "seasonal"
+        "normality"
       ],
       "need": [
-        "changepoint"
+        "extreme"
       ],
       "need_coverage": 1.0,
       "need_missing": [],
       "attempted_steps": 2,
       "failed_steps": 0,
       "tool_failure_rate": 0.0,
-      "guard_violations": 1,
-      "guard_by_kind": {
-        "duplicate_tool": 1
-      },
-      "rejects": 1,
-      "elapsed_ms": 4219,
-      "tokens": {
-        "calls": 4,
-        "prompt_tokens": 4006,
-        "completion_tokens": 204,
-        "total_tokens": 4210,
-        "cached_tokens": 2816
-      },
-      "trajectory_sha256": "63936b96b1cefcff4f4ddea610802da0ef183111f71bce466764b495075431f4",
-      "replay_ok": true,
-      "replay_source": "<repo>\\artifacts\\t28_agent_eval_real2\\wx_change\\result.json",
-      "case": "wx_change",
-      "question": "找出温度序列中的均值突变位置"
-    },
-    {
-      "run_id": "run_20261023_bf7f4feb",
-      "status": "succeeded",
-      "mode": "agent",
-      "steps": 5,
-      "max_steps": 8,
-      "terminate_reason": "model_finished",
-      "allowed_tools": [
-        "compute_metrics",
-        "analyze_spectrum",
-        "run_stat_tests",
-        "detect_anomalies",
-        "detect_change_points"
-      ],
-      "executed_tools": [
-        "compute_metrics",
-        "analyze_spectrum",
-        "run_stat_tests",
-        "detect_anomalies",
-        "detect_change_points"
-      ],
-      "tool_coverage": 1.0,
-      "planned_analyses": [
-        "trend",
-        "corr",
-        "lag",
-        "extreme",
-        "spectrum",
-        "changepoint",
-        "anomaly",
-        "test",
-        "stationarity",
-        "autocorr",
-        "normality",
-        "seasonal"
-      ],
-      "analysis_coverage": 1.0,
-      "rule_plan_coverage": 1.0,
-      "rule_plan_missing": [],
-      "need": [
-        "extreme"
-      ],
-      "need_coverage": 1.0,
-      "need_missing": [],
-      "attempted_steps": 5,
-      "failed_steps": 0,
-      "tool_failure_rate": 0.0,
       "guard_violations": 0,
       "guard_by_kind": {},
-      "rejects": 0,
-      "elapsed_ms": 14501,
+      "rejects": 1,
+      "elapsed_ms": 4041,
       "tokens": {
-        "calls": 6,
-        "prompt_tokens": 6619,
-        "completion_tokens": 317,
-        "total_tokens": 6936,
-        "cached_tokens": 2816
+        "calls": 3,
+        "prompt_tokens": 3054,
+        "completion_tokens": 150,
+        "total_tokens": 3204,
+        "cached_tokens": 2048
       },
-      "trajectory_sha256": "d145fb6b3e0b50fccc64c9fefb78cc9514b957b2da055a0c8be1a9275247fffe",
+      "trajectory_sha256": "4ef5ceb47897db196fd8b812d15f4d3fd2f36b46b5c83674176b1c681d23780a",
       "replay_ok": true,
-      "replay_source": "<repo>\\artifacts\\t28_agent_eval_real2\\wx_extreme\\result.json",
+      "replay_source": "<repo>\\artifacts\\t212_agent_eval\\wx_extreme\\result.json",
       "case": "wx_extreme",
       "question": "统计极端高温事件的频率与强度"
     },
     {
-      "run_id": "run_20261023_480e7f29",
+      "run_id": "run_20261023_9c0b8a0e",
       "status": "succeeded",
       "mode": "agent",
-      "steps": 1,
+      "steps": 2,
       "max_steps": 8,
       "terminate_reason": "model_finished",
       "allowed_tools": [
@@ -510,9 +505,10 @@
         "detect_change_points"
       ],
       "executed_tools": [
+        "compute_metrics",
         "run_stat_tests"
       ],
-      "tool_coverage": 0.2,
+      "tool_coverage": 0.4,
       "planned_analyses": [
         "trend",
         "corr",
@@ -527,45 +523,106 @@
         "normality",
         "seasonal"
       ],
-      "analysis_coverage": 0.3333,
-      "rule_plan_coverage": 0.3333,
+      "analysis_coverage": 0.75,
+      "rule_plan_coverage": 0.75,
       "rule_plan_missing": [
-        "trend",
-        "corr",
-        "lag",
-        "extreme",
         "spectrum",
         "changepoint",
-        "anomaly",
-        "seasonal"
+        "anomaly"
       ],
       "need": [
         "normality"
       ],
       "need_coverage": 1.0,
       "need_missing": [],
-      "attempted_steps": 1,
+      "attempted_steps": 2,
       "failed_steps": 0,
       "tool_failure_rate": 0.0,
       "guard_violations": 0,
       "guard_by_kind": {},
       "rejects": 0,
-      "elapsed_ms": 10149,
+      "elapsed_ms": 10888,
       "tokens": {
-        "calls": 2,
-        "prompt_tokens": 1986,
-        "completion_tokens": 104,
-        "total_tokens": 2090,
-        "cached_tokens": 768
+        "calls": 3,
+        "prompt_tokens": 3384,
+        "completion_tokens": 146,
+        "total_tokens": 3530,
+        "cached_tokens": 2048
       },
-      "trajectory_sha256": "535820c08196c239b7a7999a34bffadd836e7c44731b16a804c294077c2c1955",
+      "trajectory_sha256": "e34e9d240c717d3fcc970118322e23b710f1eb12a387438426f2c4c2196b22ac",
       "replay_ok": true,
-      "replay_source": "<repo>\\artifacts\\t28_agent_eval_real2\\wx_normal\\result.json",
+      "replay_source": "<repo>\\artifacts\\t212_agent_eval\\wx_normal\\result.json",
       "case": "wx_normal",
       "question": "检验温度数据是否服从正态分布"
     },
     {
-      "run_id": "run_20261023_3ba42e0e",
+      "run_id": "run_20261023_bd78df4e",
+      "status": "succeeded",
+      "mode": "agent",
+      "steps": 2,
+      "max_steps": 8,
+      "terminate_reason": "budget_exhausted",
+      "allowed_tools": [
+        "compute_metrics",
+        "analyze_spectrum",
+        "run_stat_tests",
+        "detect_anomalies",
+        "detect_change_points"
+      ],
+      "executed_tools": [
+        "compute_metrics",
+        "detect_anomalies"
+      ],
+      "tool_coverage": 0.4,
+      "planned_analyses": [
+        "trend",
+        "corr",
+        "lag",
+        "extreme",
+        "spectrum",
+        "changepoint",
+        "anomaly",
+        "test",
+        "stationarity",
+        "autocorr",
+        "normality",
+        "seasonal"
+      ],
+      "analysis_coverage": 0.5,
+      "rule_plan_coverage": 0.5,
+      "rule_plan_missing": [
+        "spectrum",
+        "changepoint",
+        "test",
+        "stationarity",
+        "autocorr",
+        "normality"
+      ],
+      "need": [],
+      "need_coverage": null,
+      "need_missing": [],
+      "attempted_steps": 2,
+      "failed_steps": 0,
+      "tool_failure_rate": 0.0,
+      "guard_violations": 0,
+      "guard_by_kind": {},
+      "rejects": 1,
+      "elapsed_ms": 4734,
+      "tokens": {
+        "calls": 3,
+        "prompt_tokens": 3063,
+        "completion_tokens": 159,
+        "total_tokens": 3222,
+        "cached_tokens": 2048
+      },
+      "trajectory_sha256": "2a843da8ffeeaea5cb6d2ec49c25532e66f7f1d75d8bc1a0c1e658a688eb9073",
+      "replay_ok": true,
+      "replay_source": "<repo>\\artifacts\\t212_agent_eval\\wx_open\\result.json",
+      "case": "wx_open",
+      "question": "帮我看看这两年的温度数据有什么值得注意的地方"
+    },
+    {
+      "run_id": "run_20261023_ccd31606",
       "status": "succeeded",
       "mode": "agent",
       "steps": 5,
@@ -603,8 +660,14 @@
       "analysis_coverage": 1.0,
       "rule_plan_coverage": 1.0,
       "rule_plan_missing": [],
-      "need": [],
-      "need_coverage": null,
+      "need": [
+        "trend",
+        "seasonal",
+        "stationarity",
+        "anomaly",
+        "changepoint"
+      ],
+      "need_coverage": 1.0,
       "need_missing": [],
       "attempted_steps": 5,
       "failed_steps": 0,
@@ -612,54 +675,254 @@
       "guard_violations": 0,
       "guard_by_kind": {},
       "rejects": 0,
-      "elapsed_ms": 15765,
+      "elapsed_ms": 12597,
       "tokens": {
         "calls": 6,
-        "prompt_tokens": 6479,
-        "completion_tokens": 331,
-        "total_tokens": 6810,
-        "cached_tokens": 2816
+        "prompt_tokens": 7560,
+        "completion_tokens": 294,
+        "total_tokens": 7854,
+        "cached_tokens": 4608
       },
-      "trajectory_sha256": "bdf09c97356f7a6c6a975ee3e63cfc8de36b577756c7942db37442520aff1c10",
+      "trajectory_sha256": "62270430a71902472a091a524904e8e3f9282db02ce921051fa76e46214a74a8",
       "replay_ok": true,
-      "replay_source": "<repo>\\artifacts\\t28_agent_eval_real2\\wx_open\\result.json",
-      "case": "wx_open",
-      "question": "帮我看看这两年的温度数据有什么值得注意的地方"
+      "replay_source": "<repo>\\artifacts\\t212_agent_eval\\wx_composite\\result.json",
+      "case": "wx_composite",
+      "question": "先看温度的趋势和季节结构，再判断序列是否平稳，最后给出异常点和变化点的位置"
+    },
+    {
+      "run_id": "run_20261023_3ef95023",
+      "status": "succeeded",
+      "mode": "agent",
+      "steps": 2,
+      "max_steps": 8,
+      "terminate_reason": "model_finished",
+      "allowed_tools": [
+        "compute_metrics",
+        "analyze_spectrum",
+        "run_stat_tests",
+        "detect_anomalies",
+        "detect_change_points"
+      ],
+      "executed_tools": [
+        "compute_metrics",
+        "detect_anomalies"
+      ],
+      "tool_coverage": 0.4,
+      "planned_analyses": [
+        "trend",
+        "corr",
+        "lag",
+        "extreme",
+        "spectrum",
+        "changepoint",
+        "anomaly",
+        "test",
+        "stationarity",
+        "autocorr",
+        "normality",
+        "seasonal"
+      ],
+      "analysis_coverage": 0.5,
+      "rule_plan_coverage": 0.5,
+      "rule_plan_missing": [
+        "spectrum",
+        "changepoint",
+        "test",
+        "stationarity",
+        "autocorr",
+        "normality"
+      ],
+      "need": [
+        "anomaly"
+      ],
+      "need_coverage": 1.0,
+      "need_missing": [],
+      "attempted_steps": 2,
+      "failed_steps": 0,
+      "tool_failure_rate": 0.0,
+      "guard_violations": 0,
+      "guard_by_kind": {},
+      "rejects": 0,
+      "elapsed_ms": 4529,
+      "tokens": {
+        "calls": 3,
+        "prompt_tokens": 3148,
+        "completion_tokens": 191,
+        "total_tokens": 3339,
+        "cached_tokens": 2304
+      },
+      "trajectory_sha256": "c1230a28166eb290491f074622eab6e1ba8570085b49b8a2d6a2b553beb34dd9",
+      "replay_ok": true,
+      "replay_source": "<repo>\\artifacts\\t212_agent_eval\\wx_missing\\result.json",
+      "case": "wx_missing",
+      "question": "数据里有缺失和异常值，请说明缺失怎么处理，并给出异常点结论"
+    },
+    {
+      "run_id": "run_20261023_93fb5519",
+      "status": "succeeded",
+      "mode": "agent",
+      "steps": 2,
+      "max_steps": 8,
+      "terminate_reason": "budget_exhausted",
+      "allowed_tools": [
+        "compute_metrics",
+        "analyze_spectrum",
+        "run_stat_tests",
+        "detect_anomalies",
+        "detect_change_points"
+      ],
+      "executed_tools": [
+        "compute_metrics",
+        "run_stat_tests"
+      ],
+      "tool_coverage": 0.4,
+      "planned_analyses": [
+        "trend",
+        "corr",
+        "lag",
+        "extreme",
+        "spectrum",
+        "changepoint",
+        "anomaly",
+        "test",
+        "stationarity",
+        "autocorr",
+        "normality",
+        "seasonal"
+      ],
+      "analysis_coverage": 0.75,
+      "rule_plan_coverage": 0.75,
+      "rule_plan_missing": [
+        "spectrum",
+        "changepoint",
+        "anomaly"
+      ],
+      "need": [
+        "trend"
+      ],
+      "need_coverage": 1.0,
+      "need_missing": [],
+      "attempted_steps": 2,
+      "failed_steps": 0,
+      "tool_failure_rate": 0.0,
+      "guard_violations": 0,
+      "guard_by_kind": {},
+      "rejects": 1,
+      "elapsed_ms": 9724,
+      "tokens": {
+        "calls": 3,
+        "prompt_tokens": 3356,
+        "completion_tokens": 171,
+        "total_tokens": 3527,
+        "cached_tokens": 2048
+      },
+      "trajectory_sha256": "c466fc3dbf9338349f41f49b80573f8f062d707be158aa6ebc06a5a016d6cbd4",
+      "replay_ok": true,
+      "replay_source": "<repo>\\artifacts\\t212_agent_eval\\wx_trend_neg\\result.json",
+      "case": "wx_trend_neg",
+      "question": "温度有没有明显上升趋势？如果没有，请说明判断依据"
+    },
+    {
+      "run_id": "run_20261023_86c4a3bd",
+      "status": "succeeded",
+      "mode": "agent",
+      "steps": 2,
+      "max_steps": 8,
+      "terminate_reason": "budget_exhausted",
+      "allowed_tools": [
+        "compute_metrics",
+        "analyze_spectrum",
+        "run_stat_tests",
+        "detect_anomalies",
+        "detect_change_points"
+      ],
+      "executed_tools": [
+        "compute_metrics",
+        "detect_anomalies"
+      ],
+      "tool_coverage": 0.4,
+      "planned_analyses": [
+        "trend",
+        "corr",
+        "lag",
+        "extreme",
+        "spectrum",
+        "changepoint",
+        "anomaly",
+        "test",
+        "stationarity",
+        "autocorr",
+        "normality",
+        "seasonal"
+      ],
+      "analysis_coverage": 0.5,
+      "rule_plan_coverage": 0.5,
+      "rule_plan_missing": [
+        "spectrum",
+        "changepoint",
+        "test",
+        "stationarity",
+        "autocorr",
+        "normality"
+      ],
+      "need": [],
+      "need_coverage": null,
+      "need_missing": [],
+      "attempted_steps": 2,
+      "failed_steps": 0,
+      "tool_failure_rate": 0.0,
+      "guard_violations": 0,
+      "guard_by_kind": {},
+      "rejects": 1,
+      "elapsed_ms": 4627,
+      "tokens": {
+        "calls": 3,
+        "prompt_tokens": 3057,
+        "completion_tokens": 157,
+        "total_tokens": 3214,
+        "cached_tokens": 2048
+      },
+      "trajectory_sha256": "35d5faa6d8aa5b68d702264c928b10114844de207b670ce22d860c4faaba7a46",
+      "replay_ok": true,
+      "replay_source": "<repo>\\artifacts\\t212_agent_eval\\wx_risk_open\\result.json",
+      "case": "wx_risk_open",
+      "question": "这两年的天气对户外作业有什么风险"
     }
   ],
   "summary": {
     "source": "real",
     "model": "deepseek-chat",
     "planner": "rule",
-    "n_runs": 9,
-    "n_succeeded": 9,
+    "n_runs": 13,
+    "n_succeeded": 13,
     "success_rate": 1.0,
-    "avg_steps": 3.3333,
-    "median_steps": 3,
+    "avg_steps": 2.5385,
+    "median_steps": 2,
     "max_steps_observed": 5,
     "terminate_distribution": {
-      "model_finished": 9
+      "budget_exhausted": 8,
+      "model_finished": 5
     },
-    "mean_tool_coverage": 0.6667,
-    "mean_analysis_coverage": 0.6574,
-    "mean_rule_plan_coverage": 0.6574,
-    "min_rule_plan_coverage": 0.1667,
+    "mean_tool_coverage": 0.5077,
+    "mean_analysis_coverage": 0.6603,
+    "mean_rule_plan_coverage": 0.6603,
+    "min_rule_plan_coverage": 0.5,
     "mean_need_coverage": 1.0,
     "all_needs_covered_rate": 1.0,
-    "need_pool_size": 8,
+    "need_pool_size": 11,
     "replayable_rate": 1.0,
-    "replay_pool_size": 9,
-    "guard_violations_total": 1,
-    "guard_violations_per_run": 0.1111,
-    "rejects_total": 1,
+    "replay_pool_size": 13,
+    "guard_violations_total": 0,
+    "guard_violations_per_run": 0.0,
+    "rejects_total": 8,
     "mean_tool_failure_rate": 0.0,
-    "mean_elapsed_ms": 10997.9,
-    "p90_elapsed_ms": 14739.0,
-    "tokens_available_runs": 9,
-    "tokens_total": 45021,
-    "tokens_avg_per_run": 5002.3,
-    "tokens_prompt_total": 42921,
-    "tokens_completion_total": 2100,
+    "mean_elapsed_ms": 7507.7,
+    "p90_elapsed_ms": 11957.0,
+    "tokens_available_runs": 13,
+    "tokens_total": 53983,
+    "tokens_avg_per_run": 4152.5,
+    "tokens_prompt_total": 51623,
+    "tokens_completion_total": 2360,
     "checks": {
       "成功率>=0.9": true,
       "需求覆盖率>=0.8": true,

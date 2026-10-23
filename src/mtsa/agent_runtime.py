@@ -35,7 +35,7 @@ M1 的计划层是**一次性规划**：看完数据摘要就定下 12 个分析
 `guided`（默认）先用关键词把「这个问题至少要做什么」算成下限，再让模型决定顺序：
 
 - 下限未覆盖时 `finish` 被拒绝（`scope_incomplete`），并告知缺哪几个工具；
-- 下限之外最多追加 `max_extra_steps`（默认 1）步，超出按 `extra_step_budget` 拒绝；
+- 下限之外最多追加 `max_extra_steps`（默认 1）步，超出记 `scope_exceeded` 并结束（不计入越界）；
 - 下限工具若失败且重试用尽，允许结束——否则会空转到 `max_steps`，把
   「做不到」伪装成「没做完」。
 
@@ -49,8 +49,7 @@ from datetime import datetime
 from typing import Any, Optional
 
 from . import tools
-from .agent_guards import (VIOLATION_EXTRA_STEP, ActionGuard, GuardDecision,
-                           GuardPolicy)
+from .agent_guards import ActionGuard, GuardPolicy
 from .llm_client import LLMError
 from .observation import build_observation
 from .scope import ScopeFloor, describe, infer_floor
@@ -268,9 +267,8 @@ class AgentRunner:
 
             over = self._extra_budget_exceeded(action)
             if over:
-                self.guard.record_violation(
-                    GuardDecision(False, VIOLATION_EXTRA_STEP, over),
-                    action, len(self.traj.steps))
+                # 预算用尽不是越界：工具合法、参数合法，只是不在下限内。
+                # 若记进 guard_events，「越界次数」会把正常的追加尝试也算进去。
                 self.traj.rejects.append({
                     "kind": "scope_exceeded", "action": action, "detail": over,
                 })

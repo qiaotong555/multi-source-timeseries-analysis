@@ -2,33 +2,33 @@
   "source": "real",
   "model": "deepseek-chat",
   "planner": "rule",
-  "n_cases": 9,
+  "n_cases": 13,
   "pipeline": {
-    "success": 9,
+    "success": 13,
     "mean_steps": 5,
     "mean_conclusions": 39,
     "mean_evidence": 39,
-    "mean_wall_ms": 50469.33,
+    "mean_wall_ms": 12092.62,
     "mean_rule_plan_coverage": 1.0,
     "mean_need_coverage": 1.0,
     "tokens_total": 0
   },
   "agent": {
-    "success": 9,
-    "mean_steps": 3.67,
-    "mean_conclusions": 26.78,
-    "mean_evidence": 26.78,
-    "mean_wall_ms": 52858.44,
-    "mean_rule_plan_coverage": 0.72,
+    "success": 13,
+    "mean_steps": 2.54,
+    "mean_conclusions": 29.92,
+    "mean_evidence": 29.92,
+    "mean_wall_ms": 12767.54,
+    "mean_rule_plan_coverage": 0.66,
     "mean_need_coverage": 1.0,
-    "tokens_total": 48565,
-    "tokens_avg_per_run": 5396.1
+    "tokens_total": 53924,
+    "tokens_avg_per_run": 4148.0
   },
   "deltas": {
-    "mean_conclusions": -12.22,
-    "mean_evidence": -12.22,
-    "mean_wall_ms": 2389.1,
-    "mean_rule_plan_coverage": -0.28
+    "mean_conclusions": -9.08,
+    "mean_evidence": -9.08,
+    "mean_wall_ms": 674.9,
+    "mean_rule_plan_coverage": -0.34
   },
   "checks": {
     "pipeline 全部成功": true,
@@ -51,7 +51,7 @@
         "evidence": 39,
         "rule_plan_coverage": 1.0,
         "need_coverage": 1.0,
-        "wall_ms": 50684,
+        "wall_ms": 13716,
         "metrics": 350,
         "tests": 50,
         "anomalies": 139,
@@ -59,26 +59,26 @@
       },
       "agent": {
         "status": "succeeded",
-        "steps": 5,
-        "terminate_reason": "model_finished",
-        "conclusions": 39,
-        "evidence": 39,
-        "rule_plan_coverage": 1.0,
+        "steps": 2,
+        "terminate_reason": "budget_exhausted",
+        "conclusions": 35,
+        "evidence": 35,
+        "rule_plan_coverage": 0.5,
         "need_coverage": 1.0,
-        "wall_ms": 54639,
+        "wall_ms": 8989,
         "tokens": {
-          "calls": 6,
-          "prompt_tokens": 6608,
-          "completion_tokens": 303,
-          "total_tokens": 6911,
-          "cached_tokens": 3840
+          "calls": 3,
+          "prompt_tokens": 3176,
+          "completion_tokens": 130,
+          "total_tokens": 3306,
+          "cached_tokens": 2048
         }
       },
       "delta": {
-        "conclusions": 0,
-        "evidence": 0,
-        "wall_ms": 3955,
-        "steps": 0
+        "conclusions": -4,
+        "evidence": -4,
+        "wall_ms": -4727,
+        "steps": -3
       }
     },
     {
@@ -94,7 +94,7 @@
         "evidence": 39,
         "rule_plan_coverage": 1.0,
         "need_coverage": 1.0,
-        "wall_ms": 50445,
+        "wall_ms": 12384,
         "metrics": 350,
         "tests": 50,
         "anomalies": 139,
@@ -102,26 +102,26 @@
       },
       "agent": {
         "status": "succeeded",
-        "steps": 2,
-        "terminate_reason": "model_finished",
-        "conclusions": 5,
-        "evidence": 5,
-        "rule_plan_coverage": 0.1667,
+        "steps": 4,
+        "terminate_reason": "budget_exhausted",
+        "conclusions": 29,
+        "evidence": 29,
+        "rule_plan_coverage": 0.9167,
         "need_coverage": 1.0,
-        "wall_ms": 44474,
+        "wall_ms": 16425,
         "tokens": {
-          "calls": 3,
-          "prompt_tokens": 2793,
-          "completion_tokens": 153,
-          "total_tokens": 2946,
-          "cached_tokens": 1920
+          "calls": 5,
+          "prompt_tokens": 5913,
+          "completion_tokens": 231,
+          "total_tokens": 6144,
+          "cached_tokens": 4096
         }
       },
       "delta": {
-        "conclusions": -34,
-        "evidence": -34,
-        "wall_ms": -5971,
-        "steps": -3
+        "conclusions": -10,
+        "evidence": -10,
+        "wall_ms": 4041,
+        "steps": -1
       }
     },
     {
@@ -137,7 +137,7 @@
         "evidence": 39,
         "rule_plan_coverage": 1.0,
         "need_coverage": 1.0,
-        "wall_ms": 50214,
+        "wall_ms": 12413,
         "metrics": 350,
         "tests": 50,
         "anomalies": 139,
@@ -145,26 +145,26 @@
       },
       "agent": {
         "status": "succeeded",
-        "steps": 5,
-        "terminate_reason": "model_finished",
-        "conclusions": 39,
-        "evidence": 39,
-        "rule_plan_coverage": 1.0,
+        "steps": 2,
+        "terminate_reason": "budget_exhausted",
+        "conclusions": 25,
+        "evidence": 25,
+        "rule_plan_coverage": 0.75,
         "need_coverage": 1.0,
-        "wall_ms": 55496,
+        "wall_ms": 14455,
         "tokens": {
-          "calls": 6,
-          "prompt_tokens": 6752,
-          "completion_tokens": 300,
-          "total_tokens": 7052,
-          "cached_tokens": 3712
+          "calls": 3,
+          "prompt_tokens": 3350,
+          "completion_tokens": 153,
+          "total_tokens": 3503,
+          "cached_tokens": 2048
         }
       },
       "delta": {
-        "conclusions": 0,
-        "evidence": 0,
-        "wall_ms": 5282,
-        "steps": 0
+        "conclusions": -14,
+        "evidence": -14,
+        "wall_ms": 2042,
+        "steps": -3
       }
     },
     {
@@ -180,7 +180,7 @@
         "evidence": 39,
         "rule_plan_coverage": 1.0,
         "need_coverage": 1.0,
-        "wall_ms": 50321,
+        "wall_ms": 11552,
         "metrics": 350,
         "tests": 50,
         "anomalies": 139,
@@ -188,26 +188,26 @@
       },
       "agent": {
         "status": "succeeded",
-        "steps": 5,
-        "terminate_reason": "model_finished",
-        "conclusions": 39,
-        "evidence": 39,
-        "rule_plan_coverage": 1.0,
+        "steps": 3,
+        "terminate_reason": "budget_exhausted",
+        "conclusions": 35,
+        "evidence": 35,
+        "rule_plan_coverage": 0.8333,
         "need_coverage": 1.0,
-        "wall_ms": 57485,
+        "wall_ms": 15555,
         "tokens": {
-          "calls": 6,
-          "prompt_tokens": 6766,
-          "completion_tokens": 334,
-          "total_tokens": 7100,
-          "cached_tokens": 3840
+          "calls": 4,
+          "prompt_tokens": 4884,
+          "completion_tokens": 204,
+          "total_tokens": 5088,
+          "cached_tokens": 2816
         }
       },
       "delta": {
-        "conclusions": 0,
-        "evidence": 0,
-        "wall_ms": 7164,
-        "steps": 0
+        "conclusions": -4,
+        "evidence": -4,
+        "wall_ms": 4003,
+        "steps": -2
       }
     },
     {
@@ -222,7 +222,7 @@
         "evidence": 39,
         "rule_plan_coverage": 1.0,
         "need_coverage": 1.0,
-        "wall_ms": 51174,
+        "wall_ms": 11679,
         "metrics": 350,
         "tests": 50,
         "anomalies": 139,
@@ -232,23 +232,23 @@
         "status": "succeeded",
         "steps": 2,
         "terminate_reason": "model_finished",
-        "conclusions": 11,
-        "evidence": 11,
-        "rule_plan_coverage": 0.4167,
+        "conclusions": 35,
+        "evidence": 35,
+        "rule_plan_coverage": 0.5,
         "need_coverage": 1.0,
-        "wall_ms": 51912,
+        "wall_ms": 9735,
         "tokens": {
           "calls": 3,
-          "prompt_tokens": 3181,
-          "completion_tokens": 177,
-          "total_tokens": 3358,
-          "cached_tokens": 1920
+          "prompt_tokens": 3231,
+          "completion_tokens": 153,
+          "total_tokens": 3384,
+          "cached_tokens": 2048
         }
       },
       "delta": {
-        "conclusions": -28,
-        "evidence": -28,
-        "wall_ms": 738,
+        "conclusions": -4,
+        "evidence": -4,
+        "wall_ms": -1944,
         "steps": -3
       }
     },
@@ -264,7 +264,7 @@
         "evidence": 39,
         "rule_plan_coverage": 1.0,
         "need_coverage": 1.0,
-        "wall_ms": 50715,
+        "wall_ms": 11684,
         "metrics": 350,
         "tests": 50,
         "anomalies": 139,
@@ -278,19 +278,19 @@
         "evidence": 29,
         "rule_plan_coverage": 0.5833,
         "need_coverage": 1.0,
-        "wall_ms": 48252,
+        "wall_ms": 12185,
         "tokens": {
-          "calls": 5,
-          "prompt_tokens": 5107,
-          "completion_tokens": 271,
-          "total_tokens": 5378,
-          "cached_tokens": 3328
+          "calls": 4,
+          "prompt_tokens": 4447,
+          "completion_tokens": 193,
+          "total_tokens": 4640,
+          "cached_tokens": 2816
         }
       },
       "delta": {
         "conclusions": -10,
         "evidence": -10,
-        "wall_ms": -2463,
+        "wall_ms": 501,
         "steps": -2
       }
     },
@@ -306,7 +306,7 @@
         "evidence": 39,
         "rule_plan_coverage": 1.0,
         "need_coverage": 1.0,
-        "wall_ms": 49942,
+        "wall_ms": 11984,
         "metrics": 350,
         "tests": 50,
         "anomalies": 139,
@@ -314,26 +314,26 @@
       },
       "agent": {
         "status": "succeeded",
-        "steps": 5,
-        "terminate_reason": "model_finished",
-        "conclusions": 39,
-        "evidence": 39,
-        "rule_plan_coverage": 1.0,
+        "steps": 2,
+        "terminate_reason": "budget_exhausted",
+        "conclusions": 28,
+        "evidence": 28,
+        "rule_plan_coverage": 0.5,
         "need_coverage": 1.0,
-        "wall_ms": 57080,
+        "wall_ms": 9682,
         "tokens": {
-          "calls": 6,
-          "prompt_tokens": 6619,
-          "completion_tokens": 301,
-          "total_tokens": 6920,
-          "cached_tokens": 3840
+          "calls": 3,
+          "prompt_tokens": 3054,
+          "completion_tokens": 156,
+          "total_tokens": 3210,
+          "cached_tokens": 2048
         }
       },
       "delta": {
-        "conclusions": 0,
-        "evidence": 0,
-        "wall_ms": 7138,
-        "steps": 0
+        "conclusions": -11,
+        "evidence": -11,
+        "wall_ms": -2302,
+        "steps": -3
       }
     },
     {
@@ -348,7 +348,7 @@
         "evidence": 39,
         "rule_plan_coverage": 1.0,
         "need_coverage": 1.0,
-        "wall_ms": 50178,
+        "wall_ms": 11970,
         "metrics": 350,
         "tests": 50,
         "anomalies": 139,
@@ -356,26 +356,26 @@
       },
       "agent": {
         "status": "succeeded",
-        "steps": 1,
+        "steps": 2,
         "terminate_reason": "model_finished",
-        "conclusions": 1,
-        "evidence": 1,
-        "rule_plan_coverage": 0.3333,
+        "conclusions": 25,
+        "evidence": 25,
+        "rule_plan_coverage": 0.75,
         "need_coverage": 1.0,
-        "wall_ms": 50752,
+        "wall_ms": 15555,
         "tokens": {
-          "calls": 2,
-          "prompt_tokens": 1986,
-          "completion_tokens": 104,
-          "total_tokens": 2090,
-          "cached_tokens": 1280
+          "calls": 3,
+          "prompt_tokens": 3384,
+          "completion_tokens": 158,
+          "total_tokens": 3542,
+          "cached_tokens": 2048
         }
       },
       "delta": {
-        "conclusions": -38,
-        "evidence": -38,
-        "wall_ms": 574,
-        "steps": -4
+        "conclusions": -14,
+        "evidence": -14,
+        "wall_ms": 3585,
+        "steps": -3
       }
     },
     {
@@ -388,7 +388,53 @@
         "evidence": 39,
         "rule_plan_coverage": 1.0,
         "need_coverage": null,
-        "wall_ms": 50551,
+        "wall_ms": 11801,
+        "metrics": 350,
+        "tests": 50,
+        "anomalies": 139,
+        "change_points": 6
+      },
+      "agent": {
+        "status": "succeeded",
+        "steps": 2,
+        "terminate_reason": "budget_exhausted",
+        "conclusions": 28,
+        "evidence": 28,
+        "rule_plan_coverage": 0.5,
+        "need_coverage": null,
+        "wall_ms": 9697,
+        "tokens": {
+          "calls": 3,
+          "prompt_tokens": 3063,
+          "completion_tokens": 137,
+          "total_tokens": 3200,
+          "cached_tokens": 2048
+        }
+      },
+      "delta": {
+        "conclusions": -11,
+        "evidence": -11,
+        "wall_ms": -2104,
+        "steps": -3
+      }
+    },
+    {
+      "case": "wx_composite",
+      "expect": [
+        "trend",
+        "seasonal",
+        "stationarity",
+        "anomaly",
+        "changepoint"
+      ],
+      "pipeline": {
+        "status": "succeeded",
+        "steps": 5,
+        "conclusions": 39,
+        "evidence": 39,
+        "rule_plan_coverage": 1.0,
+        "need_coverage": 1.0,
+        "wall_ms": 11955,
         "metrics": 350,
         "tests": 50,
         "anomalies": 139,
@@ -401,26 +447,150 @@
         "conclusions": 39,
         "evidence": 39,
         "rule_plan_coverage": 1.0,
-        "need_coverage": null,
-        "wall_ms": 55636,
+        "need_coverage": 1.0,
+        "wall_ms": 19674,
         "tokens": {
           "calls": 6,
-          "prompt_tokens": 6479,
-          "completion_tokens": 331,
-          "total_tokens": 6810,
-          "cached_tokens": 3840
+          "prompt_tokens": 7560,
+          "completion_tokens": 306,
+          "total_tokens": 7866,
+          "cached_tokens": 4608
         }
       },
       "delta": {
         "conclusions": 0,
         "evidence": 0,
-        "wall_ms": 5085,
+        "wall_ms": 7719,
         "steps": 0
+      }
+    },
+    {
+      "case": "wx_missing",
+      "expect": [
+        "anomaly"
+      ],
+      "pipeline": {
+        "status": "succeeded",
+        "steps": 5,
+        "conclusions": 39,
+        "evidence": 39,
+        "rule_plan_coverage": 1.0,
+        "need_coverage": 1.0,
+        "wall_ms": 11783,
+        "metrics": 350,
+        "tests": 50,
+        "anomalies": 139,
+        "change_points": 6
+      },
+      "agent": {
+        "status": "succeeded",
+        "steps": 2,
+        "terminate_reason": "model_finished",
+        "conclusions": 28,
+        "evidence": 28,
+        "rule_plan_coverage": 0.5,
+        "need_coverage": 1.0,
+        "wall_ms": 9062,
+        "tokens": {
+          "calls": 3,
+          "prompt_tokens": 3148,
+          "completion_tokens": 175,
+          "total_tokens": 3323,
+          "cached_tokens": 2304
+        }
+      },
+      "delta": {
+        "conclusions": -11,
+        "evidence": -11,
+        "wall_ms": -2721,
+        "steps": -3
+      }
+    },
+    {
+      "case": "wx_trend_neg",
+      "expect": [
+        "trend"
+      ],
+      "pipeline": {
+        "status": "succeeded",
+        "steps": 5,
+        "conclusions": 39,
+        "evidence": 39,
+        "rule_plan_coverage": 1.0,
+        "need_coverage": 1.0,
+        "wall_ms": 11754,
+        "metrics": 350,
+        "tests": 50,
+        "anomalies": 139,
+        "change_points": 6
+      },
+      "agent": {
+        "status": "succeeded",
+        "steps": 2,
+        "terminate_reason": "budget_exhausted",
+        "conclusions": 25,
+        "evidence": 25,
+        "rule_plan_coverage": 0.75,
+        "need_coverage": 1.0,
+        "wall_ms": 15407,
+        "tokens": {
+          "calls": 3,
+          "prompt_tokens": 3356,
+          "completion_tokens": 162,
+          "total_tokens": 3518,
+          "cached_tokens": 2048
+        }
+      },
+      "delta": {
+        "conclusions": -14,
+        "evidence": -14,
+        "wall_ms": 3653,
+        "steps": -3
+      }
+    },
+    {
+      "case": "wx_risk_open",
+      "expect": [],
+      "pipeline": {
+        "status": "succeeded",
+        "steps": 5,
+        "conclusions": 39,
+        "evidence": 39,
+        "rule_plan_coverage": 1.0,
+        "need_coverage": null,
+        "wall_ms": 12529,
+        "metrics": 350,
+        "tests": 50,
+        "anomalies": 139,
+        "change_points": 6
+      },
+      "agent": {
+        "status": "succeeded",
+        "steps": 2,
+        "terminate_reason": "budget_exhausted",
+        "conclusions": 28,
+        "evidence": 28,
+        "rule_plan_coverage": 0.5,
+        "need_coverage": null,
+        "wall_ms": 9557,
+        "tokens": {
+          "calls": 3,
+          "prompt_tokens": 3057,
+          "completion_tokens": 143,
+          "total_tokens": 3200,
+          "cached_tokens": 2048
+        }
+      },
+      "delta": {
+        "conclusions": -11,
+        "evidence": -11,
+        "wall_ms": -2972,
+        "steps": -3
       }
     }
   ],
   "scope_note": "同批 9 个天气用例、同一份 12 项规则计划；覆盖率为「分析是否执行」，不代表检出结果的正确性",
-  "generated_at": "2026-10-23T19:54:47",
+  "generated_at": "2026-10-23T22:03:29",
   "thresholds": {
     "pipeline_success": 1.0,
     "agent_success": 1.0,

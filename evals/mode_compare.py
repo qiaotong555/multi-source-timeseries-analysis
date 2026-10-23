@@ -254,7 +254,7 @@ def compare(case_rows: list[dict[str, Any]], source: str, model: str,
         "checks": checks,
         "passed": all(checks.values()),
         "cases": pairs,
-        "scope_note": ("同批 9 个天气用例、同一份 12 项规则计划；覆盖率为「分析是否执行」，"
+        "scope_note": (f"同批 {len(pairs)} 个天气用例、同一份 12 项规则计划；覆盖率为「分析是否执行」，"
                        "不代表检出结果的正确性"),
     }
 

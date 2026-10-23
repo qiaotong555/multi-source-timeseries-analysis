@@ -137,10 +137,13 @@ def test_failed_run_lowers_success_rate():
     assert s["terminate_distribution"].get("decision_error") == 1
 
 
-def test_cases_cover_nine_weather_questions():
-    assert len(agent_eval.CASES) == 9
+def test_cases_cover_thirteen_weather_questions():
+    """9 个原用例 + 4 个扩容用例（长问题/缺失数据/否定表述/开放探针）。"""
+    assert len(agent_eval.CASES) == 13
     probes = [c for c in agent_eval.CASES if c.get("probe")]
-    assert len(probes) == 1
+    assert len(probes) == 2
+    ids = [c["id"] for c in agent_eval.CASES]
+    assert len(ids) == len(set(ids)), "用例 id 不得重复"
     for c in agent_eval.CASES:
         assert set(c.get("expect") or []) <= set(agent_eval.RULE_PLAN_ITEMS)
 

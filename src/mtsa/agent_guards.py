@@ -26,9 +26,6 @@ VIOLATION_DUPLICATE = "duplicate_tool"
 VIOLATION_LOCKED_PARAM = "locked_parameter"
 VIOLATION_UNKNOWN_ARG = "unknown_argument"
 VIOLATION_STEP_BUDGET = "step_budget"
-# 范围下限之外允许追加的步数（T2.11）。它不是「工具不合法」，而是预算约束，
-# 因此单独分类，报告里能区分「乱选工具」和「在下限外多跑」。
-VIOLATION_EXTRA_STEP = "extra_step_budget"
 
 
 @dataclass(frozen=True)
