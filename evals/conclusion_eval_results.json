@@ -1,0 +1,5302 @@
+{
+  "generated_at": "2026-10-23T22:53:47",
+  "source": "existing_results",
+  "result_root": "artifacts\\t212_compare",
+  "labels": {
+    "path": "fixtures\\labels_weather_v1.csv",
+    "sha1": "1f993091490790533c5d052671bd0c5cfc086f51"
+  },
+  "truth": {
+    "path": "fixtures\\truth_weather_v1.json",
+    "sha1": "d2b71ea20ae3cb3c7921591e792d19918389d8a5"
+  },
+  "summary": {
+    "by_mode": {
+      "pipeline": {
+        "runs": 13,
+        "succeeded": 13,
+        "anomaly": {
+          "scored_runs": 13,
+          "not_run_runs": 0,
+          "truth_per_run": 18,
+          "not_run_truth_instances": 0,
+          "point": {
+            "tp": 234,
+            "fp": 1573,
+            "fn": 0,
+            "detected": 1807,
+            "truth": 234,
+            "precision": 0.1295,
+            "recall": 1.0,
+            "f1": 0.2293
+          },
+          "event": {
+            "tp": 234,
+            "fp": 1508,
+            "fn": 0,
+            "detected": 1742,
+            "truth": 234,
+            "precision": 0.1343,
+            "recall": 1.0,
+            "f1": 0.2368
+          },
+          "mean_precision": 0.1295,
+          "mean_recall": 1.0
+        },
+        "changepoint": {
+          "scored_runs": 13,
+          "not_run_runs": 0,
+          "truth_per_run": 2,
+          "not_run_truth_instances": 0,
+          "point": {
+            "tp": 26,
+            "fp": 52,
+            "fn": 0,
+            "detected": 78,
+            "truth": 26,
+            "precision": 0.3333,
+            "recall": 1.0,
+            "f1": 0.5
+          },
+          "mean_precision": 0.3333,
+          "mean_recall": 1.0
+        },
+        "trend": {
+          "states": {
+            "scored": 26
+          },
+          "scored": 26,
+          "correct": 13,
+          "incorrect": 13,
+          "accuracy": 0.5,
+          "unlabeled_series": [
+            "humidity@STA_A",
+            "humidity@STA_B",
+            "pressure@STA_A",
+            "pressure@STA_B",
+            "rainfall@STA_A",
+            "rainfall@STA_B",
+            "wind_speed@STA_A",
+            "wind_speed@STA_B"
+          ]
+        },
+        "seasonal": {
+          "states": {
+            "scored": 26
+          },
+          "scored": 26,
+          "correct": 26,
+          "incorrect": 0,
+          "accuracy": 1.0,
+          "unlabeled_series": [
+            "humidity@STA_A",
+            "humidity@STA_B",
+            "pressure@STA_A",
+            "pressure@STA_B",
+            "rainfall@STA_A",
+            "rainfall@STA_B",
+            "wind_speed@STA_A",
+            "wind_speed@STA_B"
+          ]
+        },
+        "conclusion_need": {
+          "runs_with_expect": 11,
+          "runs_with_mapped_need": 8,
+          "mapped": 14,
+          "covered": 14,
+          "missing": 0,
+          "unlabeled": 6,
+          "coverage": 1.0,
+          "all_covered_rate": 1.0
+        },
+        "quality": {
+          "detected": 13,
+          "reported_unlocalized": 52
+        }
+      },
+      "agent": {
+        "runs": 13,
+        "succeeded": 13,
+        "anomaly": {
+          "scored_runs": 7,
+          "not_run_runs": 6,
+          "truth_per_run": 18,
+          "not_run_truth_instances": 108,
+          "point": {
+            "tp": 126,
+            "fp": 847,
+            "fn": 0,
+            "detected": 973,
+            "truth": 126,
+            "precision": 0.1295,
+            "recall": 1.0,
+            "f1": 0.2293
+          },
+          "event": {
+            "tp": 126,
+            "fp": 812,
+            "fn": 0,
+            "detected": 938,
+            "truth": 126,
+            "precision": 0.1343,
+            "recall": 1.0,
+            "f1": 0.2368
+          },
+          "mean_precision": 0.1295,
+          "mean_recall": 1.0
+        },
+        "changepoint": {
+          "scored_runs": 3,
+          "not_run_runs": 10,
+          "truth_per_run": 2,
+          "not_run_truth_instances": 20,
+          "point": {
+            "tp": 6,
+            "fp": 12,
+            "fn": 0,
+            "detected": 18,
+            "truth": 6,
+            "precision": 0.3333,
+            "recall": 1.0,
+            "f1": 0.5
+          },
+          "mean_precision": 0.3333,
+          "mean_recall": 1.0
+        },
+        "trend": {
+          "states": {
+            "scored": 26
+          },
+          "scored": 26,
+          "correct": 13,
+          "incorrect": 13,
+          "accuracy": 0.5,
+          "unlabeled_series": [
+            "humidity@STA_A",
+            "humidity@STA_B",
+            "pressure@STA_A",
+            "pressure@STA_B",
+            "rainfall@STA_A",
+            "rainfall@STA_B",
+            "wind_speed@STA_A",
+            "wind_speed@STA_B"
+          ]
+        },
+        "seasonal": {
+          "states": {
+            "scored": 26
+          },
+          "scored": 26,
+          "correct": 26,
+          "incorrect": 0,
+          "accuracy": 1.0,
+          "unlabeled_series": [
+            "humidity@STA_A",
+            "humidity@STA_B",
+            "pressure@STA_A",
+            "pressure@STA_B",
+            "rainfall@STA_A",
+            "rainfall@STA_B",
+            "wind_speed@STA_A",
+            "wind_speed@STA_B"
+          ]
+        },
+        "conclusion_need": {
+          "runs_with_expect": 11,
+          "runs_with_mapped_need": 8,
+          "mapped": 14,
+          "covered": 14,
+          "missing": 0,
+          "unlabeled": 6,
+          "coverage": 1.0,
+          "all_covered_rate": 1.0
+        },
+        "quality": {
+          "detected": 13,
+          "reported_unlocalized": 52
+        }
+      }
+    },
+    "distinct": {
+      "pipeline": {
+        "anomaly_point": {
+          "tp": 18,
+          "fp": 121,
+          "fn": 0,
+          "detected": 139,
+          "truth": 18,
+          "precision": 0.1295,
+          "recall": 1.0,
+          "f1": 0.2293
+        },
+        "changepoint_point": {
+          "tp": 2,
+          "fp": 4,
+          "fn": 0,
+          "detected": 6,
+          "truth": 2,
+          "precision": 0.3333,
+          "recall": 1.0,
+          "f1": 0.5
+        },
+        "anomaly_hit": 18,
+        "changepoint_hit": 2,
+        "trend_by_series": {
+          "temperature@STA_A": "correct",
+          "temperature@STA_B": "incorrect"
+        },
+        "seasonal_by_series": {
+          "temperature@STA_A": "correct",
+          "temperature@STA_B": "correct"
+        }
+      },
+      "agent": {
+        "anomaly_point": {
+          "tp": 18,
+          "fp": 121,
+          "fn": 0,
+          "detected": 139,
+          "truth": 18,
+          "precision": 0.1295,
+          "recall": 1.0,
+          "f1": 0.2293
+        },
+        "changepoint_point": {
+          "tp": 2,
+          "fp": 4,
+          "fn": 0,
+          "detected": 6,
+          "truth": 2,
+          "precision": 0.3333,
+          "recall": 1.0,
+          "f1": 0.5
+        },
+        "anomaly_hit": 18,
+        "changepoint_hit": 2,
+        "trend_by_series": {
+          "temperature@STA_A": "correct",
+          "temperature@STA_B": "incorrect"
+        },
+        "seasonal_by_series": {
+          "temperature@STA_A": "correct",
+          "temperature@STA_B": "correct"
+        }
+      }
+    },
+    "agent_vs_pipeline": {
+      "anomaly": {
+        "pipeline_scored_runs": 13,
+        "agent_scored_runs": 7,
+        "agent_not_run_runs": 6,
+        "pipeline_tp_instances": 234,
+        "agent_tp_instances": 126,
+        "missed_instances_due_to_not_run": 108,
+        "pipeline_fp_instances": 1573,
+        "agent_fp_instances": 847,
+        "distinct_truth": 18,
+        "pipeline_distinct_hit": 18,
+        "agent_distinct_hit": 18,
+        "agent_distinct_missed": 0
+      },
+      "changepoint": {
+        "pipeline_scored_runs": 13,
+        "agent_scored_runs": 3,
+        "agent_not_run_runs": 10,
+        "pipeline_tp_instances": 26,
+        "agent_tp_instances": 6,
+        "missed_instances_due_to_not_run": 20,
+        "distinct_truth": 2,
+        "pipeline_distinct_hit": 2,
+        "agent_distinct_hit": 2,
+        "agent_distinct_missed": 0
+      },
+      "trend": {
+        "pipeline_accuracy": 0.5,
+        "agent_accuracy": 0.5
+      },
+      "seasonal": {
+        "pipeline_accuracy": 1.0,
+        "agent_accuracy": 1.0
+      }
+    }
+  },
+  "cases": [
+    {
+      "case": "wx_anomaly",
+      "mode": "agent",
+      "status": "succeeded",
+      "question": "检查数据中的异常点和突变更点",
+      "expect": [
+        "anomaly",
+        "changepoint"
+      ],
+      "executed_tools": [
+        "compute_metrics",
+        "run_stat_tests",
+        "detect_anomalies",
+        "detect_change_points"
+      ],
+      "conclusion_count": 29,
+      "conclusion_categories": {
+        "数据口径": 1,
+        "趋势": 10,
+        "季节性": 10,
+        "相关性": 3,
+        "滞后关系": 1,
+        "异常检测": 3,
+        "变化点": 1
+      },
+      "anomaly": {
+        "state": "scored",
+        "point": {
+          "tp": 18,
+          "fp": 121,
+          "fn": 0,
+          "detected": 139,
+          "truth": 18,
+          "precision": 0.1295,
+          "recall": 1.0,
+          "f1": 0.2293
+        },
+        "event": {
+          "tp": 18,
+          "fp": 116,
+          "fn": 0,
+          "detected": 134,
+          "truth": 18,
+          "precision": 0.1343,
+          "recall": 1.0,
+          "f1": 0.2368
+        },
+        "detected_events": 134
+      },
+      "changepoint": {
+        "state": "scored",
+        "point": {
+          "tp": 2,
+          "fp": 4,
+          "fn": 0,
+          "detected": 6,
+          "truth": 2,
+          "precision": 0.3333,
+          "recall": 1.0,
+          "f1": 0.5
+        },
+        "tolerance_seconds": 7200.0
+      },
+      "trend": {
+        "details": [
+          {
+            "series": "temperature@STA_A",
+            "state": "scored",
+            "correct": true,
+            "actual_direction": "up",
+            "expected_direction": "up",
+            "ols_slope": 0.1267,
+            "significant": true,
+            "reason": ""
+          },
+          {
+            "series": "temperature@STA_B",
+            "state": "scored",
+            "correct": false,
+            "actual_direction": "down",
+            "expected_direction": "up",
+            "ols_slope": -0.1409,
+            "significant": true,
+            "reason": "方向与注入真值不一致"
+          }
+        ],
+        "unlabeled_series": [
+          "humidity@STA_A",
+          "humidity@STA_B",
+          "pressure@STA_A",
+          "pressure@STA_B",
+          "rainfall@STA_A",
+          "rainfall@STA_B",
+          "wind_speed@STA_A",
+          "wind_speed@STA_B"
+        ]
+      },
+      "seasonal": {
+        "details": [
+          {
+            "series": "temperature@STA_A",
+            "state": "scored",
+            "correct": true,
+            "amplitude": 23.567,
+            "expected_amplitude": 24.0,
+            "peak_month": 7,
+            "expected_peak_month": 7,
+            "trough_month": 1,
+            "expected_trough_month": 1,
+            "amplitude_ok": true,
+            "peak_ok": true,
+            "trough_ok": true,
+            "reason": ""
+          },
+          {
+            "series": "temperature@STA_B",
+            "state": "scored",
+            "correct": true,
+            "amplitude": 22.623,
+            "expected_amplitude": 24.0,
+            "peak_month": 6,
+            "expected_peak_month": 6,
+            "trough_month": 12,
+            "expected_trough_month": 12,
+            "amplitude_ok": true,
+            "peak_ok": true,
+            "trough_ok": true,
+            "reason": ""
+          }
+        ],
+        "unlabeled_series": [
+          "humidity@STA_A",
+          "humidity@STA_B",
+          "pressure@STA_A",
+          "pressure@STA_B",
+          "rainfall@STA_A",
+          "rainfall@STA_B",
+          "wind_speed@STA_A",
+          "wind_speed@STA_B"
+        ]
+      },
+      "quality": [
+        {
+          "kind": "unit_change_start",
+          "column": "temperature",
+          "station": "STA_A",
+          "timestamp": "2024-05-05 00:00:00",
+          "series": "temperature@STA_A",
+          "status": "detected",
+          "detail": "POSSIBLE_UNIT_CHANGE 已定位到站点与起始时间"
+        },
+        {
+          "kind": "missing_gap_start",
+          "column": "temperature",
+          "station": "STA_B",
+          "timestamp": "2024-07-27 08:00:00",
+          "series": "temperature@STA_B",
+          "status": "reported_unlocalized",
+          "detail": "MISSING_VALUES 只有聚合计数，没有缺口起点"
+        },
+        {
+          "kind": "sampling_gap_start",
+          "column": "timestamp",
+          "station": "STA_A",
+          "timestamp": "2024-11-29 08:00:00",
+          "series": "timestamp@STA_A",
+          "status": "reported_unlocalized",
+          "detail": "SAMPLING_GAP 有区间，但没有站点/逐条对应"
+        },
+        {
+          "kind": "sampling_gap_start",
+          "column": "timestamp",
+          "station": "STA_B",
+          "timestamp": "2024-11-29 08:00:00",
+          "series": "timestamp@STA_B",
+          "status": "reported_unlocalized",
+          "detail": "SAMPLING_GAP 有区间，但没有站点/逐条对应"
+        },
+        {
+          "kind": "out_of_order_block",
+          "column": "timestamp",
+          "station": "—",
+          "timestamp": "2025-05-19 20:00:00",
+          "series": "timestamp",
+          "status": "reported_unlocalized",
+          "detail": "OUT_OF_ORDER 只有计数，没有乱序块起点"
+        }
+      ],
+      "conclusion_need": {
+        "covered": [
+          "anomaly",
+          "changepoint"
+        ],
+        "missing": [],
+        "unlabeled": [],
+        "mapped": 2,
+        "coverage": 1.0
+      },
+      "result_path": "artifacts\\t212_compare\\wx_anomaly_agent\\result.json"
+    },
+    {
+      "case": "wx_anomaly",
+      "mode": "pipeline",
+      "status": "succeeded",
+      "question": "检查数据中的异常点和突变更点",
+      "expect": [
+        "anomaly",
+        "changepoint"
+      ],
+      "executed_tools": [
+        "compute_metrics",
+        "analyze_spectrum",
+        "run_stat_tests",
+        "detect_anomalies",
+        "detect_change_points"
+      ],
+      "conclusion_count": 39,
+      "conclusion_categories": {
+        "数据口径": 1,
+        "趋势": 10,
+        "周期": 10,
+        "季节性": 10,
+        "相关性": 3,
+        "滞后关系": 1,
+        "异常检测": 3,
+        "变化点": 1
+      },
+      "anomaly": {
+        "state": "scored",
+        "point": {
+          "tp": 18,
+          "fp": 121,
+          "fn": 0,
+          "detected": 139,
+          "truth": 18,
+          "precision": 0.1295,
+          "recall": 1.0,
+          "f1": 0.2293
+        },
+        "event": {
+          "tp": 18,
+          "fp": 116,
+          "fn": 0,
+          "detected": 134,
+          "truth": 18,
+          "precision": 0.1343,
+          "recall": 1.0,
+          "f1": 0.2368
+        },
+        "detected_events": 134
+      },
+      "changepoint": {
+        "state": "scored",
+        "point": {
+          "tp": 2,
+          "fp": 4,
+          "fn": 0,
+          "detected": 6,
+          "truth": 2,
+          "precision": 0.3333,
+          "recall": 1.0,
+          "f1": 0.5
+        },
+        "tolerance_seconds": 7200.0
+      },
+      "trend": {
+        "details": [
+          {
+            "series": "temperature@STA_A",
+            "state": "scored",
+            "correct": true,
+            "actual_direction": "up",
+            "expected_direction": "up",
+            "ols_slope": 0.1267,
+            "significant": true,
+            "reason": ""
+          },
+          {
+            "series": "temperature@STA_B",
+            "state": "scored",
+            "correct": false,
+            "actual_direction": "down",
+            "expected_direction": "up",
+            "ols_slope": -0.1409,
+            "significant": true,
+            "reason": "方向与注入真值不一致"
+          }
+        ],
+        "unlabeled_series": [
+          "humidity@STA_A",
+          "humidity@STA_B",
+          "pressure@STA_A",
+          "pressure@STA_B",
+          "rainfall@STA_A",
+          "rainfall@STA_B",
+          "wind_speed@STA_A",
+          "wind_speed@STA_B"
+        ]
+      },
+      "seasonal": {
+        "details": [
+          {
+            "series": "temperature@STA_A",
+            "state": "scored",
+            "correct": true,
+            "amplitude": 23.567,
+            "expected_amplitude": 24.0,
+            "peak_month": 7,
+            "expected_peak_month": 7,
+            "trough_month": 1,
+            "expected_trough_month": 1,
+            "amplitude_ok": true,
+            "peak_ok": true,
+            "trough_ok": true,
+            "reason": ""
+          },
+          {
+            "series": "temperature@STA_B",
+            "state": "scored",
+            "correct": true,
+            "amplitude": 22.623,
+            "expected_amplitude": 24.0,
+            "peak_month": 6,
+            "expected_peak_month": 6,
+            "trough_month": 12,
+            "expected_trough_month": 12,
+            "amplitude_ok": true,
+            "peak_ok": true,
+            "trough_ok": true,
+            "reason": ""
+          }
+        ],
+        "unlabeled_series": [
+          "humidity@STA_A",
+          "humidity@STA_B",
+          "pressure@STA_A",
+          "pressure@STA_B",
+          "rainfall@STA_A",
+          "rainfall@STA_B",
+          "wind_speed@STA_A",
+          "wind_speed@STA_B"
+        ]
+      },
+      "quality": [
+        {
+          "kind": "unit_change_start",
+          "column": "temperature",
+          "station": "STA_A",
+          "timestamp": "2024-05-05 00:00:00",
+          "series": "temperature@STA_A",
+          "status": "detected",
+          "detail": "POSSIBLE_UNIT_CHANGE 已定位到站点与起始时间"
+        },
+        {
+          "kind": "missing_gap_start",
+          "column": "temperature",
+          "station": "STA_B",
+          "timestamp": "2024-07-27 08:00:00",
+          "series": "temperature@STA_B",
+          "status": "reported_unlocalized",
+          "detail": "MISSING_VALUES 只有聚合计数，没有缺口起点"
+        },
+        {
+          "kind": "sampling_gap_start",
+          "column": "timestamp",
+          "station": "STA_A",
+          "timestamp": "2024-11-29 08:00:00",
+          "series": "timestamp@STA_A",
+          "status": "reported_unlocalized",
+          "detail": "SAMPLING_GAP 有区间，但没有站点/逐条对应"
+        },
+        {
+          "kind": "sampling_gap_start",
+          "column": "timestamp",
+          "station": "STA_B",
+          "timestamp": "2024-11-29 08:00:00",
+          "series": "timestamp@STA_B",
+          "status": "reported_unlocalized",
+          "detail": "SAMPLING_GAP 有区间，但没有站点/逐条对应"
+        },
+        {
+          "kind": "out_of_order_block",
+          "column": "timestamp",
+          "station": "—",
+          "timestamp": "2025-05-19 20:00:00",
+          "series": "timestamp",
+          "status": "reported_unlocalized",
+          "detail": "OUT_OF_ORDER 只有计数，没有乱序块起点"
+        }
+      ],
+      "conclusion_need": {
+        "covered": [
+          "anomaly",
+          "changepoint"
+        ],
+        "missing": [],
+        "unlabeled": [],
+        "mapped": 2,
+        "coverage": 1.0
+      },
+      "result_path": "artifacts\\t212_compare\\wx_anomaly_pipeline\\result.json"
+    },
+    {
+      "case": "wx_change",
+      "mode": "agent",
+      "status": "succeeded",
+      "question": "找出温度序列中的均值突变位置",
+      "expect": [
+        "changepoint"
+      ],
+      "executed_tools": [
+        "compute_metrics",
+        "detect_anomalies",
+        "detect_change_points"
+      ],
+      "conclusion_count": 29,
+      "conclusion_categories": {
+        "数据口径": 1,
+        "趋势": 10,
+        "季节性": 10,
+        "相关性": 3,
+        "滞后关系": 1,
+        "异常检测": 3,
+        "变化点": 1
+      },
+      "anomaly": {
+        "state": "scored",
+        "point": {
+          "tp": 18,
+          "fp": 121,
+          "fn": 0,
+          "detected": 139,
+          "truth": 18,
+          "precision": 0.1295,
+          "recall": 1.0,
+          "f1": 0.2293
+        },
+        "event": {
+          "tp": 18,
+          "fp": 116,
+          "fn": 0,
+          "detected": 134,
+          "truth": 18,
+          "precision": 0.1343,
+          "recall": 1.0,
+          "f1": 0.2368
+        },
+        "detected_events": 134
+      },
+      "changepoint": {
+        "state": "scored",
+        "point": {
+          "tp": 2,
+          "fp": 4,
+          "fn": 0,
+          "detected": 6,
+          "truth": 2,
+          "precision": 0.3333,
+          "recall": 1.0,
+          "f1": 0.5
+        },
+        "tolerance_seconds": 7200.0
+      },
+      "trend": {
+        "details": [
+          {
+            "series": "temperature@STA_A",
+            "state": "scored",
+            "correct": true,
+            "actual_direction": "up",
+            "expected_direction": "up",
+            "ols_slope": 0.1267,
+            "significant": true,
+            "reason": ""
+          },
+          {
+            "series": "temperature@STA_B",
+            "state": "scored",
+            "correct": false,
+            "actual_direction": "down",
+            "expected_direction": "up",
+            "ols_slope": -0.1409,
+            "significant": true,
+            "reason": "方向与注入真值不一致"
+          }
+        ],
+        "unlabeled_series": [
+          "humidity@STA_A",
+          "humidity@STA_B",
+          "pressure@STA_A",
+          "pressure@STA_B",
+          "rainfall@STA_A",
+          "rainfall@STA_B",
+          "wind_speed@STA_A",
+          "wind_speed@STA_B"
+        ]
+      },
+      "seasonal": {
+        "details": [
+          {
+            "series": "temperature@STA_A",
+            "state": "scored",
+            "correct": true,
+            "amplitude": 23.567,
+            "expected_amplitude": 24.0,
+            "peak_month": 7,
+            "expected_peak_month": 7,
+            "trough_month": 1,
+            "expected_trough_month": 1,
+            "amplitude_ok": true,
+            "peak_ok": true,
+            "trough_ok": true,
+            "reason": ""
+          },
+          {
+            "series": "temperature@STA_B",
+            "state": "scored",
+            "correct": true,
+            "amplitude": 22.623,
+            "expected_amplitude": 24.0,
+            "peak_month": 6,
+            "expected_peak_month": 6,
+            "trough_month": 12,
+            "expected_trough_month": 12,
+            "amplitude_ok": true,
+            "peak_ok": true,
+            "trough_ok": true,
+            "reason": ""
+          }
+        ],
+        "unlabeled_series": [
+          "humidity@STA_A",
+          "humidity@STA_B",
+          "pressure@STA_A",
+          "pressure@STA_B",
+          "rainfall@STA_A",
+          "rainfall@STA_B",
+          "wind_speed@STA_A",
+          "wind_speed@STA_B"
+        ]
+      },
+      "quality": [
+        {
+          "kind": "unit_change_start",
+          "column": "temperature",
+          "station": "STA_A",
+          "timestamp": "2024-05-05 00:00:00",
+          "series": "temperature@STA_A",
+          "status": "detected",
+          "detail": "POSSIBLE_UNIT_CHANGE 已定位到站点与起始时间"
+        },
+        {
+          "kind": "missing_gap_start",
+          "column": "temperature",
+          "station": "STA_B",
+          "timestamp": "2024-07-27 08:00:00",
+          "series": "temperature@STA_B",
+          "status": "reported_unlocalized",
+          "detail": "MISSING_VALUES 只有聚合计数，没有缺口起点"
+        },
+        {
+          "kind": "sampling_gap_start",
+          "column": "timestamp",
+          "station": "STA_A",
+          "timestamp": "2024-11-29 08:00:00",
+          "series": "timestamp@STA_A",
+          "status": "reported_unlocalized",
+          "detail": "SAMPLING_GAP 有区间，但没有站点/逐条对应"
+        },
+        {
+          "kind": "sampling_gap_start",
+          "column": "timestamp",
+          "station": "STA_B",
+          "timestamp": "2024-11-29 08:00:00",
+          "series": "timestamp@STA_B",
+          "status": "reported_unlocalized",
+          "detail": "SAMPLING_GAP 有区间，但没有站点/逐条对应"
+        },
+        {
+          "kind": "out_of_order_block",
+          "column": "timestamp",
+          "station": "—",
+          "timestamp": "2025-05-19 20:00:00",
+          "series": "timestamp",
+          "status": "reported_unlocalized",
+          "detail": "OUT_OF_ORDER 只有计数，没有乱序块起点"
+        }
+      ],
+      "conclusion_need": {
+        "covered": [
+          "changepoint"
+        ],
+        "missing": [],
+        "unlabeled": [],
+        "mapped": 1,
+        "coverage": 1.0
+      },
+      "result_path": "artifacts\\t212_compare\\wx_change_agent\\result.json"
+    },
+    {
+      "case": "wx_change",
+      "mode": "pipeline",
+      "status": "succeeded",
+      "question": "找出温度序列中的均值突变位置",
+      "expect": [
+        "changepoint"
+      ],
+      "executed_tools": [
+        "compute_metrics",
+        "analyze_spectrum",
+        "run_stat_tests",
+        "detect_anomalies",
+        "detect_change_points"
+      ],
+      "conclusion_count": 39,
+      "conclusion_categories": {
+        "数据口径": 1,
+        "趋势": 10,
+        "周期": 10,
+        "季节性": 10,
+        "相关性": 3,
+        "滞后关系": 1,
+        "异常检测": 3,
+        "变化点": 1
+      },
+      "anomaly": {
+        "state": "scored",
+        "point": {
+          "tp": 18,
+          "fp": 121,
+          "fn": 0,
+          "detected": 139,
+          "truth": 18,
+          "precision": 0.1295,
+          "recall": 1.0,
+          "f1": 0.2293
+        },
+        "event": {
+          "tp": 18,
+          "fp": 116,
+          "fn": 0,
+          "detected": 134,
+          "truth": 18,
+          "precision": 0.1343,
+          "recall": 1.0,
+          "f1": 0.2368
+        },
+        "detected_events": 134
+      },
+      "changepoint": {
+        "state": "scored",
+        "point": {
+          "tp": 2,
+          "fp": 4,
+          "fn": 0,
+          "detected": 6,
+          "truth": 2,
+          "precision": 0.3333,
+          "recall": 1.0,
+          "f1": 0.5
+        },
+        "tolerance_seconds": 7200.0
+      },
+      "trend": {
+        "details": [
+          {
+            "series": "temperature@STA_A",
+            "state": "scored",
+            "correct": true,
+            "actual_direction": "up",
+            "expected_direction": "up",
+            "ols_slope": 0.1267,
+            "significant": true,
+            "reason": ""
+          },
+          {
+            "series": "temperature@STA_B",
+            "state": "scored",
+            "correct": false,
+            "actual_direction": "down",
+            "expected_direction": "up",
+            "ols_slope": -0.1409,
+            "significant": true,
+            "reason": "方向与注入真值不一致"
+          }
+        ],
+        "unlabeled_series": [
+          "humidity@STA_A",
+          "humidity@STA_B",
+          "pressure@STA_A",
+          "pressure@STA_B",
+          "rainfall@STA_A",
+          "rainfall@STA_B",
+          "wind_speed@STA_A",
+          "wind_speed@STA_B"
+        ]
+      },
+      "seasonal": {
+        "details": [
+          {
+            "series": "temperature@STA_A",
+            "state": "scored",
+            "correct": true,
+            "amplitude": 23.567,
+            "expected_amplitude": 24.0,
+            "peak_month": 7,
+            "expected_peak_month": 7,
+            "trough_month": 1,
+            "expected_trough_month": 1,
+            "amplitude_ok": true,
+            "peak_ok": true,
+            "trough_ok": true,
+            "reason": ""
+          },
+          {
+            "series": "temperature@STA_B",
+            "state": "scored",
+            "correct": true,
+            "amplitude": 22.623,
+            "expected_amplitude": 24.0,
+            "peak_month": 6,
+            "expected_peak_month": 6,
+            "trough_month": 12,
+            "expected_trough_month": 12,
+            "amplitude_ok": true,
+            "peak_ok": true,
+            "trough_ok": true,
+            "reason": ""
+          }
+        ],
+        "unlabeled_series": [
+          "humidity@STA_A",
+          "humidity@STA_B",
+          "pressure@STA_A",
+          "pressure@STA_B",
+          "rainfall@STA_A",
+          "rainfall@STA_B",
+          "wind_speed@STA_A",
+          "wind_speed@STA_B"
+        ]
+      },
+      "quality": [
+        {
+          "kind": "unit_change_start",
+          "column": "temperature",
+          "station": "STA_A",
+          "timestamp": "2024-05-05 00:00:00",
+          "series": "temperature@STA_A",
+          "status": "detected",
+          "detail": "POSSIBLE_UNIT_CHANGE 已定位到站点与起始时间"
+        },
+        {
+          "kind": "missing_gap_start",
+          "column": "temperature",
+          "station": "STA_B",
+          "timestamp": "2024-07-27 08:00:00",
+          "series": "temperature@STA_B",
+          "status": "reported_unlocalized",
+          "detail": "MISSING_VALUES 只有聚合计数，没有缺口起点"
+        },
+        {
+          "kind": "sampling_gap_start",
+          "column": "timestamp",
+          "station": "STA_A",
+          "timestamp": "2024-11-29 08:00:00",
+          "series": "timestamp@STA_A",
+          "status": "reported_unlocalized",
+          "detail": "SAMPLING_GAP 有区间，但没有站点/逐条对应"
+        },
+        {
+          "kind": "sampling_gap_start",
+          "column": "timestamp",
+          "station": "STA_B",
+          "timestamp": "2024-11-29 08:00:00",
+          "series": "timestamp@STA_B",
+          "status": "reported_unlocalized",
+          "detail": "SAMPLING_GAP 有区间，但没有站点/逐条对应"
+        },
+        {
+          "kind": "out_of_order_block",
+          "column": "timestamp",
+          "station": "—",
+          "timestamp": "2025-05-19 20:00:00",
+          "series": "timestamp",
+          "status": "reported_unlocalized",
+          "detail": "OUT_OF_ORDER 只有计数，没有乱序块起点"
+        }
+      ],
+      "conclusion_need": {
+        "covered": [
+          "changepoint"
+        ],
+        "missing": [],
+        "unlabeled": [],
+        "mapped": 1,
+        "coverage": 1.0
+      },
+      "result_path": "artifacts\\t212_compare\\wx_change_pipeline\\result.json"
+    },
+    {
+      "case": "wx_composite",
+      "mode": "agent",
+      "status": "succeeded",
+      "question": "先看温度的趋势和季节结构，再判断序列是否平稳，最后给出异常点和变化点的位置",
+      "expect": [
+        "trend",
+        "seasonal",
+        "stationarity",
+        "anomaly",
+        "changepoint"
+      ],
+      "executed_tools": [
+        "compute_metrics",
+        "analyze_spectrum",
+        "run_stat_tests",
+        "detect_anomalies",
+        "detect_change_points"
+      ],
+      "conclusion_count": 39,
+      "conclusion_categories": {
+        "数据口径": 1,
+        "趋势": 10,
+        "周期": 10,
+        "季节性": 10,
+        "相关性": 3,
+        "滞后关系": 1,
+        "异常检测": 3,
+        "变化点": 1
+      },
+      "anomaly": {
+        "state": "scored",
+        "point": {
+          "tp": 18,
+          "fp": 121,
+          "fn": 0,
+          "detected": 139,
+          "truth": 18,
+          "precision": 0.1295,
+          "recall": 1.0,
+          "f1": 0.2293
+        },
+        "event": {
+          "tp": 18,
+          "fp": 116,
+          "fn": 0,
+          "detected": 134,
+          "truth": 18,
+          "precision": 0.1343,
+          "recall": 1.0,
+          "f1": 0.2368
+        },
+        "detected_events": 134
+      },
+      "changepoint": {
+        "state": "scored",
+        "point": {
+          "tp": 2,
+          "fp": 4,
+          "fn": 0,
+          "detected": 6,
+          "truth": 2,
+          "precision": 0.3333,
+          "recall": 1.0,
+          "f1": 0.5
+        },
+        "tolerance_seconds": 7200.0
+      },
+      "trend": {
+        "details": [
+          {
+            "series": "temperature@STA_A",
+            "state": "scored",
+            "correct": true,
+            "actual_direction": "up",
+            "expected_direction": "up",
+            "ols_slope": 0.1267,
+            "significant": true,
+            "reason": ""
+          },
+          {
+            "series": "temperature@STA_B",
+            "state": "scored",
+            "correct": false,
+            "actual_direction": "down",
+            "expected_direction": "up",
+            "ols_slope": -0.1409,
+            "significant": true,
+            "reason": "方向与注入真值不一致"
+          }
+        ],
+        "unlabeled_series": [
+          "humidity@STA_A",
+          "humidity@STA_B",
+          "pressure@STA_A",
+          "pressure@STA_B",
+          "rainfall@STA_A",
+          "rainfall@STA_B",
+          "wind_speed@STA_A",
+          "wind_speed@STA_B"
+        ]
+      },
+      "seasonal": {
+        "details": [
+          {
+            "series": "temperature@STA_A",
+            "state": "scored",
+            "correct": true,
+            "amplitude": 23.567,
+            "expected_amplitude": 24.0,
+            "peak_month": 7,
+            "expected_peak_month": 7,
+            "trough_month": 1,
+            "expected_trough_month": 1,
+            "amplitude_ok": true,
+            "peak_ok": true,
+            "trough_ok": true,
+            "reason": ""
+          },
+          {
+            "series": "temperature@STA_B",
+            "state": "scored",
+            "correct": true,
+            "amplitude": 22.623,
+            "expected_amplitude": 24.0,
+            "peak_month": 6,
+            "expected_peak_month": 6,
+            "trough_month": 12,
+            "expected_trough_month": 12,
+            "amplitude_ok": true,
+            "peak_ok": true,
+            "trough_ok": true,
+            "reason": ""
+          }
+        ],
+        "unlabeled_series": [
+          "humidity@STA_A",
+          "humidity@STA_B",
+          "pressure@STA_A",
+          "pressure@STA_B",
+          "rainfall@STA_A",
+          "rainfall@STA_B",
+          "wind_speed@STA_A",
+          "wind_speed@STA_B"
+        ]
+      },
+      "quality": [
+        {
+          "kind": "unit_change_start",
+          "column": "temperature",
+          "station": "STA_A",
+          "timestamp": "2024-05-05 00:00:00",
+          "series": "temperature@STA_A",
+          "status": "detected",
+          "detail": "POSSIBLE_UNIT_CHANGE 已定位到站点与起始时间"
+        },
+        {
+          "kind": "missing_gap_start",
+          "column": "temperature",
+          "station": "STA_B",
+          "timestamp": "2024-07-27 08:00:00",
+          "series": "temperature@STA_B",
+          "status": "reported_unlocalized",
+          "detail": "MISSING_VALUES 只有聚合计数，没有缺口起点"
+        },
+        {
+          "kind": "sampling_gap_start",
+          "column": "timestamp",
+          "station": "STA_A",
+          "timestamp": "2024-11-29 08:00:00",
+          "series": "timestamp@STA_A",
+          "status": "reported_unlocalized",
+          "detail": "SAMPLING_GAP 有区间，但没有站点/逐条对应"
+        },
+        {
+          "kind": "sampling_gap_start",
+          "column": "timestamp",
+          "station": "STA_B",
+          "timestamp": "2024-11-29 08:00:00",
+          "series": "timestamp@STA_B",
+          "status": "reported_unlocalized",
+          "detail": "SAMPLING_GAP 有区间，但没有站点/逐条对应"
+        },
+        {
+          "kind": "out_of_order_block",
+          "column": "timestamp",
+          "station": "—",
+          "timestamp": "2025-05-19 20:00:00",
+          "series": "timestamp",
+          "status": "reported_unlocalized",
+          "detail": "OUT_OF_ORDER 只有计数，没有乱序块起点"
+        }
+      ],
+      "conclusion_need": {
+        "covered": [
+          "trend",
+          "seasonal",
+          "anomaly",
+          "changepoint"
+        ],
+        "missing": [],
+        "unlabeled": [
+          "stationarity"
+        ],
+        "mapped": 4,
+        "coverage": 1.0
+      },
+      "result_path": "artifacts\\t212_compare\\wx_composite_agent\\result.json"
+    },
+    {
+      "case": "wx_composite",
+      "mode": "pipeline",
+      "status": "succeeded",
+      "question": "先看温度的趋势和季节结构，再判断序列是否平稳，最后给出异常点和变化点的位置",
+      "expect": [
+        "trend",
+        "seasonal",
+        "stationarity",
+        "anomaly",
+        "changepoint"
+      ],
+      "executed_tools": [
+        "compute_metrics",
+        "analyze_spectrum",
+        "run_stat_tests",
+        "detect_anomalies",
+        "detect_change_points"
+      ],
+      "conclusion_count": 39,
+      "conclusion_categories": {
+        "数据口径": 1,
+        "趋势": 10,
+        "周期": 10,
+        "季节性": 10,
+        "相关性": 3,
+        "滞后关系": 1,
+        "异常检测": 3,
+        "变化点": 1
+      },
+      "anomaly": {
+        "state": "scored",
+        "point": {
+          "tp": 18,
+          "fp": 121,
+          "fn": 0,
+          "detected": 139,
+          "truth": 18,
+          "precision": 0.1295,
+          "recall": 1.0,
+          "f1": 0.2293
+        },
+        "event": {
+          "tp": 18,
+          "fp": 116,
+          "fn": 0,
+          "detected": 134,
+          "truth": 18,
+          "precision": 0.1343,
+          "recall": 1.0,
+          "f1": 0.2368
+        },
+        "detected_events": 134
+      },
+      "changepoint": {
+        "state": "scored",
+        "point": {
+          "tp": 2,
+          "fp": 4,
+          "fn": 0,
+          "detected": 6,
+          "truth": 2,
+          "precision": 0.3333,
+          "recall": 1.0,
+          "f1": 0.5
+        },
+        "tolerance_seconds": 7200.0
+      },
+      "trend": {
+        "details": [
+          {
+            "series": "temperature@STA_A",
+            "state": "scored",
+            "correct": true,
+            "actual_direction": "up",
+            "expected_direction": "up",
+            "ols_slope": 0.1267,
+            "significant": true,
+            "reason": ""
+          },
+          {
+            "series": "temperature@STA_B",
+            "state": "scored",
+            "correct": false,
+            "actual_direction": "down",
+            "expected_direction": "up",
+            "ols_slope": -0.1409,
+            "significant": true,
+            "reason": "方向与注入真值不一致"
+          }
+        ],
+        "unlabeled_series": [
+          "humidity@STA_A",
+          "humidity@STA_B",
+          "pressure@STA_A",
+          "pressure@STA_B",
+          "rainfall@STA_A",
+          "rainfall@STA_B",
+          "wind_speed@STA_A",
+          "wind_speed@STA_B"
+        ]
+      },
+      "seasonal": {
+        "details": [
+          {
+            "series": "temperature@STA_A",
+            "state": "scored",
+            "correct": true,
+            "amplitude": 23.567,
+            "expected_amplitude": 24.0,
+            "peak_month": 7,
+            "expected_peak_month": 7,
+            "trough_month": 1,
+            "expected_trough_month": 1,
+            "amplitude_ok": true,
+            "peak_ok": true,
+            "trough_ok": true,
+            "reason": ""
+          },
+          {
+            "series": "temperature@STA_B",
+            "state": "scored",
+            "correct": true,
+            "amplitude": 22.623,
+            "expected_amplitude": 24.0,
+            "peak_month": 6,
+            "expected_peak_month": 6,
+            "trough_month": 12,
+            "expected_trough_month": 12,
+            "amplitude_ok": true,
+            "peak_ok": true,
+            "trough_ok": true,
+            "reason": ""
+          }
+        ],
+        "unlabeled_series": [
+          "humidity@STA_A",
+          "humidity@STA_B",
+          "pressure@STA_A",
+          "pressure@STA_B",
+          "rainfall@STA_A",
+          "rainfall@STA_B",
+          "wind_speed@STA_A",
+          "wind_speed@STA_B"
+        ]
+      },
+      "quality": [
+        {
+          "kind": "unit_change_start",
+          "column": "temperature",
+          "station": "STA_A",
+          "timestamp": "2024-05-05 00:00:00",
+          "series": "temperature@STA_A",
+          "status": "detected",
+          "detail": "POSSIBLE_UNIT_CHANGE 已定位到站点与起始时间"
+        },
+        {
+          "kind": "missing_gap_start",
+          "column": "temperature",
+          "station": "STA_B",
+          "timestamp": "2024-07-27 08:00:00",
+          "series": "temperature@STA_B",
+          "status": "reported_unlocalized",
+          "detail": "MISSING_VALUES 只有聚合计数，没有缺口起点"
+        },
+        {
+          "kind": "sampling_gap_start",
+          "column": "timestamp",
+          "station": "STA_A",
+          "timestamp": "2024-11-29 08:00:00",
+          "series": "timestamp@STA_A",
+          "status": "reported_unlocalized",
+          "detail": "SAMPLING_GAP 有区间，但没有站点/逐条对应"
+        },
+        {
+          "kind": "sampling_gap_start",
+          "column": "timestamp",
+          "station": "STA_B",
+          "timestamp": "2024-11-29 08:00:00",
+          "series": "timestamp@STA_B",
+          "status": "reported_unlocalized",
+          "detail": "SAMPLING_GAP 有区间，但没有站点/逐条对应"
+        },
+        {
+          "kind": "out_of_order_block",
+          "column": "timestamp",
+          "station": "—",
+          "timestamp": "2025-05-19 20:00:00",
+          "series": "timestamp",
+          "status": "reported_unlocalized",
+          "detail": "OUT_OF_ORDER 只有计数，没有乱序块起点"
+        }
+      ],
+      "conclusion_need": {
+        "covered": [
+          "trend",
+          "seasonal",
+          "anomaly",
+          "changepoint"
+        ],
+        "missing": [],
+        "unlabeled": [
+          "stationarity"
+        ],
+        "mapped": 4,
+        "coverage": 1.0
+      },
+      "result_path": "artifacts\\t212_compare\\wx_composite_pipeline\\result.json"
+    },
+    {
+      "case": "wx_corr",
+      "mode": "agent",
+      "status": "succeeded",
+      "question": "分析温度与湿度之间的相关性以及领先滞后关系",
+      "expect": [
+        "corr",
+        "lag"
+      ],
+      "executed_tools": [
+        "compute_metrics",
+        "run_stat_tests"
+      ],
+      "conclusion_count": 25,
+      "conclusion_categories": {
+        "数据口径": 1,
+        "趋势": 10,
+        "季节性": 10,
+        "相关性": 3,
+        "滞后关系": 1
+      },
+      "anomaly": {
+        "state": "not_run",
+        "point": null,
+        "event": null,
+        "reason": "detect_anomalies 未执行，不能把未看当成没异常"
+      },
+      "changepoint": {
+        "state": "not_run",
+        "point": null,
+        "reason": "detect_change_points 未执行"
+      },
+      "trend": {
+        "details": [
+          {
+            "series": "temperature@STA_A",
+            "state": "scored",
+            "correct": true,
+            "actual_direction": "up",
+            "expected_direction": "up",
+            "ols_slope": 0.1267,
+            "significant": true,
+            "reason": ""
+          },
+          {
+            "series": "temperature@STA_B",
+            "state": "scored",
+            "correct": false,
+            "actual_direction": "down",
+            "expected_direction": "up",
+            "ols_slope": -0.1409,
+            "significant": true,
+            "reason": "方向与注入真值不一致"
+          }
+        ],
+        "unlabeled_series": [
+          "humidity@STA_A",
+          "humidity@STA_B",
+          "pressure@STA_A",
+          "pressure@STA_B",
+          "rainfall@STA_A",
+          "rainfall@STA_B",
+          "wind_speed@STA_A",
+          "wind_speed@STA_B"
+        ]
+      },
+      "seasonal": {
+        "details": [
+          {
+            "series": "temperature@STA_A",
+            "state": "scored",
+            "correct": true,
+            "amplitude": 23.567,
+            "expected_amplitude": 24.0,
+            "peak_month": 7,
+            "expected_peak_month": 7,
+            "trough_month": 1,
+            "expected_trough_month": 1,
+            "amplitude_ok": true,
+            "peak_ok": true,
+            "trough_ok": true,
+            "reason": ""
+          },
+          {
+            "series": "temperature@STA_B",
+            "state": "scored",
+            "correct": true,
+            "amplitude": 22.623,
+            "expected_amplitude": 24.0,
+            "peak_month": 6,
+            "expected_peak_month": 6,
+            "trough_month": 12,
+            "expected_trough_month": 12,
+            "amplitude_ok": true,
+            "peak_ok": true,
+            "trough_ok": true,
+            "reason": ""
+          }
+        ],
+        "unlabeled_series": [
+          "humidity@STA_A",
+          "humidity@STA_B",
+          "pressure@STA_A",
+          "pressure@STA_B",
+          "rainfall@STA_A",
+          "rainfall@STA_B",
+          "wind_speed@STA_A",
+          "wind_speed@STA_B"
+        ]
+      },
+      "quality": [
+        {
+          "kind": "unit_change_start",
+          "column": "temperature",
+          "station": "STA_A",
+          "timestamp": "2024-05-05 00:00:00",
+          "series": "temperature@STA_A",
+          "status": "detected",
+          "detail": "POSSIBLE_UNIT_CHANGE 已定位到站点与起始时间"
+        },
+        {
+          "kind": "missing_gap_start",
+          "column": "temperature",
+          "station": "STA_B",
+          "timestamp": "2024-07-27 08:00:00",
+          "series": "temperature@STA_B",
+          "status": "reported_unlocalized",
+          "detail": "MISSING_VALUES 只有聚合计数，没有缺口起点"
+        },
+        {
+          "kind": "sampling_gap_start",
+          "column": "timestamp",
+          "station": "STA_A",
+          "timestamp": "2024-11-29 08:00:00",
+          "series": "timestamp@STA_A",
+          "status": "reported_unlocalized",
+          "detail": "SAMPLING_GAP 有区间，但没有站点/逐条对应"
+        },
+        {
+          "kind": "sampling_gap_start",
+          "column": "timestamp",
+          "station": "STA_B",
+          "timestamp": "2024-11-29 08:00:00",
+          "series": "timestamp@STA_B",
+          "status": "reported_unlocalized",
+          "detail": "SAMPLING_GAP 有区间，但没有站点/逐条对应"
+        },
+        {
+          "kind": "out_of_order_block",
+          "column": "timestamp",
+          "station": "—",
+          "timestamp": "2025-05-19 20:00:00",
+          "series": "timestamp",
+          "status": "reported_unlocalized",
+          "detail": "OUT_OF_ORDER 只有计数，没有乱序块起点"
+        }
+      ],
+      "conclusion_need": {
+        "covered": [
+          "corr",
+          "lag"
+        ],
+        "missing": [],
+        "unlabeled": [],
+        "mapped": 2,
+        "coverage": 1.0
+      },
+      "result_path": "artifacts\\t212_compare\\wx_corr_agent\\result.json"
+    },
+    {
+      "case": "wx_corr",
+      "mode": "pipeline",
+      "status": "succeeded",
+      "question": "分析温度与湿度之间的相关性以及领先滞后关系",
+      "expect": [
+        "corr",
+        "lag"
+      ],
+      "executed_tools": [
+        "compute_metrics",
+        "analyze_spectrum",
+        "run_stat_tests",
+        "detect_anomalies",
+        "detect_change_points"
+      ],
+      "conclusion_count": 39,
+      "conclusion_categories": {
+        "数据口径": 1,
+        "趋势": 10,
+        "周期": 10,
+        "季节性": 10,
+        "相关性": 3,
+        "滞后关系": 1,
+        "异常检测": 3,
+        "变化点": 1
+      },
+      "anomaly": {
+        "state": "scored",
+        "point": {
+          "tp": 18,
+          "fp": 121,
+          "fn": 0,
+          "detected": 139,
+          "truth": 18,
+          "precision": 0.1295,
+          "recall": 1.0,
+          "f1": 0.2293
+        },
+        "event": {
+          "tp": 18,
+          "fp": 116,
+          "fn": 0,
+          "detected": 134,
+          "truth": 18,
+          "precision": 0.1343,
+          "recall": 1.0,
+          "f1": 0.2368
+        },
+        "detected_events": 134
+      },
+      "changepoint": {
+        "state": "scored",
+        "point": {
+          "tp": 2,
+          "fp": 4,
+          "fn": 0,
+          "detected": 6,
+          "truth": 2,
+          "precision": 0.3333,
+          "recall": 1.0,
+          "f1": 0.5
+        },
+        "tolerance_seconds": 7200.0
+      },
+      "trend": {
+        "details": [
+          {
+            "series": "temperature@STA_A",
+            "state": "scored",
+            "correct": true,
+            "actual_direction": "up",
+            "expected_direction": "up",
+            "ols_slope": 0.1267,
+            "significant": true,
+            "reason": ""
+          },
+          {
+            "series": "temperature@STA_B",
+            "state": "scored",
+            "correct": false,
+            "actual_direction": "down",
+            "expected_direction": "up",
+            "ols_slope": -0.1409,
+            "significant": true,
+            "reason": "方向与注入真值不一致"
+          }
+        ],
+        "unlabeled_series": [
+          "humidity@STA_A",
+          "humidity@STA_B",
+          "pressure@STA_A",
+          "pressure@STA_B",
+          "rainfall@STA_A",
+          "rainfall@STA_B",
+          "wind_speed@STA_A",
+          "wind_speed@STA_B"
+        ]
+      },
+      "seasonal": {
+        "details": [
+          {
+            "series": "temperature@STA_A",
+            "state": "scored",
+            "correct": true,
+            "amplitude": 23.567,
+            "expected_amplitude": 24.0,
+            "peak_month": 7,
+            "expected_peak_month": 7,
+            "trough_month": 1,
+            "expected_trough_month": 1,
+            "amplitude_ok": true,
+            "peak_ok": true,
+            "trough_ok": true,
+            "reason": ""
+          },
+          {
+            "series": "temperature@STA_B",
+            "state": "scored",
+            "correct": true,
+            "amplitude": 22.623,
+            "expected_amplitude": 24.0,
+            "peak_month": 6,
+            "expected_peak_month": 6,
+            "trough_month": 12,
+            "expected_trough_month": 12,
+            "amplitude_ok": true,
+            "peak_ok": true,
+            "trough_ok": true,
+            "reason": ""
+          }
+        ],
+        "unlabeled_series": [
+          "humidity@STA_A",
+          "humidity@STA_B",
+          "pressure@STA_A",
+          "pressure@STA_B",
+          "rainfall@STA_A",
+          "rainfall@STA_B",
+          "wind_speed@STA_A",
+          "wind_speed@STA_B"
+        ]
+      },
+      "quality": [
+        {
+          "kind": "unit_change_start",
+          "column": "temperature",
+          "station": "STA_A",
+          "timestamp": "2024-05-05 00:00:00",
+          "series": "temperature@STA_A",
+          "status": "detected",
+          "detail": "POSSIBLE_UNIT_CHANGE 已定位到站点与起始时间"
+        },
+        {
+          "kind": "missing_gap_start",
+          "column": "temperature",
+          "station": "STA_B",
+          "timestamp": "2024-07-27 08:00:00",
+          "series": "temperature@STA_B",
+          "status": "reported_unlocalized",
+          "detail": "MISSING_VALUES 只有聚合计数，没有缺口起点"
+        },
+        {
+          "kind": "sampling_gap_start",
+          "column": "timestamp",
+          "station": "STA_A",
+          "timestamp": "2024-11-29 08:00:00",
+          "series": "timestamp@STA_A",
+          "status": "reported_unlocalized",
+          "detail": "SAMPLING_GAP 有区间，但没有站点/逐条对应"
+        },
+        {
+          "kind": "sampling_gap_start",
+          "column": "timestamp",
+          "station": "STA_B",
+          "timestamp": "2024-11-29 08:00:00",
+          "series": "timestamp@STA_B",
+          "status": "reported_unlocalized",
+          "detail": "SAMPLING_GAP 有区间，但没有站点/逐条对应"
+        },
+        {
+          "kind": "out_of_order_block",
+          "column": "timestamp",
+          "station": "—",
+          "timestamp": "2025-05-19 20:00:00",
+          "series": "timestamp",
+          "status": "reported_unlocalized",
+          "detail": "OUT_OF_ORDER 只有计数，没有乱序块起点"
+        }
+      ],
+      "conclusion_need": {
+        "covered": [
+          "corr",
+          "lag"
+        ],
+        "missing": [],
+        "unlabeled": [],
+        "mapped": 2,
+        "coverage": 1.0
+      },
+      "result_path": "artifacts\\t212_compare\\wx_corr_pipeline\\result.json"
+    },
+    {
+      "case": "wx_extreme",
+      "mode": "agent",
+      "status": "succeeded",
+      "question": "统计极端高温事件的频率与强度",
+      "expect": [
+        "extreme"
+      ],
+      "executed_tools": [
+        "compute_metrics",
+        "detect_anomalies"
+      ],
+      "conclusion_count": 28,
+      "conclusion_categories": {
+        "数据口径": 1,
+        "趋势": 10,
+        "季节性": 10,
+        "相关性": 3,
+        "滞后关系": 1,
+        "异常检测": 3
+      },
+      "anomaly": {
+        "state": "scored",
+        "point": {
+          "tp": 18,
+          "fp": 121,
+          "fn": 0,
+          "detected": 139,
+          "truth": 18,
+          "precision": 0.1295,
+          "recall": 1.0,
+          "f1": 0.2293
+        },
+        "event": {
+          "tp": 18,
+          "fp": 116,
+          "fn": 0,
+          "detected": 134,
+          "truth": 18,
+          "precision": 0.1343,
+          "recall": 1.0,
+          "f1": 0.2368
+        },
+        "detected_events": 134
+      },
+      "changepoint": {
+        "state": "not_run",
+        "point": null,
+        "reason": "detect_change_points 未执行"
+      },
+      "trend": {
+        "details": [
+          {
+            "series": "temperature@STA_A",
+            "state": "scored",
+            "correct": true,
+            "actual_direction": "up",
+            "expected_direction": "up",
+            "ols_slope": 0.1267,
+            "significant": true,
+            "reason": ""
+          },
+          {
+            "series": "temperature@STA_B",
+            "state": "scored",
+            "correct": false,
+            "actual_direction": "down",
+            "expected_direction": "up",
+            "ols_slope": -0.1409,
+            "significant": true,
+            "reason": "方向与注入真值不一致"
+          }
+        ],
+        "unlabeled_series": [
+          "humidity@STA_A",
+          "humidity@STA_B",
+          "pressure@STA_A",
+          "pressure@STA_B",
+          "rainfall@STA_A",
+          "rainfall@STA_B",
+          "wind_speed@STA_A",
+          "wind_speed@STA_B"
+        ]
+      },
+      "seasonal": {
+        "details": [
+          {
+            "series": "temperature@STA_A",
+            "state": "scored",
+            "correct": true,
+            "amplitude": 23.567,
+            "expected_amplitude": 24.0,
+            "peak_month": 7,
+            "expected_peak_month": 7,
+            "trough_month": 1,
+            "expected_trough_month": 1,
+            "amplitude_ok": true,
+            "peak_ok": true,
+            "trough_ok": true,
+            "reason": ""
+          },
+          {
+            "series": "temperature@STA_B",
+            "state": "scored",
+            "correct": true,
+            "amplitude": 22.623,
+            "expected_amplitude": 24.0,
+            "peak_month": 6,
+            "expected_peak_month": 6,
+            "trough_month": 12,
+            "expected_trough_month": 12,
+            "amplitude_ok": true,
+            "peak_ok": true,
+            "trough_ok": true,
+            "reason": ""
+          }
+        ],
+        "unlabeled_series": [
+          "humidity@STA_A",
+          "humidity@STA_B",
+          "pressure@STA_A",
+          "pressure@STA_B",
+          "rainfall@STA_A",
+          "rainfall@STA_B",
+          "wind_speed@STA_A",
+          "wind_speed@STA_B"
+        ]
+      },
+      "quality": [
+        {
+          "kind": "unit_change_start",
+          "column": "temperature",
+          "station": "STA_A",
+          "timestamp": "2024-05-05 00:00:00",
+          "series": "temperature@STA_A",
+          "status": "detected",
+          "detail": "POSSIBLE_UNIT_CHANGE 已定位到站点与起始时间"
+        },
+        {
+          "kind": "missing_gap_start",
+          "column": "temperature",
+          "station": "STA_B",
+          "timestamp": "2024-07-27 08:00:00",
+          "series": "temperature@STA_B",
+          "status": "reported_unlocalized",
+          "detail": "MISSING_VALUES 只有聚合计数，没有缺口起点"
+        },
+        {
+          "kind": "sampling_gap_start",
+          "column": "timestamp",
+          "station": "STA_A",
+          "timestamp": "2024-11-29 08:00:00",
+          "series": "timestamp@STA_A",
+          "status": "reported_unlocalized",
+          "detail": "SAMPLING_GAP 有区间，但没有站点/逐条对应"
+        },
+        {
+          "kind": "sampling_gap_start",
+          "column": "timestamp",
+          "station": "STA_B",
+          "timestamp": "2024-11-29 08:00:00",
+          "series": "timestamp@STA_B",
+          "status": "reported_unlocalized",
+          "detail": "SAMPLING_GAP 有区间，但没有站点/逐条对应"
+        },
+        {
+          "kind": "out_of_order_block",
+          "column": "timestamp",
+          "station": "—",
+          "timestamp": "2025-05-19 20:00:00",
+          "series": "timestamp",
+          "status": "reported_unlocalized",
+          "detail": "OUT_OF_ORDER 只有计数，没有乱序块起点"
+        }
+      ],
+      "conclusion_need": {
+        "covered": [],
+        "missing": [],
+        "unlabeled": [
+          "extreme"
+        ],
+        "mapped": 0,
+        "coverage": null
+      },
+      "result_path": "artifacts\\t212_compare\\wx_extreme_agent\\result.json"
+    },
+    {
+      "case": "wx_extreme",
+      "mode": "pipeline",
+      "status": "succeeded",
+      "question": "统计极端高温事件的频率与强度",
+      "expect": [
+        "extreme"
+      ],
+      "executed_tools": [
+        "compute_metrics",
+        "analyze_spectrum",
+        "run_stat_tests",
+        "detect_anomalies",
+        "detect_change_points"
+      ],
+      "conclusion_count": 39,
+      "conclusion_categories": {
+        "数据口径": 1,
+        "趋势": 10,
+        "周期": 10,
+        "季节性": 10,
+        "相关性": 3,
+        "滞后关系": 1,
+        "异常检测": 3,
+        "变化点": 1
+      },
+      "anomaly": {
+        "state": "scored",
+        "point": {
+          "tp": 18,
+          "fp": 121,
+          "fn": 0,
+          "detected": 139,
+          "truth": 18,
+          "precision": 0.1295,
+          "recall": 1.0,
+          "f1": 0.2293
+        },
+        "event": {
+          "tp": 18,
+          "fp": 116,
+          "fn": 0,
+          "detected": 134,
+          "truth": 18,
+          "precision": 0.1343,
+          "recall": 1.0,
+          "f1": 0.2368
+        },
+        "detected_events": 134
+      },
+      "changepoint": {
+        "state": "scored",
+        "point": {
+          "tp": 2,
+          "fp": 4,
+          "fn": 0,
+          "detected": 6,
+          "truth": 2,
+          "precision": 0.3333,
+          "recall": 1.0,
+          "f1": 0.5
+        },
+        "tolerance_seconds": 7200.0
+      },
+      "trend": {
+        "details": [
+          {
+            "series": "temperature@STA_A",
+            "state": "scored",
+            "correct": true,
+            "actual_direction": "up",
+            "expected_direction": "up",
+            "ols_slope": 0.1267,
+            "significant": true,
+            "reason": ""
+          },
+          {
+            "series": "temperature@STA_B",
+            "state": "scored",
+            "correct": false,
+            "actual_direction": "down",
+            "expected_direction": "up",
+            "ols_slope": -0.1409,
+            "significant": true,
+            "reason": "方向与注入真值不一致"
+          }
+        ],
+        "unlabeled_series": [
+          "humidity@STA_A",
+          "humidity@STA_B",
+          "pressure@STA_A",
+          "pressure@STA_B",
+          "rainfall@STA_A",
+          "rainfall@STA_B",
+          "wind_speed@STA_A",
+          "wind_speed@STA_B"
+        ]
+      },
+      "seasonal": {
+        "details": [
+          {
+            "series": "temperature@STA_A",
+            "state": "scored",
+            "correct": true,
+            "amplitude": 23.567,
+            "expected_amplitude": 24.0,
+            "peak_month": 7,
+            "expected_peak_month": 7,
+            "trough_month": 1,
+            "expected_trough_month": 1,
+            "amplitude_ok": true,
+            "peak_ok": true,
+            "trough_ok": true,
+            "reason": ""
+          },
+          {
+            "series": "temperature@STA_B",
+            "state": "scored",
+            "correct": true,
+            "amplitude": 22.623,
+            "expected_amplitude": 24.0,
+            "peak_month": 6,
+            "expected_peak_month": 6,
+            "trough_month": 12,
+            "expected_trough_month": 12,
+            "amplitude_ok": true,
+            "peak_ok": true,
+            "trough_ok": true,
+            "reason": ""
+          }
+        ],
+        "unlabeled_series": [
+          "humidity@STA_A",
+          "humidity@STA_B",
+          "pressure@STA_A",
+          "pressure@STA_B",
+          "rainfall@STA_A",
+          "rainfall@STA_B",
+          "wind_speed@STA_A",
+          "wind_speed@STA_B"
+        ]
+      },
+      "quality": [
+        {
+          "kind": "unit_change_start",
+          "column": "temperature",
+          "station": "STA_A",
+          "timestamp": "2024-05-05 00:00:00",
+          "series": "temperature@STA_A",
+          "status": "detected",
+          "detail": "POSSIBLE_UNIT_CHANGE 已定位到站点与起始时间"
+        },
+        {
+          "kind": "missing_gap_start",
+          "column": "temperature",
+          "station": "STA_B",
+          "timestamp": "2024-07-27 08:00:00",
+          "series": "temperature@STA_B",
+          "status": "reported_unlocalized",
+          "detail": "MISSING_VALUES 只有聚合计数，没有缺口起点"
+        },
+        {
+          "kind": "sampling_gap_start",
+          "column": "timestamp",
+          "station": "STA_A",
+          "timestamp": "2024-11-29 08:00:00",
+          "series": "timestamp@STA_A",
+          "status": "reported_unlocalized",
+          "detail": "SAMPLING_GAP 有区间，但没有站点/逐条对应"
+        },
+        {
+          "kind": "sampling_gap_start",
+          "column": "timestamp",
+          "station": "STA_B",
+          "timestamp": "2024-11-29 08:00:00",
+          "series": "timestamp@STA_B",
+          "status": "reported_unlocalized",
+          "detail": "SAMPLING_GAP 有区间，但没有站点/逐条对应"
+        },
+        {
+          "kind": "out_of_order_block",
+          "column": "timestamp",
+          "station": "—",
+          "timestamp": "2025-05-19 20:00:00",
+          "series": "timestamp",
+          "status": "reported_unlocalized",
+          "detail": "OUT_OF_ORDER 只有计数，没有乱序块起点"
+        }
+      ],
+      "conclusion_need": {
+        "covered": [],
+        "missing": [],
+        "unlabeled": [
+          "extreme"
+        ],
+        "mapped": 0,
+        "coverage": null
+      },
+      "result_path": "artifacts\\t212_compare\\wx_extreme_pipeline\\result.json"
+    },
+    {
+      "case": "wx_missing",
+      "mode": "agent",
+      "status": "succeeded",
+      "question": "数据里有缺失和异常值，请说明缺失怎么处理，并给出异常点结论",
+      "expect": [
+        "anomaly"
+      ],
+      "executed_tools": [
+        "compute_metrics",
+        "detect_anomalies"
+      ],
+      "conclusion_count": 28,
+      "conclusion_categories": {
+        "数据口径": 1,
+        "趋势": 10,
+        "季节性": 10,
+        "相关性": 3,
+        "滞后关系": 1,
+        "异常检测": 3
+      },
+      "anomaly": {
+        "state": "scored",
+        "point": {
+          "tp": 18,
+          "fp": 121,
+          "fn": 0,
+          "detected": 139,
+          "truth": 18,
+          "precision": 0.1295,
+          "recall": 1.0,
+          "f1": 0.2293
+        },
+        "event": {
+          "tp": 18,
+          "fp": 116,
+          "fn": 0,
+          "detected": 134,
+          "truth": 18,
+          "precision": 0.1343,
+          "recall": 1.0,
+          "f1": 0.2368
+        },
+        "detected_events": 134
+      },
+      "changepoint": {
+        "state": "not_run",
+        "point": null,
+        "reason": "detect_change_points 未执行"
+      },
+      "trend": {
+        "details": [
+          {
+            "series": "temperature@STA_A",
+            "state": "scored",
+            "correct": true,
+            "actual_direction": "up",
+            "expected_direction": "up",
+            "ols_slope": 0.1267,
+            "significant": true,
+            "reason": ""
+          },
+          {
+            "series": "temperature@STA_B",
+            "state": "scored",
+            "correct": false,
+            "actual_direction": "down",
+            "expected_direction": "up",
+            "ols_slope": -0.1409,
+            "significant": true,
+            "reason": "方向与注入真值不一致"
+          }
+        ],
+        "unlabeled_series": [
+          "humidity@STA_A",
+          "humidity@STA_B",
+          "pressure@STA_A",
+          "pressure@STA_B",
+          "rainfall@STA_A",
+          "rainfall@STA_B",
+          "wind_speed@STA_A",
+          "wind_speed@STA_B"
+        ]
+      },
+      "seasonal": {
+        "details": [
+          {
+            "series": "temperature@STA_A",
+            "state": "scored",
+            "correct": true,
+            "amplitude": 23.567,
+            "expected_amplitude": 24.0,
+            "peak_month": 7,
+            "expected_peak_month": 7,
+            "trough_month": 1,
+            "expected_trough_month": 1,
+            "amplitude_ok": true,
+            "peak_ok": true,
+            "trough_ok": true,
+            "reason": ""
+          },
+          {
+            "series": "temperature@STA_B",
+            "state": "scored",
+            "correct": true,
+            "amplitude": 22.623,
+            "expected_amplitude": 24.0,
+            "peak_month": 6,
+            "expected_peak_month": 6,
+            "trough_month": 12,
+            "expected_trough_month": 12,
+            "amplitude_ok": true,
+            "peak_ok": true,
+            "trough_ok": true,
+            "reason": ""
+          }
+        ],
+        "unlabeled_series": [
+          "humidity@STA_A",
+          "humidity@STA_B",
+          "pressure@STA_A",
+          "pressure@STA_B",
+          "rainfall@STA_A",
+          "rainfall@STA_B",
+          "wind_speed@STA_A",
+          "wind_speed@STA_B"
+        ]
+      },
+      "quality": [
+        {
+          "kind": "unit_change_start",
+          "column": "temperature",
+          "station": "STA_A",
+          "timestamp": "2024-05-05 00:00:00",
+          "series": "temperature@STA_A",
+          "status": "detected",
+          "detail": "POSSIBLE_UNIT_CHANGE 已定位到站点与起始时间"
+        },
+        {
+          "kind": "missing_gap_start",
+          "column": "temperature",
+          "station": "STA_B",
+          "timestamp": "2024-07-27 08:00:00",
+          "series": "temperature@STA_B",
+          "status": "reported_unlocalized",
+          "detail": "MISSING_VALUES 只有聚合计数，没有缺口起点"
+        },
+        {
+          "kind": "sampling_gap_start",
+          "column": "timestamp",
+          "station": "STA_A",
+          "timestamp": "2024-11-29 08:00:00",
+          "series": "timestamp@STA_A",
+          "status": "reported_unlocalized",
+          "detail": "SAMPLING_GAP 有区间，但没有站点/逐条对应"
+        },
+        {
+          "kind": "sampling_gap_start",
+          "column": "timestamp",
+          "station": "STA_B",
+          "timestamp": "2024-11-29 08:00:00",
+          "series": "timestamp@STA_B",
+          "status": "reported_unlocalized",
+          "detail": "SAMPLING_GAP 有区间，但没有站点/逐条对应"
+        },
+        {
+          "kind": "out_of_order_block",
+          "column": "timestamp",
+          "station": "—",
+          "timestamp": "2025-05-19 20:00:00",
+          "series": "timestamp",
+          "status": "reported_unlocalized",
+          "detail": "OUT_OF_ORDER 只有计数，没有乱序块起点"
+        }
+      ],
+      "conclusion_need": {
+        "covered": [
+          "anomaly"
+        ],
+        "missing": [],
+        "unlabeled": [],
+        "mapped": 1,
+        "coverage": 1.0
+      },
+      "result_path": "artifacts\\t212_compare\\wx_missing_agent\\result.json"
+    },
+    {
+      "case": "wx_missing",
+      "mode": "pipeline",
+      "status": "succeeded",
+      "question": "数据里有缺失和异常值，请说明缺失怎么处理，并给出异常点结论",
+      "expect": [
+        "anomaly"
+      ],
+      "executed_tools": [
+        "compute_metrics",
+        "analyze_spectrum",
+        "run_stat_tests",
+        "detect_anomalies",
+        "detect_change_points"
+      ],
+      "conclusion_count": 39,
+      "conclusion_categories": {
+        "数据口径": 1,
+        "趋势": 10,
+        "周期": 10,
+        "季节性": 10,
+        "相关性": 3,
+        "滞后关系": 1,
+        "异常检测": 3,
+        "变化点": 1
+      },
+      "anomaly": {
+        "state": "scored",
+        "point": {
+          "tp": 18,
+          "fp": 121,
+          "fn": 0,
+          "detected": 139,
+          "truth": 18,
+          "precision": 0.1295,
+          "recall": 1.0,
+          "f1": 0.2293
+        },
+        "event": {
+          "tp": 18,
+          "fp": 116,
+          "fn": 0,
+          "detected": 134,
+          "truth": 18,
+          "precision": 0.1343,
+          "recall": 1.0,
+          "f1": 0.2368
+        },
+        "detected_events": 134
+      },
+      "changepoint": {
+        "state": "scored",
+        "point": {
+          "tp": 2,
+          "fp": 4,
+          "fn": 0,
+          "detected": 6,
+          "truth": 2,
+          "precision": 0.3333,
+          "recall": 1.0,
+          "f1": 0.5
+        },
+        "tolerance_seconds": 7200.0
+      },
+      "trend": {
+        "details": [
+          {
+            "series": "temperature@STA_A",
+            "state": "scored",
+            "correct": true,
+            "actual_direction": "up",
+            "expected_direction": "up",
+            "ols_slope": 0.1267,
+            "significant": true,
+            "reason": ""
+          },
+          {
+            "series": "temperature@STA_B",
+            "state": "scored",
+            "correct": false,
+            "actual_direction": "down",
+            "expected_direction": "up",
+            "ols_slope": -0.1409,
+            "significant": true,
+            "reason": "方向与注入真值不一致"
+          }
+        ],
+        "unlabeled_series": [
+          "humidity@STA_A",
+          "humidity@STA_B",
+          "pressure@STA_A",
+          "pressure@STA_B",
+          "rainfall@STA_A",
+          "rainfall@STA_B",
+          "wind_speed@STA_A",
+          "wind_speed@STA_B"
+        ]
+      },
+      "seasonal": {
+        "details": [
+          {
+            "series": "temperature@STA_A",
+            "state": "scored",
+            "correct": true,
+            "amplitude": 23.567,
+            "expected_amplitude": 24.0,
+            "peak_month": 7,
+            "expected_peak_month": 7,
+            "trough_month": 1,
+            "expected_trough_month": 1,
+            "amplitude_ok": true,
+            "peak_ok": true,
+            "trough_ok": true,
+            "reason": ""
+          },
+          {
+            "series": "temperature@STA_B",
+            "state": "scored",
+            "correct": true,
+            "amplitude": 22.623,
+            "expected_amplitude": 24.0,
+            "peak_month": 6,
+            "expected_peak_month": 6,
+            "trough_month": 12,
+            "expected_trough_month": 12,
+            "amplitude_ok": true,
+            "peak_ok": true,
+            "trough_ok": true,
+            "reason": ""
+          }
+        ],
+        "unlabeled_series": [
+          "humidity@STA_A",
+          "humidity@STA_B",
+          "pressure@STA_A",
+          "pressure@STA_B",
+          "rainfall@STA_A",
+          "rainfall@STA_B",
+          "wind_speed@STA_A",
+          "wind_speed@STA_B"
+        ]
+      },
+      "quality": [
+        {
+          "kind": "unit_change_start",
+          "column": "temperature",
+          "station": "STA_A",
+          "timestamp": "2024-05-05 00:00:00",
+          "series": "temperature@STA_A",
+          "status": "detected",
+          "detail": "POSSIBLE_UNIT_CHANGE 已定位到站点与起始时间"
+        },
+        {
+          "kind": "missing_gap_start",
+          "column": "temperature",
+          "station": "STA_B",
+          "timestamp": "2024-07-27 08:00:00",
+          "series": "temperature@STA_B",
+          "status": "reported_unlocalized",
+          "detail": "MISSING_VALUES 只有聚合计数，没有缺口起点"
+        },
+        {
+          "kind": "sampling_gap_start",
+          "column": "timestamp",
+          "station": "STA_A",
+          "timestamp": "2024-11-29 08:00:00",
+          "series": "timestamp@STA_A",
+          "status": "reported_unlocalized",
+          "detail": "SAMPLING_GAP 有区间，但没有站点/逐条对应"
+        },
+        {
+          "kind": "sampling_gap_start",
+          "column": "timestamp",
+          "station": "STA_B",
+          "timestamp": "2024-11-29 08:00:00",
+          "series": "timestamp@STA_B",
+          "status": "reported_unlocalized",
+          "detail": "SAMPLING_GAP 有区间，但没有站点/逐条对应"
+        },
+        {
+          "kind": "out_of_order_block",
+          "column": "timestamp",
+          "station": "—",
+          "timestamp": "2025-05-19 20:00:00",
+          "series": "timestamp",
+          "status": "reported_unlocalized",
+          "detail": "OUT_OF_ORDER 只有计数，没有乱序块起点"
+        }
+      ],
+      "conclusion_need": {
+        "covered": [
+          "anomaly"
+        ],
+        "missing": [],
+        "unlabeled": [],
+        "mapped": 1,
+        "coverage": 1.0
+      },
+      "result_path": "artifacts\\t212_compare\\wx_missing_pipeline\\result.json"
+    },
+    {
+      "case": "wx_normal",
+      "mode": "agent",
+      "status": "succeeded",
+      "question": "检验温度数据是否服从正态分布",
+      "expect": [
+        "normality"
+      ],
+      "executed_tools": [
+        "compute_metrics",
+        "run_stat_tests"
+      ],
+      "conclusion_count": 25,
+      "conclusion_categories": {
+        "数据口径": 1,
+        "趋势": 10,
+        "季节性": 10,
+        "相关性": 3,
+        "滞后关系": 1
+      },
+      "anomaly": {
+        "state": "not_run",
+        "point": null,
+        "event": null,
+        "reason": "detect_anomalies 未执行，不能把未看当成没异常"
+      },
+      "changepoint": {
+        "state": "not_run",
+        "point": null,
+        "reason": "detect_change_points 未执行"
+      },
+      "trend": {
+        "details": [
+          {
+            "series": "temperature@STA_A",
+            "state": "scored",
+            "correct": true,
+            "actual_direction": "up",
+            "expected_direction": "up",
+            "ols_slope": 0.1267,
+            "significant": true,
+            "reason": ""
+          },
+          {
+            "series": "temperature@STA_B",
+            "state": "scored",
+            "correct": false,
+            "actual_direction": "down",
+            "expected_direction": "up",
+            "ols_slope": -0.1409,
+            "significant": true,
+            "reason": "方向与注入真值不一致"
+          }
+        ],
+        "unlabeled_series": [
+          "humidity@STA_A",
+          "humidity@STA_B",
+          "pressure@STA_A",
+          "pressure@STA_B",
+          "rainfall@STA_A",
+          "rainfall@STA_B",
+          "wind_speed@STA_A",
+          "wind_speed@STA_B"
+        ]
+      },
+      "seasonal": {
+        "details": [
+          {
+            "series": "temperature@STA_A",
+            "state": "scored",
+            "correct": true,
+            "amplitude": 23.567,
+            "expected_amplitude": 24.0,
+            "peak_month": 7,
+            "expected_peak_month": 7,
+            "trough_month": 1,
+            "expected_trough_month": 1,
+            "amplitude_ok": true,
+            "peak_ok": true,
+            "trough_ok": true,
+            "reason": ""
+          },
+          {
+            "series": "temperature@STA_B",
+            "state": "scored",
+            "correct": true,
+            "amplitude": 22.623,
+            "expected_amplitude": 24.0,
+            "peak_month": 6,
+            "expected_peak_month": 6,
+            "trough_month": 12,
+            "expected_trough_month": 12,
+            "amplitude_ok": true,
+            "peak_ok": true,
+            "trough_ok": true,
+            "reason": ""
+          }
+        ],
+        "unlabeled_series": [
+          "humidity@STA_A",
+          "humidity@STA_B",
+          "pressure@STA_A",
+          "pressure@STA_B",
+          "rainfall@STA_A",
+          "rainfall@STA_B",
+          "wind_speed@STA_A",
+          "wind_speed@STA_B"
+        ]
+      },
+      "quality": [
+        {
+          "kind": "unit_change_start",
+          "column": "temperature",
+          "station": "STA_A",
+          "timestamp": "2024-05-05 00:00:00",
+          "series": "temperature@STA_A",
+          "status": "detected",
+          "detail": "POSSIBLE_UNIT_CHANGE 已定位到站点与起始时间"
+        },
+        {
+          "kind": "missing_gap_start",
+          "column": "temperature",
+          "station": "STA_B",
+          "timestamp": "2024-07-27 08:00:00",
+          "series": "temperature@STA_B",
+          "status": "reported_unlocalized",
+          "detail": "MISSING_VALUES 只有聚合计数，没有缺口起点"
+        },
+        {
+          "kind": "sampling_gap_start",
+          "column": "timestamp",
+          "station": "STA_A",
+          "timestamp": "2024-11-29 08:00:00",
+          "series": "timestamp@STA_A",
+          "status": "reported_unlocalized",
+          "detail": "SAMPLING_GAP 有区间，但没有站点/逐条对应"
+        },
+        {
+          "kind": "sampling_gap_start",
+          "column": "timestamp",
+          "station": "STA_B",
+          "timestamp": "2024-11-29 08:00:00",
+          "series": "timestamp@STA_B",
+          "status": "reported_unlocalized",
+          "detail": "SAMPLING_GAP 有区间，但没有站点/逐条对应"
+        },
+        {
+          "kind": "out_of_order_block",
+          "column": "timestamp",
+          "station": "—",
+          "timestamp": "2025-05-19 20:00:00",
+          "series": "timestamp",
+          "status": "reported_unlocalized",
+          "detail": "OUT_OF_ORDER 只有计数，没有乱序块起点"
+        }
+      ],
+      "conclusion_need": {
+        "covered": [],
+        "missing": [],
+        "unlabeled": [
+          "normality"
+        ],
+        "mapped": 0,
+        "coverage": null
+      },
+      "result_path": "artifacts\\t212_compare\\wx_normal_agent\\result.json"
+    },
+    {
+      "case": "wx_normal",
+      "mode": "pipeline",
+      "status": "succeeded",
+      "question": "检验温度数据是否服从正态分布",
+      "expect": [
+        "normality"
+      ],
+      "executed_tools": [
+        "compute_metrics",
+        "analyze_spectrum",
+        "run_stat_tests",
+        "detect_anomalies",
+        "detect_change_points"
+      ],
+      "conclusion_count": 39,
+      "conclusion_categories": {
+        "数据口径": 1,
+        "趋势": 10,
+        "周期": 10,
+        "季节性": 10,
+        "相关性": 3,
+        "滞后关系": 1,
+        "异常检测": 3,
+        "变化点": 1
+      },
+      "anomaly": {
+        "state": "scored",
+        "point": {
+          "tp": 18,
+          "fp": 121,
+          "fn": 0,
+          "detected": 139,
+          "truth": 18,
+          "precision": 0.1295,
+          "recall": 1.0,
+          "f1": 0.2293
+        },
+        "event": {
+          "tp": 18,
+          "fp": 116,
+          "fn": 0,
+          "detected": 134,
+          "truth": 18,
+          "precision": 0.1343,
+          "recall": 1.0,
+          "f1": 0.2368
+        },
+        "detected_events": 134
+      },
+      "changepoint": {
+        "state": "scored",
+        "point": {
+          "tp": 2,
+          "fp": 4,
+          "fn": 0,
+          "detected": 6,
+          "truth": 2,
+          "precision": 0.3333,
+          "recall": 1.0,
+          "f1": 0.5
+        },
+        "tolerance_seconds": 7200.0
+      },
+      "trend": {
+        "details": [
+          {
+            "series": "temperature@STA_A",
+            "state": "scored",
+            "correct": true,
+            "actual_direction": "up",
+            "expected_direction": "up",
+            "ols_slope": 0.1267,
+            "significant": true,
+            "reason": ""
+          },
+          {
+            "series": "temperature@STA_B",
+            "state": "scored",
+            "correct": false,
+            "actual_direction": "down",
+            "expected_direction": "up",
+            "ols_slope": -0.1409,
+            "significant": true,
+            "reason": "方向与注入真值不一致"
+          }
+        ],
+        "unlabeled_series": [
+          "humidity@STA_A",
+          "humidity@STA_B",
+          "pressure@STA_A",
+          "pressure@STA_B",
+          "rainfall@STA_A",
+          "rainfall@STA_B",
+          "wind_speed@STA_A",
+          "wind_speed@STA_B"
+        ]
+      },
+      "seasonal": {
+        "details": [
+          {
+            "series": "temperature@STA_A",
+            "state": "scored",
+            "correct": true,
+            "amplitude": 23.567,
+            "expected_amplitude": 24.0,
+            "peak_month": 7,
+            "expected_peak_month": 7,
+            "trough_month": 1,
+            "expected_trough_month": 1,
+            "amplitude_ok": true,
+            "peak_ok": true,
+            "trough_ok": true,
+            "reason": ""
+          },
+          {
+            "series": "temperature@STA_B",
+            "state": "scored",
+            "correct": true,
+            "amplitude": 22.623,
+            "expected_amplitude": 24.0,
+            "peak_month": 6,
+            "expected_peak_month": 6,
+            "trough_month": 12,
+            "expected_trough_month": 12,
+            "amplitude_ok": true,
+            "peak_ok": true,
+            "trough_ok": true,
+            "reason": ""
+          }
+        ],
+        "unlabeled_series": [
+          "humidity@STA_A",
+          "humidity@STA_B",
+          "pressure@STA_A",
+          "pressure@STA_B",
+          "rainfall@STA_A",
+          "rainfall@STA_B",
+          "wind_speed@STA_A",
+          "wind_speed@STA_B"
+        ]
+      },
+      "quality": [
+        {
+          "kind": "unit_change_start",
+          "column": "temperature",
+          "station": "STA_A",
+          "timestamp": "2024-05-05 00:00:00",
+          "series": "temperature@STA_A",
+          "status": "detected",
+          "detail": "POSSIBLE_UNIT_CHANGE 已定位到站点与起始时间"
+        },
+        {
+          "kind": "missing_gap_start",
+          "column": "temperature",
+          "station": "STA_B",
+          "timestamp": "2024-07-27 08:00:00",
+          "series": "temperature@STA_B",
+          "status": "reported_unlocalized",
+          "detail": "MISSING_VALUES 只有聚合计数，没有缺口起点"
+        },
+        {
+          "kind": "sampling_gap_start",
+          "column": "timestamp",
+          "station": "STA_A",
+          "timestamp": "2024-11-29 08:00:00",
+          "series": "timestamp@STA_A",
+          "status": "reported_unlocalized",
+          "detail": "SAMPLING_GAP 有区间，但没有站点/逐条对应"
+        },
+        {
+          "kind": "sampling_gap_start",
+          "column": "timestamp",
+          "station": "STA_B",
+          "timestamp": "2024-11-29 08:00:00",
+          "series": "timestamp@STA_B",
+          "status": "reported_unlocalized",
+          "detail": "SAMPLING_GAP 有区间，但没有站点/逐条对应"
+        },
+        {
+          "kind": "out_of_order_block",
+          "column": "timestamp",
+          "station": "—",
+          "timestamp": "2025-05-19 20:00:00",
+          "series": "timestamp",
+          "status": "reported_unlocalized",
+          "detail": "OUT_OF_ORDER 只有计数，没有乱序块起点"
+        }
+      ],
+      "conclusion_need": {
+        "covered": [],
+        "missing": [],
+        "unlabeled": [
+          "normality"
+        ],
+        "mapped": 0,
+        "coverage": null
+      },
+      "result_path": "artifacts\\t212_compare\\wx_normal_pipeline\\result.json"
+    },
+    {
+      "case": "wx_open",
+      "mode": "agent",
+      "status": "succeeded",
+      "question": "帮我看看这两年的温度数据有什么值得注意的地方",
+      "expect": [],
+      "executed_tools": [
+        "compute_metrics",
+        "detect_anomalies"
+      ],
+      "conclusion_count": 28,
+      "conclusion_categories": {
+        "数据口径": 1,
+        "趋势": 10,
+        "季节性": 10,
+        "相关性": 3,
+        "滞后关系": 1,
+        "异常检测": 3
+      },
+      "anomaly": {
+        "state": "scored",
+        "point": {
+          "tp": 18,
+          "fp": 121,
+          "fn": 0,
+          "detected": 139,
+          "truth": 18,
+          "precision": 0.1295,
+          "recall": 1.0,
+          "f1": 0.2293
+        },
+        "event": {
+          "tp": 18,
+          "fp": 116,
+          "fn": 0,
+          "detected": 134,
+          "truth": 18,
+          "precision": 0.1343,
+          "recall": 1.0,
+          "f1": 0.2368
+        },
+        "detected_events": 134
+      },
+      "changepoint": {
+        "state": "not_run",
+        "point": null,
+        "reason": "detect_change_points 未执行"
+      },
+      "trend": {
+        "details": [
+          {
+            "series": "temperature@STA_A",
+            "state": "scored",
+            "correct": true,
+            "actual_direction": "up",
+            "expected_direction": "up",
+            "ols_slope": 0.1267,
+            "significant": true,
+            "reason": ""
+          },
+          {
+            "series": "temperature@STA_B",
+            "state": "scored",
+            "correct": false,
+            "actual_direction": "down",
+            "expected_direction": "up",
+            "ols_slope": -0.1409,
+            "significant": true,
+            "reason": "方向与注入真值不一致"
+          }
+        ],
+        "unlabeled_series": [
+          "humidity@STA_A",
+          "humidity@STA_B",
+          "pressure@STA_A",
+          "pressure@STA_B",
+          "rainfall@STA_A",
+          "rainfall@STA_B",
+          "wind_speed@STA_A",
+          "wind_speed@STA_B"
+        ]
+      },
+      "seasonal": {
+        "details": [
+          {
+            "series": "temperature@STA_A",
+            "state": "scored",
+            "correct": true,
+            "amplitude": 23.567,
+            "expected_amplitude": 24.0,
+            "peak_month": 7,
+            "expected_peak_month": 7,
+            "trough_month": 1,
+            "expected_trough_month": 1,
+            "amplitude_ok": true,
+            "peak_ok": true,
+            "trough_ok": true,
+            "reason": ""
+          },
+          {
+            "series": "temperature@STA_B",
+            "state": "scored",
+            "correct": true,
+            "amplitude": 22.623,
+            "expected_amplitude": 24.0,
+            "peak_month": 6,
+            "expected_peak_month": 6,
+            "trough_month": 12,
+            "expected_trough_month": 12,
+            "amplitude_ok": true,
+            "peak_ok": true,
+            "trough_ok": true,
+            "reason": ""
+          }
+        ],
+        "unlabeled_series": [
+          "humidity@STA_A",
+          "humidity@STA_B",
+          "pressure@STA_A",
+          "pressure@STA_B",
+          "rainfall@STA_A",
+          "rainfall@STA_B",
+          "wind_speed@STA_A",
+          "wind_speed@STA_B"
+        ]
+      },
+      "quality": [
+        {
+          "kind": "unit_change_start",
+          "column": "temperature",
+          "station": "STA_A",
+          "timestamp": "2024-05-05 00:00:00",
+          "series": "temperature@STA_A",
+          "status": "detected",
+          "detail": "POSSIBLE_UNIT_CHANGE 已定位到站点与起始时间"
+        },
+        {
+          "kind": "missing_gap_start",
+          "column": "temperature",
+          "station": "STA_B",
+          "timestamp": "2024-07-27 08:00:00",
+          "series": "temperature@STA_B",
+          "status": "reported_unlocalized",
+          "detail": "MISSING_VALUES 只有聚合计数，没有缺口起点"
+        },
+        {
+          "kind": "sampling_gap_start",
+          "column": "timestamp",
+          "station": "STA_A",
+          "timestamp": "2024-11-29 08:00:00",
+          "series": "timestamp@STA_A",
+          "status": "reported_unlocalized",
+          "detail": "SAMPLING_GAP 有区间，但没有站点/逐条对应"
+        },
+        {
+          "kind": "sampling_gap_start",
+          "column": "timestamp",
+          "station": "STA_B",
+          "timestamp": "2024-11-29 08:00:00",
+          "series": "timestamp@STA_B",
+          "status": "reported_unlocalized",
+          "detail": "SAMPLING_GAP 有区间，但没有站点/逐条对应"
+        },
+        {
+          "kind": "out_of_order_block",
+          "column": "timestamp",
+          "station": "—",
+          "timestamp": "2025-05-19 20:00:00",
+          "series": "timestamp",
+          "status": "reported_unlocalized",
+          "detail": "OUT_OF_ORDER 只有计数，没有乱序块起点"
+        }
+      ],
+      "conclusion_need": {
+        "covered": [],
+        "missing": [],
+        "unlabeled": [],
+        "mapped": 0,
+        "coverage": null
+      },
+      "result_path": "artifacts\\t212_compare\\wx_open_agent\\result.json"
+    },
+    {
+      "case": "wx_open",
+      "mode": "pipeline",
+      "status": "succeeded",
+      "question": "帮我看看这两年的温度数据有什么值得注意的地方",
+      "expect": [],
+      "executed_tools": [
+        "compute_metrics",
+        "analyze_spectrum",
+        "run_stat_tests",
+        "detect_anomalies",
+        "detect_change_points"
+      ],
+      "conclusion_count": 39,
+      "conclusion_categories": {
+        "数据口径": 1,
+        "趋势": 10,
+        "周期": 10,
+        "季节性": 10,
+        "相关性": 3,
+        "滞后关系": 1,
+        "异常检测": 3,
+        "变化点": 1
+      },
+      "anomaly": {
+        "state": "scored",
+        "point": {
+          "tp": 18,
+          "fp": 121,
+          "fn": 0,
+          "detected": 139,
+          "truth": 18,
+          "precision": 0.1295,
+          "recall": 1.0,
+          "f1": 0.2293
+        },
+        "event": {
+          "tp": 18,
+          "fp": 116,
+          "fn": 0,
+          "detected": 134,
+          "truth": 18,
+          "precision": 0.1343,
+          "recall": 1.0,
+          "f1": 0.2368
+        },
+        "detected_events": 134
+      },
+      "changepoint": {
+        "state": "scored",
+        "point": {
+          "tp": 2,
+          "fp": 4,
+          "fn": 0,
+          "detected": 6,
+          "truth": 2,
+          "precision": 0.3333,
+          "recall": 1.0,
+          "f1": 0.5
+        },
+        "tolerance_seconds": 7200.0
+      },
+      "trend": {
+        "details": [
+          {
+            "series": "temperature@STA_A",
+            "state": "scored",
+            "correct": true,
+            "actual_direction": "up",
+            "expected_direction": "up",
+            "ols_slope": 0.1267,
+            "significant": true,
+            "reason": ""
+          },
+          {
+            "series": "temperature@STA_B",
+            "state": "scored",
+            "correct": false,
+            "actual_direction": "down",
+            "expected_direction": "up",
+            "ols_slope": -0.1409,
+            "significant": true,
+            "reason": "方向与注入真值不一致"
+          }
+        ],
+        "unlabeled_series": [
+          "humidity@STA_A",
+          "humidity@STA_B",
+          "pressure@STA_A",
+          "pressure@STA_B",
+          "rainfall@STA_A",
+          "rainfall@STA_B",
+          "wind_speed@STA_A",
+          "wind_speed@STA_B"
+        ]
+      },
+      "seasonal": {
+        "details": [
+          {
+            "series": "temperature@STA_A",
+            "state": "scored",
+            "correct": true,
+            "amplitude": 23.567,
+            "expected_amplitude": 24.0,
+            "peak_month": 7,
+            "expected_peak_month": 7,
+            "trough_month": 1,
+            "expected_trough_month": 1,
+            "amplitude_ok": true,
+            "peak_ok": true,
+            "trough_ok": true,
+            "reason": ""
+          },
+          {
+            "series": "temperature@STA_B",
+            "state": "scored",
+            "correct": true,
+            "amplitude": 22.623,
+            "expected_amplitude": 24.0,
+            "peak_month": 6,
+            "expected_peak_month": 6,
+            "trough_month": 12,
+            "expected_trough_month": 12,
+            "amplitude_ok": true,
+            "peak_ok": true,
+            "trough_ok": true,
+            "reason": ""
+          }
+        ],
+        "unlabeled_series": [
+          "humidity@STA_A",
+          "humidity@STA_B",
+          "pressure@STA_A",
+          "pressure@STA_B",
+          "rainfall@STA_A",
+          "rainfall@STA_B",
+          "wind_speed@STA_A",
+          "wind_speed@STA_B"
+        ]
+      },
+      "quality": [
+        {
+          "kind": "unit_change_start",
+          "column": "temperature",
+          "station": "STA_A",
+          "timestamp": "2024-05-05 00:00:00",
+          "series": "temperature@STA_A",
+          "status": "detected",
+          "detail": "POSSIBLE_UNIT_CHANGE 已定位到站点与起始时间"
+        },
+        {
+          "kind": "missing_gap_start",
+          "column": "temperature",
+          "station": "STA_B",
+          "timestamp": "2024-07-27 08:00:00",
+          "series": "temperature@STA_B",
+          "status": "reported_unlocalized",
+          "detail": "MISSING_VALUES 只有聚合计数，没有缺口起点"
+        },
+        {
+          "kind": "sampling_gap_start",
+          "column": "timestamp",
+          "station": "STA_A",
+          "timestamp": "2024-11-29 08:00:00",
+          "series": "timestamp@STA_A",
+          "status": "reported_unlocalized",
+          "detail": "SAMPLING_GAP 有区间，但没有站点/逐条对应"
+        },
+        {
+          "kind": "sampling_gap_start",
+          "column": "timestamp",
+          "station": "STA_B",
+          "timestamp": "2024-11-29 08:00:00",
+          "series": "timestamp@STA_B",
+          "status": "reported_unlocalized",
+          "detail": "SAMPLING_GAP 有区间，但没有站点/逐条对应"
+        },
+        {
+          "kind": "out_of_order_block",
+          "column": "timestamp",
+          "station": "—",
+          "timestamp": "2025-05-19 20:00:00",
+          "series": "timestamp",
+          "status": "reported_unlocalized",
+          "detail": "OUT_OF_ORDER 只有计数，没有乱序块起点"
+        }
+      ],
+      "conclusion_need": {
+        "covered": [],
+        "missing": [],
+        "unlabeled": [],
+        "mapped": 0,
+        "coverage": null
+      },
+      "result_path": "artifacts\\t212_compare\\wx_open_pipeline\\result.json"
+    },
+    {
+      "case": "wx_risk_open",
+      "mode": "agent",
+      "status": "succeeded",
+      "question": "这两年的天气对户外作业有什么风险",
+      "expect": [],
+      "executed_tools": [
+        "compute_metrics",
+        "detect_anomalies"
+      ],
+      "conclusion_count": 28,
+      "conclusion_categories": {
+        "数据口径": 1,
+        "趋势": 10,
+        "季节性": 10,
+        "相关性": 3,
+        "滞后关系": 1,
+        "异常检测": 3
+      },
+      "anomaly": {
+        "state": "scored",
+        "point": {
+          "tp": 18,
+          "fp": 121,
+          "fn": 0,
+          "detected": 139,
+          "truth": 18,
+          "precision": 0.1295,
+          "recall": 1.0,
+          "f1": 0.2293
+        },
+        "event": {
+          "tp": 18,
+          "fp": 116,
+          "fn": 0,
+          "detected": 134,
+          "truth": 18,
+          "precision": 0.1343,
+          "recall": 1.0,
+          "f1": 0.2368
+        },
+        "detected_events": 134
+      },
+      "changepoint": {
+        "state": "not_run",
+        "point": null,
+        "reason": "detect_change_points 未执行"
+      },
+      "trend": {
+        "details": [
+          {
+            "series": "temperature@STA_A",
+            "state": "scored",
+            "correct": true,
+            "actual_direction": "up",
+            "expected_direction": "up",
+            "ols_slope": 0.1267,
+            "significant": true,
+            "reason": ""
+          },
+          {
+            "series": "temperature@STA_B",
+            "state": "scored",
+            "correct": false,
+            "actual_direction": "down",
+            "expected_direction": "up",
+            "ols_slope": -0.1409,
+            "significant": true,
+            "reason": "方向与注入真值不一致"
+          }
+        ],
+        "unlabeled_series": [
+          "humidity@STA_A",
+          "humidity@STA_B",
+          "pressure@STA_A",
+          "pressure@STA_B",
+          "rainfall@STA_A",
+          "rainfall@STA_B",
+          "wind_speed@STA_A",
+          "wind_speed@STA_B"
+        ]
+      },
+      "seasonal": {
+        "details": [
+          {
+            "series": "temperature@STA_A",
+            "state": "scored",
+            "correct": true,
+            "amplitude": 23.567,
+            "expected_amplitude": 24.0,
+            "peak_month": 7,
+            "expected_peak_month": 7,
+            "trough_month": 1,
+            "expected_trough_month": 1,
+            "amplitude_ok": true,
+            "peak_ok": true,
+            "trough_ok": true,
+            "reason": ""
+          },
+          {
+            "series": "temperature@STA_B",
+            "state": "scored",
+            "correct": true,
+            "amplitude": 22.623,
+            "expected_amplitude": 24.0,
+            "peak_month": 6,
+            "expected_peak_month": 6,
+            "trough_month": 12,
+            "expected_trough_month": 12,
+            "amplitude_ok": true,
+            "peak_ok": true,
+            "trough_ok": true,
+            "reason": ""
+          }
+        ],
+        "unlabeled_series": [
+          "humidity@STA_A",
+          "humidity@STA_B",
+          "pressure@STA_A",
+          "pressure@STA_B",
+          "rainfall@STA_A",
+          "rainfall@STA_B",
+          "wind_speed@STA_A",
+          "wind_speed@STA_B"
+        ]
+      },
+      "quality": [
+        {
+          "kind": "unit_change_start",
+          "column": "temperature",
+          "station": "STA_A",
+          "timestamp": "2024-05-05 00:00:00",
+          "series": "temperature@STA_A",
+          "status": "detected",
+          "detail": "POSSIBLE_UNIT_CHANGE 已定位到站点与起始时间"
+        },
+        {
+          "kind": "missing_gap_start",
+          "column": "temperature",
+          "station": "STA_B",
+          "timestamp": "2024-07-27 08:00:00",
+          "series": "temperature@STA_B",
+          "status": "reported_unlocalized",
+          "detail": "MISSING_VALUES 只有聚合计数，没有缺口起点"
+        },
+        {
+          "kind": "sampling_gap_start",
+          "column": "timestamp",
+          "station": "STA_A",
+          "timestamp": "2024-11-29 08:00:00",
+          "series": "timestamp@STA_A",
+          "status": "reported_unlocalized",
+          "detail": "SAMPLING_GAP 有区间，但没有站点/逐条对应"
+        },
+        {
+          "kind": "sampling_gap_start",
+          "column": "timestamp",
+          "station": "STA_B",
+          "timestamp": "2024-11-29 08:00:00",
+          "series": "timestamp@STA_B",
+          "status": "reported_unlocalized",
+          "detail": "SAMPLING_GAP 有区间，但没有站点/逐条对应"
+        },
+        {
+          "kind": "out_of_order_block",
+          "column": "timestamp",
+          "station": "—",
+          "timestamp": "2025-05-19 20:00:00",
+          "series": "timestamp",
+          "status": "reported_unlocalized",
+          "detail": "OUT_OF_ORDER 只有计数，没有乱序块起点"
+        }
+      ],
+      "conclusion_need": {
+        "covered": [],
+        "missing": [],
+        "unlabeled": [],
+        "mapped": 0,
+        "coverage": null
+      },
+      "result_path": "artifacts\\t212_compare\\wx_risk_open_agent\\result.json"
+    },
+    {
+      "case": "wx_risk_open",
+      "mode": "pipeline",
+      "status": "succeeded",
+      "question": "这两年的天气对户外作业有什么风险",
+      "expect": [],
+      "executed_tools": [
+        "compute_metrics",
+        "analyze_spectrum",
+        "run_stat_tests",
+        "detect_anomalies",
+        "detect_change_points"
+      ],
+      "conclusion_count": 39,
+      "conclusion_categories": {
+        "数据口径": 1,
+        "趋势": 10,
+        "周期": 10,
+        "季节性": 10,
+        "相关性": 3,
+        "滞后关系": 1,
+        "异常检测": 3,
+        "变化点": 1
+      },
+      "anomaly": {
+        "state": "scored",
+        "point": {
+          "tp": 18,
+          "fp": 121,
+          "fn": 0,
+          "detected": 139,
+          "truth": 18,
+          "precision": 0.1295,
+          "recall": 1.0,
+          "f1": 0.2293
+        },
+        "event": {
+          "tp": 18,
+          "fp": 116,
+          "fn": 0,
+          "detected": 134,
+          "truth": 18,
+          "precision": 0.1343,
+          "recall": 1.0,
+          "f1": 0.2368
+        },
+        "detected_events": 134
+      },
+      "changepoint": {
+        "state": "scored",
+        "point": {
+          "tp": 2,
+          "fp": 4,
+          "fn": 0,
+          "detected": 6,
+          "truth": 2,
+          "precision": 0.3333,
+          "recall": 1.0,
+          "f1": 0.5
+        },
+        "tolerance_seconds": 7200.0
+      },
+      "trend": {
+        "details": [
+          {
+            "series": "temperature@STA_A",
+            "state": "scored",
+            "correct": true,
+            "actual_direction": "up",
+            "expected_direction": "up",
+            "ols_slope": 0.1267,
+            "significant": true,
+            "reason": ""
+          },
+          {
+            "series": "temperature@STA_B",
+            "state": "scored",
+            "correct": false,
+            "actual_direction": "down",
+            "expected_direction": "up",
+            "ols_slope": -0.1409,
+            "significant": true,
+            "reason": "方向与注入真值不一致"
+          }
+        ],
+        "unlabeled_series": [
+          "humidity@STA_A",
+          "humidity@STA_B",
+          "pressure@STA_A",
+          "pressure@STA_B",
+          "rainfall@STA_A",
+          "rainfall@STA_B",
+          "wind_speed@STA_A",
+          "wind_speed@STA_B"
+        ]
+      },
+      "seasonal": {
+        "details": [
+          {
+            "series": "temperature@STA_A",
+            "state": "scored",
+            "correct": true,
+            "amplitude": 23.567,
+            "expected_amplitude": 24.0,
+            "peak_month": 7,
+            "expected_peak_month": 7,
+            "trough_month": 1,
+            "expected_trough_month": 1,
+            "amplitude_ok": true,
+            "peak_ok": true,
+            "trough_ok": true,
+            "reason": ""
+          },
+          {
+            "series": "temperature@STA_B",
+            "state": "scored",
+            "correct": true,
+            "amplitude": 22.623,
+            "expected_amplitude": 24.0,
+            "peak_month": 6,
+            "expected_peak_month": 6,
+            "trough_month": 12,
+            "expected_trough_month": 12,
+            "amplitude_ok": true,
+            "peak_ok": true,
+            "trough_ok": true,
+            "reason": ""
+          }
+        ],
+        "unlabeled_series": [
+          "humidity@STA_A",
+          "humidity@STA_B",
+          "pressure@STA_A",
+          "pressure@STA_B",
+          "rainfall@STA_A",
+          "rainfall@STA_B",
+          "wind_speed@STA_A",
+          "wind_speed@STA_B"
+        ]
+      },
+      "quality": [
+        {
+          "kind": "unit_change_start",
+          "column": "temperature",
+          "station": "STA_A",
+          "timestamp": "2024-05-05 00:00:00",
+          "series": "temperature@STA_A",
+          "status": "detected",
+          "detail": "POSSIBLE_UNIT_CHANGE 已定位到站点与起始时间"
+        },
+        {
+          "kind": "missing_gap_start",
+          "column": "temperature",
+          "station": "STA_B",
+          "timestamp": "2024-07-27 08:00:00",
+          "series": "temperature@STA_B",
+          "status": "reported_unlocalized",
+          "detail": "MISSING_VALUES 只有聚合计数，没有缺口起点"
+        },
+        {
+          "kind": "sampling_gap_start",
+          "column": "timestamp",
+          "station": "STA_A",
+          "timestamp": "2024-11-29 08:00:00",
+          "series": "timestamp@STA_A",
+          "status": "reported_unlocalized",
+          "detail": "SAMPLING_GAP 有区间，但没有站点/逐条对应"
+        },
+        {
+          "kind": "sampling_gap_start",
+          "column": "timestamp",
+          "station": "STA_B",
+          "timestamp": "2024-11-29 08:00:00",
+          "series": "timestamp@STA_B",
+          "status": "reported_unlocalized",
+          "detail": "SAMPLING_GAP 有区间，但没有站点/逐条对应"
+        },
+        {
+          "kind": "out_of_order_block",
+          "column": "timestamp",
+          "station": "—",
+          "timestamp": "2025-05-19 20:00:00",
+          "series": "timestamp",
+          "status": "reported_unlocalized",
+          "detail": "OUT_OF_ORDER 只有计数，没有乱序块起点"
+        }
+      ],
+      "conclusion_need": {
+        "covered": [],
+        "missing": [],
+        "unlabeled": [],
+        "mapped": 0,
+        "coverage": null
+      },
+      "result_path": "artifacts\\t212_compare\\wx_risk_open_pipeline\\result.json"
+    },
+    {
+      "case": "wx_spectrum",
+      "mode": "agent",
+      "status": "succeeded",
+      "question": "温度序列的周期性与主要频率成分是什么",
+      "expect": [
+        "spectrum"
+      ],
+      "executed_tools": [
+        "compute_metrics",
+        "analyze_spectrum"
+      ],
+      "conclusion_count": 35,
+      "conclusion_categories": {
+        "数据口径": 1,
+        "趋势": 10,
+        "周期": 10,
+        "季节性": 10,
+        "相关性": 3,
+        "滞后关系": 1
+      },
+      "anomaly": {
+        "state": "not_run",
+        "point": null,
+        "event": null,
+        "reason": "detect_anomalies 未执行，不能把未看当成没异常"
+      },
+      "changepoint": {
+        "state": "not_run",
+        "point": null,
+        "reason": "detect_change_points 未执行"
+      },
+      "trend": {
+        "details": [
+          {
+            "series": "temperature@STA_A",
+            "state": "scored",
+            "correct": true,
+            "actual_direction": "up",
+            "expected_direction": "up",
+            "ols_slope": 0.1267,
+            "significant": true,
+            "reason": ""
+          },
+          {
+            "series": "temperature@STA_B",
+            "state": "scored",
+            "correct": false,
+            "actual_direction": "down",
+            "expected_direction": "up",
+            "ols_slope": -0.1409,
+            "significant": true,
+            "reason": "方向与注入真值不一致"
+          }
+        ],
+        "unlabeled_series": [
+          "humidity@STA_A",
+          "humidity@STA_B",
+          "pressure@STA_A",
+          "pressure@STA_B",
+          "rainfall@STA_A",
+          "rainfall@STA_B",
+          "wind_speed@STA_A",
+          "wind_speed@STA_B"
+        ]
+      },
+      "seasonal": {
+        "details": [
+          {
+            "series": "temperature@STA_A",
+            "state": "scored",
+            "correct": true,
+            "amplitude": 23.567,
+            "expected_amplitude": 24.0,
+            "peak_month": 7,
+            "expected_peak_month": 7,
+            "trough_month": 1,
+            "expected_trough_month": 1,
+            "amplitude_ok": true,
+            "peak_ok": true,
+            "trough_ok": true,
+            "reason": ""
+          },
+          {
+            "series": "temperature@STA_B",
+            "state": "scored",
+            "correct": true,
+            "amplitude": 22.623,
+            "expected_amplitude": 24.0,
+            "peak_month": 6,
+            "expected_peak_month": 6,
+            "trough_month": 12,
+            "expected_trough_month": 12,
+            "amplitude_ok": true,
+            "peak_ok": true,
+            "trough_ok": true,
+            "reason": ""
+          }
+        ],
+        "unlabeled_series": [
+          "humidity@STA_A",
+          "humidity@STA_B",
+          "pressure@STA_A",
+          "pressure@STA_B",
+          "rainfall@STA_A",
+          "rainfall@STA_B",
+          "wind_speed@STA_A",
+          "wind_speed@STA_B"
+        ]
+      },
+      "quality": [
+        {
+          "kind": "unit_change_start",
+          "column": "temperature",
+          "station": "STA_A",
+          "timestamp": "2024-05-05 00:00:00",
+          "series": "temperature@STA_A",
+          "status": "detected",
+          "detail": "POSSIBLE_UNIT_CHANGE 已定位到站点与起始时间"
+        },
+        {
+          "kind": "missing_gap_start",
+          "column": "temperature",
+          "station": "STA_B",
+          "timestamp": "2024-07-27 08:00:00",
+          "series": "temperature@STA_B",
+          "status": "reported_unlocalized",
+          "detail": "MISSING_VALUES 只有聚合计数，没有缺口起点"
+        },
+        {
+          "kind": "sampling_gap_start",
+          "column": "timestamp",
+          "station": "STA_A",
+          "timestamp": "2024-11-29 08:00:00",
+          "series": "timestamp@STA_A",
+          "status": "reported_unlocalized",
+          "detail": "SAMPLING_GAP 有区间，但没有站点/逐条对应"
+        },
+        {
+          "kind": "sampling_gap_start",
+          "column": "timestamp",
+          "station": "STA_B",
+          "timestamp": "2024-11-29 08:00:00",
+          "series": "timestamp@STA_B",
+          "status": "reported_unlocalized",
+          "detail": "SAMPLING_GAP 有区间，但没有站点/逐条对应"
+        },
+        {
+          "kind": "out_of_order_block",
+          "column": "timestamp",
+          "station": "—",
+          "timestamp": "2025-05-19 20:00:00",
+          "series": "timestamp",
+          "status": "reported_unlocalized",
+          "detail": "OUT_OF_ORDER 只有计数，没有乱序块起点"
+        }
+      ],
+      "conclusion_need": {
+        "covered": [
+          "spectrum"
+        ],
+        "missing": [],
+        "unlabeled": [],
+        "mapped": 1,
+        "coverage": 1.0
+      },
+      "result_path": "artifacts\\t212_compare\\wx_spectrum_agent\\result.json"
+    },
+    {
+      "case": "wx_spectrum",
+      "mode": "pipeline",
+      "status": "succeeded",
+      "question": "温度序列的周期性与主要频率成分是什么",
+      "expect": [
+        "spectrum"
+      ],
+      "executed_tools": [
+        "compute_metrics",
+        "analyze_spectrum",
+        "run_stat_tests",
+        "detect_anomalies",
+        "detect_change_points"
+      ],
+      "conclusion_count": 39,
+      "conclusion_categories": {
+        "数据口径": 1,
+        "趋势": 10,
+        "周期": 10,
+        "季节性": 10,
+        "相关性": 3,
+        "滞后关系": 1,
+        "异常检测": 3,
+        "变化点": 1
+      },
+      "anomaly": {
+        "state": "scored",
+        "point": {
+          "tp": 18,
+          "fp": 121,
+          "fn": 0,
+          "detected": 139,
+          "truth": 18,
+          "precision": 0.1295,
+          "recall": 1.0,
+          "f1": 0.2293
+        },
+        "event": {
+          "tp": 18,
+          "fp": 116,
+          "fn": 0,
+          "detected": 134,
+          "truth": 18,
+          "precision": 0.1343,
+          "recall": 1.0,
+          "f1": 0.2368
+        },
+        "detected_events": 134
+      },
+      "changepoint": {
+        "state": "scored",
+        "point": {
+          "tp": 2,
+          "fp": 4,
+          "fn": 0,
+          "detected": 6,
+          "truth": 2,
+          "precision": 0.3333,
+          "recall": 1.0,
+          "f1": 0.5
+        },
+        "tolerance_seconds": 7200.0
+      },
+      "trend": {
+        "details": [
+          {
+            "series": "temperature@STA_A",
+            "state": "scored",
+            "correct": true,
+            "actual_direction": "up",
+            "expected_direction": "up",
+            "ols_slope": 0.1267,
+            "significant": true,
+            "reason": ""
+          },
+          {
+            "series": "temperature@STA_B",
+            "state": "scored",
+            "correct": false,
+            "actual_direction": "down",
+            "expected_direction": "up",
+            "ols_slope": -0.1409,
+            "significant": true,
+            "reason": "方向与注入真值不一致"
+          }
+        ],
+        "unlabeled_series": [
+          "humidity@STA_A",
+          "humidity@STA_B",
+          "pressure@STA_A",
+          "pressure@STA_B",
+          "rainfall@STA_A",
+          "rainfall@STA_B",
+          "wind_speed@STA_A",
+          "wind_speed@STA_B"
+        ]
+      },
+      "seasonal": {
+        "details": [
+          {
+            "series": "temperature@STA_A",
+            "state": "scored",
+            "correct": true,
+            "amplitude": 23.567,
+            "expected_amplitude": 24.0,
+            "peak_month": 7,
+            "expected_peak_month": 7,
+            "trough_month": 1,
+            "expected_trough_month": 1,
+            "amplitude_ok": true,
+            "peak_ok": true,
+            "trough_ok": true,
+            "reason": ""
+          },
+          {
+            "series": "temperature@STA_B",
+            "state": "scored",
+            "correct": true,
+            "amplitude": 22.623,
+            "expected_amplitude": 24.0,
+            "peak_month": 6,
+            "expected_peak_month": 6,
+            "trough_month": 12,
+            "expected_trough_month": 12,
+            "amplitude_ok": true,
+            "peak_ok": true,
+            "trough_ok": true,
+            "reason": ""
+          }
+        ],
+        "unlabeled_series": [
+          "humidity@STA_A",
+          "humidity@STA_B",
+          "pressure@STA_A",
+          "pressure@STA_B",
+          "rainfall@STA_A",
+          "rainfall@STA_B",
+          "wind_speed@STA_A",
+          "wind_speed@STA_B"
+        ]
+      },
+      "quality": [
+        {
+          "kind": "unit_change_start",
+          "column": "temperature",
+          "station": "STA_A",
+          "timestamp": "2024-05-05 00:00:00",
+          "series": "temperature@STA_A",
+          "status": "detected",
+          "detail": "POSSIBLE_UNIT_CHANGE 已定位到站点与起始时间"
+        },
+        {
+          "kind": "missing_gap_start",
+          "column": "temperature",
+          "station": "STA_B",
+          "timestamp": "2024-07-27 08:00:00",
+          "series": "temperature@STA_B",
+          "status": "reported_unlocalized",
+          "detail": "MISSING_VALUES 只有聚合计数，没有缺口起点"
+        },
+        {
+          "kind": "sampling_gap_start",
+          "column": "timestamp",
+          "station": "STA_A",
+          "timestamp": "2024-11-29 08:00:00",
+          "series": "timestamp@STA_A",
+          "status": "reported_unlocalized",
+          "detail": "SAMPLING_GAP 有区间，但没有站点/逐条对应"
+        },
+        {
+          "kind": "sampling_gap_start",
+          "column": "timestamp",
+          "station": "STA_B",
+          "timestamp": "2024-11-29 08:00:00",
+          "series": "timestamp@STA_B",
+          "status": "reported_unlocalized",
+          "detail": "SAMPLING_GAP 有区间，但没有站点/逐条对应"
+        },
+        {
+          "kind": "out_of_order_block",
+          "column": "timestamp",
+          "station": "—",
+          "timestamp": "2025-05-19 20:00:00",
+          "series": "timestamp",
+          "status": "reported_unlocalized",
+          "detail": "OUT_OF_ORDER 只有计数，没有乱序块起点"
+        }
+      ],
+      "conclusion_need": {
+        "covered": [
+          "spectrum"
+        ],
+        "missing": [],
+        "unlabeled": [],
+        "mapped": 1,
+        "coverage": 1.0
+      },
+      "result_path": "artifacts\\t212_compare\\wx_spectrum_pipeline\\result.json"
+    },
+    {
+      "case": "wx_stationary",
+      "mode": "agent",
+      "status": "succeeded",
+      "question": "评估这条时间序列是否平稳，并说明其自相关结构",
+      "expect": [
+        "stationarity",
+        "autocorr"
+      ],
+      "executed_tools": [
+        "compute_metrics",
+        "analyze_spectrum",
+        "run_stat_tests"
+      ],
+      "conclusion_count": 35,
+      "conclusion_categories": {
+        "数据口径": 1,
+        "趋势": 10,
+        "周期": 10,
+        "季节性": 10,
+        "相关性": 3,
+        "滞后关系": 1
+      },
+      "anomaly": {
+        "state": "not_run",
+        "point": null,
+        "event": null,
+        "reason": "detect_anomalies 未执行，不能把未看当成没异常"
+      },
+      "changepoint": {
+        "state": "not_run",
+        "point": null,
+        "reason": "detect_change_points 未执行"
+      },
+      "trend": {
+        "details": [
+          {
+            "series": "temperature@STA_A",
+            "state": "scored",
+            "correct": true,
+            "actual_direction": "up",
+            "expected_direction": "up",
+            "ols_slope": 0.1267,
+            "significant": true,
+            "reason": ""
+          },
+          {
+            "series": "temperature@STA_B",
+            "state": "scored",
+            "correct": false,
+            "actual_direction": "down",
+            "expected_direction": "up",
+            "ols_slope": -0.1409,
+            "significant": true,
+            "reason": "方向与注入真值不一致"
+          }
+        ],
+        "unlabeled_series": [
+          "humidity@STA_A",
+          "humidity@STA_B",
+          "pressure@STA_A",
+          "pressure@STA_B",
+          "rainfall@STA_A",
+          "rainfall@STA_B",
+          "wind_speed@STA_A",
+          "wind_speed@STA_B"
+        ]
+      },
+      "seasonal": {
+        "details": [
+          {
+            "series": "temperature@STA_A",
+            "state": "scored",
+            "correct": true,
+            "amplitude": 23.567,
+            "expected_amplitude": 24.0,
+            "peak_month": 7,
+            "expected_peak_month": 7,
+            "trough_month": 1,
+            "expected_trough_month": 1,
+            "amplitude_ok": true,
+            "peak_ok": true,
+            "trough_ok": true,
+            "reason": ""
+          },
+          {
+            "series": "temperature@STA_B",
+            "state": "scored",
+            "correct": true,
+            "amplitude": 22.623,
+            "expected_amplitude": 24.0,
+            "peak_month": 6,
+            "expected_peak_month": 6,
+            "trough_month": 12,
+            "expected_trough_month": 12,
+            "amplitude_ok": true,
+            "peak_ok": true,
+            "trough_ok": true,
+            "reason": ""
+          }
+        ],
+        "unlabeled_series": [
+          "humidity@STA_A",
+          "humidity@STA_B",
+          "pressure@STA_A",
+          "pressure@STA_B",
+          "rainfall@STA_A",
+          "rainfall@STA_B",
+          "wind_speed@STA_A",
+          "wind_speed@STA_B"
+        ]
+      },
+      "quality": [
+        {
+          "kind": "unit_change_start",
+          "column": "temperature",
+          "station": "STA_A",
+          "timestamp": "2024-05-05 00:00:00",
+          "series": "temperature@STA_A",
+          "status": "detected",
+          "detail": "POSSIBLE_UNIT_CHANGE 已定位到站点与起始时间"
+        },
+        {
+          "kind": "missing_gap_start",
+          "column": "temperature",
+          "station": "STA_B",
+          "timestamp": "2024-07-27 08:00:00",
+          "series": "temperature@STA_B",
+          "status": "reported_unlocalized",
+          "detail": "MISSING_VALUES 只有聚合计数，没有缺口起点"
+        },
+        {
+          "kind": "sampling_gap_start",
+          "column": "timestamp",
+          "station": "STA_A",
+          "timestamp": "2024-11-29 08:00:00",
+          "series": "timestamp@STA_A",
+          "status": "reported_unlocalized",
+          "detail": "SAMPLING_GAP 有区间，但没有站点/逐条对应"
+        },
+        {
+          "kind": "sampling_gap_start",
+          "column": "timestamp",
+          "station": "STA_B",
+          "timestamp": "2024-11-29 08:00:00",
+          "series": "timestamp@STA_B",
+          "status": "reported_unlocalized",
+          "detail": "SAMPLING_GAP 有区间，但没有站点/逐条对应"
+        },
+        {
+          "kind": "out_of_order_block",
+          "column": "timestamp",
+          "station": "—",
+          "timestamp": "2025-05-19 20:00:00",
+          "series": "timestamp",
+          "status": "reported_unlocalized",
+          "detail": "OUT_OF_ORDER 只有计数，没有乱序块起点"
+        }
+      ],
+      "conclusion_need": {
+        "covered": [],
+        "missing": [],
+        "unlabeled": [
+          "stationarity",
+          "autocorr"
+        ],
+        "mapped": 0,
+        "coverage": null
+      },
+      "result_path": "artifacts\\t212_compare\\wx_stationary_agent\\result.json"
+    },
+    {
+      "case": "wx_stationary",
+      "mode": "pipeline",
+      "status": "succeeded",
+      "question": "评估这条时间序列是否平稳，并说明其自相关结构",
+      "expect": [
+        "stationarity",
+        "autocorr"
+      ],
+      "executed_tools": [
+        "compute_metrics",
+        "analyze_spectrum",
+        "run_stat_tests",
+        "detect_anomalies",
+        "detect_change_points"
+      ],
+      "conclusion_count": 39,
+      "conclusion_categories": {
+        "数据口径": 1,
+        "趋势": 10,
+        "周期": 10,
+        "季节性": 10,
+        "相关性": 3,
+        "滞后关系": 1,
+        "异常检测": 3,
+        "变化点": 1
+      },
+      "anomaly": {
+        "state": "scored",
+        "point": {
+          "tp": 18,
+          "fp": 121,
+          "fn": 0,
+          "detected": 139,
+          "truth": 18,
+          "precision": 0.1295,
+          "recall": 1.0,
+          "f1": 0.2293
+        },
+        "event": {
+          "tp": 18,
+          "fp": 116,
+          "fn": 0,
+          "detected": 134,
+          "truth": 18,
+          "precision": 0.1343,
+          "recall": 1.0,
+          "f1": 0.2368
+        },
+        "detected_events": 134
+      },
+      "changepoint": {
+        "state": "scored",
+        "point": {
+          "tp": 2,
+          "fp": 4,
+          "fn": 0,
+          "detected": 6,
+          "truth": 2,
+          "precision": 0.3333,
+          "recall": 1.0,
+          "f1": 0.5
+        },
+        "tolerance_seconds": 7200.0
+      },
+      "trend": {
+        "details": [
+          {
+            "series": "temperature@STA_A",
+            "state": "scored",
+            "correct": true,
+            "actual_direction": "up",
+            "expected_direction": "up",
+            "ols_slope": 0.1267,
+            "significant": true,
+            "reason": ""
+          },
+          {
+            "series": "temperature@STA_B",
+            "state": "scored",
+            "correct": false,
+            "actual_direction": "down",
+            "expected_direction": "up",
+            "ols_slope": -0.1409,
+            "significant": true,
+            "reason": "方向与注入真值不一致"
+          }
+        ],
+        "unlabeled_series": [
+          "humidity@STA_A",
+          "humidity@STA_B",
+          "pressure@STA_A",
+          "pressure@STA_B",
+          "rainfall@STA_A",
+          "rainfall@STA_B",
+          "wind_speed@STA_A",
+          "wind_speed@STA_B"
+        ]
+      },
+      "seasonal": {
+        "details": [
+          {
+            "series": "temperature@STA_A",
+            "state": "scored",
+            "correct": true,
+            "amplitude": 23.567,
+            "expected_amplitude": 24.0,
+            "peak_month": 7,
+            "expected_peak_month": 7,
+            "trough_month": 1,
+            "expected_trough_month": 1,
+            "amplitude_ok": true,
+            "peak_ok": true,
+            "trough_ok": true,
+            "reason": ""
+          },
+          {
+            "series": "temperature@STA_B",
+            "state": "scored",
+            "correct": true,
+            "amplitude": 22.623,
+            "expected_amplitude": 24.0,
+            "peak_month": 6,
+            "expected_peak_month": 6,
+            "trough_month": 12,
+            "expected_trough_month": 12,
+            "amplitude_ok": true,
+            "peak_ok": true,
+            "trough_ok": true,
+            "reason": ""
+          }
+        ],
+        "unlabeled_series": [
+          "humidity@STA_A",
+          "humidity@STA_B",
+          "pressure@STA_A",
+          "pressure@STA_B",
+          "rainfall@STA_A",
+          "rainfall@STA_B",
+          "wind_speed@STA_A",
+          "wind_speed@STA_B"
+        ]
+      },
+      "quality": [
+        {
+          "kind": "unit_change_start",
+          "column": "temperature",
+          "station": "STA_A",
+          "timestamp": "2024-05-05 00:00:00",
+          "series": "temperature@STA_A",
+          "status": "detected",
+          "detail": "POSSIBLE_UNIT_CHANGE 已定位到站点与起始时间"
+        },
+        {
+          "kind": "missing_gap_start",
+          "column": "temperature",
+          "station": "STA_B",
+          "timestamp": "2024-07-27 08:00:00",
+          "series": "temperature@STA_B",
+          "status": "reported_unlocalized",
+          "detail": "MISSING_VALUES 只有聚合计数，没有缺口起点"
+        },
+        {
+          "kind": "sampling_gap_start",
+          "column": "timestamp",
+          "station": "STA_A",
+          "timestamp": "2024-11-29 08:00:00",
+          "series": "timestamp@STA_A",
+          "status": "reported_unlocalized",
+          "detail": "SAMPLING_GAP 有区间，但没有站点/逐条对应"
+        },
+        {
+          "kind": "sampling_gap_start",
+          "column": "timestamp",
+          "station": "STA_B",
+          "timestamp": "2024-11-29 08:00:00",
+          "series": "timestamp@STA_B",
+          "status": "reported_unlocalized",
+          "detail": "SAMPLING_GAP 有区间，但没有站点/逐条对应"
+        },
+        {
+          "kind": "out_of_order_block",
+          "column": "timestamp",
+          "station": "—",
+          "timestamp": "2025-05-19 20:00:00",
+          "series": "timestamp",
+          "status": "reported_unlocalized",
+          "detail": "OUT_OF_ORDER 只有计数，没有乱序块起点"
+        }
+      ],
+      "conclusion_need": {
+        "covered": [],
+        "missing": [],
+        "unlabeled": [
+          "stationarity",
+          "autocorr"
+        ],
+        "mapped": 0,
+        "coverage": null
+      },
+      "result_path": "artifacts\\t212_compare\\wx_stationary_pipeline\\result.json"
+    },
+    {
+      "case": "wx_trend",
+      "mode": "agent",
+      "status": "succeeded",
+      "question": "分析温度的趋势、季节性与极端事件",
+      "expect": [
+        "trend",
+        "seasonal",
+        "extreme"
+      ],
+      "executed_tools": [
+        "compute_metrics",
+        "analyze_spectrum"
+      ],
+      "conclusion_count": 35,
+      "conclusion_categories": {
+        "数据口径": 1,
+        "趋势": 10,
+        "周期": 10,
+        "季节性": 10,
+        "相关性": 3,
+        "滞后关系": 1
+      },
+      "anomaly": {
+        "state": "not_run",
+        "point": null,
+        "event": null,
+        "reason": "detect_anomalies 未执行，不能把未看当成没异常"
+      },
+      "changepoint": {
+        "state": "not_run",
+        "point": null,
+        "reason": "detect_change_points 未执行"
+      },
+      "trend": {
+        "details": [
+          {
+            "series": "temperature@STA_A",
+            "state": "scored",
+            "correct": true,
+            "actual_direction": "up",
+            "expected_direction": "up",
+            "ols_slope": 0.1267,
+            "significant": true,
+            "reason": ""
+          },
+          {
+            "series": "temperature@STA_B",
+            "state": "scored",
+            "correct": false,
+            "actual_direction": "down",
+            "expected_direction": "up",
+            "ols_slope": -0.1409,
+            "significant": true,
+            "reason": "方向与注入真值不一致"
+          }
+        ],
+        "unlabeled_series": [
+          "humidity@STA_A",
+          "humidity@STA_B",
+          "pressure@STA_A",
+          "pressure@STA_B",
+          "rainfall@STA_A",
+          "rainfall@STA_B",
+          "wind_speed@STA_A",
+          "wind_speed@STA_B"
+        ]
+      },
+      "seasonal": {
+        "details": [
+          {
+            "series": "temperature@STA_A",
+            "state": "scored",
+            "correct": true,
+            "amplitude": 23.567,
+            "expected_amplitude": 24.0,
+            "peak_month": 7,
+            "expected_peak_month": 7,
+            "trough_month": 1,
+            "expected_trough_month": 1,
+            "amplitude_ok": true,
+            "peak_ok": true,
+            "trough_ok": true,
+            "reason": ""
+          },
+          {
+            "series": "temperature@STA_B",
+            "state": "scored",
+            "correct": true,
+            "amplitude": 22.623,
+            "expected_amplitude": 24.0,
+            "peak_month": 6,
+            "expected_peak_month": 6,
+            "trough_month": 12,
+            "expected_trough_month": 12,
+            "amplitude_ok": true,
+            "peak_ok": true,
+            "trough_ok": true,
+            "reason": ""
+          }
+        ],
+        "unlabeled_series": [
+          "humidity@STA_A",
+          "humidity@STA_B",
+          "pressure@STA_A",
+          "pressure@STA_B",
+          "rainfall@STA_A",
+          "rainfall@STA_B",
+          "wind_speed@STA_A",
+          "wind_speed@STA_B"
+        ]
+      },
+      "quality": [
+        {
+          "kind": "unit_change_start",
+          "column": "temperature",
+          "station": "STA_A",
+          "timestamp": "2024-05-05 00:00:00",
+          "series": "temperature@STA_A",
+          "status": "detected",
+          "detail": "POSSIBLE_UNIT_CHANGE 已定位到站点与起始时间"
+        },
+        {
+          "kind": "missing_gap_start",
+          "column": "temperature",
+          "station": "STA_B",
+          "timestamp": "2024-07-27 08:00:00",
+          "series": "temperature@STA_B",
+          "status": "reported_unlocalized",
+          "detail": "MISSING_VALUES 只有聚合计数，没有缺口起点"
+        },
+        {
+          "kind": "sampling_gap_start",
+          "column": "timestamp",
+          "station": "STA_A",
+          "timestamp": "2024-11-29 08:00:00",
+          "series": "timestamp@STA_A",
+          "status": "reported_unlocalized",
+          "detail": "SAMPLING_GAP 有区间，但没有站点/逐条对应"
+        },
+        {
+          "kind": "sampling_gap_start",
+          "column": "timestamp",
+          "station": "STA_B",
+          "timestamp": "2024-11-29 08:00:00",
+          "series": "timestamp@STA_B",
+          "status": "reported_unlocalized",
+          "detail": "SAMPLING_GAP 有区间，但没有站点/逐条对应"
+        },
+        {
+          "kind": "out_of_order_block",
+          "column": "timestamp",
+          "station": "—",
+          "timestamp": "2025-05-19 20:00:00",
+          "series": "timestamp",
+          "status": "reported_unlocalized",
+          "detail": "OUT_OF_ORDER 只有计数，没有乱序块起点"
+        }
+      ],
+      "conclusion_need": {
+        "covered": [
+          "trend",
+          "seasonal"
+        ],
+        "missing": [],
+        "unlabeled": [
+          "extreme"
+        ],
+        "mapped": 2,
+        "coverage": 1.0
+      },
+      "result_path": "artifacts\\t212_compare\\wx_trend_agent\\result.json"
+    },
+    {
+      "case": "wx_trend_neg",
+      "mode": "agent",
+      "status": "succeeded",
+      "question": "温度有没有明显上升趋势？如果没有，请说明判断依据",
+      "expect": [
+        "trend"
+      ],
+      "executed_tools": [
+        "compute_metrics",
+        "run_stat_tests"
+      ],
+      "conclusion_count": 25,
+      "conclusion_categories": {
+        "数据口径": 1,
+        "趋势": 10,
+        "季节性": 10,
+        "相关性": 3,
+        "滞后关系": 1
+      },
+      "anomaly": {
+        "state": "not_run",
+        "point": null,
+        "event": null,
+        "reason": "detect_anomalies 未执行，不能把未看当成没异常"
+      },
+      "changepoint": {
+        "state": "not_run",
+        "point": null,
+        "reason": "detect_change_points 未执行"
+      },
+      "trend": {
+        "details": [
+          {
+            "series": "temperature@STA_A",
+            "state": "scored",
+            "correct": true,
+            "actual_direction": "up",
+            "expected_direction": "up",
+            "ols_slope": 0.1267,
+            "significant": true,
+            "reason": ""
+          },
+          {
+            "series": "temperature@STA_B",
+            "state": "scored",
+            "correct": false,
+            "actual_direction": "down",
+            "expected_direction": "up",
+            "ols_slope": -0.1409,
+            "significant": true,
+            "reason": "方向与注入真值不一致"
+          }
+        ],
+        "unlabeled_series": [
+          "humidity@STA_A",
+          "humidity@STA_B",
+          "pressure@STA_A",
+          "pressure@STA_B",
+          "rainfall@STA_A",
+          "rainfall@STA_B",
+          "wind_speed@STA_A",
+          "wind_speed@STA_B"
+        ]
+      },
+      "seasonal": {
+        "details": [
+          {
+            "series": "temperature@STA_A",
+            "state": "scored",
+            "correct": true,
+            "amplitude": 23.567,
+            "expected_amplitude": 24.0,
+            "peak_month": 7,
+            "expected_peak_month": 7,
+            "trough_month": 1,
+            "expected_trough_month": 1,
+            "amplitude_ok": true,
+            "peak_ok": true,
+            "trough_ok": true,
+            "reason": ""
+          },
+          {
+            "series": "temperature@STA_B",
+            "state": "scored",
+            "correct": true,
+            "amplitude": 22.623,
+            "expected_amplitude": 24.0,
+            "peak_month": 6,
+            "expected_peak_month": 6,
+            "trough_month": 12,
+            "expected_trough_month": 12,
+            "amplitude_ok": true,
+            "peak_ok": true,
+            "trough_ok": true,
+            "reason": ""
+          }
+        ],
+        "unlabeled_series": [
+          "humidity@STA_A",
+          "humidity@STA_B",
+          "pressure@STA_A",
+          "pressure@STA_B",
+          "rainfall@STA_A",
+          "rainfall@STA_B",
+          "wind_speed@STA_A",
+          "wind_speed@STA_B"
+        ]
+      },
+      "quality": [
+        {
+          "kind": "unit_change_start",
+          "column": "temperature",
+          "station": "STA_A",
+          "timestamp": "2024-05-05 00:00:00",
+          "series": "temperature@STA_A",
+          "status": "detected",
+          "detail": "POSSIBLE_UNIT_CHANGE 已定位到站点与起始时间"
+        },
+        {
+          "kind": "missing_gap_start",
+          "column": "temperature",
+          "station": "STA_B",
+          "timestamp": "2024-07-27 08:00:00",
+          "series": "temperature@STA_B",
+          "status": "reported_unlocalized",
+          "detail": "MISSING_VALUES 只有聚合计数，没有缺口起点"
+        },
+        {
+          "kind": "sampling_gap_start",
+          "column": "timestamp",
+          "station": "STA_A",
+          "timestamp": "2024-11-29 08:00:00",
+          "series": "timestamp@STA_A",
+          "status": "reported_unlocalized",
+          "detail": "SAMPLING_GAP 有区间，但没有站点/逐条对应"
+        },
+        {
+          "kind": "sampling_gap_start",
+          "column": "timestamp",
+          "station": "STA_B",
+          "timestamp": "2024-11-29 08:00:00",
+          "series": "timestamp@STA_B",
+          "status": "reported_unlocalized",
+          "detail": "SAMPLING_GAP 有区间，但没有站点/逐条对应"
+        },
+        {
+          "kind": "out_of_order_block",
+          "column": "timestamp",
+          "station": "—",
+          "timestamp": "2025-05-19 20:00:00",
+          "series": "timestamp",
+          "status": "reported_unlocalized",
+          "detail": "OUT_OF_ORDER 只有计数，没有乱序块起点"
+        }
+      ],
+      "conclusion_need": {
+        "covered": [
+          "trend"
+        ],
+        "missing": [],
+        "unlabeled": [],
+        "mapped": 1,
+        "coverage": 1.0
+      },
+      "result_path": "artifacts\\t212_compare\\wx_trend_neg_agent\\result.json"
+    },
+    {
+      "case": "wx_trend_neg",
+      "mode": "pipeline",
+      "status": "succeeded",
+      "question": "温度有没有明显上升趋势？如果没有，请说明判断依据",
+      "expect": [
+        "trend"
+      ],
+      "executed_tools": [
+        "compute_metrics",
+        "analyze_spectrum",
+        "run_stat_tests",
+        "detect_anomalies",
+        "detect_change_points"
+      ],
+      "conclusion_count": 39,
+      "conclusion_categories": {
+        "数据口径": 1,
+        "趋势": 10,
+        "周期": 10,
+        "季节性": 10,
+        "相关性": 3,
+        "滞后关系": 1,
+        "异常检测": 3,
+        "变化点": 1
+      },
+      "anomaly": {
+        "state": "scored",
+        "point": {
+          "tp": 18,
+          "fp": 121,
+          "fn": 0,
+          "detected": 139,
+          "truth": 18,
+          "precision": 0.1295,
+          "recall": 1.0,
+          "f1": 0.2293
+        },
+        "event": {
+          "tp": 18,
+          "fp": 116,
+          "fn": 0,
+          "detected": 134,
+          "truth": 18,
+          "precision": 0.1343,
+          "recall": 1.0,
+          "f1": 0.2368
+        },
+        "detected_events": 134
+      },
+      "changepoint": {
+        "state": "scored",
+        "point": {
+          "tp": 2,
+          "fp": 4,
+          "fn": 0,
+          "detected": 6,
+          "truth": 2,
+          "precision": 0.3333,
+          "recall": 1.0,
+          "f1": 0.5
+        },
+        "tolerance_seconds": 7200.0
+      },
+      "trend": {
+        "details": [
+          {
+            "series": "temperature@STA_A",
+            "state": "scored",
+            "correct": true,
+            "actual_direction": "up",
+            "expected_direction": "up",
+            "ols_slope": 0.1267,
+            "significant": true,
+            "reason": ""
+          },
+          {
+            "series": "temperature@STA_B",
+            "state": "scored",
+            "correct": false,
+            "actual_direction": "down",
+            "expected_direction": "up",
+            "ols_slope": -0.1409,
+            "significant": true,
+            "reason": "方向与注入真值不一致"
+          }
+        ],
+        "unlabeled_series": [
+          "humidity@STA_A",
+          "humidity@STA_B",
+          "pressure@STA_A",
+          "pressure@STA_B",
+          "rainfall@STA_A",
+          "rainfall@STA_B",
+          "wind_speed@STA_A",
+          "wind_speed@STA_B"
+        ]
+      },
+      "seasonal": {
+        "details": [
+          {
+            "series": "temperature@STA_A",
+            "state": "scored",
+            "correct": true,
+            "amplitude": 23.567,
+            "expected_amplitude": 24.0,
+            "peak_month": 7,
+            "expected_peak_month": 7,
+            "trough_month": 1,
+            "expected_trough_month": 1,
+            "amplitude_ok": true,
+            "peak_ok": true,
+            "trough_ok": true,
+            "reason": ""
+          },
+          {
+            "series": "temperature@STA_B",
+            "state": "scored",
+            "correct": true,
+            "amplitude": 22.623,
+            "expected_amplitude": 24.0,
+            "peak_month": 6,
+            "expected_peak_month": 6,
+            "trough_month": 12,
+            "expected_trough_month": 12,
+            "amplitude_ok": true,
+            "peak_ok": true,
+            "trough_ok": true,
+            "reason": ""
+          }
+        ],
+        "unlabeled_series": [
+          "humidity@STA_A",
+          "humidity@STA_B",
+          "pressure@STA_A",
+          "pressure@STA_B",
+          "rainfall@STA_A",
+          "rainfall@STA_B",
+          "wind_speed@STA_A",
+          "wind_speed@STA_B"
+        ]
+      },
+      "quality": [
+        {
+          "kind": "unit_change_start",
+          "column": "temperature",
+          "station": "STA_A",
+          "timestamp": "2024-05-05 00:00:00",
+          "series": "temperature@STA_A",
+          "status": "detected",
+          "detail": "POSSIBLE_UNIT_CHANGE 已定位到站点与起始时间"
+        },
+        {
+          "kind": "missing_gap_start",
+          "column": "temperature",
+          "station": "STA_B",
+          "timestamp": "2024-07-27 08:00:00",
+          "series": "temperature@STA_B",
+          "status": "reported_unlocalized",
+          "detail": "MISSING_VALUES 只有聚合计数，没有缺口起点"
+        },
+        {
+          "kind": "sampling_gap_start",
+          "column": "timestamp",
+          "station": "STA_A",
+          "timestamp": "2024-11-29 08:00:00",
+          "series": "timestamp@STA_A",
+          "status": "reported_unlocalized",
+          "detail": "SAMPLING_GAP 有区间，但没有站点/逐条对应"
+        },
+        {
+          "kind": "sampling_gap_start",
+          "column": "timestamp",
+          "station": "STA_B",
+          "timestamp": "2024-11-29 08:00:00",
+          "series": "timestamp@STA_B",
+          "status": "reported_unlocalized",
+          "detail": "SAMPLING_GAP 有区间，但没有站点/逐条对应"
+        },
+        {
+          "kind": "out_of_order_block",
+          "column": "timestamp",
+          "station": "—",
+          "timestamp": "2025-05-19 20:00:00",
+          "series": "timestamp",
+          "status": "reported_unlocalized",
+          "detail": "OUT_OF_ORDER 只有计数，没有乱序块起点"
+        }
+      ],
+      "conclusion_need": {
+        "covered": [
+          "trend"
+        ],
+        "missing": [],
+        "unlabeled": [],
+        "mapped": 1,
+        "coverage": 1.0
+      },
+      "result_path": "artifacts\\t212_compare\\wx_trend_neg_pipeline\\result.json"
+    },
+    {
+      "case": "wx_trend",
+      "mode": "pipeline",
+      "status": "succeeded",
+      "question": "分析温度的趋势、季节性与极端事件",
+      "expect": [
+        "trend",
+        "seasonal",
+        "extreme"
+      ],
+      "executed_tools": [
+        "compute_metrics",
+        "analyze_spectrum",
+        "run_stat_tests",
+        "detect_anomalies",
+        "detect_change_points"
+      ],
+      "conclusion_count": 39,
+      "conclusion_categories": {
+        "数据口径": 1,
+        "趋势": 10,
+        "周期": 10,
+        "季节性": 10,
+        "相关性": 3,
+        "滞后关系": 1,
+        "异常检测": 3,
+        "变化点": 1
+      },
+      "anomaly": {
+        "state": "scored",
+        "point": {
+          "tp": 18,
+          "fp": 121,
+          "fn": 0,
+          "detected": 139,
+          "truth": 18,
+          "precision": 0.1295,
+          "recall": 1.0,
+          "f1": 0.2293
+        },
+        "event": {
+          "tp": 18,
+          "fp": 116,
+          "fn": 0,
+          "detected": 134,
+          "truth": 18,
+          "precision": 0.1343,
+          "recall": 1.0,
+          "f1": 0.2368
+        },
+        "detected_events": 134
+      },
+      "changepoint": {
+        "state": "scored",
+        "point": {
+          "tp": 2,
+          "fp": 4,
+          "fn": 0,
+          "detected": 6,
+          "truth": 2,
+          "precision": 0.3333,
+          "recall": 1.0,
+          "f1": 0.5
+        },
+        "tolerance_seconds": 7200.0
+      },
+      "trend": {
+        "details": [
+          {
+            "series": "temperature@STA_A",
+            "state": "scored",
+            "correct": true,
+            "actual_direction": "up",
+            "expected_direction": "up",
+            "ols_slope": 0.1267,
+            "significant": true,
+            "reason": ""
+          },
+          {
+            "series": "temperature@STA_B",
+            "state": "scored",
+            "correct": false,
+            "actual_direction": "down",
+            "expected_direction": "up",
+            "ols_slope": -0.1409,
+            "significant": true,
+            "reason": "方向与注入真值不一致"
+          }
+        ],
+        "unlabeled_series": [
+          "humidity@STA_A",
+          "humidity@STA_B",
+          "pressure@STA_A",
+          "pressure@STA_B",
+          "rainfall@STA_A",
+          "rainfall@STA_B",
+          "wind_speed@STA_A",
+          "wind_speed@STA_B"
+        ]
+      },
+      "seasonal": {
+        "details": [
+          {
+            "series": "temperature@STA_A",
+            "state": "scored",
+            "correct": true,
+            "amplitude": 23.567,
+            "expected_amplitude": 24.0,
+            "peak_month": 7,
+            "expected_peak_month": 7,
+            "trough_month": 1,
+            "expected_trough_month": 1,
+            "amplitude_ok": true,
+            "peak_ok": true,
+            "trough_ok": true,
+            "reason": ""
+          },
+          {
+            "series": "temperature@STA_B",
+            "state": "scored",
+            "correct": true,
+            "amplitude": 22.623,
+            "expected_amplitude": 24.0,
+            "peak_month": 6,
+            "expected_peak_month": 6,
+            "trough_month": 12,
+            "expected_trough_month": 12,
+            "amplitude_ok": true,
+            "peak_ok": true,
+            "trough_ok": true,
+            "reason": ""
+          }
+        ],
+        "unlabeled_series": [
+          "humidity@STA_A",
+          "humidity@STA_B",
+          "pressure@STA_A",
+          "pressure@STA_B",
+          "rainfall@STA_A",
+          "rainfall@STA_B",
+          "wind_speed@STA_A",
+          "wind_speed@STA_B"
+        ]
+      },
+      "quality": [
+        {
+          "kind": "unit_change_start",
+          "column": "temperature",
+          "station": "STA_A",
+          "timestamp": "2024-05-05 00:00:00",
+          "series": "temperature@STA_A",
+          "status": "detected",
+          "detail": "POSSIBLE_UNIT_CHANGE 已定位到站点与起始时间"
+        },
+        {
+          "kind": "missing_gap_start",
+          "column": "temperature",
+          "station": "STA_B",
+          "timestamp": "2024-07-27 08:00:00",
+          "series": "temperature@STA_B",
+          "status": "reported_unlocalized",
+          "detail": "MISSING_VALUES 只有聚合计数，没有缺口起点"
+        },
+        {
+          "kind": "sampling_gap_start",
+          "column": "timestamp",
+          "station": "STA_A",
+          "timestamp": "2024-11-29 08:00:00",
+          "series": "timestamp@STA_A",
+          "status": "reported_unlocalized",
+          "detail": "SAMPLING_GAP 有区间，但没有站点/逐条对应"
+        },
+        {
+          "kind": "sampling_gap_start",
+          "column": "timestamp",
+          "station": "STA_B",
+          "timestamp": "2024-11-29 08:00:00",
+          "series": "timestamp@STA_B",
+          "status": "reported_unlocalized",
+          "detail": "SAMPLING_GAP 有区间，但没有站点/逐条对应"
+        },
+        {
+          "kind": "out_of_order_block",
+          "column": "timestamp",
+          "station": "—",
+          "timestamp": "2025-05-19 20:00:00",
+          "series": "timestamp",
+          "status": "reported_unlocalized",
+          "detail": "OUT_OF_ORDER 只有计数，没有乱序块起点"
+        }
+      ],
+      "conclusion_need": {
+        "covered": [
+          "trend",
+          "seasonal"
+        ],
+        "missing": [],
+        "unlabeled": [
+          "extreme"
+        ],
+        "mapped": 2,
+        "coverage": 1.0
+      },
+      "result_path": "artifacts\\t212_compare\\wx_trend_pipeline\\result.json"
+    }
+  ],
+  "notes": [
+    "13 个用例共用同一份 weather_v1.csv；跨用例累加是重复测量，不是 13 倍独立证据。",
+    "P/R/F1 只在对应工具实际执行的用例上计算；未执行记 not_run，不记 0。",
+    "点级异常按严格同一时刻匹配；事件级按同系列间隔≤3小时合并后按区间重叠匹配。",
+    "变化点容差为 2 个采样点；异常点不做时间容差。",
+    "趋势/季节性只评 temperature@STA_A/STA_B；其他列无真值，标 unlabeled。",
+    "数据质量事件只报 detected/reported_unlocalized/not_detected，不把无定位信息硬算成 FP。"
+  ]
+}

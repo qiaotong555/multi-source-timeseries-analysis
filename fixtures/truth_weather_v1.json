@@ -1,0 +1,45 @@
+{
+  "dataset": "weather_v1",
+  "generator": "fixtures/gen_fixtures.py::gen_weather",
+  "seed": 20260927,
+  "start": "2024-01-01 00:00:00",
+  "hours": 17544,
+  "tolerances": {
+    "trend_direction": "sign",
+    "seasonal_amplitude_abs": 3.0,
+    "seasonal_month_tolerance": 1,
+    "changepoint_samples": 2
+  },
+  "series": {
+    "temperature@STA_A": {
+      "trend_per_year": 0.8,
+      "trend_direction": "up",
+      "annual_amplitude": 12.0,
+      "annual_amplitude_peak_to_trough": 24.0,
+      "peak_month": 7,
+      "trough_month": 1,
+      "diurnal_amplitude": 6.0,
+      "diurnal_period_hours": 24.0
+    },
+    "temperature@STA_B": {
+      "trend_per_year": 0.8,
+      "trend_direction": "up",
+      "annual_amplitude": 12.0,
+      "annual_amplitude_peak_to_trough": 24.0,
+      "peak_month": 6,
+      "trough_month": 12,
+      "diurnal_amplitude": 6.0,
+      "diurnal_period_hours": 24.0
+    }
+  },
+  "not_covered": [
+    "humidity",
+    "pressure",
+    "wind_speed",
+    "rainfall",
+    "period",
+    "correlation",
+    "lag"
+  ],
+  "note": "趋势真值为每年 +0.8°C；季节振幅 12.0 是正弦幅值，月均峰谷差为 24.0。峰值/谷值月由 gen_weather 的 phase 推导：STA_A phase=0，STA_B phase=0.6。"
+}
