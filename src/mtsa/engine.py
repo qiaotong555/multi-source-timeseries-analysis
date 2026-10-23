@@ -327,6 +327,8 @@ def run_analysis(request: AnalysisRequest, verbose: bool = True) -> AnalysisResu
                 request.question,
                 max_steps=request.agent_max_steps,
                 allowed_tools=WEATHER_AGENT_TOOLS,
+                scope_mode=request.agent_scope,
+                max_extra_steps=request.agent_max_extra_steps,
             )
             if runner is None:
                 return fail(
@@ -342,6 +344,7 @@ def run_analysis(request: AnalysisRequest, verbose: bool = True) -> AnalysisResu
         states = tool_states(traj, WEATHER_AGENT_TOOLS)
         agent_info.update({"mode": "agent", "elapsed_ms": agent_elapsed,
                            "max_steps": request.agent_max_steps,
+                           "max_extra_steps": request.agent_max_extra_steps,
                            "tool_states": states,
                            "replay_version": replay_mod.REPLAY_VERSION,
                            "coverage": coverage_summary(plan, traj, WEATHER_AGENT_TOOLS)})

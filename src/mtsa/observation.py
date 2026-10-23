@@ -27,6 +27,7 @@ import json
 from typing import Any, Optional, Sequence
 
 from .models import AnalysisPlan
+from .scope import ScopeFloor
 from .tools import ToolContext
 
 MAX_STEP_TOKENS = 400
@@ -160,8 +161,26 @@ def _step_digest(step) -> str:
     return "；".join(parts)
 
 
+def _scope_lines(floor: Optional[ScopeFloor], traj, max_extra_steps: int) -> list[str]:
+    """范围下限的三行说明；free 模式不输出（避免让模型误以为有下限）。"""
+    if floor is None:
+        return []
+    missing = floor.missing(traj.results)
+    done = [t for t in floor.tools if t not in missing]
+    extra_used = sum(1 for t in traj.tools_run if t not in floor.tools)
+    lines = [
+        "范围下限（来自问题关键词：{}；未覆盖时不得结束）：{}"
+        .format("、".join(k for k in floor.matched) or "—", "、".join(floor.tools)),
+        "下限状态：已覆盖 {}/{}（{}）；未覆盖：{}".format(
+            len(done), len(floor.tools), "、".join(done) or "无", "、".join(missing) or "无"),
+        "下限之外已追加：{}/{}".format(extra_used, max_extra_steps),
+    ]
+    return lines
+
+
 def _render(ctx: ToolContext, question: str, traj, allowed_tools: Sequence[str],
-            max_steps: int, detail_count: int, max_columns: int) -> str:
+            max_steps: int, detail_count: int, max_columns: int,
+            floor: Optional[ScopeFloor] = None, max_extra_steps: int = 0) -> str:
     cov = coverage_summary(ctx.plan, traj, allowed_tools)
     lines = [
         f"分析问题：{question}",
@@ -175,6 +194,7 @@ def _render(ctx: ToolContext, question: str, traj, allowed_tools: Sequence[str],
          .format(len(cov["covered_analyses"]), len(cov["planned_analyses"]),
                  "、".join(cov["missing_analyses"]) or "无")),
     ]
+    lines.extend(_scope_lines(floor, traj, max_extra_steps))
 
     steps = list(traj.steps)
     recent = steps[-detail_count:] if detail_count else []
@@ -213,27 +233,33 @@ def _render(ctx: ToolContext, question: str, traj, allowed_tools: Sequence[str],
 
 def build_observation(ctx: ToolContext, question: str, traj,
                       allowed_tools: Sequence[str], max_steps: int,
-                      token_budget: int = MAX_TOTAL_TOKENS) -> str:
+                      token_budget: int = MAX_TOTAL_TOKENS,
+                      floor: Optional[ScopeFloor] = None,
+                      max_extra_steps: int = 0) -> str:
     """生成一步观察上下文，保证总长度受控。
 
     依次尝试：最近 2 步详细 → 最近 1 步详细 → 全部压缩 → 再裁剪列清单。
     任何一步先满足预算就返回，避免为「再短一点」牺牲可读性。
     """
     text = _render(ctx, question, traj, allowed_tools, max_steps,
-                   detail_count=RECENT_STEPS, max_columns=8)
+                   detail_count=RECENT_STEPS, max_columns=8,
+                   floor=floor, max_extra_steps=max_extra_steps)
     if estimate_tokens(text) <= token_budget:
         return text
 
     text = _render(ctx, question, traj, allowed_tools, max_steps,
-                   detail_count=1, max_columns=8)
+                   detail_count=1, max_columns=8,
+                   floor=floor, max_extra_steps=max_extra_steps)
     if estimate_tokens(text) <= token_budget:
         return text
 
     text = _render(ctx, question, traj, allowed_tools, max_steps,
-                   detail_count=0, max_columns=8)
+                   detail_count=0, max_columns=8,
+                   floor=floor, max_extra_steps=max_extra_steps)
     if estimate_tokens(text) <= token_budget:
         return text
 
     # 最后手段：只保留前 4 列。不再继续删，否则模型无法做出有依据的决策。
     return _render(ctx, question, traj, allowed_tools, max_steps,
-                   detail_count=0, max_columns=4)
+                   detail_count=0, max_columns=4,
+                   floor=floor, max_extra_steps=max_extra_steps)

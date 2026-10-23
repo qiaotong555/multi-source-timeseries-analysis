@@ -85,6 +85,11 @@ def _build_parser() -> argparse.ArgumentParser:
                         "缺省读 MTSA_AGENT，再缺省 pipeline")
     r.add_argument("--agent-max-steps", type=int, default=8, metavar="N",
                    help="Agent 模式最大决策步数，默认 8")
+    r.add_argument("--agent-scope", choices=("guided", "free"), default="guided",
+                   help="Agent 范围策略：guided 按问题关键词设下限（步数稳定）；"
+                        "free 完全由模型决定范围（步数会波动）")
+    r.add_argument("--agent-max-extra-steps", type=int, default=1, metavar="N",
+                   help="guided 模式下限之外允许追加的步数，默认 1")
     r.add_argument("--replay", default=None, metavar="RESULT_JSON",
                    help="从一次 agent 运行的 result.json 离线重放；不调用模型")
     r.add_argument("--timeout", type=float, default=DEFAULT_TIMEOUT_S,
@@ -134,6 +139,8 @@ def main(argv: list[str] | None = None) -> int:
         output_dir=args.output,
         mode=mode,
         agent_max_steps=args.agent_max_steps,
+        agent_scope=args.agent_scope,
+        agent_max_extra_steps=args.agent_max_extra_steps,
         replay_from=args.replay,
     )
     if args.timeout and args.timeout > 0:

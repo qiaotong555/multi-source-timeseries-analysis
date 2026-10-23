@@ -57,7 +57,7 @@ def _act(name: str, reason: str = "因为需要") -> dict:
 
 def test_finish_right_after_one_tool():
     client = FakeClient([_act("compute_metrics"), {"action": "finish", "args": {}, "reason": "已足够"}])
-    traj = AgentRunner(_ctx(), client, "看图").run()
+    traj = AgentRunner(_ctx(), client, "看图", scope_mode="free").run()
     assert traj.terminate_reason == "model_finished"
     assert traj.step_count == 1
     assert traj.tools_run == ["compute_metrics"]
@@ -67,11 +67,11 @@ def test_trajectory_length_follows_decisions():
     """同一 runner 配置下，决策不同则步数不同——这是「流程由模型决定」的证据。"""
     short = AgentRunner(_ctx(), FakeClient([
         _act("detect_anomalies"), {"action": "finish", "args": {}, "reason": "ok"}]),
-        "q").run()
+        "q", scope_mode="free").run()
     long = AgentRunner(_ctx(), FakeClient([
         _act("compute_metrics"), _act("run_stat_tests"), _act("detect_anomalies"),
         _act("detect_change_points"), {"action": "finish", "args": {}, "reason": "ok"}]),
-        "q").run()
+        "q", scope_mode="free").run()
     assert short.step_count == 1
     assert long.step_count == 4
     assert short.step_count != long.step_count
@@ -80,14 +80,14 @@ def test_trajectory_length_follows_decisions():
 def test_max_steps_terminates():
     client = FakeClient([_act("compute_metrics"), _act("analyze_spectrum"),
                          _act("run_stat_tests")])
-    traj = AgentRunner(_ctx(), client, "q", max_steps=2).run()
+    traj = AgentRunner(_ctx(), client, "q", scope_mode="free", max_steps=2).run()
     assert traj.terminate_reason == "max_steps"
     assert traj.step_count == 2
 
 
 def test_repeated_tool_is_rejected_then_idle_loop_stops():
     client = FakeClient([_act("compute_metrics")] + [_act("compute_metrics")] * 5)
-    traj = AgentRunner(_ctx(), client, "q").run()
+    traj = AgentRunner(_ctx(), client, "q", scope_mode="free").run()
     assert traj.terminate_reason == "idle_loop"
     assert traj.step_count == 1                      # 只执行了一次，其余全被拒
     assert len(traj.rejects) == MAX_CONSECUTIVE_REJECTS
@@ -96,7 +96,7 @@ def test_repeated_tool_is_rejected_then_idle_loop_stops():
 def test_unknown_tool_rejected():
     client = FakeClient([_act("correlation"),
                          {"action": "finish", "args": {}, "reason": "改主意"}])
-    traj = AgentRunner(_ctx(), client, "q").run()
+    traj = AgentRunner(_ctx(), client, "q", scope_mode="free").run()
     assert traj.terminate_reason == "model_finished"
     assert traj.step_count == 0
     assert traj.rejects[0]["kind"] == "invalid_action"
@@ -107,7 +107,7 @@ def test_args_are_rejected_not_silently_ignored():
     client = FakeClient([{"action": "run_stat_tests", "args": {"columns": ["temperature"]},
                           "reason": "只看温度"},
                          {"action": "finish", "args": {}, "reason": "结束"}])
-    traj = AgentRunner(_ctx(), client, "q").run()
+    traj = AgentRunner(_ctx(), client, "q", scope_mode="free").run()
     assert traj.step_count == 0
     assert "不接受参数" in traj.rejects[0]["detail"]
 
@@ -115,20 +115,20 @@ def test_args_are_rejected_not_silently_ignored():
 def test_empty_reason_is_decision_error():
     client = FakeClient([{"action": "compute_metrics", "args": {}, "reason": ""},
                          {"action": "compute_metrics", "args": {}, "reason": ""}])
-    traj = AgentRunner(_ctx(), client, "q").run()
+    traj = AgentRunner(_ctx(), client, "q", scope_mode="free").run()
     assert traj.terminate_reason == "decision_error"
     assert len(traj.rejects) == MAX_DECISION_ERRORS
 
 
 def test_malformed_output_is_decision_error():
     client = FakeClient([{"args": {}}, {"nope": 1}])
-    traj = AgentRunner(_ctx(), client, "q").run()
+    traj = AgentRunner(_ctx(), client, "q", scope_mode="free").run()
     assert traj.terminate_reason == "decision_error"
 
 
 def test_llm_error_counts_as_decision_error():
     client = FakeClient([LLMError("网络超时"), LLMError("网络超时")])
-    traj = AgentRunner(_ctx(), client, "q").run()
+    traj = AgentRunner(_ctx(), client, "q", scope_mode="free").run()
     assert traj.terminate_reason == "decision_error"
     assert "网络超时" in traj.rejects[0]["detail"]
 
@@ -141,7 +141,7 @@ def test_rejects_reset_after_progress():
         _act("nope3"), _act("nope4"),                 # 再两次无效
         {"action": "finish", "args": {}, "reason": "完"},
     ])
-    traj = AgentRunner(_ctx(), client, "q").run()
+    traj = AgentRunner(_ctx(), client, "q", scope_mode="free").run()
     assert traj.step_count == 1
     assert traj.terminate_reason == "model_finished"
 
@@ -150,7 +150,7 @@ def test_skipped_tool_counts_as_executed():
     """非股票场景的 check_lookahead 返回 skipped，仍算已执行，不应被重复选择。"""
     client = FakeClient([_act("check_lookahead"),
                          {"action": "finish", "args": {}, "reason": "已看过"}])
-    traj = AgentRunner(_ctx(), client, "q").run()
+    traj = AgentRunner(_ctx(), client, "q", scope_mode="free").run()
     assert traj.step_count == 1
     assert traj.steps[0].outcome == "skipped"
 
@@ -158,7 +158,7 @@ def test_skipped_tool_counts_as_executed():
 def test_user_prompt_contains_previous_results():
     """第二步的上下文里必须能看到第一步的结果摘要，否则不构成观察—决策闭环。"""
     client = FakeClient([_act("detect_anomalies"), {"action": "finish", "args": {}, "reason": "ok"}])
-    AgentRunner(_ctx(), client, "找异常").run()
+    AgentRunner(_ctx(), client, "找异常", scope_mode="free").run()
     second = client.calls[1]
     assert "detect_anomalies" in second
     assert "count" in second or "by_column" in second
@@ -167,7 +167,7 @@ def test_user_prompt_contains_previous_results():
 
 def test_trajectory_serializable():
     client = FakeClient([_act("compute_metrics"), {"action": "finish", "args": {}, "reason": "ok"}])
-    traj = AgentRunner(_ctx(), client, "q").run()
+    traj = AgentRunner(_ctx(), client, "q", scope_mode="free").run()
     blob = json.dumps(traj.to_dict(), ensure_ascii=False)
     assert "compute_metrics" in blob
     assert traj.to_dict()["terminate_reason"] == "model_finished"
@@ -192,7 +192,7 @@ def test_weather_whitelist_excludes_stock_tool():
     """股票专属工具必须在天气 Agent 里被拒，而不是执行后返回 skipped。"""
     client = FakeClient([_act("check_lookahead"),
                          {"action": "finish", "args": {}, "reason": "结束"}])
-    traj = AgentRunner(_ctx(), client, "q", allowed_tools=WEATHER_AGENT_TOOLS).run()
+    traj = AgentRunner(_ctx(), client, "q", scope_mode="free", allowed_tools=WEATHER_AGENT_TOOLS).run()
     assert traj.step_count == 0
     assert "白名单" in traj.rejects[0]["detail"]
     assert "check_lookahead" in traj.rejects[0]["detail"]
@@ -200,7 +200,7 @@ def test_weather_whitelist_excludes_stock_tool():
 
 def test_prompt_only_lists_allowed_tools():
     client = FakeClient([{"action": "finish", "args": {}, "reason": "结束"}])
-    AgentRunner(_ctx(), client, "q", allowed_tools=WEATHER_AGENT_TOOLS).run()
+    AgentRunner(_ctx(), client, "q", scope_mode="free", allowed_tools=WEATHER_AGENT_TOOLS).run()
     system_or_user = client.calls[0]
     assert "check_lookahead" not in system_or_user
     assert "compute_metrics" in system_or_user
@@ -209,7 +209,7 @@ def test_prompt_only_lists_allowed_tools():
 def test_trajectory_records_whitelist_and_step_time():
     client = FakeClient([_act("compute_metrics"),
                          {"action": "finish", "args": {}, "reason": "ok"}])
-    traj = AgentRunner(_ctx(), client, "q", allowed_tools=WEATHER_AGENT_TOOLS).run()
+    traj = AgentRunner(_ctx(), client, "q", scope_mode="free", allowed_tools=WEATHER_AGENT_TOOLS).run()
     d = traj.to_dict()
     assert d["allowed_tools"] == list(WEATHER_AGENT_TOOLS)
     assert d["steps"][0]["started_at"], "每一步必须记录开始时间，供 events/重放使用"
@@ -246,7 +246,7 @@ def test_tool_failure_does_not_break_loop(monkeypatch):
     monkeypatch.setattr(tools, "run_tool", fake_run)
     client = FakeClient([_act("detect_anomalies"), _act("compute_metrics"),
                          {"action": "finish", "args": {}, "reason": "换一个工具已完成"}])
-    traj = AgentRunner(_ctx(), client, "q", allowed_tools=WEATHER_AGENT_TOOLS).run()
+    traj = AgentRunner(_ctx(), client, "q", scope_mode="free", allowed_tools=WEATHER_AGENT_TOOLS).run()
     assert traj.steps[0].outcome == "failed"
     assert traj.steps[0].error == "boom"
     assert traj.tools_run == ["compute_metrics"]
@@ -270,7 +270,7 @@ def test_failed_tool_can_retry_once_and_succeed(monkeypatch):
     monkeypatch.setattr(tools, "run_tool", fake_run)
     client = FakeClient([_act("detect_anomalies"), _act("detect_anomalies"),
                          {"action": "finish", "args": {}, "reason": "重试成功"}])
-    traj = AgentRunner(_ctx(), client, "q", allowed_tools=WEATHER_AGENT_TOOLS).run()
+    traj = AgentRunner(_ctx(), client, "q", scope_mode="free", allowed_tools=WEATHER_AGENT_TOOLS).run()
     assert [s.outcome for s in traj.steps] == ["failed", "ok"]
     assert traj.tools_run == ["detect_anomalies"]           # 去重
     assert traj.guard_stats["retries"]["detect_anomalies"] == 1
@@ -282,7 +282,7 @@ def test_locked_parameter_is_rejected_in_runtime():
          "reason": "想调阈值"},
         {"action": "finish", "args": {}, "reason": "结束"},
     ])
-    traj = AgentRunner(_ctx(), client, "q", allowed_tools=WEATHER_AGENT_TOOLS).run()
+    traj = AgentRunner(_ctx(), client, "q", scope_mode="free", allowed_tools=WEATHER_AGENT_TOOLS).run()
     assert traj.step_count == 0
     assert traj.rejects[0]["reason_kind"] == "locked_parameter"
     assert "标定参数" in traj.rejects[0]["detail"]
@@ -291,7 +291,7 @@ def test_locked_parameter_is_rejected_in_runtime():
 def test_guard_stats_and_events_are_serialized():
     client = FakeClient([_act("not_a_tool"),
                          {"action": "finish", "args": {}, "reason": "结束"}])
-    traj = AgentRunner(_ctx(), client, "q", allowed_tools=WEATHER_AGENT_TOOLS).run()
+    traj = AgentRunner(_ctx(), client, "q", scope_mode="free", allowed_tools=WEATHER_AGENT_TOOLS).run()
     d = traj.to_dict()
     assert d["guard_stats"]["violations"] == 1
     assert d["guard_stats"]["by_kind"]["tool_not_allowed"] == 1

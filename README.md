@@ -48,6 +48,9 @@ python -m evals.agent_eval --mock
 
 # pipeline / agent 对照（同批 9 个天气用例，固定规则计划）
 python -m evals.mode_compare
+
+# 输出稳定性：同题重复 3 次，guided（关键词下限）vs free（模型自定范围）
+python -m evals.stability_eval --repeats 3
 ```
 
 ## 运行保护
@@ -57,6 +60,7 @@ python -m evals.mode_compare
 | 数据规模 | 20 万行，超过即拒绝（`DATASET_TOO_LARGE`） | `MTSA_MAX_ROWS=500000` |
 | 整体超时 | 600 秒，超时终止子进程（`NODE_TIMEOUT`） | `--timeout 900`；`0` 表示不限制且不进子进程 |
 | 运行模式 | 默认 `pipeline` | `--mode agent` / `--mode auto`，或设置 `MTSA_AGENT` |
+| Agent 范围策略 | `guided`：按问题关键词定下限，达标前不得结束，下限外最多追加 1 步 | `--agent-scope free` 恢复“范围完全由模型决定”（步数会波动） |
 
 CLI 默认在**子进程**中执行分析：Python 无法中断正在执行的 C 扩展调用（numpy、statsmodels），
 主线程计时器拦不住卡死，只有进程级终止有效。代价是约 3 秒启动开销。

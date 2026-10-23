@@ -34,9 +34,10 @@ class DummyClient:
     model = "dummy"
 
 
-def _fake_build(ctx, question, env=None, max_steps=8, allowed_tools=None):
+def _fake_build(ctx, question, env=None, max_steps=8, allowed_tools=None, scope_mode="guided", max_extra_steps=1):
     return AgentRunner(ctx, FakeClient(), question, max_steps=max_steps,
-                       allowed_tools=allowed_tools)
+                       allowed_tools=allowed_tools,
+                           scope_mode=scope_mode, max_extra_steps=max_extra_steps)
 
 
 def _ensure_fixtures():
@@ -75,9 +76,12 @@ def test_auto_with_model_uses_agent(tmp_path):
     _ensure_fixtures()
     with patch("mtsa.llm_client.client_from_env", return_value=DummyClient()), \
          patch.object(engine, "build_agent_runner", _fake_build):
+        # auto → agent 只验证「路由确实切到 agent」，脚本里没有工具，
+        # 因此用 free 让「直接结束」保持合法。
         req = AnalysisRequest(request_id="req_auto_agent", input_path=WEATHER_CSV,
                               scene_id="weather", question="分析温度",
-                              output_dir=str(tmp_path / "auto_agent"), mode="auto")
+                              output_dir=str(tmp_path / "auto_agent"), mode="auto",
+                              agent_scope="free")
         res = engine.run_analysis(req, verbose=False)
     assert res.status == "succeeded", res.error
     assert res.datasets[0]["mode"] == "agent"

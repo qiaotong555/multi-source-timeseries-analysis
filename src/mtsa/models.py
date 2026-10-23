@@ -78,6 +78,11 @@ class AnalysisRequest(MtsaModel):
     mode: Literal["pipeline", "agent", "auto"] = "pipeline"
     # Agent 最大决策步数。默认 8，足以覆盖天气场景的 5 个工具并留出纠错余量。
     agent_max_steps: int = 8
+    # 范围下限模式（T2.11）。guided：关键词下限 + 达标前不得结束 + 最多 1 步扩展；
+    # free：范围完全由模型判断（T2.2 原始行为，步数会波动）。
+    agent_scope: Literal["guided", "free"] = "guided"
+    # 下限之外允许追加的步数，仅 guided 生效。
+    agent_max_extra_steps: int = 1
     # 从一次 agent 运行的 result.json 重放；设置后不调用模型，按记录顺序重跑工具。
     replay_from: Optional[str] = None
 

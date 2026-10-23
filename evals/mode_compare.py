@@ -91,9 +91,10 @@ def pipeline_metrics(doc: dict[str, Any], expect: Optional[list[str]] = None) ->
 
 
 def _runner_patch(client):
-    def _build(ctx, question, env=None, max_steps=8, allowed_tools=None):
+    def _build(ctx, question, env=None, max_steps=8, allowed_tools=None, scope_mode="guided", max_extra_steps=1):
         return AgentRunner(ctx, client, question, max_steps=max_steps,
-                           allowed_tools=allowed_tools)
+                           allowed_tools=allowed_tools,
+                           scope_mode=scope_mode, max_extra_steps=max_extra_steps)
     return patch.object(engine, "build_agent_runner", _build)
 
 
@@ -339,7 +340,8 @@ def main(argv: Optional[list[str]] = None) -> int:
     source, model, factory = "real", "", None
     if args.mock:
         source, model = "mock", "mock-scripted"
-        factory = lambda case: ScriptedClient(_scripted_tools(case.get("expect") or []))  # noqa: E731
+        factory = lambda case: ScriptedClient(  # noqa: E731
+            _scripted_tools(case.get("expect") or [], case.get("question") or ""))
     else:
         if client_from_env() is None:
             print("未配置模型，不能产出真实对照；只验证管线请加 --mock", file=sys.stderr)

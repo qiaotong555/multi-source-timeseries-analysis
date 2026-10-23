@@ -27,6 +27,20 @@ M1 的计划层是**一次性规划**：看完数据摘要就定下 12 个分析
 | `max_steps` | 步数达上限 |
 | `idle_loop` | 连续被拒次数达上限（反复选已执行或无效工具） |
 | `decision_error` | 模型输出连续无法解析 |
+| `scope_unmet` | guided 模式下反复要求结束，而下限始终未覆盖 |
+| `budget_exhausted` | guided 模式下限之外的追加步数已用尽，模型仍要求追加 |
+
+范围下限（T2.11）
+----------------
+`guided`（默认）先用关键词把「这个问题至少要做什么」算成下限，再让模型决定顺序：
+
+- 下限未覆盖时 `finish` 被拒绝（`scope_incomplete`），并告知缺哪几个工具；
+- 下限之外最多追加 `max_extra_steps`（默认 1）步，超出按 `extra_step_budget` 拒绝；
+- 下限工具若失败且重试用尽，允许结束——否则会空转到 `max_steps`，把
+  「做不到」伪装成「没做完」。
+
+`free` 保留 T2.2 的原始语义（范围完全由模型判断）。两种模式的步数分布都在
+T2.11 里实测，没有用推断代替测量。
 """
 from __future__ import annotations
 
@@ -35,18 +49,34 @@ from datetime import datetime
 from typing import Any, Optional
 
 from . import tools
-from .agent_guards import ActionGuard, GuardPolicy
+from .agent_guards import (VIOLATION_EXTRA_STEP, ActionGuard, GuardDecision,
+                           GuardPolicy)
 from .llm_client import LLMError
 from .observation import build_observation
+from .scope import ScopeFloor, describe, infer_floor
 
 TERMINATE_MODEL_FINISHED = "model_finished"
 TERMINATE_MAX_STEPS = "max_steps"
 TERMINATE_IDLE = "idle_loop"
 TERMINATE_DECISION_ERROR = "decision_error"
+# 下限始终未覆盖、且模型反复要求结束时使用。与 max_steps 分开，才能区分
+# 「步数用尽」和「该做的一直没做」。
+TERMINATE_SCOPE_UNMET = "scope_unmet"
+# 下限外步数预算用尽：模型仍想追加工具。此时再问一次也不可能获批，
+# 直接结束，避免白花 3 次模型调用并让终止原因在 idle_loop 与 model_finished 之间抖动。
+TERMINATE_BUDGET = "budget_exhausted"
+
+# guided：下限由问题关键词确定，达标前不得结束，达标后最多再追加 1 步；
+# free：T2.2 的原始行为，范围与结束时机完全由模型判断（步数会波动）。
+SCOPE_GUIDED = "guided"
+SCOPE_FREE = "free"
+SCOPE_MODES = (SCOPE_GUIDED, SCOPE_FREE)
 
 DEFAULT_MAX_STEPS = 8
 MAX_CONSECUTIVE_REJECTS = 3
 MAX_DECISION_ERRORS = 2
+MAX_SCOPE_REJECTS = 3
+DEFAULT_MAX_EXTRA_STEPS = 1
 
 AGENT_VERSION = "agent-v1"
 
@@ -97,6 +127,9 @@ class AgentTrajectory:
     model: str = ""
     agent_version: str = AGENT_VERSION
     allowed_tools: list[str] = field(default_factory=list)
+    # T2.11 范围下限：guided 模式下记录下限、命中词与达标情况
+    scope_mode: str = SCOPE_FREE
+    scope: dict[str, Any] = field(default_factory=dict)
     # T2.4 越界事件与统计；与 rejects 的区别：rejects 是运行时视角，guard_events 是边界视角
     guard_events: list[dict[str, Any]] = field(default_factory=list)
     guard_stats: dict[str, Any] = field(default_factory=dict)
@@ -128,6 +161,8 @@ class AgentTrajectory:
             "step_count": self.step_count,
             "allowed_tools": self.allowed_tools,
             "tools_run": self.tools_run,
+            "scope_mode": self.scope_mode,
+            "scope": self.scope,
             "steps": [s.to_dict() for s in self.steps],
             "rejects": self.rejects,
             "guard_events": self.guard_events,
@@ -150,9 +185,13 @@ class AgentRunner:
 
     def __init__(self, ctx: tools.ToolContext, client, question: str,
                  max_steps: int = DEFAULT_MAX_STEPS,
-                 allowed_tools: Optional[list[str] | tuple[str, ...]] = None) -> None:
+                 allowed_tools: Optional[list[str] | tuple[str, ...]] = None,
+                 scope_mode: str = SCOPE_GUIDED,
+                 max_extra_steps: int = DEFAULT_MAX_EXTRA_STEPS) -> None:
         if client is None:
             raise ValueError("AgentRunner 需要 LLM 客户端；无客户端时应走固定流水线")
+        if scope_mode not in SCOPE_MODES:
+            raise ValueError(f"scope_mode 只能是 {SCOPE_MODES}，收到 {scope_mode!r}")
         # 默认放开全部注册工具，便于单测直接复用；生产入口（engine）必须显式传入
         # 场景白名单，否则一旦新增工具就会被模型看到。
         names = list(allowed_tools) if allowed_tools is not None else tools.tool_names()
@@ -166,15 +205,22 @@ class AgentRunner:
         self.client = client
         self.question = question
         self.max_steps = max(1, max_steps)
+        self.scope_mode = scope_mode
+        self.max_extra_steps = max(0, int(max_extra_steps))
+        # 下限只约束「至少做什么」，顺序仍由模型决定。free 模式不设下限。
+        self.floor: Optional[ScopeFloor] = (
+            infer_floor(question, self.allowed_tools) if scope_mode == SCOPE_GUIDED else None)
         self.traj = AgentTrajectory(question=question,
                                     model=getattr(client, "model", "") or "",
-                                    allowed_tools=list(self.allowed_tools))
+                                    allowed_tools=list(self.allowed_tools),
+                                    scope_mode=scope_mode)
         self.guard = ActionGuard(GuardPolicy(
             allowed_tools=self.allowed_tools,
             max_steps=self.max_steps,
             max_consecutive_violations=MAX_CONSECUTIVE_REJECTS,
         ))
         self._decision_errors = 0
+        self._scope_rejects = 0
 
     # ---------------- 对外入口 ----------------
 
@@ -189,6 +235,9 @@ class AgentRunner:
             if self._decision_errors >= MAX_DECISION_ERRORS:
                 self.traj.terminate_reason = TERMINATE_DECISION_ERROR
                 break
+            if self._scope_rejects >= MAX_SCOPE_REJECTS:
+                self.traj.terminate_reason = TERMINATE_SCOPE_UNMET
+                break
 
             try:
                 decision = self._decide()
@@ -200,6 +249,10 @@ class AgentRunner:
 
             action = decision["action"]
             if action == "finish":
+                blocked = self._finish_blocked()
+                if blocked:
+                    self._reject_scope(blocked)
+                    continue
                 self.traj.terminate_reason = TERMINATE_MODEL_FINISHED
                 break
 
@@ -213,12 +266,82 @@ class AgentRunner:
                 })
                 continue
 
+            over = self._extra_budget_exceeded(action)
+            if over:
+                self.guard.record_violation(
+                    GuardDecision(False, VIOLATION_EXTRA_STEP, over),
+                    action, len(self.traj.steps))
+                self.traj.rejects.append({
+                    "kind": "scope_exceeded", "action": action, "detail": over,
+                })
+                self.traj.terminate_reason = TERMINATE_BUDGET
+                break
+
             self._execute(action, decision.get("args") or {},
                           decision.get("reason", ""), is_retry=verdict.is_retry)
+            self._scope_rejects = 0
 
         self.traj.guard_events = list(self.guard.violations)
         self.traj.guard_stats = self.guard.stats()
+        self.traj.scope = self._scope_report()
         return self.traj
+
+    # ---------------- 范围下限 ----------------
+
+    def _extra_used(self) -> int:
+        """下限之外已成功执行（ok / skipped）的工具数。"""
+        if self.floor is None:
+            return 0
+        return sum(1 for t in self.floor_tools_run() if t not in self.floor.tools)
+
+    def floor_tools_run(self) -> list[str]:
+        """已成功执行的工具（去重保序），与 AgentTrajectory.tools_run 同口径。"""
+        return self.traj.tools_run
+
+    def _hopeless(self, tool: str) -> bool:
+        """下限工具已失败且重试次数用尽——再拒绝结束只会空转到 max_steps。"""
+        res = self.traj.results.get(tool)
+        if getattr(res, "outcome", None) != "failed":
+            return False
+        return self.guard.retry_count(tool) >= self.guard.policy.max_retries_per_tool
+
+    def _finish_blocked(self) -> Optional[str]:
+        """结束请求是否应被拒绝。返回拒绝理由，None 表示允许结束。"""
+        if self.floor is None:
+            return None
+        missing = self.floor.missing(self.traj.results)
+        if not missing:
+            return None
+        if all(self._hopeless(t) for t in missing):
+            return None
+        return ("范围下限未覆盖：{}。请先执行这些工具再结束（下限来自问题关键词：{}）"
+                .format("、".join(missing), describe(self.floor)))
+
+    def _extra_budget_exceeded(self, action: str) -> Optional[str]:
+        """下限之外最多追加 max_extra_steps 步；超出即拒绝。"""
+        if self.floor is None or action in self.floor.tools:
+            return None
+        used = self._extra_used()
+        if used >= self.max_extra_steps:
+            return ("范围下限之外的追加步数已用尽（{} / {}）：{} 不在下限内，"
+                    "请回到下限工具或结束".format(used, self.max_extra_steps, action))
+        return None
+
+    def _reject_scope(self, detail: str) -> None:
+        self._scope_rejects += 1
+        self.traj.rejects.append({"kind": "scope_incomplete", "detail": detail})
+
+    def _scope_report(self) -> dict[str, Any]:
+        if self.floor is None:
+            return {"mode": SCOPE_FREE, "enforced": False}
+        report = {"mode": SCOPE_GUIDED, "enforced": True}
+        report.update(self.floor.to_dict(self.traj.results))
+        report.update({
+            "extra_used": self._extra_used(),
+            "max_extra_steps": self.max_extra_steps,
+            "scope_rejects": self._scope_rejects,
+        })
+        return report
 
     # ---------------- 内部实现 ----------------
 
@@ -271,19 +394,26 @@ class AgentRunner:
             "失败的工具可以重试一次。\n"
             "4. args 一律留空对象；这些工具不接受额外参数。\n"
             "5. reason 必须说明为什么选它，或为什么结束；不得为空。\n"
-            "6. 当已覆盖问题所需的分析时，输出 finish——不必跑完全部工具。\n"
-            "7. 若已有结果之间存在矛盾或某列未被覆盖而问题涉及它，应补跑相应工具。"
+            "6. 观察里会给出「范围下限」：下限工具未全部执行时输出 finish 会被拒绝，"
+            "必须先补齐；下限已覆盖时应结束，不必跑完全部工具。\n"
+            "7. 若已有结果之间存在矛盾或某列未被覆盖而问题涉及它，可在下限之外"
+            "追加 1 个工具，用完即止。\n"
+            "8. 工具顺序自行决定；同一工具成功后不得重复，失败可重试一次。"
         )
 
     def _user_prompt(self) -> str:
         """交给观察摘要器生成，不再在这里拼接无限增长的历史。"""
         return build_observation(self.ctx, self.question, self.traj,
-                                 self.allowed_tools, self.max_steps)
+                                 self.allowed_tools, self.max_steps,
+                                 floor=self.floor,
+                                 max_extra_steps=self.max_extra_steps)
 
 
 def build_agent_runner(ctx: tools.ToolContext, question: str, env: Optional[dict[str, str]] = None,
                        max_steps: int = DEFAULT_MAX_STEPS,
-                       allowed_tools: Optional[list[str] | tuple[str, ...]] = None) -> Optional[AgentRunner]:
+                       allowed_tools: Optional[list[str] | tuple[str, ...]] = None,
+                       scope_mode: str = SCOPE_GUIDED,
+                       max_extra_steps: int = DEFAULT_MAX_EXTRA_STEPS) -> Optional[AgentRunner]:
     """按环境变量构造运行时；无模型配置返回 None（调用方应回退固定流水线）。"""
     import os
 
@@ -294,4 +424,5 @@ def build_agent_runner(ctx: tools.ToolContext, question: str, env: Optional[dict
     if client is None:
         return None
     return AgentRunner(ctx, client, question, max_steps=max_steps,
-                       allowed_tools=allowed_tools)
+                       allowed_tools=allowed_tools, scope_mode=scope_mode,
+                       max_extra_steps=max_extra_steps)

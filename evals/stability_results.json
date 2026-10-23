@@ -1,0 +1,782 @@
+{
+  "generated_at": "2026-10-23T21:36:03",
+  "model": "deepseek-chat",
+  "repeats": 3,
+  "cases": [
+    "wx_trend",
+    "wx_stationary",
+    "wx_anomaly",
+    "wx_normal"
+  ],
+  "max_step_range": 1,
+  "rows": [
+    {
+      "case": "wx_trend",
+      "scope": "guided",
+      "repeat": 1,
+      "status": "succeeded",
+      "steps": 2,
+      "terminate_reason": "budget_exhausted",
+      "conclusions": 35,
+      "need_coverage": 1.0,
+      "need_missing": [],
+      "scope_met": true,
+      "extra_used": 1,
+      "wall_ms": 9405,
+      "tokens": {
+        "calls": 3,
+        "prompt_tokens": 3176,
+        "completion_tokens": 141,
+        "total_tokens": 3317,
+        "cached_tokens": 2048
+      }
+    },
+    {
+      "case": "wx_trend",
+      "scope": "guided",
+      "repeat": 2,
+      "status": "succeeded",
+      "steps": 2,
+      "terminate_reason": "budget_exhausted",
+      "conclusions": 35,
+      "need_coverage": 1.0,
+      "need_missing": [],
+      "scope_met": true,
+      "extra_used": 1,
+      "wall_ms": 9373,
+      "tokens": {
+        "calls": 3,
+        "prompt_tokens": 3176,
+        "completion_tokens": 144,
+        "total_tokens": 3320,
+        "cached_tokens": 2048
+      }
+    },
+    {
+      "case": "wx_trend",
+      "scope": "guided",
+      "repeat": 3,
+      "status": "succeeded",
+      "steps": 2,
+      "terminate_reason": "budget_exhausted",
+      "conclusions": 35,
+      "need_coverage": 1.0,
+      "need_missing": [],
+      "scope_met": true,
+      "extra_used": 1,
+      "wall_ms": 9305,
+      "tokens": {
+        "calls": 3,
+        "prompt_tokens": 3176,
+        "completion_tokens": 142,
+        "total_tokens": 3318,
+        "cached_tokens": 2048
+      }
+    },
+    {
+      "case": "wx_anomaly",
+      "scope": "guided",
+      "repeat": 1,
+      "status": "succeeded",
+      "steps": 4,
+      "terminate_reason": "budget_exhausted",
+      "conclusions": 29,
+      "need_coverage": 1.0,
+      "need_missing": [],
+      "scope_met": true,
+      "extra_used": 1,
+      "wall_ms": 17193,
+      "tokens": {
+        "calls": 5,
+        "prompt_tokens": 5913,
+        "completion_tokens": 242,
+        "total_tokens": 6155,
+        "cached_tokens": 3840
+      }
+    },
+    {
+      "case": "wx_anomaly",
+      "scope": "guided",
+      "repeat": 2,
+      "status": "succeeded",
+      "steps": 4,
+      "terminate_reason": "model_finished",
+      "conclusions": 29,
+      "need_coverage": 1.0,
+      "need_missing": [],
+      "scope_met": true,
+      "extra_used": 1,
+      "wall_ms": 16509,
+      "tokens": {
+        "calls": 5,
+        "prompt_tokens": 5913,
+        "completion_tokens": 248,
+        "total_tokens": 6161,
+        "cached_tokens": 3840
+      }
+    },
+    {
+      "case": "wx_anomaly",
+      "scope": "guided",
+      "repeat": 3,
+      "status": "succeeded",
+      "steps": 4,
+      "terminate_reason": "model_finished",
+      "conclusions": 29,
+      "need_coverage": 1.0,
+      "need_missing": [],
+      "scope_met": true,
+      "extra_used": 1,
+      "wall_ms": 16518,
+      "tokens": {
+        "calls": 5,
+        "prompt_tokens": 5913,
+        "completion_tokens": 249,
+        "total_tokens": 6162,
+        "cached_tokens": 3840
+      }
+    },
+    {
+      "case": "wx_stationary",
+      "scope": "guided",
+      "repeat": 1,
+      "status": "succeeded",
+      "steps": 3,
+      "terminate_reason": "budget_exhausted",
+      "conclusions": 35,
+      "need_coverage": 1.0,
+      "need_missing": [],
+      "scope_met": true,
+      "extra_used": 1,
+      "wall_ms": 16550,
+      "tokens": {
+        "calls": 4,
+        "prompt_tokens": 4884,
+        "completion_tokens": 199,
+        "total_tokens": 5083,
+        "cached_tokens": 2816
+      }
+    },
+    {
+      "case": "wx_stationary",
+      "scope": "guided",
+      "repeat": 2,
+      "status": "succeeded",
+      "steps": 3,
+      "terminate_reason": "budget_exhausted",
+      "conclusions": 35,
+      "need_coverage": 1.0,
+      "need_missing": [],
+      "scope_met": true,
+      "extra_used": 1,
+      "wall_ms": 15401,
+      "tokens": {
+        "calls": 4,
+        "prompt_tokens": 4884,
+        "completion_tokens": 204,
+        "total_tokens": 5088,
+        "cached_tokens": 2816
+      }
+    },
+    {
+      "case": "wx_stationary",
+      "scope": "guided",
+      "repeat": 3,
+      "status": "succeeded",
+      "steps": 3,
+      "terminate_reason": "budget_exhausted",
+      "conclusions": 35,
+      "need_coverage": 1.0,
+      "need_missing": [],
+      "scope_met": true,
+      "extra_used": 1,
+      "wall_ms": 15770,
+      "tokens": {
+        "calls": 4,
+        "prompt_tokens": 4884,
+        "completion_tokens": 207,
+        "total_tokens": 5091,
+        "cached_tokens": 2816
+      }
+    },
+    {
+      "case": "wx_normal",
+      "scope": "guided",
+      "repeat": 1,
+      "status": "succeeded",
+      "steps": 2,
+      "terminate_reason": "model_finished",
+      "conclusions": 25,
+      "need_coverage": 1.0,
+      "need_missing": [],
+      "scope_met": true,
+      "extra_used": 0,
+      "wall_ms": 14942,
+      "tokens": {
+        "calls": 3,
+        "prompt_tokens": 3384,
+        "completion_tokens": 158,
+        "total_tokens": 3542,
+        "cached_tokens": 2048
+      }
+    },
+    {
+      "case": "wx_normal",
+      "scope": "guided",
+      "repeat": 2,
+      "status": "succeeded",
+      "steps": 2,
+      "terminate_reason": "model_finished",
+      "conclusions": 25,
+      "need_coverage": 1.0,
+      "need_missing": [],
+      "scope_met": true,
+      "extra_used": 0,
+      "wall_ms": 15132,
+      "tokens": {
+        "calls": 3,
+        "prompt_tokens": 3384,
+        "completion_tokens": 152,
+        "total_tokens": 3536,
+        "cached_tokens": 2048
+      }
+    },
+    {
+      "case": "wx_normal",
+      "scope": "guided",
+      "repeat": 3,
+      "status": "succeeded",
+      "steps": 2,
+      "terminate_reason": "model_finished",
+      "conclusions": 25,
+      "need_coverage": 1.0,
+      "need_missing": [],
+      "scope_met": true,
+      "extra_used": 0,
+      "wall_ms": 14566,
+      "tokens": {
+        "calls": 3,
+        "prompt_tokens": 3384,
+        "completion_tokens": 148,
+        "total_tokens": 3532,
+        "cached_tokens": 2048
+      }
+    },
+    {
+      "case": "wx_trend",
+      "scope": "free",
+      "repeat": 1,
+      "status": "succeeded",
+      "steps": 5,
+      "terminate_reason": "model_finished",
+      "conclusions": 39,
+      "need_coverage": 1.0,
+      "need_missing": [],
+      "scope_met": null,
+      "extra_used": null,
+      "wall_ms": 17867,
+      "tokens": {
+        "calls": 6,
+        "prompt_tokens": 6890,
+        "completion_tokens": 270,
+        "total_tokens": 7160,
+        "cached_tokens": 3840
+      }
+    },
+    {
+      "case": "wx_trend",
+      "scope": "free",
+      "repeat": 2,
+      "status": "succeeded",
+      "steps": 5,
+      "terminate_reason": "model_finished",
+      "conclusions": 39,
+      "need_coverage": 1.0,
+      "need_missing": [],
+      "scope_met": null,
+      "extra_used": null,
+      "wall_ms": 18730,
+      "tokens": {
+        "calls": 6,
+        "prompt_tokens": 6890,
+        "completion_tokens": 263,
+        "total_tokens": 7153,
+        "cached_tokens": 3968
+      }
+    },
+    {
+      "case": "wx_trend",
+      "scope": "free",
+      "repeat": 3,
+      "status": "succeeded",
+      "steps": 5,
+      "terminate_reason": "model_finished",
+      "conclusions": 39,
+      "need_coverage": 1.0,
+      "need_missing": [],
+      "scope_met": null,
+      "extra_used": null,
+      "wall_ms": 18981,
+      "tokens": {
+        "calls": 6,
+        "prompt_tokens": 6890,
+        "completion_tokens": 268,
+        "total_tokens": 7158,
+        "cached_tokens": 3840
+      }
+    },
+    {
+      "case": "wx_anomaly",
+      "scope": "free",
+      "repeat": 1,
+      "status": "succeeded",
+      "steps": 5,
+      "terminate_reason": "model_finished",
+      "conclusions": 39,
+      "need_coverage": 1.0,
+      "need_missing": [],
+      "scope_met": null,
+      "extra_used": null,
+      "wall_ms": 17809,
+      "tokens": {
+        "calls": 6,
+        "prompt_tokens": 6907,
+        "completion_tokens": 276,
+        "total_tokens": 7183,
+        "cached_tokens": 4096
+      }
+    },
+    {
+      "case": "wx_anomaly",
+      "scope": "free",
+      "repeat": 2,
+      "status": "succeeded",
+      "steps": 5,
+      "terminate_reason": "model_finished",
+      "conclusions": 39,
+      "need_coverage": 1.0,
+      "need_missing": [],
+      "scope_met": null,
+      "extra_used": null,
+      "wall_ms": 18165,
+      "tokens": {
+        "calls": 6,
+        "prompt_tokens": 6907,
+        "completion_tokens": 266,
+        "total_tokens": 7173,
+        "cached_tokens": 3840
+      }
+    },
+    {
+      "case": "wx_anomaly",
+      "scope": "free",
+      "repeat": 3,
+      "status": "succeeded",
+      "steps": 5,
+      "terminate_reason": "model_finished",
+      "conclusions": 39,
+      "need_coverage": 1.0,
+      "need_missing": [],
+      "scope_met": null,
+      "extra_used": null,
+      "wall_ms": 20314,
+      "tokens": {
+        "calls": 6,
+        "prompt_tokens": 6907,
+        "completion_tokens": 274,
+        "total_tokens": 7181,
+        "cached_tokens": 3840
+      }
+    },
+    {
+      "case": "wx_stationary",
+      "scope": "free",
+      "repeat": 1,
+      "status": "succeeded",
+      "steps": 5,
+      "terminate_reason": "model_finished",
+      "conclusions": 39,
+      "need_coverage": 1.0,
+      "need_missing": [],
+      "scope_met": null,
+      "extra_used": null,
+      "wall_ms": 19120,
+      "tokens": {
+        "calls": 6,
+        "prompt_tokens": 7044,
+        "completion_tokens": 306,
+        "total_tokens": 7350,
+        "cached_tokens": 3840
+      }
+    },
+    {
+      "case": "wx_stationary",
+      "scope": "free",
+      "repeat": 2,
+      "status": "succeeded",
+      "steps": 5,
+      "terminate_reason": "model_finished",
+      "conclusions": 39,
+      "need_coverage": 1.0,
+      "need_missing": [],
+      "scope_met": null,
+      "extra_used": null,
+      "wall_ms": 18575,
+      "tokens": {
+        "calls": 6,
+        "prompt_tokens": 7048,
+        "completion_tokens": 322,
+        "total_tokens": 7370,
+        "cached_tokens": 3840
+      }
+    },
+    {
+      "case": "wx_stationary",
+      "scope": "free",
+      "repeat": 3,
+      "status": "succeeded",
+      "steps": 5,
+      "terminate_reason": "model_finished",
+      "conclusions": 39,
+      "need_coverage": 1.0,
+      "need_missing": [],
+      "scope_met": null,
+      "extra_used": null,
+      "wall_ms": 18713,
+      "tokens": {
+        "calls": 6,
+        "prompt_tokens": 7046,
+        "completion_tokens": 306,
+        "total_tokens": 7352,
+        "cached_tokens": 3840
+      }
+    },
+    {
+      "case": "wx_normal",
+      "scope": "free",
+      "repeat": 1,
+      "status": "succeeded",
+      "steps": 5,
+      "terminate_reason": "model_finished",
+      "conclusions": 39,
+      "need_coverage": 1.0,
+      "need_missing": [],
+      "scope_met": null,
+      "extra_used": null,
+      "wall_ms": 19010,
+      "tokens": {
+        "calls": 6,
+        "prompt_tokens": 6889,
+        "completion_tokens": 304,
+        "total_tokens": 7193,
+        "cached_tokens": 3840
+      }
+    },
+    {
+      "case": "wx_normal",
+      "scope": "free",
+      "repeat": 2,
+      "status": "succeeded",
+      "steps": 5,
+      "terminate_reason": "model_finished",
+      "conclusions": 39,
+      "need_coverage": 1.0,
+      "need_missing": [],
+      "scope_met": null,
+      "extra_used": null,
+      "wall_ms": 20225,
+      "tokens": {
+        "calls": 6,
+        "prompt_tokens": 6889,
+        "completion_tokens": 296,
+        "total_tokens": 7185,
+        "cached_tokens": 3840
+      }
+    },
+    {
+      "case": "wx_normal",
+      "scope": "free",
+      "repeat": 3,
+      "status": "succeeded",
+      "steps": 5,
+      "terminate_reason": "model_finished",
+      "conclusions": 39,
+      "need_coverage": 1.0,
+      "need_missing": [],
+      "scope_met": null,
+      "extra_used": null,
+      "wall_ms": 18288,
+      "tokens": {
+        "calls": 6,
+        "prompt_tokens": 6889,
+        "completion_tokens": 295,
+        "total_tokens": 7184,
+        "cached_tokens": 3840
+      }
+    }
+  ],
+  "scopes": [
+    {
+      "scope": "guided",
+      "n_runs": 12,
+      "max_step_range": 1,
+      "cases": [
+        {
+          "case": "wx_trend",
+          "n": 3,
+          "steps": [
+            2,
+            2,
+            2
+          ],
+          "steps_min": 2,
+          "steps_max": 2,
+          "steps_range": 0,
+          "conclusions": [
+            35,
+            35,
+            35
+          ],
+          "conclusions_range": 0,
+          "need_coverage_min": 1.0,
+          "terminate_reasons": {
+            "budget_exhausted": 3
+          },
+          "all_succeeded": true
+        },
+        {
+          "case": "wx_anomaly",
+          "n": 3,
+          "steps": [
+            4,
+            4,
+            4
+          ],
+          "steps_min": 4,
+          "steps_max": 4,
+          "steps_range": 0,
+          "conclusions": [
+            29,
+            29,
+            29
+          ],
+          "conclusions_range": 0,
+          "need_coverage_min": 1.0,
+          "terminate_reasons": {
+            "budget_exhausted": 1,
+            "model_finished": 2
+          },
+          "all_succeeded": true
+        },
+        {
+          "case": "wx_stationary",
+          "n": 3,
+          "steps": [
+            3,
+            3,
+            3
+          ],
+          "steps_min": 3,
+          "steps_max": 3,
+          "steps_range": 0,
+          "conclusions": [
+            35,
+            35,
+            35
+          ],
+          "conclusions_range": 0,
+          "need_coverage_min": 1.0,
+          "terminate_reasons": {
+            "budget_exhausted": 3
+          },
+          "all_succeeded": true
+        },
+        {
+          "case": "wx_normal",
+          "n": 3,
+          "steps": [
+            2,
+            2,
+            2
+          ],
+          "steps_min": 2,
+          "steps_max": 2,
+          "steps_range": 0,
+          "conclusions": [
+            25,
+            25,
+            25
+          ],
+          "conclusions_range": 0,
+          "need_coverage_min": 1.0,
+          "terminate_reasons": {
+            "model_finished": 3
+          },
+          "all_succeeded": true
+        }
+      ],
+      "checks": [
+        {
+          "case": "wx_trend",
+          "steps_range_ok": true,
+          "need_coverage_ok": true,
+          "scope_unmet_free": true,
+          "passed": true
+        },
+        {
+          "case": "wx_anomaly",
+          "steps_range_ok": true,
+          "need_coverage_ok": true,
+          "scope_unmet_free": true,
+          "passed": true
+        },
+        {
+          "case": "wx_stationary",
+          "steps_range_ok": true,
+          "need_coverage_ok": true,
+          "scope_unmet_free": true,
+          "passed": true
+        },
+        {
+          "case": "wx_normal",
+          "steps_range_ok": true,
+          "need_coverage_ok": true,
+          "scope_unmet_free": true,
+          "passed": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "scope": "free",
+      "n_runs": 12,
+      "max_step_range": 1,
+      "cases": [
+        {
+          "case": "wx_trend",
+          "n": 3,
+          "steps": [
+            5,
+            5,
+            5
+          ],
+          "steps_min": 5,
+          "steps_max": 5,
+          "steps_range": 0,
+          "conclusions": [
+            39,
+            39,
+            39
+          ],
+          "conclusions_range": 0,
+          "need_coverage_min": 1.0,
+          "terminate_reasons": {
+            "model_finished": 3
+          },
+          "all_succeeded": true
+        },
+        {
+          "case": "wx_anomaly",
+          "n": 3,
+          "steps": [
+            5,
+            5,
+            5
+          ],
+          "steps_min": 5,
+          "steps_max": 5,
+          "steps_range": 0,
+          "conclusions": [
+            39,
+            39,
+            39
+          ],
+          "conclusions_range": 0,
+          "need_coverage_min": 1.0,
+          "terminate_reasons": {
+            "model_finished": 3
+          },
+          "all_succeeded": true
+        },
+        {
+          "case": "wx_stationary",
+          "n": 3,
+          "steps": [
+            5,
+            5,
+            5
+          ],
+          "steps_min": 5,
+          "steps_max": 5,
+          "steps_range": 0,
+          "conclusions": [
+            39,
+            39,
+            39
+          ],
+          "conclusions_range": 0,
+          "need_coverage_min": 1.0,
+          "terminate_reasons": {
+            "model_finished": 3
+          },
+          "all_succeeded": true
+        },
+        {
+          "case": "wx_normal",
+          "n": 3,
+          "steps": [
+            5,
+            5,
+            5
+          ],
+          "steps_min": 5,
+          "steps_max": 5,
+          "steps_range": 0,
+          "conclusions": [
+            39,
+            39,
+            39
+          ],
+          "conclusions_range": 0,
+          "need_coverage_min": 1.0,
+          "terminate_reasons": {
+            "model_finished": 3
+          },
+          "all_succeeded": true
+        }
+      ],
+      "checks": [
+        {
+          "case": "wx_trend",
+          "steps_range_ok": true,
+          "need_coverage_ok": true,
+          "scope_unmet_free": true,
+          "passed": true
+        },
+        {
+          "case": "wx_anomaly",
+          "steps_range_ok": true,
+          "need_coverage_ok": true,
+          "scope_unmet_free": true,
+          "passed": true
+        },
+        {
+          "case": "wx_stationary",
+          "steps_range_ok": true,
+          "need_coverage_ok": true,
+          "scope_unmet_free": true,
+          "passed": true
+        },
+        {
+          "case": "wx_normal",
+          "steps_range_ok": true,
+          "need_coverage_ok": true,
+          "scope_unmet_free": true,
+          "passed": true
+        }
+      ],
+      "passed": true
+    }
+  ],
+  "ok": true
+}

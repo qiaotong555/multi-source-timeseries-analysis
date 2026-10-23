@@ -99,9 +99,11 @@ def test_mock_case_runs_both_modes(tmp_path):
             "expect": ["spectrum"]}
     p = mode_compare.run_one(case, "pipeline", str(tmp_path / "both"))
     a = mode_compare.run_one(case, "agent", str(tmp_path / "both"),
-                             client_factory=lambda c: mode_compare.ScriptedClient(["analyze_spectrum"]))
+                             client_factory=lambda c: mode_compare.ScriptedClient(
+                                 ["compute_metrics", "analyze_spectrum"]))
     assert p["status"] == "succeeded", p.get("error")
     assert a["status"] == "succeeded", a.get("error")
     assert p["rule_plan_coverage"] == 1.0
     assert a["need_coverage"] == 1.0
-    assert a["steps"] == 1
+    # guided 下限含 compute_metrics，脚本又追加了 analyze_spectrum
+    assert a["steps"] == 2

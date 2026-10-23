@@ -39,14 +39,15 @@ class FakeClient:
         return self._decisions.pop(0)
 
 
-def _fake_build(ctx, question, env=None, max_steps=8, allowed_tools=None):
+def _fake_build(ctx, question, env=None, max_steps=8, allowed_tools=None, scope_mode="guided", max_extra_steps=1):
     decisions = [
         {"action": "compute_metrics", "args": {}, "reason": "先看总体"},
         {"action": "detect_anomalies", "args": {}, "reason": "找异常"},
         {"action": "finish", "args": {}, "reason": "完成"},
     ]
     return AgentRunner(ctx, FakeClient(decisions), question,
-                       max_steps=max_steps, allowed_tools=allowed_tools)
+                       max_steps=max_steps, allowed_tools=allowed_tools,
+                           scope_mode=scope_mode, max_extra_steps=max_extra_steps)
 
 
 @pytest.fixture(scope="module")
@@ -110,6 +111,7 @@ def test_engine_replay_roundtrip_matches(agent_run, tmp_path):
     res = engine.run_analysis(req, verbose=False)
     assert res.status == "succeeded", res.error
     replay = res.data["agent"]["replay"]
+    assert res.data["agent"]["scope"]["tools"] == ["compute_metrics", "detect_anomalies"]
     assert replay["trajectory_match"] is True
     assert replay["data_match"] is True
     assert replay["match"] is True

@@ -46,9 +46,10 @@ def _finish() -> dict:
 
 
 def _patch_runner(monkeypatch, decisions):
-    def fake(ctx, question, env=None, max_steps=8, allowed_tools=None):
+    def fake(ctx, question, env=None, max_steps=8, allowed_tools=None, scope_mode="guided", max_extra_steps=1):
         return AgentRunner(ctx, FakeClient(decisions), question,
-                           max_steps=max_steps, allowed_tools=allowed_tools)
+                           max_steps=max_steps, allowed_tools=allowed_tools,
+                           scope_mode=scope_mode, max_extra_steps=max_extra_steps)
     monkeypatch.setattr(engine, "build_agent_runner", fake)
 
 
@@ -138,9 +139,11 @@ def test_agent_finishing_without_tools_is_not_success(monkeypatch, tmp_path):
     _ensure_fixtures()
     _patch_runner(monkeypatch, [_finish()])
     out = str(tmp_path / "empty_agent")
+    # 本用例验证「模型一个工具都不跑就结束」的失败路径；guided 会拒绝这种结束，
+    # 因此显式用 free 复现原始语义。
     req = AnalysisRequest(request_id="req_empty", input_path=WEATHER_CSV,
                           scene_id="weather", question="分析温度",
-                          output_dir=out, mode="agent")
+                          output_dir=out, mode="agent", agent_scope="free")
     res = engine.run_analysis(req, verbose=False)
     assert res.status == "failed"
     assert res.error.code == "AGENT_NO_RESULT"
@@ -167,7 +170,10 @@ def test_cli_accepts_mode_and_max_steps():
 def test_failed_tool_is_marked_in_result_and_report(monkeypatch, tmp_path):
     """工具失败不能让流程静默；result 与报告都要能看出「试过但失败」。"""
     _ensure_fixtures()
-    _patch_runner(monkeypatch, [_act("compute_metrics"), _act("detect_anomalies"), _finish()])
+    # guided 下限要求 detect_anomalies 成功；它一直失败时要重试一次，
+    # 重试用尽后运行时才允许结束（否则会空转到 max_steps）。
+    _patch_runner(monkeypatch, [_act("compute_metrics"), _act("detect_anomalies"),
+                                _act("detect_anomalies"), _finish()])
 
     import mtsa.tools as tools_mod
     from mtsa.tools import ToolResult

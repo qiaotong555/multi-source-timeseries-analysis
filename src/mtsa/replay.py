@@ -98,10 +98,15 @@ def trajectory_hash(agent: dict[str, Any]) -> str:
 
 def replay_steps(source: dict[str, Any], ctx: tools.ToolContext) -> AgentTrajectory:
     """按记录顺序重跑工具；不调用模型。"""
+    recorded = source.get("agent") or {}
     traj = AgentTrajectory(
         question=source.get("question", ""),
         model=source.get("model", ""),
         allowed_tools=list(source.get("allowed_tools") or []),
+        # 重放不重新判范围，但要把当时的范围口径原样带回来，
+        # 否则重放结果会假装这次运行没有下限（T2.11）。
+        scope_mode=recorded.get("scope_mode") or "free",
+        scope=dict(recorded.get("scope") or {}),
     )
     for i, s in enumerate(source["agent"]["steps"]):
         action = s["action"]

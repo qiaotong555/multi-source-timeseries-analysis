@@ -26,6 +26,9 @@ VIOLATION_DUPLICATE = "duplicate_tool"
 VIOLATION_LOCKED_PARAM = "locked_parameter"
 VIOLATION_UNKNOWN_ARG = "unknown_argument"
 VIOLATION_STEP_BUDGET = "step_budget"
+# 范围下限之外允许追加的步数（T2.11）。它不是「工具不合法」，而是预算约束，
+# 因此单独分类，报告里能区分「乱选工具」和「在下限外多跑」。
+VIOLATION_EXTRA_STEP = "extra_step_budget"
 
 
 @dataclass(frozen=True)
@@ -63,6 +66,10 @@ class ActionGuard:
     @property
     def consecutive_violations(self) -> int:
         return self._consecutive
+
+    def retry_count(self, tool: str) -> int:
+        """某个工具已用掉的重试次数（运行时判断「已失败且无法再试」时需要）。"""
+        return self._retries.get(tool, 0)
 
     def check(self, action: str, args: Mapping[str, Any],
               results: Mapping[str, Any], step_index: int) -> GuardDecision:

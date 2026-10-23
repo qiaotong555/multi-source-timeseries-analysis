@@ -278,14 +278,21 @@ def _ensure_fixtures() -> None:
         gen_main()
 
 
-def _scripted_tools(expect: list[str]) -> list[str]:
-    """Mock 用例：按需求项挑最少工具，用来验证指标管线。"""
+def _scripted_tools(expect: list[str], question: str = "") -> list[str]:
+    """Mock 用例：按需求项挑最少工具，用来验证指标管线。
+
+    T2.11 起 guided 模式有范围下限：脚本必须把下限工具也跑掉，否则会被
+    合法地拒绝结束（scope_unmet），mock 结果就不再代表「指标管线跑通」。
+    """
     wanted: set[str] = set()
     for tool, covers in TOOL_COVERS.items():
         if set(covers) & set(expect):
             wanted.add(tool)
     if not wanted:                      # 探针：给两个最通用的工具
         wanted = {"compute_metrics", "detect_anomalies"}
+    if question:
+        from mtsa.scope import infer_floor
+        wanted |= set(infer_floor(question, WEATHER_AGENT_TOOLS).tools)
     order = [t for t in WEATHER_AGENT_TOOLS if t in wanted]
     return order or ["compute_metrics"]
 
@@ -305,9 +312,10 @@ class ScriptedClient:
 
 
 def _patched_runner(client):
-    def _build(ctx, question, env=None, max_steps=8, allowed_tools=None):
+    def _build(ctx, question, env=None, max_steps=8, allowed_tools=None, scope_mode="guided", max_extra_steps=1):
         return AgentRunner(ctx, client, question, max_steps=max_steps,
-                           allowed_tools=allowed_tools)
+                           allowed_tools=allowed_tools,
+                           scope_mode=scope_mode, max_extra_steps=max_extra_steps)
     return patch.object(engine, "build_agent_runner", _build)
 
 
@@ -477,7 +485,7 @@ def main(argv: Optional[list[str]] = None) -> int:
         source = "mock"
         model = "mock-scripted"
         client = lambda case: ScriptedClient(  # noqa: E731
-            _scripted_tools(case.get("expect") or []))
+            _scripted_tools(case.get("expect") or [], case.get("question") or ""))
     else:
         env_client = client_from_env()
         if env_client is None:
