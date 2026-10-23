@@ -16,7 +16,8 @@ M1 的计划层是**一次性规划**：看完数据摘要就定下 12 个分析
    循环：前者有严格前置依赖，后者需聚合全部结果。本轮天气场景白名单为五个工具，
    股票专属的 `check_lookahead` 不在其中。
 2. **数值不经模型**。模型只看到 `ToolResult.summary`，看不到 `data`。
-3. **不重试工具**。单个工具失败由模型决定换一个还是结束；重试属于 T2.7 的范围。
+3. **失败可重试一次**。工具失败后，模型可以在下一步重试同一工具；成功或 skipped
+   的工具不得重复。边界由 `agent_guards.ActionGuard` 判定并留痕。
 
 终止条件
 --------
@@ -34,6 +35,7 @@ from datetime import datetime
 from typing import Any, Optional
 
 from . import tools
+from .agent_guards import ActionGuard, GuardPolicy
 from .llm_client import LLMError
 from .observation import build_observation
 
@@ -95,11 +97,19 @@ class AgentTrajectory:
     model: str = ""
     agent_version: str = AGENT_VERSION
     allowed_tools: list[str] = field(default_factory=list)
+    # T2.4 越界事件与统计；与 rejects 的区别：rejects 是运行时视角，guard_events 是边界视角
+    guard_events: list[dict[str, Any]] = field(default_factory=list)
+    guard_stats: dict[str, Any] = field(default_factory=dict)
 
     # ---- 供 T2.8 指标与报告使用的派生量 ----
     @property
     def tools_run(self) -> list[str]:
-        return [s.action for s in self.steps if s.outcome == "ok"]
+        """成功执行过的工具（去重保序）；重试成功也只算一次。"""
+        out: list[str] = []
+        for s in self.steps:
+            if s.outcome == "ok" and s.action not in out:
+                out.append(s.action)
+        return out
 
     @property
     def step_count(self) -> int:
@@ -120,6 +130,8 @@ class AgentTrajectory:
             "tools_run": self.tools_run,
             "steps": [s.to_dict() for s in self.steps],
             "rejects": self.rejects,
+            "guard_events": self.guard_events,
+            "guard_stats": self.guard_stats,
         }
 
 
@@ -157,7 +169,11 @@ class AgentRunner:
         self.traj = AgentTrajectory(question=question,
                                     model=getattr(client, "model", "") or "",
                                     allowed_tools=list(self.allowed_tools))
-        self._rejects = 0
+        self.guard = ActionGuard(GuardPolicy(
+            allowed_tools=self.allowed_tools,
+            max_steps=self.max_steps,
+            max_consecutive_violations=MAX_CONSECUTIVE_REJECTS,
+        ))
         self._decision_errors = 0
 
     # ---------------- 对外入口 ----------------
@@ -167,7 +183,7 @@ class AgentRunner:
             if len(self.traj.steps) >= self.max_steps:
                 self.traj.terminate_reason = TERMINATE_MAX_STEPS
                 break
-            if self._rejects >= MAX_CONSECUTIVE_REJECTS:
+            if self.guard.consecutive_violations >= MAX_CONSECUTIVE_REJECTS:
                 self.traj.terminate_reason = TERMINATE_IDLE
                 break
             if self._decision_errors >= MAX_DECISION_ERRORS:
@@ -187,15 +203,21 @@ class AgentRunner:
                 self.traj.terminate_reason = TERMINATE_MODEL_FINISHED
                 break
 
-            reject = self._validate(action, decision.get("args") or {})
-            if reject:
-                self._rejects += 1
-                self.traj.rejects.append({"kind": "invalid_action",
-                                          "action": action, "detail": reject})
+            verdict = self.guard.check(action, decision.get("args") or {},
+                                       self.traj.results, len(self.traj.steps))
+            if not verdict.allowed:
+                self.guard.record_violation(verdict, action, len(self.traj.steps))
+                self.traj.rejects.append({
+                    "kind": "invalid_action", "reason_kind": verdict.kind,
+                    "action": action, "detail": verdict.detail,
+                })
                 continue
 
-            self._execute(action, decision.get("args") or {}, decision.get("reason", ""))
+            self._execute(action, decision.get("args") or {},
+                          decision.get("reason", ""), is_retry=verdict.is_retry)
 
+        self.traj.guard_events = list(self.guard.violations)
+        self.traj.guard_stats = self.guard.stats()
         return self.traj
 
     # ---------------- 内部实现 ----------------
@@ -217,19 +239,8 @@ class AgentRunner:
             raise DecisionError("args 必须是对象")
         return {"action": action.strip(), "args": args or {}, "reason": reason.strip()}
 
-    def _validate(self, action: str, args: dict[str, Any]) -> Optional[str]:
-        """检查动作是否可执行，返回拒绝原因或 None。"""
-        if action not in self.allowed_tools:
-            return f"工具 {action} 不在本场景白名单中，可选：{list(self.allowed_tools)}"
-        if action in self.traj.results:
-            return f"{action} 已执行过，不得重复调用"
-        if args:
-            # 当前六个工具都从 plan 取参数，不接受额外入参。
-            # 静默忽略模型给的参数会让它误以为参数生效，宁可拒绝。
-            return f"{action} 不接受参数，实际收到 {sorted(args)}"
-        return None
-
-    def _execute(self, action: str, args: dict[str, Any], reason: str) -> None:
+    def _execute(self, action: str, args: dict[str, Any], reason: str,
+                 is_retry: bool = False) -> None:
         started_at = datetime.now().isoformat(timespec="seconds")
         res = tools.run_tool(action, self.ctx)
         self.traj.results[action] = res
@@ -240,8 +251,7 @@ class AgentRunner:
             elapsed_ms=res.elapsed_ms, error=res.error,
             started_at=started_at,
         ))
-        if res.outcome == "ok":
-            self._rejects = 0        # 有实质进展则清零，避免累计抖动误判为空转
+        self.guard.record_execution(action, res.outcome, is_retry=is_retry)
 
     # ---------------- 提示词 ----------------
 
@@ -257,7 +267,8 @@ class AgentRunner:
             "1. 只输出 JSON 对象，不要解释性文字或代码块标记。\n"
             "2. 输出格式：{\"action\": \"工具名或 finish\", "
             "\"args\": {}, \"reason\": \"一句话理由\"}。\n"
-            "3. action 必须是清单中的工具名，或字符串 finish；不得重复已执行过的工具。\n"
+            "3. action 必须是清单中的工具名，或字符串 finish；成功或跳过的工具不得重复，"
+            "失败的工具可以重试一次。\n"
             "4. args 一律留空对象；这些工具不接受额外参数。\n"
             "5. reason 必须说明为什么选它，或为什么结束；不得为空。\n"
             "6. 当已覆盖问题所需的分析时，输出 finish——不必跑完全部工具。\n"

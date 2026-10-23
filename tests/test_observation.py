@@ -7,7 +7,7 @@ import pandas as pd
 from mtsa.agent_runtime import AgentStep, AgentTrajectory, WEATHER_AGENT_TOOLS
 from mtsa.models import CleanDataset
 from mtsa.observation import (MAX_TOTAL_TOKENS, build_observation, coverage_summary,
-                              estimate_tokens)
+                              estimate_tokens, tool_states)
 from mtsa.scenarios import weather as _weather  # noqa: F401
 from mtsa.scenarios.base import get_adapter
 from mtsa.tools import ToolContext, ToolResult
@@ -103,3 +103,12 @@ def test_observation_is_deterministic():
     b = build_observation(ctx, "q", traj, WEATHER_AGENT_TOOLS, max_steps=8)
     assert a == b
 
+
+
+def test_tool_states_distinguish_failed_skipped_and_not_run():
+    traj = AgentTrajectory(question="q")
+    traj.results["a"] = ToolResult(tool="a", outcome="ok")
+    traj.results["b"] = ToolResult(tool="b", outcome="failed")
+    traj.results["c"] = ToolResult(tool="c", outcome="skipped")
+    states = tool_states(traj, ["a", "b", "c", "d"])
+    assert states == {"a": "ok", "b": "failed", "c": "skipped", "d": "not_run"}

@@ -15,7 +15,7 @@ import pandas as pd
 
 from . import io_loaders, profiler, quality, preprocess, metrics, freq, stats_tests, anomaly
 from .agent_runtime import WEATHER_AGENT_TOOLS, build_agent_runner
-from .observation import coverage_summary
+from .observation import coverage_summary, tool_states
 from .models import (
     DEFAULT_SEED,
     ERR_AGENT_NO_RESULT,
@@ -287,8 +287,10 @@ def run_analysis(request: AnalysisRequest, verbose: bool = True) -> AnalysisResu
         traj = runner.run()
         agent_elapsed = int((time.perf_counter() - t_agent) * 1000)
         agent_info = traj.to_dict()
+        states = tool_states(traj, WEATHER_AGENT_TOOLS)
         agent_info.update({"mode": "agent", "elapsed_ms": agent_elapsed,
                            "max_steps": request.agent_max_steps,
+                           "tool_states": states,
                            "coverage": coverage_summary(plan, traj, WEATHER_AGENT_TOOLS)})
         # 先把轨迹放进结果：即使下面判定为失败，result.json 里也能看到模型做了什么。
         result.data = {"agent": agent_info}
@@ -319,15 +321,24 @@ def run_analysis(request: AnalysisRequest, verbose: bool = True) -> AnalysisResu
             )
 
         mtab, extra, spectra, tests, anomalies, change_points = _agent_outputs(traj)
-        missing = [t for t in WEATHER_AGENT_TOOLS if t not in traj.results]
-        failed = [s.action for s in traj.steps if s.outcome == "failed"]
+        missing = [t for t in WEATHER_AGENT_TOOLS if states[t] == "not_run"]
+        failed = [t for t in WEATHER_AGENT_TOOLS if states[t] == "failed"]
+        skipped = [t for t in WEATHER_AGENT_TOOLS if states[t] == "skipped"]
         if missing:
             warnings.append(
                 "Agent 未执行以下分析工具：" + "、".join(missing)
                 + "。对应分析为空，不能解读为「未发现问题」。"
             )
         if failed:
-            warnings.append("Agent 执行失败的分析工具：" + "、".join(failed))
+            warnings.append(
+                "Agent 执行失败的分析工具：" + "、".join(failed)
+                + "。失败不等于没有问题，报告中对应分析为空。"
+            )
+        if skipped:
+            warnings.append(
+                "Agent 跳过的分析工具：" + "、".join(skipped)
+                + "。跳过表示前置条件不满足，不是执行成功。"
+            )
         if "compute_metrics" in missing or "compute_metrics" in failed:
             warnings.append("指标工具未成功执行：报告中的指标表与依赖指标的结论会缺失。")
         if not spectra and "analyze_spectrum" not in missing:

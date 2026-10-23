@@ -160,3 +160,33 @@ def test_cli_accepts_mode_and_max_steps():
     assert args.agent_max_steps == 5
     default = _build_parser().parse_args(["run", "--input", "x.csv", "--question", "q"])
     assert default.mode == "pipeline"
+
+
+def test_failed_tool_is_marked_in_result_and_report(monkeypatch, tmp_path):
+    """工具失败不能让流程静默；result 与报告都要能看出「试过但失败」。"""
+    _ensure_fixtures()
+    _patch_runner(monkeypatch, [_act("compute_metrics"), _act("detect_anomalies"), _finish()])
+
+    import mtsa.tools as tools_mod
+    from mtsa.tools import ToolResult
+    real_run = tools_mod.run_tool
+
+    def fake_run(name, ctx):
+        if name == "detect_anomalies":
+            return ToolResult(tool=name, outcome="failed", error="boom")
+        return real_run(name, ctx)
+
+    monkeypatch.setattr(tools_mod, "run_tool", fake_run)
+    out = str(tmp_path / "failed_tool")
+    req = AnalysisRequest(request_id="req_failed_tool", input_path=WEATHER_CSV,
+                          scene_id="weather", question="分析温度异常",
+                          output_dir=out, mode="agent")
+    res = engine.run_analysis(req, verbose=False)
+
+    assert res.status == "succeeded", res.error
+    assert res.data["agent"]["tool_states"]["detect_anomalies"] == "failed"
+    assert res.data["agent"]["tool_states"]["analyze_spectrum"] == "not_run"
+    assert any("执行失败" in w for w in res.warnings)
+    report_path = next(a.path for a in res.artifacts if a.kind == "report_md")
+    report = open(report_path, encoding="utf-8").read()
+    assert "失败工具" in report and "detect_anomalies" in report

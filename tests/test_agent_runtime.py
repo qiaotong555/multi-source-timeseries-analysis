@@ -251,3 +251,49 @@ def test_tool_failure_does_not_break_loop(monkeypatch):
     assert traj.steps[0].error == "boom"
     assert traj.tools_run == ["compute_metrics"]
     assert traj.terminate_reason == "model_finished"
+
+
+# ---------------- T2.4 安全边界 / T2.7 失败恢复 ----------------
+
+def test_failed_tool_can_retry_once_and_succeed(monkeypatch):
+    from mtsa.tools import ToolResult
+    real = tools.run_tool
+    state = {"n": 0}
+
+    def fake_run(name, ctx):
+        if name == "detect_anomalies":
+            state["n"] += 1
+            if state["n"] == 1:
+                return ToolResult(tool=name, outcome="failed", error="transient")
+        return real(name, ctx)
+
+    monkeypatch.setattr(tools, "run_tool", fake_run)
+    client = FakeClient([_act("detect_anomalies"), _act("detect_anomalies"),
+                         {"action": "finish", "args": {}, "reason": "重试成功"}])
+    traj = AgentRunner(_ctx(), client, "q", allowed_tools=WEATHER_AGENT_TOOLS).run()
+    assert [s.outcome for s in traj.steps] == ["failed", "ok"]
+    assert traj.tools_run == ["detect_anomalies"]           # 去重
+    assert traj.guard_stats["retries"]["detect_anomalies"] == 1
+
+
+def test_locked_parameter_is_rejected_in_runtime():
+    client = FakeClient([
+        {"action": "run_stat_tests", "args": {"anomaly_threshold": 5.0},
+         "reason": "想调阈值"},
+        {"action": "finish", "args": {}, "reason": "结束"},
+    ])
+    traj = AgentRunner(_ctx(), client, "q", allowed_tools=WEATHER_AGENT_TOOLS).run()
+    assert traj.step_count == 0
+    assert traj.rejects[0]["reason_kind"] == "locked_parameter"
+    assert "标定参数" in traj.rejects[0]["detail"]
+
+
+def test_guard_stats_and_events_are_serialized():
+    client = FakeClient([_act("not_a_tool"),
+                         {"action": "finish", "args": {}, "reason": "结束"}])
+    traj = AgentRunner(_ctx(), client, "q", allowed_tools=WEATHER_AGENT_TOOLS).run()
+    d = traj.to_dict()
+    assert d["guard_stats"]["violations"] == 1
+    assert d["guard_stats"]["by_kind"]["tool_not_allowed"] == 1
+    assert d["guard_events"][0]["kind"] == "tool_not_allowed"
+    assert d["guard_stats"]["policy"]["locked_parameters"]

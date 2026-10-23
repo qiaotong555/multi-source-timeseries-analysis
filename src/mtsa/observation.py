@@ -101,6 +101,18 @@ def coverage_summary(plan: AnalysisPlan, traj, allowed_tools: Sequence[str]) -> 
     }
 
 
+def tool_states(traj, allowed_tools: Sequence[str]) -> dict[str, str]:
+    """每个白名单工具的最终状态：ok / skipped / failed / not_run。
+
+    失败与跳过必须分开：失败是「试过但没成功」，跳过是「前置条件不满足」，
+    未执行是「模型根本没选」。报告不能把三者合并成「未执行」。
+    """
+    return {
+        name: ("not_run" if name not in traj.results else traj.results[name].outcome)
+        for name in allowed_tools
+    }
+
+
 def _quality_brief(ctx: ToolContext) -> dict[str, Any]:
     q = ctx.quality
     if q is None:
