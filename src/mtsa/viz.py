@@ -26,6 +26,7 @@ from typing import Any
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
+import plotly.io as pio
 from plotly.subplots import make_subplots
 
 from .models import Artifact
@@ -69,6 +70,27 @@ def _export_png(fig: go.Figure, path: str) -> tuple[bool, str]:
         pass
     return False, f"{type(last_exc).__name__}: {last_exc}"
 
+
+
+def _export_png_batch(figs: list[go.Figure], paths: list[str]) -> tuple[bool, str]:
+    """用一次浏览器会话导出多张 PNG。
+
+    kaleido 1.x 下每次 `write_image` 都会启动并回收一次浏览器：7 张图约 7 次启动，
+    实测占整条流水线的三分之二。plotly 的 `write_images` 复用同一会话，
+    官方文档明确「比逐张快得多」。
+
+    批量是 all-or-nothing：任一张失败即返回 False，由调用方回退到 `_export_png`
+    逐张重试——删除残留旧图与提示语义都保留在单张路径里。
+    """
+    if not figs:
+        return True, ""
+    if len(figs) == 1:
+        return _export_png(figs[0], paths[0])
+    try:
+        pio.write_images(figs, paths, width=FIG_WIDTH, height=FIG_HEIGHT)
+        return True, ""
+    except Exception as exc:                      # noqa: BLE001  导出失败原因不可枚举
+        return False, f"{type(exc).__name__}: {exc}"
 
 
 def _downsample(frame: pd.DataFrame, n: int) -> pd.DataFrame:
@@ -272,6 +294,8 @@ def build_figures(ctx: ScenarioContext, specs: list[dict], outdir: str) -> tuple
     artifacts: list[Artifact] = []
     warnings: list[str] = []
     png_hint_given = False          # 修复建议只在首次失败时给一次，避免同样的长文本重复七遍
+    built: list[dict[str, Any]] = []
+
     for i, spec in enumerate(specs):
         kind = spec.get("kind")
         builder = _BUILDERS.get(kind)
@@ -291,17 +315,34 @@ def build_figures(ctx: ScenarioContext, specs: list[dict], outdir: str) -> tuple
         except Exception as exc:
             warnings.append(f"交互图 {base}.html 写出失败：{exc}")
             continue
-        artifacts.append(Artifact(artifact_id=f"art_fig_{spec.get('id', kind)}",
-                                  kind="figure_interactive", path=html_path,
-                                  title=spec.get("title", kind), fields=spec.get("columns", [])))
-        ok, reason = _export_png(fig, png_path)
+        built.append({"fig": fig, "base": base, "spec": spec,
+                      "html": html_path, "png": png_path})
+
+    if not built:
+        return artifacts, warnings
+
+    # 先尝试批量导出（一次浏览器会话）；失败再逐张重试，保留原有的清理与提示语义。
+    batch_ok, batch_reason = _export_png_batch(
+        [b["fig"] for b in built], [b["png"] for b in built])
+    if batch_ok:
+        results: list[tuple[bool, str]] = [(True, "")] * len(built)
+    else:
+        results = [_export_png(b["fig"], b["png"]) for b in built]
+
+    for b, (ok, reason) in zip(built, results):
+        spec = b["spec"]
+        base = b["base"]
+        artifacts.append(Artifact(artifact_id=f"art_fig_{spec.get('id', spec.get('kind'))}",
+                                  kind="figure_interactive", path=b["html"],
+                                  title=spec.get("title", spec.get("kind")),
+                                  fields=spec.get("columns", [])))
         if ok:
-            artifacts.append(Artifact(artifact_id=f"art_fig_{spec.get('id', kind)}_png",
-                                      kind="figure_static", path=png_path,
-                                      title=spec.get("title", kind) + "（静态）",
+            artifacts.append(Artifact(artifact_id=f"art_fig_{spec.get('id', spec.get('kind'))}_png",
+                                      kind="figure_static", path=b["png"],
+                                      title=spec.get("title", spec.get("kind")) + "（静态）",
                                       fields=spec.get("columns", [])))
         else:
-            msg = f"静态图 {base}.png 导出失败（kaleido）：{reason}"
+            msg = f"静态图 {base}.png 导出失败（kaleido）：{reason or batch_reason}"
             if not png_hint_given:
                 msg += "。" + _BROWSER_HINT
                 png_hint_given = True

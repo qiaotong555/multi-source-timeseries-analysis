@@ -79,3 +79,85 @@ def test_browser_hint_mentions_actionable_options():
     assert "chrome" in hint.lower() or "Chrome" in hint
     assert "重跑" in hint or "关闭" in hint
     assert "HTML" in hint          # 说明交互图不受影响
+
+
+class _FakeHtmlFig:
+    """只需 write_html 的假图表；PNG 由批量/单张导出函数负责。"""
+
+    def write_html(self, path, include_plotlyjs=None, **kwargs):
+        with open(path, "w", encoding="utf-8") as f:
+            f.write("<html></html>")
+
+
+def test_export_png_batch_uses_single_browser_session(tmp_path, monkeypatch):
+    calls = {}
+
+    def fake_write_images(figs, paths, width=None, height=None):
+        calls["n"] = len(figs)
+        for p in paths:
+            with open(p, "wb") as f:
+                f.write(b"PNG")
+
+    monkeypatch.setattr(viz.pio, "write_images", fake_write_images)
+    paths = [str(tmp_path / "a.png"), str(tmp_path / "b.png")]
+    ok, reason = viz._export_png_batch([object(), object()], paths)
+    assert ok is True and reason == ""
+    assert calls["n"] == 2                      # 一次调用导出两张
+    assert all(os.path.exists(p) for p in paths)
+
+
+def test_export_png_batch_reports_failure_for_fallback(monkeypatch):
+    def boom(*args, **kwargs):
+        raise RuntimeError("BrowserFailedError: closed immediately")
+
+    monkeypatch.setattr(viz.pio, "write_images", boom)
+    ok, reason = viz._export_png_batch([object(), object()], ["a.png", "b.png"])
+    assert ok is False
+    assert "BrowserFailedError" in reason
+
+
+def test_build_figures_batches_png_and_keeps_artifact_order(tmp_path, monkeypatch):
+    monkeypatch.setitem(viz._BUILDERS, "series", lambda ctx, spec: _FakeHtmlFig())
+    seen = {}
+
+    def fake_batch(figs, paths):
+        seen["n"] = len(figs)
+        for p in paths:
+            with open(p, "wb") as f:
+                f.write(b"PNG")
+        return True, ""
+
+    monkeypatch.setattr(viz, "_export_png_batch", fake_batch)
+    specs = [{"id": "a", "kind": "series"}, {"id": "b", "kind": "series"}]
+    artifacts, warnings = viz.build_figures(None, specs, str(tmp_path))
+    assert warnings == []
+    assert seen["n"] == 2
+    assert [a.kind for a in artifacts] == ["figure_interactive", "figure_static"] * 2
+
+
+def test_build_figures_falls_back_when_batch_fails(tmp_path, monkeypatch):
+    monkeypatch.setitem(viz._BUILDERS, "series", lambda ctx, spec: _FakeHtmlFig())
+    monkeypatch.setattr(viz, "_export_png_batch", lambda figs, paths: (False, "batch boom"))
+    calls = []
+
+    def fake_export(fig, path):
+        calls.append(path)
+        with open(path, "wb") as f:
+            f.write(b"PNG")
+        return True, ""
+
+    monkeypatch.setattr(viz, "_export_png", fake_export)
+    artifacts, warnings = viz.build_figures(None, [{"id": "a", "kind": "series"}], str(tmp_path))
+    assert calls and warnings == []
+    assert [a.kind for a in artifacts] == ["figure_interactive", "figure_static"]
+
+
+def test_build_figures_warns_once_after_total_failure(tmp_path, monkeypatch):
+    monkeypatch.setitem(viz._BUILDERS, "series", lambda ctx, spec: _FakeHtmlFig())
+    monkeypatch.setattr(viz, "_export_png_batch", lambda figs, paths: (False, "batch boom"))
+    monkeypatch.setattr(viz, "_export_png", lambda fig, path: (False, "still broken"))
+    specs = [{"id": "a", "kind": "series"}, {"id": "b", "kind": "series"}]
+    artifacts, warnings = viz.build_figures(None, specs, str(tmp_path))
+    assert [a.kind for a in artifacts] == ["figure_interactive"] * 2
+    assert len(warnings) == 2
+    assert sum(1 for w in warnings if "若持续失败" in w) == 1     # 建议只出现一次

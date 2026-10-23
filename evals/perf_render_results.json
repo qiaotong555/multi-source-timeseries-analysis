@@ -1,0 +1,36 @@
+{
+  "generated_at": "2026-10-23T20:50:12",
+  "case": "weather_v1 / 分析温度的趋势、季节性与极端事件",
+  "baseline": {
+    "total_s": 29.26,
+    "build_figures_s": 20.17,
+    "png_export_s": 19.72,
+    "png_count": 7
+  },
+  "after": {
+    "total_s": 13.13,
+    "build_figures_s": 3.8,
+    "png_export_s": 3.37,
+    "png_count": 7
+  },
+  "improvement": {
+    "png_speedup": 5.85,
+    "build_figures_reduction_pct": 81.2,
+    "total_reduction_pct": 55.1
+  },
+  "png_identical": "7/7",
+  "html_identical": false,
+  "html_note": "plotly 交互图内嵌随机 div id，两次运行本就不同；与本次改动无关",
+  "method": "单次运行，同一数据与问题；墙钟包含清洗、分析、图表、报告",
+  "env": {
+    "plotly": "7.1.0",
+    "kaleido": "1.x",
+    "os": "Windows"
+  },
+  "analysis_fingerprint": {
+    "before": "f137c0cfc5bdfa4449609c8d02e2f474bc0195b27361b7c7c0e6d79dbe8ae500",
+    "after": "f137c0cfc5bdfa4449609c8d02e2f474bc0195b27361b7c7c0e6d79dbe8ae500",
+    "identical": true,
+    "scope": "data + conclusions + evidence"
+  }
+}
