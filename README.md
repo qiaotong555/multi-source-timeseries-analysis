@@ -66,6 +66,10 @@ python -m evals.conclusion_diff
 python -m evals.agent_eval --input fixtures/weather_short_v1.csv     --out evals/agent_eval_short_results.json --out-root artifacts/c_short_agent_eval
 python -m evals.repro_check     artifacts/c_short_pipeline_rule_1/result.json     artifacts/c_short_pipeline_rule_2/result.json
 python -m evals.conclusion_eval --result-root artifacts/c_short_agent_eval     --labels fixtures/labels_weather_short_v1.csv     --truth fixtures/truth_weather_short_v1.json     --out evals/conclusion_eval_short_agent_results.json
+
+# D 探针与重复：6 个开放/风险/对比问题；free 5 次/用例，guided 1 次/用例
+python -m evals.probe_eval --dry
+MTSA_PLANNER=rule python -m evals.probe_eval --plan free:5,guided:1 --max-tokens 6000 --out evals/probe_eval_results.json --out-root artifacts/d_probe_eval
 ```
 
 ## 运行保护
@@ -141,6 +145,12 @@ CLI 默认在**子进程**中执行分析：Python 无法中断正在执行的 C
 未执行的 6 个用例少看 108 个真值实例，但去重后真值命中仍为 18/18。两模式结论
 总数 507 vs 389，差 118 条（9.08/用例），**100% 归因于 `tool_not_run`**，无法归因 0 条。
 这说明 Agent 的差异主要是范围而不是精度；也说明「检出 139 个」不等于「139 个都对」。
+
+**探针与重复（D，2026-10-23）**：6 个探针下，free 30 次全部 5 步、39 条结论，
+单次平均 7,030 token；guided 6 次平均 2.17 步、3,475 token，范围下限 6/6 达标。
+free 本批没有低频抖动，但 30 次同批不能替代跨版本结论；`p_compare_station` 有
+3/5 次触发 6,000 token 上限。计划卡「guided/free 各 5 次共 60 次」与「总≤30 次」
+矛盾，本轮取 free 30 + guided 6 = 36 次，取舍见 `spec/项目承接已完成.md` 第 26 章。
 
 结论：Agent 适合窄问题与需要审计路径的场景；需要完整报告、或没有模型配额时用 pipeline。
 

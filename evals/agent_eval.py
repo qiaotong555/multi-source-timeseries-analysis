@@ -158,6 +158,8 @@ def metrics_from_result(doc: dict[str, Any], expect: Optional[list[str]] = None,
     return {
         "run_id": dataset.get("run_id") or doc.get("run_id"),
         "status": doc.get("status"),
+        "conclusions": len(doc.get("conclusions") or []),
+        "evidence": len(doc.get("evidence") or []),
         "mode": dataset.get("mode") or agent.get("mode"),
         "steps": int(agent.get("step_count") or 0),
         "max_steps": agent.get("max_steps"),
@@ -181,6 +183,8 @@ def metrics_from_result(doc: dict[str, Any], expect: Optional[list[str]] = None,
         "rejects": len(agent.get("rejects") or []),
         "elapsed_ms": agent.get("elapsed_ms"),
         "tokens": agent.get("tokens") or None,
+        "scope_met": (agent.get("scope") or {}).get("met"),
+        "extra_used": (agent.get("scope") or {}).get("extra_used"),
         "trajectory_sha256": agent.get("trajectory_sha256"),
         "replay_ok": (None if not replay_block else bool(replay_block.get("match"))),
         "replay_source": replay_block.get("source"),
@@ -339,7 +343,8 @@ def _patched_runner(client):
 
 def run_case(case: dict[str, Any], out_root: str, client=None,
              do_replay: bool = True, verbose: bool = True,
-             input_path: Optional[str] = None) -> dict[str, Any]:
+             input_path: Optional[str] = None, scope: str = "guided",
+             max_tokens: int = 0) -> dict[str, Any]:
     """跑一个用例；返回单次指标。异常不外抛，转为 status=failed 的记录。"""
     _ensure_fixtures()                  # 单独调用本函数（如测试）时也要保证数据存在
     input_file = input_path or os.path.join(FIX, WEATHER_CSV)
@@ -351,6 +356,8 @@ def run_case(case: dict[str, Any], out_root: str, client=None,
         question=case["question"],
         output_dir=out_dir,
         mode="agent",
+        agent_scope=scope,
+        agent_max_tokens=max_tokens,
     )
     # client 可以是实例，也可以是「按用例生成实例」的工厂（mock 必须每次新建，
     # 否则脚本队列会被第一个用例耗尽）。
@@ -394,6 +401,8 @@ def run_case(case: dict[str, Any], out_root: str, client=None,
             question=case["question"],
             output_dir=os.path.join(out_dir, "replay"),
             mode="agent",                  # 重放只接受 agent 结果（引擎侧硬校验）
+            agent_scope=scope,
+            agent_max_tokens=max_tokens,
             replay_from=doc_path,
         ), verbose=False)
         replay_block = ((rep.data or {}).get("agent") or {}).get("replay") or {"match": False}
@@ -414,11 +423,13 @@ def run_case(case: dict[str, Any], out_root: str, client=None,
 def run_eval(cases: Optional[list[dict[str, Any]]] = None, out_root: str = DEFAULT_OUT_ROOT,
              client=None, do_replay: bool = True, source: str = "real",
              model: str = "", planner: str = "rule", verbose: bool = True,
-             input_path: Optional[str] = None) -> dict[str, Any]:
+             input_path: Optional[str] = None, scope: str = "guided",
+             max_tokens: int = 0) -> dict[str, Any]:
     _ensure_fixtures()
     cases = cases if cases is not None else CASES
     runs = [run_case(c, out_root, client=client, do_replay=do_replay,
-                     verbose=verbose, input_path=input_path)
+                     verbose=verbose, input_path=input_path, scope=scope,
+                     max_tokens=max_tokens)
             for c in cases]
     summary = summarize(runs, source=source, model=model, planner=planner)
     return {
@@ -430,6 +441,8 @@ def run_eval(cases: Optional[list[dict[str, Any]]] = None, out_root: str = DEFAU
         "cases": runs,
         "input_path": (os.path.relpath(input_path, ROOT) if input_path
                         else os.path.join("fixtures", WEATHER_CSV)),
+        "scope": scope,
+        "max_tokens": max_tokens,
         "summary": summary,
         "thresholds": {
             "min_success_rate": MIN_SUCCESS_RATE,
@@ -474,6 +487,10 @@ def main(argv: Optional[list[str]] = None) -> int:
     ap.add_argument("--cases", default=None, help="只跑指定用例，逗号分隔")
     ap.add_argument("--input", default=None,
                     help="输入 CSV；默认 fixtures/weather_v1.csv，用于第二份数据")
+    ap.add_argument("--agent-scope", choices=("guided", "free"), default="guided",
+                    help="范围策略；默认 guided")
+    ap.add_argument("--agent-max-tokens", type=int, default=0,
+                    help="Agent 累计 token 上限；0=不限制")
     ap.add_argument("--mock", action="store_true",
                     help="离线脚本客户端：只验证指标管线，不代表模型能力")
     ap.add_argument("--no-replay", action="store_true", help="跳过重放，不算可重放率")
@@ -526,7 +543,8 @@ def main(argv: Optional[list[str]] = None) -> int:
     result = run_eval(cases=cases, out_root=args.out_root, client=client,
                       do_replay=not args.no_replay, source=source,
                       model=model, planner=args.planner, verbose=True,
-                      input_path=args.input)
+                      input_path=args.input, scope=args.agent_scope,
+                      max_tokens=args.agent_max_tokens)
     print()
     print(format_table(result))
     print()
