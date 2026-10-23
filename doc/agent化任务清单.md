@@ -108,6 +108,9 @@ raw → profile → quality → plan → clean → metrics → spectrum → test
 | 验收 | 7 步轨迹的上下文总量可控（目标低于 6000 token）；摘要足以支撑下一步决策 |
 | 风险 | 摘要过简导致模型重复选同一工具；需在摘要中显式列出「已执行」 |
 
+> **2026-10-23 已落地**：`src/mtsa/observation.py`；单步预算 400 token、总量 6000 token；
+> 覆盖情况（工具覆盖与计划分析项覆盖）同时写入 `data.agent.coverage` 与报告。
+
 ### 阶段二：可控性（T2.4 至 T2.6）
 
 #### T2.4 决策安全边界

@@ -111,6 +111,7 @@ def render_report(
         executed = list(agent.get("tools_run") or [])
         allowed = list(agent.get("allowed_tools") or [])
         not_run = [x for x in allowed if x not in executed]
+        cov = agent.get("coverage") or {}
         lines.append("### 3.1 Agent 执行轨迹")
         lines.append("")
         lines.append(_md_table(
@@ -121,6 +122,8 @@ def render_report(
              ["步数", str(agent.get("step_count", 0))],
              ["已执行工具", "、".join(executed) or "—"],
              ["未执行工具", "、".join(not_run) or "—"],
+             ["工具覆盖率", f"{cov.get('tool_coverage', 0):.2f}（{len(cov.get('executed_tools') or [])}/{len(allowed)}）" if cov else "—"],
+             ["计划分析项覆盖率", f"{cov.get('analysis_coverage', 0):.2f}（{len(cov.get('covered_analyses') or [])}/{len(cov.get('planned_analyses') or [])}）" if cov else "—"],
              ["被拒动作", str(len(agent.get("rejects") or []))]],
         ))
         lines.append("")

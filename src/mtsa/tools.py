@@ -44,6 +44,8 @@ class ToolContext:
     clean: CleanDataset
     plan: AnalysisPlan
     adapter: Optional[ScenarioAdapter] = None
+    # 质量报告只用于观察摘要（数据概况），工具不得依赖或修改它。
+    quality: Optional[Any] = None
 
 
 @dataclass

@@ -15,6 +15,7 @@ import pandas as pd
 
 from . import io_loaders, profiler, quality, preprocess, metrics, freq, stats_tests, anomaly
 from .agent_runtime import WEATHER_AGENT_TOOLS, build_agent_runner
+from .observation import coverage_summary
 from .models import (
     DEFAULT_SEED,
     ERR_AGENT_NO_RESULT,
@@ -268,7 +269,7 @@ def run_analysis(request: AnalysisRequest, verbose: bool = True) -> AnalysisResu
             )
 
         runner = build_agent_runner(
-            ToolContext(clean=clean, plan=plan, adapter=adapter),
+            ToolContext(clean=clean, plan=plan, adapter=adapter, quality=qrep),
             request.question,
             max_steps=request.agent_max_steps,
             allowed_tools=WEATHER_AGENT_TOOLS,
@@ -287,7 +288,8 @@ def run_analysis(request: AnalysisRequest, verbose: bool = True) -> AnalysisResu
         agent_elapsed = int((time.perf_counter() - t_agent) * 1000)
         agent_info = traj.to_dict()
         agent_info.update({"mode": "agent", "elapsed_ms": agent_elapsed,
-                           "max_steps": request.agent_max_steps})
+                           "max_steps": request.agent_max_steps,
+                           "coverage": coverage_summary(plan, traj, WEATHER_AGENT_TOOLS)})
         # 先把轨迹放进结果：即使下面判定为失败，result.json 里也能看到模型做了什么。
         result.data = {"agent": agent_info}
 

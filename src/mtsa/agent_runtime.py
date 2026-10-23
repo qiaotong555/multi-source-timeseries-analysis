@@ -29,13 +29,13 @@ M1 的计划层是**一次性规划**：看完数据摘要就定下 12 个分析
 """
 from __future__ import annotations
 
-import json
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any, Optional
 
 from . import tools
 from .llm_client import LLMError
+from .observation import build_observation
 
 TERMINATE_MODEL_FINISHED = "model_finished"
 TERMINATE_MAX_STEPS = "max_steps"
@@ -265,38 +265,9 @@ class AgentRunner:
         )
 
     def _user_prompt(self) -> str:
-        brief = self._data_brief()
-        done = self.traj.steps
-        lines = [
-            f"分析问题：{self.question}",
-            f"数据概况：{json.dumps(brief, ensure_ascii=False)}",
-            f"已用步数：{len(done)}/{self.max_steps}",
-        ]
-        if done:
-            lines.append("已完成（含结果摘要）：")
-            for s in done:
-                summary = json.dumps(s.summary, ensure_ascii=False)
-                lines.append(f"- {s.action}（{s.outcome}）：{summary}")
-        else:
-            lines.append("已完成：无")
-        pending = [t for t in self.allowed_tools if t not in self.traj.results]
-        lines.append(f"尚未执行：{pending}")
-        if self.traj.rejects:
-            last = self.traj.rejects[-1]
-            lines.append(f"上一次动作被拒：{last.get('detail')}。请改选其他工具。")
-        lines.append("请给出下一步动作。")
-        return "\n".join(lines)
-
-    def _data_brief(self) -> dict[str, Any]:
-        """数据概况。只给结构信息，不含任何数值序列。"""
-        frame = self.ctx.clean.frame
-        plan = self.ctx.plan
-        return {
-            "scene": plan.scene_id,
-            "rows": int(len(frame)),
-            "columns": [str(c) for c in plan.target_columns],
-            "sampling": str(frame.index.freqstr) if getattr(frame.index, "freqstr", None) else "unknown",
-        }
+        """交给观察摘要器生成，不再在这里拼接无限增长的历史。"""
+        return build_observation(self.ctx, self.question, self.traj,
+                                 self.allowed_tools, self.max_steps)
 
 
 def build_agent_runner(ctx: tools.ToolContext, question: str, env: Optional[dict[str, str]] = None,
