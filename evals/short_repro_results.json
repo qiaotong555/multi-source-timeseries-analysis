@@ -1,0 +1,24 @@
+{
+  "generated_at": "2026-10-23T22:57:14",
+  "a": "artifacts\\c_short_pipeline_rule_1\\result.json",
+  "b": "artifacts\\c_short_pipeline_rule_2\\result.json",
+  "identical": true,
+  "checks": {
+    "conclusions": true,
+    "evidence": true,
+    "warnings": true,
+    "data.metrics": true,
+    "data.scenario_metrics": true,
+    "data.spectrum": true,
+    "data.tests": true,
+    "data.anomalies": true,
+    "data.change_points": true,
+    "data.quality": true,
+    "data.plan": true
+  },
+  "diffs": [],
+  "conclusions_count": [
+    14,
+    14
+  ]
+}

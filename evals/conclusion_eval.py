@@ -80,6 +80,9 @@ def _trend_status(parsed: Optional[dict[str, Any]], truth: dict[str, Any],
         return {"state": "unlabeled", "correct": None,
                 "reason": "结论文本无法解析出方向，不猜"}
     expected = truth.get("trend_direction")
+    if expected not in ("up", "down"):
+        return {"state": "unlabeled", "correct": None,
+                "reason": "该数据集没有趋势方向真值"}
     actual = parsed.get("direction")
     correct = (actual == expected)
     return {"state": "scored", "correct": correct,
@@ -94,6 +97,9 @@ def _seasonal_status(parsed: Optional[dict[str, Any]], truth: dict[str, Any],
     if not tool_ran:
         return {"state": "not_run", "correct": None,
                 "reason": "compute_metrics 未执行"}
+    if truth.get("seasonal_available") is False or truth.get("annual_amplitude_peak_to_trough") is None:
+        return {"state": "unlabeled", "correct": None,
+                "reason": "短样本不足以估计年周期，真值不设季节性"}
     if parsed is None:
         return {"state": "missing", "correct": None,
                 "reason": "工具已执行，但没有该序列的季节性结论"}
@@ -141,12 +147,33 @@ def _quality_status(doc: dict[str, Any], events: list[dict[str, Any]],
             if "SAMPLING_GAP" in codes:
                 status = "reported_unlocalized"
                 detail = "SAMPLING_GAP 有区间，但没有站点/逐条对应"
+        elif kind == "dst_shift":
+            if "SAMPLING_GAP" in codes:
+                status = "detected"
+                detail = "DST 跳变被识别为采样缺口（起点为跳变前最后一个采样点）"
         elif kind == "out_of_order_block":
             if "OUT_OF_ORDER" in codes:
                 status = "reported_unlocalized"
                 detail = "OUT_OF_ORDER 只有计数，没有乱序块起点"
         out.append({**ev, "status": status, "detail": detail})
     return out
+
+
+def _series_alias(truth_keys: Any) -> dict[str, str]:
+    """单站点结果的结论用裸列名（temperature），真值用 column@station。
+
+    只在某列只有一个真值站点时建立别名；多站点时裸列名有歧义，不猜。
+    """
+    by_col: dict[str, list[str]] = defaultdict(list)
+    for key in set(truth_keys):
+        if "@" in key:
+            col = key.split("@", 1)[0]
+            by_col[col].append(key)
+    return {col: keys[0] for col, keys in by_col.items() if len(keys) == 1}
+
+
+def _canon(series: Optional[str], alias: dict[str, str]) -> Optional[str]:
+    return alias.get(series, series) if series else series
 
 
 def evaluate_run(doc: dict[str, Any], case: str, mode: str, question: str,
@@ -157,10 +184,12 @@ def evaluate_run(doc: dict[str, Any], case: str, mode: str, question: str,
     interval = median_interval_seconds(doc)
     anom_truth = truth_anomalies(labels)
     cp_truth = truth_change_points(labels)
+    alias_keys = list((truth.get("series") or {}).keys()) + [k for k, _ in (anom_truth | cp_truth)]
+    alias = _series_alias(alias_keys)
 
-    detected_a = {(x.get("column"), x.get("timestamp"))
+    detected_a = {(_canon(x.get("column"), alias), x.get("timestamp"))
                   for x in (data.get("anomalies") or []) if x.get("column") and x.get("timestamp")}
-    detected_cp = {(x.get("column"), x.get("timestamp"))
+    detected_cp = {(_canon(x.get("column"), alias), x.get("timestamp"))
                    for x in (data.get("change_points") or []) if x.get("column") and x.get("timestamp")}
 
     if "detect_anomalies" in tools:
@@ -183,8 +212,10 @@ def evaluate_run(doc: dict[str, Any], case: str, mode: str, question: str,
                        "reason": "detect_change_points 未执行"}
 
     conclusions = doc.get("conclusions") or []
-    trend_by = _truth_conclusions(conclusions, "趋势")
-    seasonal_by = _truth_conclusions(conclusions, "季节性")
+    trend_by = {(_canon(k, alias) or k): v
+                for k, v in _truth_conclusions(conclusions, "趋势").items()}
+    seasonal_by = {(_canon(k, alias) or k): v
+                   for k, v in _truth_conclusions(conclusions, "季节性").items()}
     truth_series = truth.get("series") or {}
     tool_ran = "compute_metrics" in tools
 
@@ -354,8 +385,11 @@ def summarize(rows: list[dict[str, Any]], truth_a: set[tuple[str, str]],
             "seasonal_by_series": seasonal_by_series,
         }
 
+    has_both = (by_mode["pipeline"]["runs"] > 0 and by_mode["agent"]["runs"] > 0)
     return {"by_mode": by_mode, "distinct": distinct,
-            "agent_vs_pipeline": _compare_modes(by_mode, distinct)}
+            "agent_vs_pipeline": (_compare_modes(by_mode, distinct) if has_both
+                                  else {"available": False,
+                                        "reason": "缺少一种模式的结果，无法做两模式对照"})}
 
 
 def _compare_modes(by_mode: dict[str, Any], distinct: dict[str, Any]) -> dict[str, Any]:
@@ -503,12 +537,15 @@ def main(argv: Optional[list[str]] = None) -> int:
         print(format_table(result))
         av = result["summary"]["agent_vs_pipeline"]
         print()
-        print("异常：pipeline %d 次检出、agent %d 次；agent 未执行 %d 个用例，"
-              "因此未看 %d 个真值实例；去重后 agent 漏 %d 个真值事件。" % (
-                  av["anomaly"]["pipeline_tp_instances"], av["anomaly"]["agent_tp_instances"],
-                  av["anomaly"]["agent_not_run_runs"],
-                  av["anomaly"]["missed_instances_due_to_not_run"],
-                  av["anomaly"]["agent_distinct_missed"]))
+        if av.get("available") is False:
+            print("两模式对照：跳过（%s）" % av.get("reason"))
+        else:
+            print("异常：pipeline %d 次检出、agent %d 次；agent 未执行 %d 个用例，"
+                  "因此未看 %d 个真值实例；去重后 agent 漏 %d 个真值事件。" % (
+                      av["anomaly"]["pipeline_tp_instances"], av["anomaly"]["agent_tp_instances"],
+                      av["anomaly"]["agent_not_run_runs"],
+                      av["anomaly"]["missed_instances_due_to_not_run"],
+                      av["anomaly"]["agent_distinct_missed"]))
         print("结果写入：", args.out)
     return 0
 

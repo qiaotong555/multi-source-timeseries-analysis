@@ -1,0 +1,36 @@
+{
+  "dataset": "weather_short_v1",
+  "generator": "fixtures/gen_weather_short.py",
+  "seed": 20261023,
+  "start": "2024-03-01 00:00:00",
+  "rows": 2876,
+  "station": "STA_S",
+  "tolerances": {
+    "trend_direction": "sign",
+    "seasonal_amplitude_abs": null,
+    "seasonal_month_tolerance": null,
+    "changepoint_samples": 2
+  },
+  "series": {
+    "temperature@STA_S": {
+      "trend_per_day": 0.05,
+      "trend_per_year": 18.2625,
+      "trend_direction": "up",
+      "diurnal_amplitude": 6.0,
+      "diurnal_period_hours": 24.0,
+      "annual_amplitude_peak_to_trough": null,
+      "annual_amplitude": null,
+      "peak_month": null,
+      "trough_month": null,
+      "seasonal_available": false
+    }
+  },
+  "not_covered": [
+    "annual_seasonality",
+    "humidity",
+    "pressure",
+    "wind_speed",
+    "rainfall"
+  ],
+  "note": "30 天不足以估计年周期；只把趋势方向与日周期作为真值，年季节性标 unlabeled。"
+}

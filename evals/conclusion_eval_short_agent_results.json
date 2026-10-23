@@ -1,0 +1,1603 @@
+{
+  "generated_at": "2026-10-23T23:02:30",
+  "source": "existing_results",
+  "result_root": "artifacts\\c_short_agent_eval",
+  "labels": {
+    "path": "fixtures\\labels_weather_short_v1.csv",
+    "sha1": "61535d50cbe8cc9209a32ee22dd27d9b1ea29edf"
+  },
+  "truth": {
+    "path": "fixtures\\truth_weather_short_v1.json",
+    "sha1": "89d0cc9927a5d211e8070b3f4de20bcb5c710d4c"
+  },
+  "summary": {
+    "by_mode": {
+      "pipeline": {
+        "runs": 0,
+        "succeeded": 0,
+        "anomaly": {
+          "scored_runs": 0,
+          "not_run_runs": 0,
+          "truth_per_run": 6,
+          "not_run_truth_instances": 0,
+          "point": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "detected": 0,
+            "truth": 0,
+            "precision": null,
+            "recall": null,
+            "f1": null
+          },
+          "event": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "detected": 0,
+            "truth": 0,
+            "precision": null,
+            "recall": null,
+            "f1": null
+          },
+          "mean_precision": null,
+          "mean_recall": null
+        },
+        "changepoint": {
+          "scored_runs": 0,
+          "not_run_runs": 0,
+          "truth_per_run": 1,
+          "not_run_truth_instances": 0,
+          "point": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "detected": 0,
+            "truth": 0,
+            "precision": null,
+            "recall": null,
+            "f1": null
+          },
+          "mean_precision": null,
+          "mean_recall": null
+        },
+        "trend": {
+          "states": {},
+          "scored": 0,
+          "correct": 0,
+          "incorrect": 0,
+          "accuracy": null,
+          "unlabeled_series": []
+        },
+        "seasonal": {
+          "states": {},
+          "scored": 0,
+          "correct": 0,
+          "incorrect": 0,
+          "accuracy": null,
+          "unlabeled_series": []
+        },
+        "conclusion_need": {
+          "runs_with_expect": 0,
+          "runs_with_mapped_need": 0,
+          "mapped": 0,
+          "covered": 0,
+          "missing": 0,
+          "unlabeled": 0,
+          "coverage": null,
+          "all_covered_rate": null
+        },
+        "quality": {}
+      },
+      "agent": {
+        "runs": 13,
+        "succeeded": 13,
+        "anomaly": {
+          "scored_runs": 5,
+          "not_run_runs": 8,
+          "truth_per_run": 6,
+          "not_run_truth_instances": 48,
+          "point": {
+            "tp": 0,
+            "fp": 65,
+            "fn": 30,
+            "detected": 65,
+            "truth": 30,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": null
+          },
+          "event": {
+            "tp": 0,
+            "fp": 65,
+            "fn": 30,
+            "detected": 65,
+            "truth": 30,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": null
+          },
+          "mean_precision": 0.0,
+          "mean_recall": 0.0
+        },
+        "changepoint": {
+          "scored_runs": 6,
+          "not_run_runs": 7,
+          "truth_per_run": 1,
+          "not_run_truth_instances": 7,
+          "point": {
+            "tp": 6,
+            "fp": 6,
+            "fn": 0,
+            "detected": 12,
+            "truth": 6,
+            "precision": 0.5,
+            "recall": 1.0,
+            "f1": 0.6667
+          },
+          "mean_precision": 0.5,
+          "mean_recall": 1.0
+        },
+        "trend": {
+          "states": {
+            "scored": 13
+          },
+          "scored": 13,
+          "correct": 13,
+          "incorrect": 0,
+          "accuracy": 1.0,
+          "unlabeled_series": [
+            "humidity@STA_S",
+            "pressure@STA_S",
+            "rainfall",
+            "wind_speed"
+          ]
+        },
+        "seasonal": {
+          "states": {
+            "unlabeled": 13
+          },
+          "scored": 0,
+          "correct": 0,
+          "incorrect": 0,
+          "accuracy": null,
+          "unlabeled_series": []
+        },
+        "conclusion_need": {
+          "runs_with_expect": 11,
+          "runs_with_mapped_need": 8,
+          "mapped": 14,
+          "covered": 11,
+          "missing": 3,
+          "unlabeled": 6,
+          "coverage": 0.7857,
+          "all_covered_rate": 0.625
+        },
+        "quality": {
+          "detected": 13,
+          "reported_unlocalized": 13
+        }
+      }
+    },
+    "distinct": {
+      "pipeline": {
+        "anomaly_point": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 6,
+          "detected": 0,
+          "truth": 6,
+          "precision": null,
+          "recall": 0.0,
+          "f1": null
+        },
+        "changepoint_point": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 1,
+          "detected": 0,
+          "truth": 1,
+          "precision": null,
+          "recall": 0.0,
+          "f1": null
+        },
+        "anomaly_hit": 0,
+        "changepoint_hit": 0,
+        "trend_by_series": {},
+        "seasonal_by_series": {}
+      },
+      "agent": {
+        "anomaly_point": {
+          "tp": 0,
+          "fp": 13,
+          "fn": 6,
+          "detected": 13,
+          "truth": 6,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": null
+        },
+        "changepoint_point": {
+          "tp": 0,
+          "fp": 2,
+          "fn": 1,
+          "detected": 2,
+          "truth": 1,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": null
+        },
+        "anomaly_hit": 0,
+        "changepoint_hit": 0,
+        "trend_by_series": {
+          "temperature@STA_S": "correct"
+        },
+        "seasonal_by_series": {}
+      }
+    },
+    "agent_vs_pipeline": {
+      "available": false,
+      "reason": "缺少一种模式的结果，无法做两模式对照"
+    }
+  },
+  "cases": [
+    {
+      "case": "wx_anomaly",
+      "mode": "agent",
+      "status": "succeeded",
+      "question": "检查数据中的异常点和突变更点",
+      "expect": [
+        "anomaly",
+        "changepoint"
+      ],
+      "executed_tools": [
+        "compute_metrics",
+        "detect_anomalies",
+        "detect_change_points"
+      ],
+      "conclusion_count": 9,
+      "conclusion_categories": {
+        "趋势": 5,
+        "滞后关系": 2,
+        "异常检测": 1,
+        "变化点": 1
+      },
+      "anomaly": {
+        "state": "scored",
+        "point": {
+          "tp": 0,
+          "fp": 13,
+          "fn": 6,
+          "detected": 13,
+          "truth": 6,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": null
+        },
+        "event": {
+          "tp": 0,
+          "fp": 13,
+          "fn": 6,
+          "detected": 13,
+          "truth": 6,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": null
+        },
+        "detected_events": 13
+      },
+      "changepoint": {
+        "state": "scored",
+        "point": {
+          "tp": 1,
+          "fp": 1,
+          "fn": 0,
+          "detected": 2,
+          "truth": 1,
+          "precision": 0.5,
+          "recall": 1.0,
+          "f1": 0.6667
+        },
+        "tolerance_seconds": 1800.0
+      },
+      "trend": {
+        "details": [
+          {
+            "series": "temperature@STA_S",
+            "state": "scored",
+            "correct": true,
+            "actual_direction": "up",
+            "expected_direction": "up",
+            "ols_slope": null,
+            "significant": true,
+            "reason": ""
+          }
+        ],
+        "unlabeled_series": [
+          "humidity@STA_S",
+          "pressure@STA_S",
+          "rainfall",
+          "wind_speed"
+        ]
+      },
+      "seasonal": {
+        "details": [
+          {
+            "series": "temperature@STA_S",
+            "state": "unlabeled",
+            "correct": null,
+            "reason": "短样本不足以估计年周期，真值不设季节性"
+          }
+        ],
+        "unlabeled_series": []
+      },
+      "quality": [
+        {
+          "kind": "dst_shift",
+          "column": "timestamp",
+          "station": "STA_S",
+          "timestamp": "2024-03-10 03:00:00",
+          "series": "timestamp@STA_S",
+          "status": "detected",
+          "detail": "DST 跳变被识别为采样缺口（起点为跳变前最后一个采样点）"
+        },
+        {
+          "kind": "missing_gap_start",
+          "column": "temperature",
+          "station": "STA_S",
+          "timestamp": "2024-03-15 10:00:00",
+          "series": "temperature@STA_S",
+          "status": "reported_unlocalized",
+          "detail": "MISSING_VALUES 只有聚合计数，没有缺口起点"
+        }
+      ],
+      "conclusion_need": {
+        "covered": [
+          "anomaly",
+          "changepoint"
+        ],
+        "missing": [],
+        "unlabeled": [],
+        "mapped": 2,
+        "coverage": 1.0
+      },
+      "result_path": "artifacts\\c_short_agent_eval\\wx_anomaly\\result.json"
+    },
+    {
+      "case": "wx_change",
+      "mode": "agent",
+      "status": "succeeded",
+      "question": "找出温度序列中的均值突变位置",
+      "expect": [
+        "changepoint"
+      ],
+      "executed_tools": [
+        "compute_metrics",
+        "detect_change_points"
+      ],
+      "conclusion_count": 8,
+      "conclusion_categories": {
+        "趋势": 5,
+        "滞后关系": 2,
+        "变化点": 1
+      },
+      "anomaly": {
+        "state": "not_run",
+        "point": null,
+        "event": null,
+        "reason": "detect_anomalies 未执行，不能把未看当成没异常"
+      },
+      "changepoint": {
+        "state": "scored",
+        "point": {
+          "tp": 1,
+          "fp": 1,
+          "fn": 0,
+          "detected": 2,
+          "truth": 1,
+          "precision": 0.5,
+          "recall": 1.0,
+          "f1": 0.6667
+        },
+        "tolerance_seconds": 1800.0
+      },
+      "trend": {
+        "details": [
+          {
+            "series": "temperature@STA_S",
+            "state": "scored",
+            "correct": true,
+            "actual_direction": "up",
+            "expected_direction": "up",
+            "ols_slope": null,
+            "significant": true,
+            "reason": ""
+          }
+        ],
+        "unlabeled_series": [
+          "humidity@STA_S",
+          "pressure@STA_S",
+          "rainfall",
+          "wind_speed"
+        ]
+      },
+      "seasonal": {
+        "details": [
+          {
+            "series": "temperature@STA_S",
+            "state": "unlabeled",
+            "correct": null,
+            "reason": "短样本不足以估计年周期，真值不设季节性"
+          }
+        ],
+        "unlabeled_series": []
+      },
+      "quality": [
+        {
+          "kind": "dst_shift",
+          "column": "timestamp",
+          "station": "STA_S",
+          "timestamp": "2024-03-10 03:00:00",
+          "series": "timestamp@STA_S",
+          "status": "detected",
+          "detail": "DST 跳变被识别为采样缺口（起点为跳变前最后一个采样点）"
+        },
+        {
+          "kind": "missing_gap_start",
+          "column": "temperature",
+          "station": "STA_S",
+          "timestamp": "2024-03-15 10:00:00",
+          "series": "temperature@STA_S",
+          "status": "reported_unlocalized",
+          "detail": "MISSING_VALUES 只有聚合计数，没有缺口起点"
+        }
+      ],
+      "conclusion_need": {
+        "covered": [
+          "changepoint"
+        ],
+        "missing": [],
+        "unlabeled": [],
+        "mapped": 1,
+        "coverage": 1.0
+      },
+      "result_path": "artifacts\\c_short_agent_eval\\wx_change\\result.json"
+    },
+    {
+      "case": "wx_composite",
+      "mode": "agent",
+      "status": "succeeded",
+      "question": "先看温度的趋势和季节结构，再判断序列是否平稳，最后给出异常点和变化点的位置",
+      "expect": [
+        "trend",
+        "seasonal",
+        "stationarity",
+        "anomaly",
+        "changepoint"
+      ],
+      "executed_tools": [
+        "compute_metrics",
+        "analyze_spectrum",
+        "run_stat_tests",
+        "detect_anomalies",
+        "detect_change_points"
+      ],
+      "conclusion_count": 14,
+      "conclusion_categories": {
+        "趋势": 5,
+        "周期": 5,
+        "滞后关系": 2,
+        "异常检测": 1,
+        "变化点": 1
+      },
+      "anomaly": {
+        "state": "scored",
+        "point": {
+          "tp": 0,
+          "fp": 13,
+          "fn": 6,
+          "detected": 13,
+          "truth": 6,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": null
+        },
+        "event": {
+          "tp": 0,
+          "fp": 13,
+          "fn": 6,
+          "detected": 13,
+          "truth": 6,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": null
+        },
+        "detected_events": 13
+      },
+      "changepoint": {
+        "state": "scored",
+        "point": {
+          "tp": 1,
+          "fp": 1,
+          "fn": 0,
+          "detected": 2,
+          "truth": 1,
+          "precision": 0.5,
+          "recall": 1.0,
+          "f1": 0.6667
+        },
+        "tolerance_seconds": 1800.0
+      },
+      "trend": {
+        "details": [
+          {
+            "series": "temperature@STA_S",
+            "state": "scored",
+            "correct": true,
+            "actual_direction": "up",
+            "expected_direction": "up",
+            "ols_slope": null,
+            "significant": true,
+            "reason": ""
+          }
+        ],
+        "unlabeled_series": [
+          "humidity@STA_S",
+          "pressure@STA_S",
+          "rainfall",
+          "wind_speed"
+        ]
+      },
+      "seasonal": {
+        "details": [
+          {
+            "series": "temperature@STA_S",
+            "state": "unlabeled",
+            "correct": null,
+            "reason": "短样本不足以估计年周期，真值不设季节性"
+          }
+        ],
+        "unlabeled_series": []
+      },
+      "quality": [
+        {
+          "kind": "dst_shift",
+          "column": "timestamp",
+          "station": "STA_S",
+          "timestamp": "2024-03-10 03:00:00",
+          "series": "timestamp@STA_S",
+          "status": "detected",
+          "detail": "DST 跳变被识别为采样缺口（起点为跳变前最后一个采样点）"
+        },
+        {
+          "kind": "missing_gap_start",
+          "column": "temperature",
+          "station": "STA_S",
+          "timestamp": "2024-03-15 10:00:00",
+          "series": "temperature@STA_S",
+          "status": "reported_unlocalized",
+          "detail": "MISSING_VALUES 只有聚合计数，没有缺口起点"
+        }
+      ],
+      "conclusion_need": {
+        "covered": [
+          "trend",
+          "anomaly",
+          "changepoint"
+        ],
+        "missing": [
+          "seasonal"
+        ],
+        "unlabeled": [
+          "stationarity"
+        ],
+        "mapped": 4,
+        "coverage": 0.75
+      },
+      "result_path": "artifacts\\c_short_agent_eval\\wx_composite\\result.json"
+    },
+    {
+      "case": "wx_corr",
+      "mode": "agent",
+      "status": "succeeded",
+      "question": "分析温度与湿度之间的相关性以及领先滞后关系",
+      "expect": [
+        "corr",
+        "lag"
+      ],
+      "executed_tools": [
+        "compute_metrics",
+        "run_stat_tests"
+      ],
+      "conclusion_count": 7,
+      "conclusion_categories": {
+        "趋势": 5,
+        "滞后关系": 2
+      },
+      "anomaly": {
+        "state": "not_run",
+        "point": null,
+        "event": null,
+        "reason": "detect_anomalies 未执行，不能把未看当成没异常"
+      },
+      "changepoint": {
+        "state": "not_run",
+        "point": null,
+        "reason": "detect_change_points 未执行"
+      },
+      "trend": {
+        "details": [
+          {
+            "series": "temperature@STA_S",
+            "state": "scored",
+            "correct": true,
+            "actual_direction": "up",
+            "expected_direction": "up",
+            "ols_slope": null,
+            "significant": true,
+            "reason": ""
+          }
+        ],
+        "unlabeled_series": [
+          "humidity@STA_S",
+          "pressure@STA_S",
+          "rainfall",
+          "wind_speed"
+        ]
+      },
+      "seasonal": {
+        "details": [
+          {
+            "series": "temperature@STA_S",
+            "state": "unlabeled",
+            "correct": null,
+            "reason": "短样本不足以估计年周期，真值不设季节性"
+          }
+        ],
+        "unlabeled_series": []
+      },
+      "quality": [
+        {
+          "kind": "dst_shift",
+          "column": "timestamp",
+          "station": "STA_S",
+          "timestamp": "2024-03-10 03:00:00",
+          "series": "timestamp@STA_S",
+          "status": "detected",
+          "detail": "DST 跳变被识别为采样缺口（起点为跳变前最后一个采样点）"
+        },
+        {
+          "kind": "missing_gap_start",
+          "column": "temperature",
+          "station": "STA_S",
+          "timestamp": "2024-03-15 10:00:00",
+          "series": "temperature@STA_S",
+          "status": "reported_unlocalized",
+          "detail": "MISSING_VALUES 只有聚合计数，没有缺口起点"
+        }
+      ],
+      "conclusion_need": {
+        "covered": [
+          "lag"
+        ],
+        "missing": [
+          "corr"
+        ],
+        "unlabeled": [],
+        "mapped": 2,
+        "coverage": 0.5
+      },
+      "result_path": "artifacts\\c_short_agent_eval\\wx_corr\\result.json"
+    },
+    {
+      "case": "wx_extreme",
+      "mode": "agent",
+      "status": "succeeded",
+      "question": "统计极端高温事件的频率与强度",
+      "expect": [
+        "extreme"
+      ],
+      "executed_tools": [
+        "compute_metrics",
+        "detect_anomalies"
+      ],
+      "conclusion_count": 8,
+      "conclusion_categories": {
+        "趋势": 5,
+        "滞后关系": 2,
+        "异常检测": 1
+      },
+      "anomaly": {
+        "state": "scored",
+        "point": {
+          "tp": 0,
+          "fp": 13,
+          "fn": 6,
+          "detected": 13,
+          "truth": 6,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": null
+        },
+        "event": {
+          "tp": 0,
+          "fp": 13,
+          "fn": 6,
+          "detected": 13,
+          "truth": 6,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": null
+        },
+        "detected_events": 13
+      },
+      "changepoint": {
+        "state": "not_run",
+        "point": null,
+        "reason": "detect_change_points 未执行"
+      },
+      "trend": {
+        "details": [
+          {
+            "series": "temperature@STA_S",
+            "state": "scored",
+            "correct": true,
+            "actual_direction": "up",
+            "expected_direction": "up",
+            "ols_slope": null,
+            "significant": true,
+            "reason": ""
+          }
+        ],
+        "unlabeled_series": [
+          "humidity@STA_S",
+          "pressure@STA_S",
+          "rainfall",
+          "wind_speed"
+        ]
+      },
+      "seasonal": {
+        "details": [
+          {
+            "series": "temperature@STA_S",
+            "state": "unlabeled",
+            "correct": null,
+            "reason": "短样本不足以估计年周期，真值不设季节性"
+          }
+        ],
+        "unlabeled_series": []
+      },
+      "quality": [
+        {
+          "kind": "dst_shift",
+          "column": "timestamp",
+          "station": "STA_S",
+          "timestamp": "2024-03-10 03:00:00",
+          "series": "timestamp@STA_S",
+          "status": "detected",
+          "detail": "DST 跳变被识别为采样缺口（起点为跳变前最后一个采样点）"
+        },
+        {
+          "kind": "missing_gap_start",
+          "column": "temperature",
+          "station": "STA_S",
+          "timestamp": "2024-03-15 10:00:00",
+          "series": "temperature@STA_S",
+          "status": "reported_unlocalized",
+          "detail": "MISSING_VALUES 只有聚合计数，没有缺口起点"
+        }
+      ],
+      "conclusion_need": {
+        "covered": [],
+        "missing": [],
+        "unlabeled": [
+          "extreme"
+        ],
+        "mapped": 0,
+        "coverage": null
+      },
+      "result_path": "artifacts\\c_short_agent_eval\\wx_extreme\\result.json"
+    },
+    {
+      "case": "wx_missing",
+      "mode": "agent",
+      "status": "succeeded",
+      "question": "数据里有缺失和异常值，请说明缺失怎么处理，并给出异常点结论",
+      "expect": [
+        "anomaly"
+      ],
+      "executed_tools": [
+        "compute_metrics",
+        "detect_anomalies",
+        "detect_change_points"
+      ],
+      "conclusion_count": 9,
+      "conclusion_categories": {
+        "趋势": 5,
+        "滞后关系": 2,
+        "异常检测": 1,
+        "变化点": 1
+      },
+      "anomaly": {
+        "state": "scored",
+        "point": {
+          "tp": 0,
+          "fp": 13,
+          "fn": 6,
+          "detected": 13,
+          "truth": 6,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": null
+        },
+        "event": {
+          "tp": 0,
+          "fp": 13,
+          "fn": 6,
+          "detected": 13,
+          "truth": 6,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": null
+        },
+        "detected_events": 13
+      },
+      "changepoint": {
+        "state": "scored",
+        "point": {
+          "tp": 1,
+          "fp": 1,
+          "fn": 0,
+          "detected": 2,
+          "truth": 1,
+          "precision": 0.5,
+          "recall": 1.0,
+          "f1": 0.6667
+        },
+        "tolerance_seconds": 1800.0
+      },
+      "trend": {
+        "details": [
+          {
+            "series": "temperature@STA_S",
+            "state": "scored",
+            "correct": true,
+            "actual_direction": "up",
+            "expected_direction": "up",
+            "ols_slope": null,
+            "significant": true,
+            "reason": ""
+          }
+        ],
+        "unlabeled_series": [
+          "humidity@STA_S",
+          "pressure@STA_S",
+          "rainfall",
+          "wind_speed"
+        ]
+      },
+      "seasonal": {
+        "details": [
+          {
+            "series": "temperature@STA_S",
+            "state": "unlabeled",
+            "correct": null,
+            "reason": "短样本不足以估计年周期，真值不设季节性"
+          }
+        ],
+        "unlabeled_series": []
+      },
+      "quality": [
+        {
+          "kind": "dst_shift",
+          "column": "timestamp",
+          "station": "STA_S",
+          "timestamp": "2024-03-10 03:00:00",
+          "series": "timestamp@STA_S",
+          "status": "detected",
+          "detail": "DST 跳变被识别为采样缺口（起点为跳变前最后一个采样点）"
+        },
+        {
+          "kind": "missing_gap_start",
+          "column": "temperature",
+          "station": "STA_S",
+          "timestamp": "2024-03-15 10:00:00",
+          "series": "temperature@STA_S",
+          "status": "reported_unlocalized",
+          "detail": "MISSING_VALUES 只有聚合计数，没有缺口起点"
+        }
+      ],
+      "conclusion_need": {
+        "covered": [
+          "anomaly"
+        ],
+        "missing": [],
+        "unlabeled": [],
+        "mapped": 1,
+        "coverage": 1.0
+      },
+      "result_path": "artifacts\\c_short_agent_eval\\wx_missing\\result.json"
+    },
+    {
+      "case": "wx_normal",
+      "mode": "agent",
+      "status": "succeeded",
+      "question": "检验温度数据是否服从正态分布",
+      "expect": [
+        "normality"
+      ],
+      "executed_tools": [
+        "compute_metrics",
+        "run_stat_tests"
+      ],
+      "conclusion_count": 7,
+      "conclusion_categories": {
+        "趋势": 5,
+        "滞后关系": 2
+      },
+      "anomaly": {
+        "state": "not_run",
+        "point": null,
+        "event": null,
+        "reason": "detect_anomalies 未执行，不能把未看当成没异常"
+      },
+      "changepoint": {
+        "state": "not_run",
+        "point": null,
+        "reason": "detect_change_points 未执行"
+      },
+      "trend": {
+        "details": [
+          {
+            "series": "temperature@STA_S",
+            "state": "scored",
+            "correct": true,
+            "actual_direction": "up",
+            "expected_direction": "up",
+            "ols_slope": null,
+            "significant": true,
+            "reason": ""
+          }
+        ],
+        "unlabeled_series": [
+          "humidity@STA_S",
+          "pressure@STA_S",
+          "rainfall",
+          "wind_speed"
+        ]
+      },
+      "seasonal": {
+        "details": [
+          {
+            "series": "temperature@STA_S",
+            "state": "unlabeled",
+            "correct": null,
+            "reason": "短样本不足以估计年周期，真值不设季节性"
+          }
+        ],
+        "unlabeled_series": []
+      },
+      "quality": [
+        {
+          "kind": "dst_shift",
+          "column": "timestamp",
+          "station": "STA_S",
+          "timestamp": "2024-03-10 03:00:00",
+          "series": "timestamp@STA_S",
+          "status": "detected",
+          "detail": "DST 跳变被识别为采样缺口（起点为跳变前最后一个采样点）"
+        },
+        {
+          "kind": "missing_gap_start",
+          "column": "temperature",
+          "station": "STA_S",
+          "timestamp": "2024-03-15 10:00:00",
+          "series": "temperature@STA_S",
+          "status": "reported_unlocalized",
+          "detail": "MISSING_VALUES 只有聚合计数，没有缺口起点"
+        }
+      ],
+      "conclusion_need": {
+        "covered": [],
+        "missing": [],
+        "unlabeled": [
+          "normality"
+        ],
+        "mapped": 0,
+        "coverage": null
+      },
+      "result_path": "artifacts\\c_short_agent_eval\\wx_normal\\result.json"
+    },
+    {
+      "case": "wx_open",
+      "mode": "agent",
+      "status": "succeeded",
+      "question": "帮我看看这两年的温度数据有什么值得注意的地方",
+      "expect": [],
+      "executed_tools": [
+        "compute_metrics",
+        "detect_change_points"
+      ],
+      "conclusion_count": 8,
+      "conclusion_categories": {
+        "趋势": 5,
+        "滞后关系": 2,
+        "变化点": 1
+      },
+      "anomaly": {
+        "state": "not_run",
+        "point": null,
+        "event": null,
+        "reason": "detect_anomalies 未执行，不能把未看当成没异常"
+      },
+      "changepoint": {
+        "state": "scored",
+        "point": {
+          "tp": 1,
+          "fp": 1,
+          "fn": 0,
+          "detected": 2,
+          "truth": 1,
+          "precision": 0.5,
+          "recall": 1.0,
+          "f1": 0.6667
+        },
+        "tolerance_seconds": 1800.0
+      },
+      "trend": {
+        "details": [
+          {
+            "series": "temperature@STA_S",
+            "state": "scored",
+            "correct": true,
+            "actual_direction": "up",
+            "expected_direction": "up",
+            "ols_slope": null,
+            "significant": true,
+            "reason": ""
+          }
+        ],
+        "unlabeled_series": [
+          "humidity@STA_S",
+          "pressure@STA_S",
+          "rainfall",
+          "wind_speed"
+        ]
+      },
+      "seasonal": {
+        "details": [
+          {
+            "series": "temperature@STA_S",
+            "state": "unlabeled",
+            "correct": null,
+            "reason": "短样本不足以估计年周期，真值不设季节性"
+          }
+        ],
+        "unlabeled_series": []
+      },
+      "quality": [
+        {
+          "kind": "dst_shift",
+          "column": "timestamp",
+          "station": "STA_S",
+          "timestamp": "2024-03-10 03:00:00",
+          "series": "timestamp@STA_S",
+          "status": "detected",
+          "detail": "DST 跳变被识别为采样缺口（起点为跳变前最后一个采样点）"
+        },
+        {
+          "kind": "missing_gap_start",
+          "column": "temperature",
+          "station": "STA_S",
+          "timestamp": "2024-03-15 10:00:00",
+          "series": "temperature@STA_S",
+          "status": "reported_unlocalized",
+          "detail": "MISSING_VALUES 只有聚合计数，没有缺口起点"
+        }
+      ],
+      "conclusion_need": {
+        "covered": [],
+        "missing": [],
+        "unlabeled": [],
+        "mapped": 0,
+        "coverage": null
+      },
+      "result_path": "artifacts\\c_short_agent_eval\\wx_open\\result.json"
+    },
+    {
+      "case": "wx_risk_open",
+      "mode": "agent",
+      "status": "succeeded",
+      "question": "这两年的天气对户外作业有什么风险",
+      "expect": [],
+      "executed_tools": [
+        "compute_metrics",
+        "detect_anomalies"
+      ],
+      "conclusion_count": 8,
+      "conclusion_categories": {
+        "趋势": 5,
+        "滞后关系": 2,
+        "异常检测": 1
+      },
+      "anomaly": {
+        "state": "scored",
+        "point": {
+          "tp": 0,
+          "fp": 13,
+          "fn": 6,
+          "detected": 13,
+          "truth": 6,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": null
+        },
+        "event": {
+          "tp": 0,
+          "fp": 13,
+          "fn": 6,
+          "detected": 13,
+          "truth": 6,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": null
+        },
+        "detected_events": 13
+      },
+      "changepoint": {
+        "state": "not_run",
+        "point": null,
+        "reason": "detect_change_points 未执行"
+      },
+      "trend": {
+        "details": [
+          {
+            "series": "temperature@STA_S",
+            "state": "scored",
+            "correct": true,
+            "actual_direction": "up",
+            "expected_direction": "up",
+            "ols_slope": null,
+            "significant": true,
+            "reason": ""
+          }
+        ],
+        "unlabeled_series": [
+          "humidity@STA_S",
+          "pressure@STA_S",
+          "rainfall",
+          "wind_speed"
+        ]
+      },
+      "seasonal": {
+        "details": [
+          {
+            "series": "temperature@STA_S",
+            "state": "unlabeled",
+            "correct": null,
+            "reason": "短样本不足以估计年周期，真值不设季节性"
+          }
+        ],
+        "unlabeled_series": []
+      },
+      "quality": [
+        {
+          "kind": "dst_shift",
+          "column": "timestamp",
+          "station": "STA_S",
+          "timestamp": "2024-03-10 03:00:00",
+          "series": "timestamp@STA_S",
+          "status": "detected",
+          "detail": "DST 跳变被识别为采样缺口（起点为跳变前最后一个采样点）"
+        },
+        {
+          "kind": "missing_gap_start",
+          "column": "temperature",
+          "station": "STA_S",
+          "timestamp": "2024-03-15 10:00:00",
+          "series": "temperature@STA_S",
+          "status": "reported_unlocalized",
+          "detail": "MISSING_VALUES 只有聚合计数，没有缺口起点"
+        }
+      ],
+      "conclusion_need": {
+        "covered": [],
+        "missing": [],
+        "unlabeled": [],
+        "mapped": 0,
+        "coverage": null
+      },
+      "result_path": "artifacts\\c_short_agent_eval\\wx_risk_open\\result.json"
+    },
+    {
+      "case": "wx_spectrum",
+      "mode": "agent",
+      "status": "succeeded",
+      "question": "温度序列的周期性与主要频率成分是什么",
+      "expect": [
+        "spectrum"
+      ],
+      "executed_tools": [
+        "compute_metrics",
+        "analyze_spectrum",
+        "run_stat_tests"
+      ],
+      "conclusion_count": 12,
+      "conclusion_categories": {
+        "趋势": 5,
+        "周期": 5,
+        "滞后关系": 2
+      },
+      "anomaly": {
+        "state": "not_run",
+        "point": null,
+        "event": null,
+        "reason": "detect_anomalies 未执行，不能把未看当成没异常"
+      },
+      "changepoint": {
+        "state": "not_run",
+        "point": null,
+        "reason": "detect_change_points 未执行"
+      },
+      "trend": {
+        "details": [
+          {
+            "series": "temperature@STA_S",
+            "state": "scored",
+            "correct": true,
+            "actual_direction": "up",
+            "expected_direction": "up",
+            "ols_slope": null,
+            "significant": true,
+            "reason": ""
+          }
+        ],
+        "unlabeled_series": [
+          "humidity@STA_S",
+          "pressure@STA_S",
+          "rainfall",
+          "wind_speed"
+        ]
+      },
+      "seasonal": {
+        "details": [
+          {
+            "series": "temperature@STA_S",
+            "state": "unlabeled",
+            "correct": null,
+            "reason": "短样本不足以估计年周期，真值不设季节性"
+          }
+        ],
+        "unlabeled_series": []
+      },
+      "quality": [
+        {
+          "kind": "dst_shift",
+          "column": "timestamp",
+          "station": "STA_S",
+          "timestamp": "2024-03-10 03:00:00",
+          "series": "timestamp@STA_S",
+          "status": "detected",
+          "detail": "DST 跳变被识别为采样缺口（起点为跳变前最后一个采样点）"
+        },
+        {
+          "kind": "missing_gap_start",
+          "column": "temperature",
+          "station": "STA_S",
+          "timestamp": "2024-03-15 10:00:00",
+          "series": "temperature@STA_S",
+          "status": "reported_unlocalized",
+          "detail": "MISSING_VALUES 只有聚合计数，没有缺口起点"
+        }
+      ],
+      "conclusion_need": {
+        "covered": [
+          "spectrum"
+        ],
+        "missing": [],
+        "unlabeled": [],
+        "mapped": 1,
+        "coverage": 1.0
+      },
+      "result_path": "artifacts\\c_short_agent_eval\\wx_spectrum\\result.json"
+    },
+    {
+      "case": "wx_stationary",
+      "mode": "agent",
+      "status": "succeeded",
+      "question": "评估这条时间序列是否平稳，并说明其自相关结构",
+      "expect": [
+        "stationarity",
+        "autocorr"
+      ],
+      "executed_tools": [
+        "compute_metrics",
+        "run_stat_tests",
+        "detect_change_points"
+      ],
+      "conclusion_count": 8,
+      "conclusion_categories": {
+        "趋势": 5,
+        "滞后关系": 2,
+        "变化点": 1
+      },
+      "anomaly": {
+        "state": "not_run",
+        "point": null,
+        "event": null,
+        "reason": "detect_anomalies 未执行，不能把未看当成没异常"
+      },
+      "changepoint": {
+        "state": "scored",
+        "point": {
+          "tp": 1,
+          "fp": 1,
+          "fn": 0,
+          "detected": 2,
+          "truth": 1,
+          "precision": 0.5,
+          "recall": 1.0,
+          "f1": 0.6667
+        },
+        "tolerance_seconds": 1800.0
+      },
+      "trend": {
+        "details": [
+          {
+            "series": "temperature@STA_S",
+            "state": "scored",
+            "correct": true,
+            "actual_direction": "up",
+            "expected_direction": "up",
+            "ols_slope": null,
+            "significant": true,
+            "reason": ""
+          }
+        ],
+        "unlabeled_series": [
+          "humidity@STA_S",
+          "pressure@STA_S",
+          "rainfall",
+          "wind_speed"
+        ]
+      },
+      "seasonal": {
+        "details": [
+          {
+            "series": "temperature@STA_S",
+            "state": "unlabeled",
+            "correct": null,
+            "reason": "短样本不足以估计年周期，真值不设季节性"
+          }
+        ],
+        "unlabeled_series": []
+      },
+      "quality": [
+        {
+          "kind": "dst_shift",
+          "column": "timestamp",
+          "station": "STA_S",
+          "timestamp": "2024-03-10 03:00:00",
+          "series": "timestamp@STA_S",
+          "status": "detected",
+          "detail": "DST 跳变被识别为采样缺口（起点为跳变前最后一个采样点）"
+        },
+        {
+          "kind": "missing_gap_start",
+          "column": "temperature",
+          "station": "STA_S",
+          "timestamp": "2024-03-15 10:00:00",
+          "series": "temperature@STA_S",
+          "status": "reported_unlocalized",
+          "detail": "MISSING_VALUES 只有聚合计数，没有缺口起点"
+        }
+      ],
+      "conclusion_need": {
+        "covered": [],
+        "missing": [],
+        "unlabeled": [
+          "stationarity",
+          "autocorr"
+        ],
+        "mapped": 0,
+        "coverage": null
+      },
+      "result_path": "artifacts\\c_short_agent_eval\\wx_stationary\\result.json"
+    },
+    {
+      "case": "wx_trend",
+      "mode": "agent",
+      "status": "succeeded",
+      "question": "分析温度的趋势、季节性与极端事件",
+      "expect": [
+        "trend",
+        "seasonal",
+        "extreme"
+      ],
+      "executed_tools": [
+        "compute_metrics",
+        "analyze_spectrum"
+      ],
+      "conclusion_count": 12,
+      "conclusion_categories": {
+        "趋势": 5,
+        "周期": 5,
+        "滞后关系": 2
+      },
+      "anomaly": {
+        "state": "not_run",
+        "point": null,
+        "event": null,
+        "reason": "detect_anomalies 未执行，不能把未看当成没异常"
+      },
+      "changepoint": {
+        "state": "not_run",
+        "point": null,
+        "reason": "detect_change_points 未执行"
+      },
+      "trend": {
+        "details": [
+          {
+            "series": "temperature@STA_S",
+            "state": "scored",
+            "correct": true,
+            "actual_direction": "up",
+            "expected_direction": "up",
+            "ols_slope": null,
+            "significant": true,
+            "reason": ""
+          }
+        ],
+        "unlabeled_series": [
+          "humidity@STA_S",
+          "pressure@STA_S",
+          "rainfall",
+          "wind_speed"
+        ]
+      },
+      "seasonal": {
+        "details": [
+          {
+            "series": "temperature@STA_S",
+            "state": "unlabeled",
+            "correct": null,
+            "reason": "短样本不足以估计年周期，真值不设季节性"
+          }
+        ],
+        "unlabeled_series": []
+      },
+      "quality": [
+        {
+          "kind": "dst_shift",
+          "column": "timestamp",
+          "station": "STA_S",
+          "timestamp": "2024-03-10 03:00:00",
+          "series": "timestamp@STA_S",
+          "status": "detected",
+          "detail": "DST 跳变被识别为采样缺口（起点为跳变前最后一个采样点）"
+        },
+        {
+          "kind": "missing_gap_start",
+          "column": "temperature",
+          "station": "STA_S",
+          "timestamp": "2024-03-15 10:00:00",
+          "series": "temperature@STA_S",
+          "status": "reported_unlocalized",
+          "detail": "MISSING_VALUES 只有聚合计数，没有缺口起点"
+        }
+      ],
+      "conclusion_need": {
+        "covered": [
+          "trend"
+        ],
+        "missing": [
+          "seasonal"
+        ],
+        "unlabeled": [
+          "extreme"
+        ],
+        "mapped": 2,
+        "coverage": 0.5
+      },
+      "result_path": "artifacts\\c_short_agent_eval\\wx_trend\\result.json"
+    },
+    {
+      "case": "wx_trend_neg",
+      "mode": "agent",
+      "status": "succeeded",
+      "question": "温度有没有明显上升趋势？如果没有，请说明判断依据",
+      "expect": [
+        "trend"
+      ],
+      "executed_tools": [
+        "compute_metrics",
+        "run_stat_tests"
+      ],
+      "conclusion_count": 7,
+      "conclusion_categories": {
+        "趋势": 5,
+        "滞后关系": 2
+      },
+      "anomaly": {
+        "state": "not_run",
+        "point": null,
+        "event": null,
+        "reason": "detect_anomalies 未执行，不能把未看当成没异常"
+      },
+      "changepoint": {
+        "state": "not_run",
+        "point": null,
+        "reason": "detect_change_points 未执行"
+      },
+      "trend": {
+        "details": [
+          {
+            "series": "temperature@STA_S",
+            "state": "scored",
+            "correct": true,
+            "actual_direction": "up",
+            "expected_direction": "up",
+            "ols_slope": null,
+            "significant": true,
+            "reason": ""
+          }
+        ],
+        "unlabeled_series": [
+          "humidity@STA_S",
+          "pressure@STA_S",
+          "rainfall",
+          "wind_speed"
+        ]
+      },
+      "seasonal": {
+        "details": [
+          {
+            "series": "temperature@STA_S",
+            "state": "unlabeled",
+            "correct": null,
+            "reason": "短样本不足以估计年周期，真值不设季节性"
+          }
+        ],
+        "unlabeled_series": []
+      },
+      "quality": [
+        {
+          "kind": "dst_shift",
+          "column": "timestamp",
+          "station": "STA_S",
+          "timestamp": "2024-03-10 03:00:00",
+          "series": "timestamp@STA_S",
+          "status": "detected",
+          "detail": "DST 跳变被识别为采样缺口（起点为跳变前最后一个采样点）"
+        },
+        {
+          "kind": "missing_gap_start",
+          "column": "temperature",
+          "station": "STA_S",
+          "timestamp": "2024-03-15 10:00:00",
+          "series": "temperature@STA_S",
+          "status": "reported_unlocalized",
+          "detail": "MISSING_VALUES 只有聚合计数，没有缺口起点"
+        }
+      ],
+      "conclusion_need": {
+        "covered": [
+          "trend"
+        ],
+        "missing": [],
+        "unlabeled": [],
+        "mapped": 1,
+        "coverage": 1.0
+      },
+      "result_path": "artifacts\\c_short_agent_eval\\wx_trend_neg\\result.json"
+    }
+  ],
+  "notes": [
+    "13 个用例共用同一份 weather_v1.csv；跨用例累加是重复测量，不是 13 倍独立证据。",
+    "P/R/F1 只在对应工具实际执行的用例上计算；未执行记 not_run，不记 0。",
+    "点级异常按严格同一时刻匹配；事件级按同系列间隔≤3小时合并后按区间重叠匹配。",
+    "变化点容差为 2 个采样点；异常点不做时间容差。",
+    "趋势/季节性只评 temperature@STA_A/STA_B；其他列无真值，标 unlabeled。",
+    "数据质量事件只报 detected/reported_unlocalized/not_detected，不把无定位信息硬算成 FP。"
+  ]
+}

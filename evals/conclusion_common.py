@@ -127,6 +127,18 @@ def discover_result_dirs(root: str = DEFAULT_COMPARE_ROOT) -> list[dict[str, str
                 found.append({"case": name[: -len(mode) - 1], "mode": mode, "path": rp})
         if name.endswith("_pipeline") or name.endswith("_agent"):
             continue
+        # 也支持 <case>/result.json（agent_eval 的 out_root 结构）；模式从结果里读。
+        rp = os.path.join(p, "result.json")
+        if os.path.isfile(rp):
+            try:
+                with open(rp, encoding="utf-8") as f:
+                    doc = json.load(f)
+                mode = (((doc.get("datasets") or [{}])[0].get("mode"))
+                        or ("agent" if (doc.get("data") or {}).get("agent") else "pipeline"))
+                found.append({"case": name, "mode": mode, "path": rp})
+                continue
+            except (OSError, json.JSONDecodeError):
+                pass
         for mode in ("pipeline", "agent"):
             rp = os.path.join(p, mode, "result.json")
             if os.path.isfile(rp):

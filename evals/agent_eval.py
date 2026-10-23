@@ -338,13 +338,15 @@ def _patched_runner(client):
 
 
 def run_case(case: dict[str, Any], out_root: str, client=None,
-             do_replay: bool = True, verbose: bool = True) -> dict[str, Any]:
+             do_replay: bool = True, verbose: bool = True,
+             input_path: Optional[str] = None) -> dict[str, Any]:
     """跑一个用例；返回单次指标。异常不外抛，转为 status=failed 的记录。"""
     _ensure_fixtures()                  # 单独调用本函数（如测试）时也要保证数据存在
+    input_file = input_path or os.path.join(FIX, WEATHER_CSV)
     out_dir = os.path.join(out_root, case["id"])
     req = AnalysisRequest(
         request_id=f"agent_eval_{case['id']}",
-        input_path=os.path.join(FIX, WEATHER_CSV),
+        input_path=input_file,
         scene_id="weather",
         question=case["question"],
         output_dir=out_dir,
@@ -387,7 +389,7 @@ def run_case(case: dict[str, Any], out_root: str, client=None,
     if do_replay and doc.get("status") == "succeeded":
         rep = engine.run_analysis(AnalysisRequest(
             request_id=f"agent_eval_replay_{case['id']}",
-            input_path=os.path.join(FIX, WEATHER_CSV),
+            input_path=input_file,
             scene_id="weather",
             question=case["question"],
             output_dir=os.path.join(out_dir, "replay"),
@@ -411,10 +413,12 @@ def run_case(case: dict[str, Any], out_root: str, client=None,
 
 def run_eval(cases: Optional[list[dict[str, Any]]] = None, out_root: str = DEFAULT_OUT_ROOT,
              client=None, do_replay: bool = True, source: str = "real",
-             model: str = "", planner: str = "rule", verbose: bool = True) -> dict[str, Any]:
+             model: str = "", planner: str = "rule", verbose: bool = True,
+             input_path: Optional[str] = None) -> dict[str, Any]:
     _ensure_fixtures()
     cases = cases if cases is not None else CASES
-    runs = [run_case(c, out_root, client=client, do_replay=do_replay, verbose=verbose)
+    runs = [run_case(c, out_root, client=client, do_replay=do_replay,
+                     verbose=verbose, input_path=input_path)
             for c in cases]
     summary = summarize(runs, source=source, model=model, planner=planner)
     return {
@@ -424,6 +428,8 @@ def run_eval(cases: Optional[list[dict[str, Any]]] = None, out_root: str = DEFAU
         "planner": planner,
         "rule_plan_items": list(RULE_PLAN_ITEMS),
         "cases": runs,
+        "input_path": (os.path.relpath(input_path, ROOT) if input_path
+                        else os.path.join("fixtures", WEATHER_CSV)),
         "summary": summary,
         "thresholds": {
             "min_success_rate": MIN_SUCCESS_RATE,
@@ -466,6 +472,8 @@ def main(argv: Optional[list[str]] = None) -> int:
     ap.add_argument("--out", default=DEFAULT_OUT)
     ap.add_argument("--out-root", default=DEFAULT_OUT_ROOT)
     ap.add_argument("--cases", default=None, help="只跑指定用例，逗号分隔")
+    ap.add_argument("--input", default=None,
+                    help="输入 CSV；默认 fixtures/weather_v1.csv，用于第二份数据")
     ap.add_argument("--mock", action="store_true",
                     help="离线脚本客户端：只验证指标管线，不代表模型能力")
     ap.add_argument("--no-replay", action="store_true", help="跳过重放，不算可重放率")
@@ -517,7 +525,8 @@ def main(argv: Optional[list[str]] = None) -> int:
 
     result = run_eval(cases=cases, out_root=args.out_root, client=client,
                       do_replay=not args.no_replay, source=source,
-                      model=model, planner=args.planner, verbose=True)
+                      model=model, planner=args.planner, verbose=True,
+                      input_path=args.input)
     print()
     print(format_table(result))
     print()

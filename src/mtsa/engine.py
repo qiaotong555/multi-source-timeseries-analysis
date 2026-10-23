@@ -106,6 +106,40 @@ def _agent_outputs(traj) -> tuple[MetricTable, MetricTable, list, list, list, li
             rows("detect_anomalies"), rows("detect_change_points"))
 
 
+def _sample_scale_warnings(clean, qrep, profile, plan) -> list[str]:
+    """短样本/高缺失的显式提示。
+
+    C 任务的第二份数据只有 30 天、15 分钟、10% 缺失。ADF/KPSS/STL 在这类样本上
+    会退化，不能静默给结论；这里只加 warning，不改变任何判定或数值。
+    """
+    out: list[str] = []
+    rows = len(clean.frame)
+    if rows < 5000:
+        out.append(
+            f"样本量仅 {rows} 行（<5000），ADF/KPSS/STL 等检验在小样本下可能退化；"
+            "相关结论只能作探索性参考，不能当作稳定结论。"
+        )
+    ta = profile.time_axis
+    if ta and ta.start and ta.end:
+        try:
+            span_days = (datetime.fromisoformat(ta.end) - datetime.fromisoformat(ta.start)).total_seconds() / 86400.0
+            if span_days < 60:
+                out.append(
+                    f"时间跨度仅 {span_days:.1f} 天（<60 天），无法可靠估计年周期/季节性；"
+                    "季节性结论应视为未验证。"
+                )
+        except ValueError:
+            pass
+    ratios = list((qrep.missing_ratio or {}).values())
+    max_missing = max(ratios) if ratios else 0.0
+    if max_missing > 0.05:
+        out.append(
+            f"最大缺失率 {max_missing:.2%}（>5%），共插值 {clean.imputed_cells} 个单元；"
+            "插值点不作为异常判定依据，缺失段附近的结论需谨慎。"
+        )
+    return out
+
+
 class _Timer:
     """记录节点耗时与状态，写入 events。"""
 
@@ -283,6 +317,9 @@ def run_analysis(request: AnalysisRequest, verbose: bool = True) -> AnalysisResu
                                         "unit_conversions": len(clean.unit_conversions)})
     if clean.frame.empty:
         return fail(ERR_EMPTY_NUMERIC_COLUMN, "清洗后数据集为空，无法继续分析")
+    for msg in _sample_scale_warnings(clean, qrep, profile, plan):
+        if msg not in warnings:
+            warnings.append(msg)
 
     # ---- 5b. 运行模式解析 ----
     # auto：有模型且场景支持 → agent；否则回退 pipeline，并把原因写进 warnings。

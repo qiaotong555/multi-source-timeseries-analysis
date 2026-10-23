@@ -56,6 +56,16 @@ python -m evals.mode_compare
 
 # 输出稳定性：同题重复 3 次，guided（关键词下限）vs free（模型自定范围）
 python -m evals.stability_eval --repeats 3
+
+# A 结论级评估：读 artifacts/t212_compare，不改检测阈值
+python -m evals.conclusion_eval
+# B 差异溯源：把 agent 少掉的结论按类别归因
+python -m evals.conclusion_diff
+
+# C 第二份数据：30 天 / 15 分钟 / 单站点 / DST / 10% 缺失
+python -m evals.agent_eval --input fixtures/weather_short_v1.csv     --out evals/agent_eval_short_results.json --out-root artifacts/c_short_agent_eval
+python -m evals.repro_check     artifacts/c_short_pipeline_rule_1/result.json     artifacts/c_short_pipeline_rule_2/result.json
+python -m evals.conclusion_eval --result-root artifacts/c_short_agent_eval     --labels fixtures/labels_weather_short_v1.csv     --truth fixtures/truth_weather_short_v1.json     --out evals/conclusion_eval_short_agent_results.json
 ```
 
 ## 运行保护
@@ -125,6 +135,12 @@ CLI 默认在**子进程**中执行分析：Python 无法中断正在执行的 C
 9 用例时期的数字（结论 −31.3%、墙钟 +4.7%）保留在 `doc/评估设计.md` 6.5/6.6，
 **不同用例集的降幅不可直接比较**。现行口径见 6.8，逐用例数据见
 `evals/mode_compare_results.json`。
+
+**结论级评估（A/B，2026-10-23）**：在这份演示数据上，异常点级 P/R/F1 为
+0.130 / 1.000 / 0.229（真值 18、FP 121）；agent 只在 7/13 个用例执行异常检测，
+未执行的 6 个用例少看 108 个真值实例，但去重后真值命中仍为 18/18。两模式结论
+总数 507 vs 389，差 118 条（9.08/用例），**100% 归因于 `tool_not_run`**，无法归因 0 条。
+这说明 Agent 的差异主要是范围而不是精度；也说明「检出 139 个」不等于「139 个都对」。
 
 结论：Agent 适合窄问题与需要审计路径的场景；需要完整报告、或没有模型配额时用 pipeline。
 
