@@ -25,6 +25,11 @@ python -m mtsa.cli run --scene stock \
 python -m mtsa.cli run --mode agent --scene weather \
     --input fixtures/weather_v1.csv --question "分析温度的趋势、季节性和异常"
 
+# 成本上限：累计 token 超限即以 token_budget 结束（默认 0 = 不限制）
+python -m mtsa.cli run --mode agent --scene weather \
+    --input fixtures/weather_v1.csv --question "分析温度的趋势、季节性与异常" \
+    --agent-max-tokens 2000
+
 # 离线重放：按已保存的轨迹重跑工具，不调用模型
 python -m mtsa.cli run --replay artifacts/<run_id>/result.json
 
@@ -61,6 +66,7 @@ python -m evals.stability_eval --repeats 3
 | 整体超时 | 600 秒，超时终止子进程（`NODE_TIMEOUT`） | `--timeout 900`；`0` 表示不限制且不进子进程 |
 | 运行模式 | 默认 `pipeline` | `--mode agent` / `--mode auto`，或设置 `MTSA_AGENT` |
 | Agent 范围策略 | `guided`：按问题关键词定下限，达标前不得结束，下限外最多追加 1 步 | `--agent-scope free` 恢复“范围完全由模型决定”（步数会波动） |
+| Agent token 预算 | 0（不限制），只记录用量 | `--agent-max-tokens 2000`；超限以 `token_budget` 结束 |
 
 CLI 默认在**子进程**中执行分析：Python 无法中断正在执行的 C 扩展调用（numpy、statsmodels），
 主线程计时器拦不住卡死，只有进程级终止有效。代价是约 3 秒启动开销。
@@ -83,7 +89,7 @@ CLI 默认在**子进程**中执行分析：Python 无法中断正在执行的 C
 13 用例评估与两模式对照。
 
 **明确未实现**：股票场景的 Agent（请求 `mode=agent` 返回 `AGENT_SCENE_UNSUPPORTED`）；
-多模型对比；token 预算（只记录不拦截）；`free` 模式下的范围稳定性。
+多模型对比；按金额计费换算（只限 token，不换算货币）；`free` 模式下的范围稳定性。
 
 | 模式 | 行为 | 无模型时 |
 | --- | --- | --- |

@@ -31,6 +31,18 @@ def _fmt(v, nd: int = 6) -> str:
     return str(v)
 
 
+def _budget_label(budget: dict) -> str:
+    """报告里的 token 预算一行：三种状态必须能一眼区分。"""
+    if not budget or not budget.get("enforced"):
+        used = budget.get("used")
+        return "未设限" + (f"（已用 {used}）" if used else "")
+    limit = budget.get("limit")
+    if budget.get("unavailable"):
+        return f"上限 {limit}；服务端未返回 usage，未生效"
+    text = f"{budget.get('used') or 0} / {limit}"
+    return text + ("（已用尽）" if budget.get("exhausted") else "")
+
+
 def _md_table(headers: list[str], rows: list[list[str]]) -> str:
     out = ["| " + " | ".join(headers) + " |", "|" + "|".join(["---"] * len(headers)) + "|"]
     for r in rows:
@@ -130,6 +142,7 @@ def render_report(
                          if scope.get("enforced") else "—（free：范围由模型决定）"],
              ["下限外追加步数", (f"{scope.get('extra_used', 0)}/{scope.get('max_extra_steps', 0)}"
                                if scope.get("enforced") else "—")],
+             ["token 预算", _budget_label(agent.get("budget") or {})],
              ["步数", str(agent.get("step_count", 0))],
              ["已执行工具", "、".join(executed) or "—"],
              ["未执行工具", "、".join(not_run) or "—"],

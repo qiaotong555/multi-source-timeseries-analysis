@@ -1,5 +1,5 @@
 # test_split_eval
-# status=PASS exit=0 duration=6.27s passed=28 failed=0 errors=0
+# status=PASS exit=0 duration=6.3s passed=28 failed=0 errors=0
 ............................                                             [100%]
 ============================== warnings summary ===============================
 tests/test_split_eval.py::test_param_override_applied

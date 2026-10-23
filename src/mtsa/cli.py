@@ -90,6 +90,8 @@ def _build_parser() -> argparse.ArgumentParser:
                         "free 完全由模型决定范围（步数会波动）")
     r.add_argument("--agent-max-extra-steps", type=int, default=1, metavar="N",
                    help="guided 模式下限之外允许追加的步数，默认 1")
+    r.add_argument("--agent-max-tokens", type=int, default=0, metavar="N",
+                   help="Agent 累计 token 上限，默认 0（不限制）；超限以 token_budget 结束")
     r.add_argument("--replay", default=None, metavar="RESULT_JSON",
                    help="从一次 agent 运行的 result.json 离线重放；不调用模型")
     r.add_argument("--timeout", type=float, default=DEFAULT_TIMEOUT_S,
@@ -141,6 +143,7 @@ def main(argv: list[str] | None = None) -> int:
         agent_max_steps=args.agent_max_steps,
         agent_scope=args.agent_scope,
         agent_max_extra_steps=args.agent_max_extra_steps,
+        agent_max_tokens=args.agent_max_tokens,
         replay_from=args.replay,
     )
     if args.timeout and args.timeout > 0:

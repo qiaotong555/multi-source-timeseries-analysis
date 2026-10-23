@@ -29,6 +29,7 @@ M1 的计划层是**一次性规划**：看完数据摘要就定下 12 个分析
 | `decision_error` | 模型输出连续无法解析 |
 | `scope_unmet` | guided 模式下反复要求结束，而下限始终未覆盖 |
 | `budget_exhausted` | guided 模式下限之外的追加步数已用尽，模型仍要求追加 |
+| `token_budget` | 累计 token 达到 `agent_max_tokens`，在下次模型调用前停止 |
 
 范围下限（T2.11）
 ----------------
@@ -64,6 +65,9 @@ TERMINATE_SCOPE_UNMET = "scope_unmet"
 # 下限外步数预算用尽：模型仍想追加工具。此时再问一次也不可能获批，
 # 直接结束，避免白花 3 次模型调用并让终止原因在 idle_loop 与 model_finished 之间抖动。
 TERMINATE_BUDGET = "budget_exhausted"
+# 累计 token 达到上限。与 budget_exhausted（步数预算）区分：一个是「步数」，
+# 一个是「成本」，报告与统计不能混为一谈。
+TERMINATE_TOKEN_BUDGET = "token_budget"
 
 # guided：下限由问题关键词确定，达标前不得结束，达标后最多再追加 1 步；
 # free：T2.2 的原始行为，范围与结束时机完全由模型判断（步数会波动）。
@@ -129,6 +133,8 @@ class AgentTrajectory:
     # T2.11 范围下限：guided 模式下记录下限、命中词与达标情况
     scope_mode: str = SCOPE_FREE
     scope: dict[str, Any] = field(default_factory=dict)
+    # T2.13 token 预算：limit / used / remaining / enforced / exhausted / unavailable
+    budget: dict[str, Any] = field(default_factory=dict)
     # T2.4 越界事件与统计；与 rejects 的区别：rejects 是运行时视角，guard_events 是边界视角
     guard_events: list[dict[str, Any]] = field(default_factory=list)
     guard_stats: dict[str, Any] = field(default_factory=dict)
@@ -162,6 +168,7 @@ class AgentTrajectory:
             "tools_run": self.tools_run,
             "scope_mode": self.scope_mode,
             "scope": self.scope,
+            "budget": self.budget,
             "steps": [s.to_dict() for s in self.steps],
             "rejects": self.rejects,
             "guard_events": self.guard_events,
@@ -186,7 +193,8 @@ class AgentRunner:
                  max_steps: int = DEFAULT_MAX_STEPS,
                  allowed_tools: Optional[list[str] | tuple[str, ...]] = None,
                  scope_mode: str = SCOPE_GUIDED,
-                 max_extra_steps: int = DEFAULT_MAX_EXTRA_STEPS) -> None:
+                 max_extra_steps: int = DEFAULT_MAX_EXTRA_STEPS,
+                 max_tokens: int = 0) -> None:
         if client is None:
             raise ValueError("AgentRunner 需要 LLM 客户端；无客户端时应走固定流水线")
         if scope_mode not in SCOPE_MODES:
@@ -206,6 +214,8 @@ class AgentRunner:
         self.max_steps = max(1, max_steps)
         self.scope_mode = scope_mode
         self.max_extra_steps = max(0, int(max_extra_steps))
+        # 0 = 不限制；只约束模型调用，工具执行不消耗 token
+        self.max_tokens = max(0, int(max_tokens))
         # 下限只约束「至少做什么」，顺序仍由模型决定。free 模式不设下限。
         self.floor: Optional[ScopeFloor] = (
             infer_floor(question, self.allowed_tools) if scope_mode == SCOPE_GUIDED else None)
@@ -236,6 +246,11 @@ class AgentRunner:
                 break
             if self._scope_rejects >= MAX_SCOPE_REJECTS:
                 self.traj.terminate_reason = TERMINATE_SCOPE_UNMET
+                break
+            used = self._usage_total()
+            if self.max_tokens and used is not None and used >= self.max_tokens:
+                # 在下一次模型调用之前停：超限前已选中的工具会执行完，结果不丢
+                self.traj.terminate_reason = TERMINATE_TOKEN_BUDGET
                 break
 
             try:
@@ -282,6 +297,7 @@ class AgentRunner:
         self.traj.guard_events = list(self.guard.violations)
         self.traj.guard_stats = self.guard.stats()
         self.traj.scope = self._scope_report()
+        self.traj.budget = self._budget_report()
         return self.traj
 
     # ---------------- 范围下限 ----------------
@@ -324,6 +340,41 @@ class AgentRunner:
             return ("范围下限之外的追加步数已用尽（{} / {}）：{} 不在下限内，"
                     "请回到下限工具或结束".format(used, self.max_extra_steps, action))
         return None
+
+    def _usage_total(self) -> Optional[int]:
+        """服务端累计 token；未返回 usage 时返回 None（不估算、不猜测）。
+
+        客户端以 `usage_summary()` 暴露累计值；没有任何调用或服务端不给 usage
+        时它返回 None。这里把「没有数据」和「用了 0」分开，前者不能用来判断预算。
+        """
+        fn = getattr(self.client, "usage_summary", None)
+        if not callable(fn):
+            return None
+        try:
+            usage = fn()
+        except Exception:                      # noqa: BLE001
+            return None
+        if not isinstance(usage, dict):
+            return None
+        try:
+            total = int(usage.get("total_tokens") or 0)
+        except (TypeError, ValueError):
+            return None
+        return total if total > 0 else None
+
+    def _budget_report(self) -> dict[str, Any]:
+        used = self._usage_total()
+        limit = self.max_tokens
+        enforced = limit > 0
+        return {
+            "limit": limit,
+            "used": used,
+            "remaining": (max(0, limit - (used or 0)) if enforced else None),
+            "enforced": enforced,
+            "exhausted": self.traj.terminate_reason == TERMINATE_TOKEN_BUDGET,
+            # 设了限但服务端不给用量：预算事实上没生效，必须如实标注
+            "unavailable": bool(enforced and used is None),
+        }
 
     def _reject_scope(self, detail: str) -> None:
         self._scope_rejects += 1
@@ -411,7 +462,8 @@ def build_agent_runner(ctx: tools.ToolContext, question: str, env: Optional[dict
                        max_steps: int = DEFAULT_MAX_STEPS,
                        allowed_tools: Optional[list[str] | tuple[str, ...]] = None,
                        scope_mode: str = SCOPE_GUIDED,
-                       max_extra_steps: int = DEFAULT_MAX_EXTRA_STEPS) -> Optional[AgentRunner]:
+                       max_extra_steps: int = DEFAULT_MAX_EXTRA_STEPS,
+                       max_tokens: int = 0) -> Optional[AgentRunner]:
     """按环境变量构造运行时；无模型配置返回 None（调用方应回退固定流水线）。"""
     import os
 
@@ -423,4 +475,4 @@ def build_agent_runner(ctx: tools.ToolContext, question: str, env: Optional[dict
         return None
     return AgentRunner(ctx, client, question, max_steps=max_steps,
                        allowed_tools=allowed_tools, scope_mode=scope_mode,
-                       max_extra_steps=max_extra_steps)
+                       max_extra_steps=max_extra_steps, max_tokens=max_tokens)

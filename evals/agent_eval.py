@@ -329,10 +329,11 @@ class ScriptedClient:
 
 
 def _patched_runner(client):
-    def _build(ctx, question, env=None, max_steps=8, allowed_tools=None, scope_mode="guided", max_extra_steps=1):
+    def _build(ctx, question, env=None, max_steps=8, allowed_tools=None, scope_mode="guided", max_extra_steps=1, max_tokens=0):
         return AgentRunner(ctx, client, question, max_steps=max_steps,
                            allowed_tools=allowed_tools,
-                           scope_mode=scope_mode, max_extra_steps=max_extra_steps)
+                           scope_mode=scope_mode, max_extra_steps=max_extra_steps,
+                           max_tokens=max_tokens)
     return patch.object(engine, "build_agent_runner", _build)
 
 

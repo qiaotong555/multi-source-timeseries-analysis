@@ -46,10 +46,11 @@ def _finish() -> dict:
 
 
 def _patch_runner(monkeypatch, decisions):
-    def fake(ctx, question, env=None, max_steps=8, allowed_tools=None, scope_mode="guided", max_extra_steps=1):
+    def fake(ctx, question, env=None, max_steps=8, allowed_tools=None, scope_mode="guided", max_extra_steps=1, max_tokens=0):
         return AgentRunner(ctx, FakeClient(decisions), question,
                            max_steps=max_steps, allowed_tools=allowed_tools,
-                           scope_mode=scope_mode, max_extra_steps=max_extra_steps)
+                           scope_mode=scope_mode, max_extra_steps=max_extra_steps,
+                           max_tokens=max_tokens)
     monkeypatch.setattr(engine, "build_agent_runner", fake)
 
 
@@ -76,6 +77,8 @@ def test_weather_agent_runs_through_engine(monkeypatch, tmp_path):
     assert res.status == "succeeded", res.error
     agent = res.data["agent"]
     assert agent["mode"] == "agent"
+    assert agent["max_tokens"] == 0
+    assert agent["budget"]["enforced"] is False
     # T2.11：报告必须写出范围下限与达标情况，不能只给步数
     md = open(os.path.join(out, "report.md"), encoding="utf-8").read()
     assert "范围下限" in md
@@ -165,6 +168,10 @@ def test_cli_accepts_mode_and_max_steps():
     ])
     assert args.mode == "agent"
     assert args.agent_max_steps == 5
+    assert args.agent_max_tokens == 0
+    tuned = _build_parser().parse_args(
+        ["run", "--input", "x.csv", "--question", "q", "--agent-max-tokens", "500"])
+    assert tuned.agent_max_tokens == 500
     from mtsa.cli import _resolve_mode
     default = _build_parser().parse_args(["run", "--input", "x.csv", "--question", "q"])
     assert default.mode is None                     # 缺省由 _resolve_mode 决定

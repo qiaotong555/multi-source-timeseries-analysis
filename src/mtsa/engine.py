@@ -329,6 +329,7 @@ def run_analysis(request: AnalysisRequest, verbose: bool = True) -> AnalysisResu
                 allowed_tools=WEATHER_AGENT_TOOLS,
                 scope_mode=request.agent_scope,
                 max_extra_steps=request.agent_max_extra_steps,
+                max_tokens=request.agent_max_tokens,
             )
             if runner is None:
                 return fail(
@@ -345,6 +346,7 @@ def run_analysis(request: AnalysisRequest, verbose: bool = True) -> AnalysisResu
         agent_info.update({"mode": "agent", "elapsed_ms": agent_elapsed,
                            "max_steps": request.agent_max_steps,
                            "max_extra_steps": request.agent_max_extra_steps,
+                           "max_tokens": request.agent_max_tokens,
                            "tool_states": states,
                            "replay_version": replay_mod.REPLAY_VERSION,
                            "coverage": coverage_summary(plan, traj, WEATHER_AGENT_TOOLS)})
@@ -353,6 +355,13 @@ def run_analysis(request: AnalysisRequest, verbose: bool = True) -> AnalysisResu
         tokens = usage_fn() if callable(usage_fn) else None
         if tokens:
             agent_info["tokens"] = tokens
+        budget = agent_info.get("budget") or {}
+        if budget.get("unavailable"):
+            warnings.append("token 预算未生效：服务端未返回 usage；本次运行未按预算截断")
+        if budget.get("exhausted"):
+            warnings.append(
+                "token 预算已用尽（{}/{}），运行被截断；未覆盖的分析见 scope.missing，"
+                "不能当作完整分析引用".format(budget.get("used"), budget.get("limit")))
         # 哈希只覆盖决策路径；耗时、时间戳、run_id 不参与
         agent_info["trajectory_sha256"] = replay_mod.trajectory_hash(agent_info)
         # 先把轨迹放进结果：即使下面判定为失败，result.json 里也能看到模型做了什么。

@@ -39,7 +39,7 @@ class FakeClient:
         return self._decisions.pop(0)
 
 
-def _fake_build(ctx, question, env=None, max_steps=8, allowed_tools=None, scope_mode="guided", max_extra_steps=1):
+def _fake_build(ctx, question, env=None, max_steps=8, allowed_tools=None, scope_mode="guided", max_extra_steps=1, max_tokens=0):
     decisions = [
         {"action": "compute_metrics", "args": {}, "reason": "先看总体"},
         {"action": "detect_anomalies", "args": {}, "reason": "找异常"},
@@ -47,7 +47,8 @@ def _fake_build(ctx, question, env=None, max_steps=8, allowed_tools=None, scope_
     ]
     return AgentRunner(ctx, FakeClient(decisions), question,
                        max_steps=max_steps, allowed_tools=allowed_tools,
-                           scope_mode=scope_mode, max_extra_steps=max_extra_steps)
+                           scope_mode=scope_mode, max_extra_steps=max_extra_steps,
+                           max_tokens=max_tokens)
 
 
 @pytest.fixture(scope="module")

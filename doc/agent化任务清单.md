@@ -240,6 +240,16 @@ raw → profile → quality → plan → clean → metrics → spectrum → test
 | 结果 | 13/13；2.54 步；需求覆盖 1.00；规则覆盖 0.66；结论 29.92 vs pipeline 39（−23.3%） |
 | 限制 | 同一 fixture、人工出题、探针仅 2 个 |
 
+#### T2.13 token 预算
+
+| 项目 | 内容 |
+| --- | --- |
+| 目标 | 成本上限成为终止原因，而不是事后账单 |
+| 接口 | `--agent-max-tokens`、`agent_max_tokens`；`data.agent.budget` |
+| 语义 | 只约束模型调用；0=不限制；usage 缺失标 `unavailable`，不估算 |
+| 验收 | 超限 `token_budget`；不设限行为不变；截断可重放；全量测试通过 |
+| 结果 | 2,000 上限 → 2 步 / used 2,122 / 25 结论；不设限 4 步 / 6,280 token / 38 结论 |
+
 ## 五、依赖与建议顺序
 
 ```text
