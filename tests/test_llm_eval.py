@@ -168,6 +168,9 @@ def test_repeat_detects_inconsistency(tmp_path):
     assert res["summary"]["plan_consistency"] == 0.0
 
 
-def test_missing_client_raises_with_actionable_message():
+def test_missing_client_raises_with_actionable_message(monkeypatch):
+    """必须显式清空环境变量：开发者本机配置了 MTSA_LLM_* 时，测试不能因此改走联网路径。"""
+    for key in ("MTSA_LLM_BASE_URL", "MTSA_LLM_API_KEY", "MTSA_LLM_MODEL"):
+        monkeypatch.delenv(key, raising=False)
     with pytest.raises(RuntimeError, match="MTSA_LLM_BASE_URL"):
         LE.run_llm_eval(cases=[], client=None, out_path="unused.json")

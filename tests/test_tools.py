@@ -9,6 +9,7 @@
 from __future__ import annotations
 
 import copy
+import math
 
 import numpy as np
 import pandas as pd
@@ -62,8 +63,9 @@ def test_metrics_matches_direct_call():
     ctx = _weather_ctx()
     got = tools.run_tool("compute_metrics", ctx)
     assert got.outcome == "ok"
-    expect_generic = metrics_mod.compute_metrics(ctx.clean, ctx.plan)
-    expect_extra = ctx.adapter.extra_metrics(ctx.clean, ctx.plan)
+    full = tools._plan_for_tool(ctx.plan)
+    expect_generic = metrics_mod.compute_metrics(ctx.clean, full)
+    expect_extra = ctx.adapter.extra_metrics(ctx.clean, full)
     assert got.data["generic"].model_dump() == expect_generic.model_dump()
     assert got.data["scenario"].model_dump() == expect_extra.model_dump()
 
@@ -71,29 +73,29 @@ def test_metrics_matches_direct_call():
 def test_spectrum_matches_direct_call():
     ctx = _weather_ctx()
     got = tools.run_tool("analyze_spectrum", ctx)
-    expect = freq_mod.analyze_spectrum(ctx.clean, ctx.plan)
-    assert [s.model_dump() for s in got.data] == [s.model_dump() for s in expect]
+    expect = freq_mod.analyze_spectrum(ctx.clean, tools._plan_for_tool(ctx.plan))
+    assert _norm(got.data) == _norm(expect)
 
 
 def test_stat_tests_matches_direct_call():
     ctx = _weather_ctx()
     got = tools.run_tool("run_stat_tests", ctx)
-    expect = stats_mod.run_stat_tests(ctx.clean, ctx.plan)
-    assert [r.model_dump() for r in got.data] == [r.model_dump() for r in expect]
+    expect = stats_mod.run_stat_tests(ctx.clean, tools._plan_for_tool(ctx.plan))
+    assert _norm(got.data) == _norm(expect)
 
 
 def test_anomalies_matches_direct_call():
     ctx = _weather_ctx()
     got = tools.run_tool("detect_anomalies", ctx)
-    expect = anomaly_mod.detect_anomalies(ctx.clean, ctx.plan)
-    assert [a.model_dump() for a in got.data] == [a.model_dump() for a in expect]
+    expect = anomaly_mod.detect_anomalies(ctx.clean, tools._plan_for_tool(ctx.plan))
+    assert _norm(got.data) == _norm(expect)
 
 
 def test_change_points_matches_direct_call():
     ctx = _weather_ctx()
     got = tools.run_tool("detect_change_points", ctx)
-    expect = anomaly_mod.detect_change_points(ctx.clean, ctx.plan)
-    assert [c.model_dump() for c in got.data] == [c.model_dump() for c in expect]
+    expect = anomaly_mod.detect_change_points(ctx.clean, tools._plan_for_tool(ctx.plan))
+    assert _norm(got.data) == _norm(expect)
 
 
 def test_tools_are_idempotent():
@@ -189,3 +191,50 @@ def test_scenario_metrics_present_for_stock():
     ctx = _stock_ctx()
     res = tools.run_tool("compute_metrics", ctx)
     assert res.summary["scenario_metrics"] > 0
+
+
+def test_tool_runs_full_battery_regardless_of_plan_analyses():
+    """计划层可能给出很精简的 analyses；模型选了某工具就该跑完整分析。
+
+    回归用例：真实联调时计划层只给了 trend/seasonal/extreme，导致
+    run_stat_tests 只跑了 Mann-Kendall 一项（test_count=2、stationarity 为空），
+    模型以为做了统计检验，实际 ADF/KPSS/自相关/正态性全没跑。
+    """
+    ctx = _weather_ctx()
+    ctx.plan.analyses = ["trend"]                       # 刻意精简
+    res = tools.run_tool("run_stat_tests", ctx)
+    ids = {r.test_id.split(":")[0] for r in res.data}
+    assert "adf" in ids, f"ADF 未执行，实际跑了 {ids}"
+    assert "kpss" in ids or "ljungbox" in ids
+    assert len(res.data) > 2
+
+
+def test_expanding_analyses_does_not_touch_parameters():
+    """开关可以扩，参数不能动——阈值是 dev 段标定结果。"""
+    ctx = _weather_ctx()
+    ctx.plan.analyses = ["trend"]
+    ctx.plan.parameters["anomaly_threshold"] = 6.5
+    full = tools._plan_for_tool(ctx.plan)
+    assert full.parameters["anomaly_threshold"] == 6.5
+    assert set(full.analyses) == set(tools.ALL_ANALYSES)
+    # 原计划不应被修改
+    assert ctx.plan.analyses == ["trend"]
+
+
+def test_anomaly_tool_still_uses_plan_threshold():
+    ctx = _weather_ctx()
+    ctx.plan.parameters["anomaly_threshold"] = 12.0
+    res = tools.run_tool("detect_anomalies", ctx)
+    assert res.summary["threshold"] == 12.0
+
+
+def _norm(rows):
+    """把 NaN 归一化后再比较：NaN != NaN 会让「完全相同」的两行被判为不同。"""
+    out = []
+    for r in rows:
+        d = r.model_dump()
+        for k, v in d.items():
+            if isinstance(v, float) and math.isnan(v):
+                d[k] = "NaN"
+        out.append(d)
+    return out

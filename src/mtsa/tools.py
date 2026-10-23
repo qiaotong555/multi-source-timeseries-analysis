@@ -6,10 +6,13 @@
 1. **只包装分析层**。数据管道（导入 → 摘要 → 质量 → 计划 → 清洗）与收尾
    （图表 → 报告 → 证据校验）不在此列：前者有严格前置依赖，后者需聚合全部
    分析结果，都不适合由模型自主编排。
-2. **工具不看 `plan.analyses` 决定跑不跑**。「是否执行」是决策层的职责
-   （pipeline 模式由计划决定，agent 模式由模型决定）。工具内部仍可读
-   `plan.parameters` 取算法参数，但不得用 `analyses` 做开关，否则同一工具
-   在不同上下文中行为不一致，无法被模型正确理解。
+2. **工具执行时使用全量分析开关**。「是否执行」由决策层决定（pipeline 由计划决定，
+   agent 由模型决定），但一旦决定执行某个工具，就必须跑完这个工具的**完整分析**。
+   底层函数内部还会按 `plan.analyses` 过滤一次（例如 `run_stat_tests` 只在
+   `analyses` 含 `stationarity`/`test` 时才跑 ADF），若沿用它，模型选了
+   「统计检验」却只得到计划层精简后剩下的那一小类，会形成「执行了但没做全」的
+   静默失效。因此工具内统一用 `_plan_for_tool()` 换成全量开关的副本。
+   参数（阈值、窗口等）仍取原计划，不受影响。
 3. **`ToolResult` 分两路**：
    - `summary`：结构化短摘要，将进入模型上下文。**不得包含原始数据数组**。
    - `data`：完整结果，仅代码使用（图表、报告、评测）。
@@ -85,6 +88,32 @@ def _round(x: Any, nd: int = 6) -> Any:
     return x
 
 
+# 与下游消费点一一对应（由 test_tools 的一致性测试锁死）
+ALL_ANALYSES: tuple[str, ...] = (
+    "trend", "volatility", "corr", "lag", "extreme", "spectrum",
+    "changepoint", "anomaly", "test", "stationarity", "autocorr",
+    "normality", "seasonal", "randomness",
+)
+
+
+def _plan_for_tool(plan: AnalysisPlan) -> AnalysisPlan:
+    """把分析开关全部打开，供工具内部使用。
+
+    底层函数会按 `plan.analyses` 二次过滤（如 `run_stat_tests` 只在含
+    `stationarity`/`test` 时才跑 ADF）。模型选择了某工具，意味着要它跑完整分析；
+    若沿用计划层可能很精简的 `analyses`，就会出现「工具执行了但只做了一小部分」
+    的静默失效——比报错更难发现。
+
+    只改 `analyses`，`parameters`（阈值、窗口、列映射）原样保留：那些是标定结果，
+    不能因开关而变。
+    """
+    if set(ALL_ANALYSES).issubset(set(plan.analyses)):
+        return plan
+    expanded = plan.model_copy(deep=True)
+    expanded.analyses = list(ALL_ANALYSES)
+    return expanded
+
+
 class Tool:
     """工具基类。子类只需声明元信息并实现 run。"""
 
@@ -107,8 +136,9 @@ class ComputeMetricsTool(Tool):
     when_to_use = "问题涉及数值大小、波动程度、收益风险，或需要总体画像时。"
 
     def run(self, ctx: ToolContext) -> ToolResult:
-        mtab = metrics_mod.compute_metrics(ctx.clean, ctx.plan)
-        extra = ctx.adapter.extra_metrics(ctx.clean, ctx.plan) if ctx.adapter else MetricTable(
+        plan = _plan_for_tool(ctx.plan)
+        mtab = metrics_mod.compute_metrics(ctx.clean, plan)
+        extra = ctx.adapter.extra_metrics(ctx.clean, plan) if ctx.adapter else MetricTable(
             rows=[], generated_by="none", code_ref="")
         highlights: dict[str, Any] = {}
         for r in list(mtab.rows) + list(extra.rows):
@@ -134,7 +164,7 @@ class AnalyzeSpectrumTool(Tool):
     when_to_use = "问题涉及周期、季节性、振荡节律，或需要判断是否存在固定周期时。"
 
     def run(self, ctx: ToolContext) -> ToolResult:
-        spectra: list[SpectrumResult] = freq_mod.analyze_spectrum(ctx.clean, ctx.plan)
+        spectra: list[SpectrumResult] = freq_mod.analyze_spectrum(ctx.clean, _plan_for_tool(ctx.plan))
         peaks = [{"column": s.column,
                   "dominant_period": s.dominant_period,
                   "dominant_freq": _round(s.dominant_freq),
@@ -153,7 +183,7 @@ class RunStatTestsTool(Tool):
     when_to_use = "需要推断性结论（是否显著、是否平稳、是否有趋势）而非仅描述时。"
 
     def run(self, ctx: ToolContext) -> ToolResult:
-        rows: list[TestResultRow] = stats_mod.run_stat_tests(ctx.clean, ctx.plan)
+        rows: list[TestResultRow] = stats_mod.run_stat_tests(ctx.clean, _plan_for_tool(ctx.plan))
         adf = {}
         for r in rows:
             if r.test_id.startswith("adf:") and r.p_value is not None:
@@ -179,7 +209,7 @@ class DetectAnomaliesTool(Tool):
     when_to_use = "关注数据质量、设备故障、极端值，或问题中出现「异常」「离群」「故障」时。"
 
     def run(self, ctx: ToolContext) -> ToolResult:
-        points: list[AnomalyPoint] = anomaly_mod.detect_anomalies(ctx.clean, ctx.plan)
+        points: list[AnomalyPoint] = anomaly_mod.detect_anomalies(ctx.clean, _plan_for_tool(ctx.plan))
         by_column: dict[str, int] = {}
         for p in points:
             by_column[p.column] = by_column.get(p.column, 0) + 1
@@ -197,7 +227,7 @@ class DetectChangePointsTool(Tool):
     when_to_use = "问题涉及「何时发生变化」「拐点」「水平跳变」「行为改变」时。"
 
     def run(self, ctx: ToolContext) -> ToolResult:
-        points: list[ChangePoint] = anomaly_mod.detect_change_points(ctx.clean, ctx.plan)
+        points: list[ChangePoint] = anomaly_mod.detect_change_points(ctx.clean, _plan_for_tool(ctx.plan))
         by_column: dict[str, int] = {}
         for p in points:
             by_column[p.column] = by_column.get(p.column, 0) + 1

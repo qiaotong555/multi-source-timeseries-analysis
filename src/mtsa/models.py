@@ -36,6 +36,11 @@ ERR_LOOKAHEAD_VIOLATION = "LOOKAHEAD_VIOLATION"
 ERR_NODE_TIMEOUT = "NODE_TIMEOUT"
 ERR_DATASET_TOO_LARGE = "DATASET_TOO_LARGE"
 ERR_INTERNAL_ERROR = "INTERNAL_ERROR"
+# Agent 模式专用错误。分开定义而不是都塞进 INTERNAL_ERROR：
+# 调用方需要区分「环境没配好」「场景不支持」「模型什么都没做」这三种可操作信息。
+ERR_AGENT_UNAVAILABLE = "AGENT_UNAVAILABLE"
+ERR_AGENT_SCENE_UNSUPPORTED = "AGENT_SCENE_UNSUPPORTED"
+ERR_AGENT_NO_RESULT = "AGENT_NO_RESULT"
 
 
 class MtsaModel(BaseModel):
@@ -66,6 +71,10 @@ class AnalysisRequest(MtsaModel):
     param_overrides: dict[str, Any] = Field(default_factory=dict)
     seed: int = DEFAULT_SEED
     output_dir: Optional[str] = None
+    # 运行模式。本轮 Agent 只支持天气场景；pipeline 是默认值，保持既有行为不变。
+    mode: Literal["pipeline", "agent"] = "pipeline"
+    # Agent 最大决策步数。默认 8，足以覆盖天气场景的 5 个工具并留出纠错余量。
+    agent_max_steps: int = 8
 
 
 # ---------------- 导入与摘要 ----------------

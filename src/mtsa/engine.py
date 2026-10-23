@@ -14,8 +14,12 @@ from typing import Any, Callable
 import pandas as pd
 
 from . import io_loaders, profiler, quality, preprocess, metrics, freq, stats_tests, anomaly
+from .agent_runtime import WEATHER_AGENT_TOOLS, build_agent_runner
 from .models import (
     DEFAULT_SEED,
+    ERR_AGENT_NO_RESULT,
+    ERR_AGENT_SCENE_UNSUPPORTED,
+    ERR_AGENT_UNAVAILABLE,
     ERR_DATA_LOAD_FAILED,
     ERR_DATASET_TOO_LARGE,
     ERR_EMPTY_NUMERIC_COLUMN,
@@ -27,6 +31,7 @@ from .models import (
     SCENE_CONFIDENCE_THRESHOLD,
     TASK_ID,
     AnalysisRequest,
+    MetricTable,
     AnalysisResult,
     Artifact,
     ErrorDetail,
@@ -35,6 +40,7 @@ from .models import (
 from .scenarios import stock as stock_scene  # noqa: F401  注册适配器
 from .scenarios import weather as weather_scene  # noqa: F401
 from .scenarios.base import ScenarioContext, detect_scene, get_adapter
+from .tools import ToolContext
 from . import report as report_mod
 from . import viz as viz_mod
 from .planner import build_planner
@@ -57,6 +63,42 @@ def _max_rows() -> int:
 
 def _new_run_id() -> str:
     return f"run_{datetime.now():%Y%m%d}_{uuid.uuid4().hex[:8]}"
+
+
+def _empty_metrics(tag: str) -> MetricTable:
+    """Agent 未执行指标工具时的占位表。
+
+    用显式的 ``generated_by`` 标明「没算」，而不是伪造一张空但看似正常的表；
+    报告和下游据此可以判断指标缺失，而不是把缺失读成「没有指标」。
+    """
+    return MetricTable(rows=[], generated_by=tag, code_ref="")
+
+
+def _agent_outputs(traj) -> tuple[MetricTable, MetricTable, list, list, list, list]:
+    """把 Agent 轨迹里的工具产出还原成收尾层需要的六类结果。
+
+    只接受 ``outcome=ok`` 的结果；失败或跳过的工具按「没有产出」处理，
+    由调用方把它写进 warning，不能静默当成空结果。
+    """
+    def ok(name: str):
+        res = traj.results.get(name)
+        return res if (res is not None and res.outcome == "ok") else None
+
+    def rows(name: str) -> list:
+        res = ok(name)
+        return list(res.data) if res is not None and res.data is not None else []
+
+    metric_res = ok("compute_metrics")
+    if metric_res is not None and isinstance(metric_res.data, dict):
+        generic = metric_res.data.get("generic") or _empty_metrics("agent:compute_metrics")
+        extra = metric_res.data.get("scenario") or _empty_metrics("agent:compute_metrics")
+    else:
+        generic = _empty_metrics("agent:not_run")
+        extra = _empty_metrics("agent:not_run")
+
+    return (generic, extra,
+            rows("analyze_spectrum"), rows("run_stat_tests"),
+            rows("detect_anomalies"), rows("detect_change_points"))
 
 
 class _Timer:
@@ -212,28 +254,105 @@ def run_analysis(request: AnalysisRequest, verbose: bool = True) -> AnalysisResu
     if clean.frame.empty:
         return fail(ERR_EMPTY_NUMERIC_COLUMN, "清洗后数据集为空，无法继续分析")
 
-    # ---- 6. 指标 ----
-    mtab = metrics.compute_metrics(clean, plan)
-    extra = adapter.extra_metrics(clean, plan)
-    timer.run("compute_metrics", lambda: {"generic": len(mtab.rows), "scenario": len(extra.rows)})
+    # ---- 6-10. 分析层 ----
+    # pipeline：固定顺序，行为与 T1.8 保持一致。
+    # agent：仅天气场景，由模型在白名单内选择工具；数值仍由工具内部的确定性代码产出。
+    agent_info: Optional[dict[str, Any]] = None
+    if request.mode == "agent":
+        if plan.scene_id != "weather":
+            return fail(
+                ERR_AGENT_SCENE_UNSUPPORTED,
+                f"Agent 模式本轮只支持天气场景，当前场景为 {plan.scene_id}",
+                scene=plan.scene_id, supported=["weather"],
+                hint="请改用 --mode pipeline，或等待股票场景的 Agent 实现",
+            )
 
-    # ---- 7. 频域 ----
-    spectra = []
-    if "spectrum" in plan.analyses:
-        spectra = freq.analyze_spectrum(clean, plan)
-        if not spectra:
+        runner = build_agent_runner(
+            ToolContext(clean=clean, plan=plan, adapter=adapter),
+            request.question,
+            max_steps=request.agent_max_steps,
+            allowed_tools=WEATHER_AGENT_TOOLS,
+        )
+        if runner is None:
+            return fail(
+                ERR_AGENT_UNAVAILABLE,
+                "Agent 模式需要模型配置，但当前没有可用的客户端",
+                required_env=["MTSA_LLM_BASE_URL", "MTSA_LLM_API_KEY", "MTSA_LLM_MODEL"],
+                hint="配置环境变量后重试；未配置时请使用 --mode pipeline",
+            )
+
+        agent_started = datetime.now().isoformat(timespec="seconds")
+        t_agent = time.perf_counter()
+        traj = runner.run()
+        agent_elapsed = int((time.perf_counter() - t_agent) * 1000)
+        agent_info = traj.to_dict()
+        agent_info.update({"mode": "agent", "elapsed_ms": agent_elapsed,
+                           "max_steps": request.agent_max_steps})
+        # 先把轨迹放进结果：即使下面判定为失败，result.json 里也能看到模型做了什么。
+        result.data = {"agent": agent_info}
+
+        for step in traj.steps:
+            events.append(EventRecord(
+                node=step.action,
+                started_at=step.started_at or agent_started,
+                elapsed_ms=step.elapsed_ms,
+                status=("succeeded" if step.outcome == "ok"
+                        else "skipped" if step.outcome == "skipped" else "failed"),
+                summary={"outcome": step.outcome, "reason": step.reason,
+                         "summary": step.summary},
+            ))
+        events.append(EventRecord(
+            node="agent_analysis", started_at=agent_started, elapsed_ms=agent_elapsed,
+            status="succeeded",
+            summary={"steps": traj.step_count, "terminate_reason": traj.terminate_reason,
+                     "tools_run": traj.tools_run, "allowed_tools": list(WEATHER_AGENT_TOOLS)},
+        ))
+
+        if not traj.tools_run:
+            return fail(
+                ERR_AGENT_NO_RESULT,
+                "Agent 没有成功执行任何分析工具，不能生成空报告冒充成功",
+                terminate_reason=traj.terminate_reason,
+                rejects=traj.rejects[-3:],
+            )
+
+        mtab, extra, spectra, tests, anomalies, change_points = _agent_outputs(traj)
+        missing = [t for t in WEATHER_AGENT_TOOLS if t not in traj.results]
+        failed = [s.action for s in traj.steps if s.outcome == "failed"]
+        if missing:
+            warnings.append(
+                "Agent 未执行以下分析工具：" + "、".join(missing)
+                + "。对应分析为空，不能解读为「未发现问题」。"
+            )
+        if failed:
+            warnings.append("Agent 执行失败的分析工具：" + "、".join(failed))
+        if "compute_metrics" in missing or "compute_metrics" in failed:
+            warnings.append("指标工具未成功执行：报告中的指标表与依赖指标的结论会缺失。")
+        if not spectra and "analyze_spectrum" not in missing:
             warnings.append("频域分析未产出结果：采样率无法识别或样本长度不足")
-    timer.run("analyze_spectrum", lambda: {"columns": len(spectra)})
+    else:
+        # ---- 6. 指标 ----
+        mtab = metrics.compute_metrics(clean, plan)
+        extra = adapter.extra_metrics(clean, plan)
+        timer.run("compute_metrics", lambda: {"generic": len(mtab.rows), "scenario": len(extra.rows)})
 
-    # ---- 8. 统计检验 ----
-    tests = stats_tests.run_stat_tests(clean, plan)
-    timer.run("run_stat_tests", lambda: {"tests": len(tests)})
+        # ---- 7. 频域 ----
+        spectra = []
+        if "spectrum" in plan.analyses:
+            spectra = freq.analyze_spectrum(clean, plan)
+            if not spectra:
+                warnings.append("频域分析未产出结果：采样率无法识别或样本长度不足")
+        timer.run("analyze_spectrum", lambda: {"columns": len(spectra)})
 
-    # ---- 9. 异常与变化点 ----
-    anomalies = anomaly.detect_anomalies(clean, plan) if "anomaly" in plan.analyses else []
-    change_points = anomaly.detect_change_points(clean, plan) if "changepoint" in plan.analyses else []
-    timer.run("detect_anomalies", lambda: {"anomalies": len(anomalies),
-                                           "change_points": len(change_points)})
+        # ---- 8. 统计检验 ----
+        tests = stats_tests.run_stat_tests(clean, plan)
+        timer.run("run_stat_tests", lambda: {"tests": len(tests)})
+
+        # ---- 9. 异常与变化点 ----
+        anomalies = anomaly.detect_anomalies(clean, plan) if "anomaly" in plan.analyses else []
+        change_points = anomaly.detect_change_points(clean, plan) if "changepoint" in plan.analyses else []
+        timer.run("detect_anomalies", lambda: {"anomalies": len(anomalies),
+                                               "change_points": len(change_points)})
 
     # ---- 10. 未来数据泄漏检查（股票场景） ----
     leak: list[dict] = []
@@ -268,9 +387,10 @@ def run_analysis(request: AnalysisRequest, verbose: bool = True) -> AnalysisResu
         "scene_id": plan.scene_id,
         "question": request.question,
         "seed": request.seed,
+        "mode": request.mode,
     }
     rep_art = report_mod.render_report(ctx, artifacts, conclusions, evidences, qrep, profile,
-                                       dataset_info, outdir, warnings)
+                                       dataset_info, outdir, warnings, agent=agent_info)
     script_art = report_mod.write_repro_script(dataset_info, outdir)
     artifacts.extend([rep_art, script_art])
     timer.run("render_report", lambda: {"conclusions": len(conclusions), "evidence": len(evidences)})
@@ -282,7 +402,7 @@ def run_analysis(request: AnalysisRequest, verbose: bool = True) -> AnalysisResu
     timer.run("verify", lambda: {"no_evidence_conclusions": len(no_evidence)})
 
     result.status = "succeeded"
-    result.data = {
+    data = {
         "profile": profile.model_dump(mode="json"),
         "quality": qrep.model_dump(mode="json"),
         "plan": plan.model_dump(mode="json"),
@@ -301,6 +421,9 @@ def run_analysis(request: AnalysisRequest, verbose: bool = True) -> AnalysisResu
         "change_points": [c.model_dump(mode="json") for c in change_points],
         "lookahead": leak,
     }
+    if agent_info is not None:
+        data["agent"] = agent_info
+    result.data = data
     result.evidence = evidences
     result.datasets = [dataset_info]
     result.artifacts = artifacts

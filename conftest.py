@@ -27,3 +27,12 @@ def weather_df():
 @pytest.fixture
 def stock_df():
     return make_stock_frame()
+
+@pytest.fixture(autouse=True)
+def _offline_planner(monkeypatch):
+    """测试默认走规则计划。
+
+    开发者本机可能配置了 MTSA_LLM_*；若不隔离，pytest 会意外联网、变慢，
+    且结果随模型输出波动。需要测 LLM 的用例都显式传入 env dict，不受此影响。
+    """
+    monkeypatch.setenv("MTSA_PLANNER", "rule")

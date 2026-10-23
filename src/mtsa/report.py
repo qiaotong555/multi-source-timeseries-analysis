@@ -5,6 +5,7 @@
 """
 from __future__ import annotations
 
+import math
 import os
 from typing import Optional
 
@@ -20,6 +21,10 @@ def _fmt(v, nd: int = 6) -> str:
     if v is None:
         return "—"
     if isinstance(v, float):
+        # Agent 工具会跑完整检验集，个别列样本不足时统计量为 NaN/inf。
+        # 这里必须显式落成「—」，否则 int(nan) 会让整张报告在收尾层崩掉。
+        if not math.isfinite(v):
+            return "—"
         if v == int(v) and abs(v) < 1e12:
             return f"{v:.0f}"
         return f"{v:.{nd}g}"
@@ -43,6 +48,7 @@ def render_report(
     dataset_info: dict,
     outdir: str,
     warnings: Optional[list[str]] = None,
+    agent: Optional[dict] = None,
 ) -> Artifact:
     os.makedirs(outdir, exist_ok=True)
     lines: list[str] = []
@@ -68,7 +74,8 @@ def render_report(
          ["清洗后行数", str(len(frame))],
          ["时间范围", f"{frame.index.min()} ~ {frame.index.max()}" if len(frame) else "—"],
          ["目标列", "、".join(ctx.plan.target_columns)],
-         ["分组列", ctx.plan.group_column or "—"]],
+         ["分组列", ctx.plan.group_column or "—"],
+         ["运行模式", dataset_info.get("mode", "pipeline")]],
     ))
     lines.append("")
 
@@ -91,13 +98,46 @@ def render_report(
     lines.append("")
     lines.append(_md_table(
         ["项目", "取值"],
-        [["分析项", "、".join(ctx.plan.analyses)],
+        [["计划分析项（基底）" if agent else "分析项", "、".join(ctx.plan.analyses)],
          ["重采样规则", ctx.plan.resample_rule or "不做重采样"],
          ["关键参数", "、".join(f"{k}={v}" for k, v in ctx.plan.parameters.items()
                                 if k not in ("unit_conversions",))],
          ["不支持项", "、".join(ctx.plan.not_supported) or "—"]],
     ))
     lines.append("")
+
+    # 3.1) Agent 执行轨迹（仅 agent 模式）
+    if agent:
+        executed = list(agent.get("tools_run") or [])
+        allowed = list(agent.get("allowed_tools") or [])
+        not_run = [x for x in allowed if x not in executed]
+        lines.append("### 3.1 Agent 执行轨迹")
+        lines.append("")
+        lines.append(_md_table(
+            ["项目", "取值"],
+            [["运行模式", "agent"],
+             ["模型", agent.get("model") or "—"],
+             ["终止原因", agent.get("terminate_reason") or "—"],
+             ["步数", str(agent.get("step_count", 0))],
+             ["已执行工具", "、".join(executed) or "—"],
+             ["未执行工具", "、".join(not_run) or "—"],
+             ["被拒动作", str(len(agent.get("rejects") or []))]],
+        ))
+        lines.append("")
+        steps = list(agent.get("steps") or [])
+        if steps:
+            rows = []
+            for s in steps:
+                reason = str(s.get("reason") or "")
+                if len(reason) > 80:
+                    reason = reason[:80] + "…"
+                rows.append([str(int(s.get("index", 0)) + 1), str(s.get("action")),
+                             str(s.get("outcome")), f"{s.get('elapsed_ms', 0)} ms", reason])
+            lines.append(_md_table(["步序", "工具", "结果", "耗时", "理由"], rows))
+            lines.append("")
+        lines.append("> Agent 只负责选择工具；数值由工具内的确定性代码计算。"
+                     "未执行的分析在报告与 `result.json` 中保留为空，不能解读为「未发现问题」。")
+        lines.append("")
 
     # 4) 清洗过程
     lines.append("## 4. 清洗过程")

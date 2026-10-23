@@ -17,6 +17,10 @@ python -m mtsa.cli run --scene weather \
 python -m mtsa.cli run --scene stock \
     --input fixtures/stock_v1.csv  --question "计算收益风险指标并做 walk-forward 回测"
 
+# Agent 模式（本轮仅天气；需配置 MTSA_LLM_BASE_URL / MTSA_LLM_API_KEY / MTSA_LLM_MODEL）
+python -m mtsa.cli run --mode agent --scene weather \
+    --input fixtures/weather_v1.csv --question "分析温度的趋势、季节性和异常"
+
 # 批量评估（含 dev/holdout 划分）
 python -m evals.run_evals
 # 只复核划分与阈值选择
@@ -65,8 +69,10 @@ doc/           架构设计、接口与字段、评估设计、改进记录、Ag
 - 输入文件只读，从不修改、移动或删除。
 - 股票场景不提供真实投资建议，不做自动交易；回测不含交易成本与滑点，结论中显式声明。
 - 不做彩票中奖号码预测；彩票场景不在当前任务范围。
-- 数值结论全部由计算代码产出，模型不参与任何数值计算。LLM 仅用于**计划层**（从工具集中选择分析项），
-  未配置密钥时回退到确定性规则计划，两种模式都可运行；判定标准见 `doc/agent化改造方案.md`。
+- 数值结论全部由计算代码产出，模型不参与任何数值计算。LLM 只参与两处选择：计划层选择分析项，
+  以及 Agent 模式选择下一步调用哪个工具。未配置模型时，pipeline 仍可用规则计划运行。
+- **Agent 模式本轮只支持天气场景**；股票场景请求 `--mode agent` 会返回 `AGENT_SCENE_UNSUPPORTED`。
+  Agent 只决定「调用哪些工具」，工具的完整产出与未执行项都会写入 `result.json` 与报告。
 - 对外 REST 服务不在当前任务范围，见 `spec/未来规划.md`。
 
 ## 文档约定

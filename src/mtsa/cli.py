@@ -61,6 +61,10 @@ def _build_parser() -> argparse.ArgumentParser:
                    help="覆盖计划参数，可重复，如 --param anomaly_threshold=7.5")
     r.add_argument("--output", default=None, help="产物目录，默认 artifacts/<run_id>")
     r.add_argument("--request-id", default=None)
+    r.add_argument("--mode", choices=("pipeline", "agent"), default="pipeline",
+                   help="运行模式：pipeline 为固定流水线（默认）；agent 由模型选择分析工具，本轮仅天气场景")
+    r.add_argument("--agent-max-steps", type=int, default=8, metavar="N",
+                   help="Agent 模式最大决策步数，默认 8")
     r.add_argument("--timeout", type=float, default=DEFAULT_TIMEOUT_S,
                    metavar="SEC",
                    help=f"分析超时秒数，默认 {DEFAULT_TIMEOUT_S:.0f}；0 表示不设超时且不进子进程")
@@ -88,6 +92,8 @@ def main(argv: list[str] | None = None) -> int:
         param_overrides=_parse_overrides(args.param),
         seed=args.seed,
         output_dir=args.output,
+        mode=args.mode,
+        agent_max_steps=args.agent_max_steps,
     )
     if args.timeout and args.timeout > 0:
         result = run_with_timeout(req, timeout_s=args.timeout, verbose=False)
@@ -98,7 +104,7 @@ def main(argv: list[str] | None = None) -> int:
         plan = (result.data or {}).get("plan") or {}
         outdir = os.path.dirname(result.artifacts[0].path) if result.artifacts else req.output_dir
         print(f"完成：run_id={result.run_id}  场景={plan.get('scene_id')}  "
-              f"置信度={plan.get('scene_confidence')}")
+              f"置信度={plan.get('scene_confidence')}  模式={req.mode}")
         print(f"产物目录：{os.path.abspath(outdir) if outdir else '—'}")
         return 0
 
