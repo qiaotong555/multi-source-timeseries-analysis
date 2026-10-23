@@ -41,6 +41,9 @@ python -m evals.llm_eval
 python -m evals.agent_eval
 # 只验证指标管线，不调用模型（结果标 source=mock，不能当模型能力结论）
 python -m evals.agent_eval --mock
+
+# pipeline / agent 对照（同批 9 个天气用例，固定规则计划）
+python -m evals.mode_compare
 ```
 
 ## 运行保护
@@ -63,6 +66,48 @@ CLI 默认在**子进程**中执行分析：Python 无法中断正在执行的 C
 
 产物写入 `artifacts/<run_id>/`：`result.json`（结构化结果与证据链）、`report.md`、
 静态图 PNG、交互图 HTML、清洗后数据 CSV、可复现脚本。
+
+## 当前状态与能力边界
+
+**已实现（天气 Agent）**：观察—决策—行动循环、五工具白名单、预算受控的观察摘要、
+决策边界（锁定参数/未知参数/重复调用/步数上限）、失败重试与三态记录、
+轨迹哈希与离线重放、`pipeline / agent / auto` 三模式、9 用例评估与两模式对照。
+
+**明确未实现**：股票场景的 Agent（请求 `mode=agent` 返回 `AGENT_SCENE_UNSUPPORTED`）；
+多模型对比；token 预算；最少覆盖的硬约束。
+
+| 模式 | 行为 | 无模型时 |
+| --- | --- | --- |
+| `pipeline`（默认） | 固定跑完 12 项计划 | 正常 |
+| `agent` | 天气场景由模型选择工具 | `AGENT_UNAVAILABLE` |
+| `auto` | 天气 + 有模型才升级 | 回退 pipeline 并写 warning |
+
+**真实模型与 Mock 必须分清**：`evals/agent_eval.py --mock` 用脚本客户端，只验证指标管线，
+结果标 `source=mock`，不参与 `run_evals` 判定；真实结论只来自 `source=real`。
+
+**分析项 12 / 13 / 14 的口径**（常见混淆点）：
+
+- **12 项**：天气规则计划实际选中的分析项（`trend`、`corr`、`lag`、`extreme`、`spectrum`、
+  `changepoint`、`anomaly`、`test`、`stationarity`、`autocorr`、`normality`、`seasonal`）；
+- **13 项**：计划层 `TOOL_SPECS` 在 12 项基础上多一个 `randomness`；
+- **14 项**：引擎内部开关 `ALL_ANALYSES` 在 13 项基础上多一个 `volatility`。
+
+评估里说的「规则计划覆盖率」固定以 **12 项**为分母；「工具覆盖率」以 **5 个白名单工具**为分母；
+两者不能互相替代。
+
+**两模式实测（9 个天气用例，2026-10-23）**：
+
+| 维度 | pipeline | agent |
+| --- | --- | --- |
+| 成功 | 9/9 | 9/9 |
+| 结论（均值） | 39.00 | 26.78（−31.3%） |
+| 需求覆盖率 | 1.00 | 1.00 |
+| 规则计划覆盖率 | 1.00 | 0.72 |
+| 墙钟（均值） | 50.5 s | 52.9 s（+4.7%） |
+| token | 0 | 48,565 |
+
+结论：Agent 适合窄问题与需要审计路径的场景；需要完整报告、或没有模型配额时用 pipeline。
+详细口径见 `doc/评估设计.md` 第 6.5、6.6 节，逐用例数据见 `evals/mode_compare_results.json`。
 
 ## 目录
 
