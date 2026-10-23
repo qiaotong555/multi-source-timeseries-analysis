@@ -1,0 +1,307 @@
+{
+  "summary": {
+    "files": 29,
+    "passed_files": 29,
+    "failed_files": 0,
+    "stalled_files": 0,
+    "tests_passed": 281,
+    "tests_failed": 0,
+    "errors": 0,
+    "total_duration_s": 227.01,
+    "ok": true,
+    "generated_at": "2026-10-23T21:12:06",
+    "timeout_s": 300.0
+  },
+  "files": [
+    {
+      "file": "test_agent_eval.py",
+      "status": "PASS",
+      "exit": 0,
+      "duration_s": 16.72,
+      "passed": 11,
+      "failed": 0,
+      "errors": 0,
+      "log": "evals\\test_logs\\test_agent_eval.log"
+    },
+    {
+      "file": "test_agent_guards.py",
+      "status": "PASS",
+      "exit": 0,
+      "duration_s": 2.31,
+      "passed": 9,
+      "failed": 0,
+      "errors": 0,
+      "log": "evals\\test_logs\\test_agent_guards.log"
+    },
+    {
+      "file": "test_agent_runtime.py",
+      "status": "PASS",
+      "exit": 0,
+      "duration_s": 3.11,
+      "passed": 26,
+      "failed": 0,
+      "errors": 0,
+      "log": "evals\\test_logs\\test_agent_runtime.log"
+    },
+    {
+      "file": "test_anomaly.py",
+      "status": "PASS",
+      "exit": 0,
+      "duration_s": 1.26,
+      "passed": 4,
+      "failed": 0,
+      "errors": 0,
+      "log": "evals\\test_logs\\test_anomaly.log"
+    },
+    {
+      "file": "test_benchmark.py",
+      "status": "PASS",
+      "exit": 0,
+      "duration_s": 8.9,
+      "passed": 6,
+      "failed": 0,
+      "errors": 0,
+      "log": "evals\\test_logs\\test_benchmark.log"
+    },
+    {
+      "file": "test_changepoint_scan.py",
+      "status": "PASS",
+      "exit": 0,
+      "duration_s": 1.52,
+      "passed": 7,
+      "failed": 0,
+      "errors": 0,
+      "log": "evals\\test_logs\\test_changepoint_scan.log"
+    },
+    {
+      "file": "test_engine_agent.py",
+      "status": "PASS",
+      "exit": 0,
+      "duration_s": 18.0,
+      "passed": 6,
+      "failed": 0,
+      "errors": 0,
+      "log": "evals\\test_logs\\test_engine_agent.log"
+    },
+    {
+      "file": "test_io_loaders.py",
+      "status": "PASS",
+      "exit": 0,
+      "duration_s": 1.15,
+      "passed": 8,
+      "failed": 0,
+      "errors": 0,
+      "log": "evals\\test_logs\\test_io_loaders.log"
+    },
+    {
+      "file": "test_llm_eval.py",
+      "status": "PASS",
+      "exit": 0,
+      "duration_s": 4.65,
+      "passed": 15,
+      "failed": 0,
+      "errors": 0,
+      "log": "evals\\test_logs\\test_llm_eval.log"
+    },
+    {
+      "file": "test_lookahead.py",
+      "status": "PASS",
+      "exit": 0,
+      "duration_s": 9.88,
+      "passed": 5,
+      "failed": 0,
+      "errors": 0,
+      "log": "evals\\test_logs\\test_lookahead.log"
+    },
+    {
+      "file": "test_metrics.py",
+      "status": "PASS",
+      "exit": 0,
+      "duration_s": 2.11,
+      "passed": 7,
+      "failed": 0,
+      "errors": 0,
+      "log": "evals\\test_logs\\test_metrics.log"
+    },
+    {
+      "file": "test_mode_compare.py",
+      "status": "PASS",
+      "exit": 0,
+      "duration_s": 20.59,
+      "passed": 7,
+      "failed": 0,
+      "errors": 0,
+      "log": "evals\\test_logs\\test_mode_compare.log"
+    },
+    {
+      "file": "test_modes.py",
+      "status": "PASS",
+      "exit": 0,
+      "duration_s": 25.93,
+      "passed": 4,
+      "failed": 0,
+      "errors": 0,
+      "log": "evals\\test_logs\\test_modes.log"
+    },
+    {
+      "file": "test_observation.py",
+      "status": "PASS",
+      "exit": 0,
+      "duration_s": 2.36,
+      "passed": 8,
+      "failed": 0,
+      "errors": 0,
+      "log": "evals\\test_logs\\test_observation.log"
+    },
+    {
+      "file": "test_pipeline_smoke.py",
+      "status": "PASS",
+      "exit": 0,
+      "duration_s": 25.61,
+      "passed": 10,
+      "failed": 0,
+      "errors": 0,
+      "log": "evals\\test_logs\\test_pipeline_smoke.log"
+    },
+    {
+      "file": "test_planner.py",
+      "status": "PASS",
+      "exit": 0,
+      "duration_s": 1.61,
+      "passed": 20,
+      "failed": 0,
+      "errors": 0,
+      "log": "evals\\test_logs\\test_planner.log"
+    },
+    {
+      "file": "test_preprocess.py",
+      "status": "PASS",
+      "exit": 0,
+      "duration_s": 1.26,
+      "passed": 6,
+      "failed": 0,
+      "errors": 0,
+      "log": "evals\\test_logs\\test_preprocess.log"
+    },
+    {
+      "file": "test_profiler.py",
+      "status": "PASS",
+      "exit": 0,
+      "duration_s": 1.1,
+      "passed": 6,
+      "failed": 0,
+      "errors": 0,
+      "log": "evals\\test_logs\\test_profiler.log"
+    },
+    {
+      "file": "test_quality.py",
+      "status": "PASS",
+      "exit": 0,
+      "duration_s": 4.17,
+      "passed": 7,
+      "failed": 0,
+      "errors": 0,
+      "log": "evals\\test_logs\\test_quality.log"
+    },
+    {
+      "file": "test_replay.py",
+      "status": "PASS",
+      "exit": 0,
+      "duration_s": 21.61,
+      "passed": 8,
+      "failed": 0,
+      "errors": 0,
+      "log": "evals\\test_logs\\test_replay.log"
+    },
+    {
+      "file": "test_report_format.py",
+      "status": "PASS",
+      "exit": 0,
+      "duration_s": 1.05,
+      "passed": 3,
+      "failed": 0,
+      "errors": 0,
+      "log": "evals\\test_logs\\test_report_format.log"
+    },
+    {
+      "file": "test_run_tests_entry.py",
+      "status": "PASS",
+      "exit": 0,
+      "duration_s": 1.08,
+      "passed": 6,
+      "failed": 0,
+      "errors": 0,
+      "log": "evals\\test_logs\\test_run_tests_entry.log"
+    },
+    {
+      "file": "test_scale_limit.py",
+      "status": "PASS",
+      "exit": 0,
+      "duration_s": 11.42,
+      "passed": 6,
+      "failed": 0,
+      "errors": 0,
+      "log": "evals\\test_logs\\test_scale_limit.log"
+    },
+    {
+      "file": "test_scene.py",
+      "status": "PASS",
+      "exit": 0,
+      "duration_s": 6.59,
+      "passed": 6,
+      "failed": 0,
+      "errors": 0,
+      "log": "evals\\test_logs\\test_scene.log"
+    },
+    {
+      "file": "test_split_eval.py",
+      "status": "PASS",
+      "exit": 0,
+      "duration_s": 6.12,
+      "passed": 28,
+      "failed": 0,
+      "errors": 0,
+      "log": "evals\\test_logs\\test_split_eval.log"
+    },
+    {
+      "file": "test_stats_tests.py",
+      "status": "PASS",
+      "exit": 0,
+      "duration_s": 2.3,
+      "passed": 15,
+      "failed": 0,
+      "errors": 0,
+      "log": "evals\\test_logs\\test_stats_tests.log"
+    },
+    {
+      "file": "test_timeout_guard.py",
+      "status": "PASS",
+      "exit": 0,
+      "duration_s": 19.76,
+      "passed": 6,
+      "failed": 0,
+      "errors": 0,
+      "log": "evals\\test_logs\\test_timeout_guard.log"
+    },
+    {
+      "file": "test_tools.py",
+      "status": "PASS",
+      "exit": 0,
+      "duration_s": 3.59,
+      "passed": 21,
+      "failed": 0,
+      "errors": 0,
+      "log": "evals\\test_logs\\test_tools.log"
+    },
+    {
+      "file": "test_viz_export.py",
+      "status": "PASS",
+      "exit": 0,
+      "duration_s": 1.25,
+      "passed": 10,
+      "failed": 0,
+      "errors": 0,
+      "log": "evals\\test_logs\\test_viz_export.log"
+    }
+  ]
+}

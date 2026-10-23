@@ -1,14 +1,18 @@
-..........                                                               [100%]
-============================== warnings summary ===============================
-tests/test_pipeline_smoke.py: 12 warnings
-  <repo>\src\mtsa\stats_tests.py:133: InterpolationWarning: The test statistic is outside of the range of p-values available in the look-up table. The actual p-value is smaller than the p-value returned.
-    kpss_res = kpss(vals, regression="c", nlags="auto", result_object=False)
+# test_pipeline_smoke
+# status=PASS exit=0 duration=25.61s passed=10 failed=0 errors=0
+..........                                                               [100%]
+============================== warnings summary ===============================
+tests/test_pipeline_smoke.py: 12 warnings
+  <repo>\src\mtsa\stats_tests.py:133: InterpolationWarning: The test statistic is outside of the range of p-values available in the look-up table. The actual p-value is smaller than the p-value returned.
+    kpss_res = kpss(vals, regression="c", nlags="auto", result_object=False)
+
+tests/test_pipeline_smoke.py::test_weather_pipeline_succeeds
+tests/test_pipeline_smoke.py::test_weather_pipeline_succeeds
+tests/test_pipeline_smoke.py::test_weather_pipeline_succeeds
+tests/test_pipeline_smoke.py::test_weather_pipeline_succeeds
+  <repo>\src\mtsa\stats_tests.py:133: InterpolationWarning: The test statistic is outside of the range of p-values available in the look-up table. The actual p-value is greater than the p-value returned.
+    kpss_res = kpss(vals, regression="c", nlags="auto", result_object=False)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+10 passed, 16 warnings in 24.43s
 
-tests/test_pipeline_smoke.py::test_weather_pipeline_succeeds
-tests/test_pipeline_smoke.py::test_weather_pipeline_succeeds
-tests/test_pipeline_smoke.py::test_weather_pipeline_succeeds
-tests/test_pipeline_smoke.py::test_weather_pipeline_succeeds
-  <repo>\src\mtsa\stats_tests.py:133: InterpolationWarning: The test statistic is outside of the range of p-values available in the look-up table. The actual p-value is greater than the p-value returned.
-    kpss_res = kpss(vals, regression="c", nlags="auto", result_object=False)
-
--- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html

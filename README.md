@@ -11,6 +11,10 @@
 # 测试（basetemp 每次独立，避免临时目录堆积被清理策略拦截）
 python -m pytest tests -q --basetemp=artifacts/_pt_<时间戳>
 
+# 低内存 / 可超时的逐文件入口（单进程卡死或内存紧张时用）
+# 每个文件独立进程，固定 MTSA_PLANNER=rule、OPENBLAS_NUM_THREADS=1
+python run_tests.py --timeout 300
+
 # 运行分析（默认在子进程中执行，带 600 秒超时）
 python -m mtsa.cli run --scene weather \
     --input fixtures/weather_v1.csv --question "分析温度的趋势、季节性与极端事件"
