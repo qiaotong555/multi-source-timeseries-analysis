@@ -75,7 +75,7 @@ class AnalysisRequest(MtsaModel):
     seed: int = DEFAULT_SEED
     output_dir: Optional[str] = None
     # 运行模式。本轮 Agent 只支持天气场景；pipeline 是默认值，保持既有行为不变。
-    mode: Literal["pipeline", "agent"] = "pipeline"
+    mode: Literal["pipeline", "agent", "auto"] = "pipeline"
     # Agent 最大决策步数。默认 8，足以覆盖天气场景的 5 个工具并留出纠错余量。
     agent_max_steps: int = 8
     # 从一次 agent 运行的 result.json 重放；设置后不调用模型，按记录顺序重跑工具。

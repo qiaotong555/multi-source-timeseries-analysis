@@ -152,6 +152,9 @@ raw → profile → quality → plan → clean → metrics → spectrum → test
 | 验收 | `pipeline` 模式下 25 项指标数值与 T1.8 逐位一致 |
 | 意义 | 让「Agent 是否更好」成为一个可测量的对照实验，而不是主观判断 |
 
+> **2026-10-23 已落地**：`--mode pipeline|agent|auto` + `MTSA_AGENT`；
+> auto 在非天气或无模型时回退 pipeline；pipeline 指纹与基线一致。
+
 #### T2.7 失败恢复
 
 | 项目 | 内容 |

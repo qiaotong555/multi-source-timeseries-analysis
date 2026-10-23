@@ -158,8 +158,10 @@ def test_cli_accepts_mode_and_max_steps():
     ])
     assert args.mode == "agent"
     assert args.agent_max_steps == 5
+    from mtsa.cli import _resolve_mode
     default = _build_parser().parse_args(["run", "--input", "x.csv", "--question", "q"])
-    assert default.mode == "pipeline"
+    assert default.mode is None                     # 缺省由 _resolve_mode 决定
+    assert _resolve_mode(default.mode, {}) == "pipeline"
 
 
 def test_failed_tool_is_marked_in_result_and_report(monkeypatch, tmp_path):

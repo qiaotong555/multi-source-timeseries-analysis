@@ -24,6 +24,10 @@ python -m mtsa.cli run --mode agent --scene weather \
 # 离线重放：按已保存的轨迹重跑工具，不调用模型
 python -m mtsa.cli run --replay artifacts/<run_id>/result.json
 
+# 自动模式：有模型且天气走 Agent，否则自动回退固定流水线
+python -m mtsa.cli run --mode auto --scene weather \
+    --input fixtures/weather_v1.csv --question "分析温度的趋势、季节性和异常"
+
 # 批量评估（含 dev/holdout 划分）
 python -m evals.run_evals
 # 只复核划分与阈值选择
@@ -40,6 +44,7 @@ python -m evals.llm_eval
 | --- | --- | --- |
 | 数据规模 | 20 万行，超过即拒绝（`DATASET_TOO_LARGE`） | `MTSA_MAX_ROWS=500000` |
 | 整体超时 | 600 秒，超时终止子进程（`NODE_TIMEOUT`） | `--timeout 900`；`0` 表示不限制且不进子进程 |
+| 运行模式 | 默认 `pipeline` | `--mode agent` / `--mode auto`，或设置 `MTSA_AGENT` |
 
 CLI 默认在**子进程**中执行分析：Python 无法中断正在执行的 C 扩展调用（numpy、statsmodels），
 主线程计时器拦不住卡死，只有进程级终止有效。代价是约 3 秒启动开销。

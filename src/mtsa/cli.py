@@ -44,6 +44,22 @@ def _parse_overrides(items: list[str]) -> dict:
     return out
 
 
+def _resolve_mode(cli_mode: str | None, env: dict | None = None) -> str:
+    """确定运行模式：显式 CLI > MTSA_AGENT > pipeline。
+
+    默认仍是 pipeline，避免补上模型配置后，原本的固定流水线运行被悄悄改成 Agent。
+    """
+    if cli_mode:
+        return cli_mode
+    env = os.environ if env is None else env
+    raw = (env.get("MTSA_AGENT", "") or "").strip().lower()
+    if raw in ("agent", "on", "1", "true", "yes"):
+        return "agent"
+    if raw == "auto":
+        return "auto"
+    return "pipeline"
+
+
 def _build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="mtsa.cli", description="多源时序数据量化分析与可视化 Agent")
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -63,8 +79,10 @@ def _build_parser() -> argparse.ArgumentParser:
                    help="覆盖计划参数，可重复，如 --param anomaly_threshold=7.5")
     r.add_argument("--output", default=None, help="产物目录，默认 artifacts/<run_id>")
     r.add_argument("--request-id", default=None)
-    r.add_argument("--mode", choices=("pipeline", "agent"), default="pipeline",
-                   help="运行模式：pipeline 为固定流水线（默认）；agent 由模型选择分析工具，本轮仅天气场景")
+    r.add_argument("--mode", choices=("pipeline", "agent", "auto"), default=None,
+                   help="运行模式：pipeline 固定流水线；agent 由模型选择工具（本轮仅天气）；"
+                        "auto 有模型且场景支持时走 agent，否则回退 pipeline。"
+                        "缺省读 MTSA_AGENT，再缺省 pipeline")
     r.add_argument("--agent-max-steps", type=int, default=8, metavar="N",
                    help="Agent 模式最大决策步数，默认 8")
     r.add_argument("--replay", default=None, metavar="RESULT_JSON",
@@ -102,6 +120,7 @@ def main(argv: list[str] | None = None) -> int:
         print("缺少 --question", file=sys.stderr)
         return 1
 
+    mode = _resolve_mode(args.mode)
     req = AnalysisRequest(
         request_id=args.request_id or f"req_{datetime.now():%Y%m%d%H%M%S}",
         input_path=args.input,
@@ -113,7 +132,7 @@ def main(argv: list[str] | None = None) -> int:
         param_overrides=_parse_overrides(args.param),
         seed=args.seed,
         output_dir=args.output,
-        mode=args.mode,
+        mode=mode,
         agent_max_steps=args.agent_max_steps,
         replay_from=args.replay,
     )
@@ -125,8 +144,9 @@ def main(argv: list[str] | None = None) -> int:
     if result.status == "succeeded":
         plan = (result.data or {}).get("plan") or {}
         outdir = os.path.dirname(result.artifacts[0].path) if result.artifacts else req.output_dir
+        effective = result.datasets[0].get("mode") if result.datasets else req.mode
         print(f"完成：run_id={result.run_id}  场景={plan.get('scene_id')}  "
-              f"置信度={plan.get('scene_confidence')}  模式={req.mode}")
+              f"置信度={plan.get('scene_confidence')}  模式={effective}")
         print(f"产物目录：{os.path.abspath(outdir) if outdir else '—'}")
         return 0
 

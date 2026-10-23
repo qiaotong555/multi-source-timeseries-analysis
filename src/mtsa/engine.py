@@ -284,11 +284,29 @@ def run_analysis(request: AnalysisRequest, verbose: bool = True) -> AnalysisResu
     if clean.frame.empty:
         return fail(ERR_EMPTY_NUMERIC_COLUMN, "清洗后数据集为空，无法继续分析")
 
+    # ---- 5b. 运行模式解析 ----
+    # auto：有模型且场景支持 → agent；否则回退 pipeline，并把原因写进 warnings。
+    # 重放不需要模型，因此 replay 始终按 agent 处理。
+    requested_mode = request.mode
+    effective_mode = requested_mode
+    if replay_source is not None:
+        effective_mode = "agent"
+    elif requested_mode == "auto":
+        from .llm_client import client_from_env
+        if plan.scene_id != "weather":
+            effective_mode = "pipeline"
+            warnings.append("auto 模式：当前场景不是天气，Agent 尚未支持该场景，已回退 pipeline")
+        elif client_from_env() is None:
+            effective_mode = "pipeline"
+            warnings.append("auto 模式：未配置可用的模型客户端，已回退 pipeline")
+        else:
+            effective_mode = "agent"
+
     # ---- 6-10. 分析层 ----
     # pipeline：固定顺序，行为与 T1.8 保持一致。
     # agent：仅天气场景，由模型在白名单内选择工具；数值仍由工具内部的确定性代码产出。
     agent_info: Optional[dict[str, Any]] = None
-    if request.mode == "agent":
+    if effective_mode == "agent":
         if plan.scene_id != "weather":
             return fail(
                 ERR_AGENT_SCENE_UNSUPPORTED,
@@ -436,7 +454,8 @@ def run_analysis(request: AnalysisRequest, verbose: bool = True) -> AnalysisResu
         "scene_id": plan.scene_id,
         "question": request.question,
         "seed": request.seed,
-        "mode": request.mode,
+        "mode": effective_mode,
+        "mode_requested": requested_mode,
     }
     rep_art = report_mod.render_report(ctx, artifacts, conclusions, evidences, qrep, profile,
                                        dataset_info, outdir, warnings, agent=agent_info)
