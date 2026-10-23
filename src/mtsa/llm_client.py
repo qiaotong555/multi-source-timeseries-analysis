@@ -39,6 +39,11 @@ class OpenAICompatClient:
         self.timeout = timeout
         # 温度固定为 0：计划层要的是可复现，不是多样性
         self.temperature = temperature
+        # token 用量：只做累加，不改请求。评估要报成本就必须有真实来源，
+        # 不能靠字数估算冒充账单。
+        self.calls = 0
+        self.usage_totals = {"prompt_tokens": 0, "completion_tokens": 0,
+                             "total_tokens": 0, "cached_tokens": 0}
 
     def chat_json(self, system: str, user: str) -> dict[str, Any]:
         """发起一次对话，返回解析后的 JSON 对象；任何异常都转成 LLMError。"""
@@ -77,7 +82,32 @@ class OpenAICompatClient:
         except json.JSONDecodeError as exc:
             raise LLMError(f"响应不是合法 JSON：{exc}") from exc
 
+        self._record_usage(payload)
         return self._extract_json(payload)
+
+    def _record_usage(self, payload: dict[str, Any]) -> None:
+        """累计服务端返回的 usage；缺失时只记调用次数，不猜 token。"""
+        self.calls += 1
+        usage = payload.get("usage") if isinstance(payload, dict) else None
+        if not isinstance(usage, dict):
+            return
+        for key in ("prompt_tokens", "completion_tokens", "total_tokens"):
+            try:
+                self.usage_totals[key] += int(usage.get(key) or 0)
+            except (TypeError, ValueError):
+                continue
+        details = usage.get("prompt_tokens_details")
+        if isinstance(details, dict):
+            try:
+                self.usage_totals["cached_tokens"] += int(details.get("cached_tokens") or 0)
+            except (TypeError, ValueError):
+                pass
+
+    def usage_summary(self) -> Optional[dict[str, Any]]:
+        """返回本次客户端生命周期内的累计用量；服务端没给 usage 时返回 None。"""
+        if not self.calls or not self.usage_totals["total_tokens"]:
+            return None
+        return {"calls": self.calls, **self.usage_totals}
 
     @staticmethod
     def _extract_json(payload: dict[str, Any]) -> dict[str, Any]:

@@ -69,6 +69,15 @@ LLM_THRESHOLDS = {
     "LLM分析项覆盖率": (">=", 0.60),
 }
 
+# Agent 指标：仅在 agent_eval_results.json 存在且来源为真实模型时纳入判定。
+# mock 结果只能证明指标管线可用，不能当模型能力结论，故不纳入。
+AGENT_THRESHOLDS = {
+    "Agent成功率": (">=", 0.90),
+    "Agent需求覆盖率": (">=", 0.80),
+    "Agent可重放率": (">=", 0.95),
+    "Agent工具失败率": ("<=", 0.10),
+}
+
 
 def _ensure_fixtures():
     from fixtures.gen_fixtures import main as gen_main
@@ -135,6 +144,40 @@ def _load_llm_eval() -> dict:
         "base_url": d.get("base_url"),
         "planner_version": d.get("planner_version"),
         "n_calls": d.get("n_calls"),
+        "summary": s,
+        "cases": [{k: c.get(k) for k in keep} for c in d.get("cases", [])],
+    }
+
+
+def _load_agent_eval() -> dict:
+    """读取 Agent 模式评估缓存；缺失或 mock 都不纳入判定。
+
+    与 llm_eval 同理：缺缓存是「未运行」，不是「未通过」；
+    但 mock 结果必须单独标注，否则会把脚本客户端的能力当成真实模型能力。
+    """
+    path = os.path.join(EVAL_DIR, "agent_eval_results.json")
+    if not os.path.exists(path):
+        return {"available": False,
+                "reason": "agent_eval_results.json 不存在，请先运行 python -m evals.agent_eval"}
+    try:
+        with open(path, encoding="utf-8") as f:
+            d = json.load(f)
+    except Exception as exc:                      # noqa: BLE001
+        return {"available": False, "reason": f"解析失败：{exc}"}
+
+    s = d.get("summary") or {}
+    source = d.get("source") or s.get("source")
+    keep = ("case", "status", "steps", "terminate_reason", "tool_coverage",
+            "analysis_coverage", "rule_plan_coverage", "need_coverage",
+            "tool_failure_rate", "guard_violations", "elapsed_ms", "replay_ok",
+            "tokens")
+    return {
+        "available": True,
+        "judged": source == "real",
+        "source": source,
+        "generated_at": d.get("generated_at"),
+        "model": d.get("model"),
+        "planner": d.get("planner"),
         "summary": s,
         "cases": [{k: c.get(k) for k in keep} for c in d.get("cases", [])],
     }
@@ -251,6 +294,21 @@ def evaluate() -> dict:
         res["LLM分析项覆盖率"] = float(s["mean_tool_recall"]) \
             if s.get("mean_tool_recall") is not None else 0.0
 
+    # 8b) Agent 模式评估（读缓存，缺失或 mock 不产生指标、不判失败）
+    agent_eval = _load_agent_eval()
+    res["_agent_eval"] = agent_eval
+    if agent_eval.get("judged"):
+        sa = agent_eval["summary"]
+        res["Agent成功率"] = float(sa.get("success_rate") or 0.0)
+        if sa.get("mean_need_coverage") is not None:
+            res["Agent需求覆盖率"] = float(sa["mean_need_coverage"])
+        res["Agent规则计划覆盖率"] = float(sa.get("mean_rule_plan_coverage") or 0.0)
+        if sa.get("replayable_rate") is not None:
+            res["Agent可重放率"] = float(sa["replayable_rate"])
+        res["Agent工具失败率"] = float(sa.get("mean_tool_failure_rate") or 0.0)
+        res["Agent平均步数"] = float(sa.get("avg_steps") or 0.0)
+        res["Agent越界拒绝总数"] = int(sa.get("guard_violations_total") or 0)
+
     # 7) 图表字段映射准确率
     plan_cols = set(wx.data["plan"]["target_columns"])
     bad = [a for a in wx.artifacts
@@ -297,6 +355,9 @@ def main() -> int:
     thresholds = dict(THRESHOLDS)
     if res.get("_llm_eval", {}).get("available"):
         thresholds.update(LLM_THRESHOLDS)
+    if res.get("_agent_eval", {}).get("judged"):
+        # 只把本次实际产出的指标纳入判定（未跑重放就不判可重放率）
+        thresholds.update({k: v for k, v in AGENT_THRESHOLDS.items() if k in res})
     lines = ["| 指标 | 实测值 | 阈值 | 结论 |", "|---|---|---|---|"]
     failed = 0
     for k, (op, thr) in thresholds.items():
@@ -350,6 +411,34 @@ def main() -> int:
                 s = b.get(f"scale_{label}") or {}
                 print("| %s | %s | %s | %s |" % (label, s.get("total_s"), s.get("peak_mb"), s.get("status")))
             print("1e6 行状态：", b.get("scale_1e6_status"))
+    if "_agent_eval" in res:
+        a = res["_agent_eval"]
+        print()
+        print("=== Agent 模式评估（缓存）===")
+        if not a.get("available"):
+            print("不可用：", a.get("reason"))
+        elif not a.get("judged"):
+            print("来源为 %s，仅验证指标管线，不纳入判定" % a.get("source"))
+        else:
+            sa = a["summary"]
+            print("模型：%s  计划层：%s  用例：%d" % (
+                a.get("model"), a.get("planner"), sa.get("n_runs")))
+            print("| 用例 | 步数 | 终止原因 | 需求覆盖 | 规则计划覆盖 | 工具失败 | 越界 | 重放 |")
+            print("|---|---|---|---|---|---|---|---|")
+            for c in a.get("cases", []):
+                need = "—" if c.get("need_coverage") is None else "%.2f" % c["need_coverage"]
+                rep = "—" if c.get("replay_ok") is None else ("一致" if c["replay_ok"] else "不一致")
+                print("| %s | %s | %s | %s | %.2f | %s | %s | %s |" % (
+                    c.get("case"), c.get("steps"), c.get("terminate_reason"), need,
+                    c.get("rule_plan_coverage") or 0.0,
+                    "—" if c.get("tool_failure_rate") is None
+                    else "%.2f" % c["tool_failure_rate"],
+                    c.get("guard_violations"), rep))
+            print("汇总：平均步数 %s，需求覆盖率 %s，规则计划覆盖率 %s，可重放率 %s，"
+                  "越界 %s 次，token %s" % (
+                      sa.get("avg_steps"), sa.get("mean_need_coverage"),
+                      sa.get("mean_rule_plan_coverage"), sa.get("replayable_rate"),
+                      sa.get("guard_violations_total"), sa.get("tokens_total")))
     if "_llm_eval" in res:
         print()
         llm = res["_llm_eval"]

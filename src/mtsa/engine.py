@@ -318,6 +318,7 @@ def run_analysis(request: AnalysisRequest, verbose: bool = True) -> AnalysisResu
         tool_ctx = ToolContext(clean=clean, plan=plan, adapter=adapter, quality=qrep)
         agent_started = datetime.now().isoformat(timespec="seconds")
         t_agent = time.perf_counter()
+        usage_client = None            # 重放不调用模型，因此没有客户端也没有 token
         if replay_source is not None:
             traj = replay_mod.replay_steps(replay_source, tool_ctx)
         else:
@@ -335,6 +336,7 @@ def run_analysis(request: AnalysisRequest, verbose: bool = True) -> AnalysisResu
                     hint="配置环境变量后重试；未配置时请使用 --mode pipeline",
                 )
             traj = runner.run()
+            usage_client = runner.client
         agent_elapsed = int((time.perf_counter() - t_agent) * 1000)
         agent_info = traj.to_dict()
         states = tool_states(traj, WEATHER_AGENT_TOOLS)
@@ -343,6 +345,11 @@ def run_analysis(request: AnalysisRequest, verbose: bool = True) -> AnalysisResu
                            "tool_states": states,
                            "replay_version": replay_mod.REPLAY_VERSION,
                            "coverage": coverage_summary(plan, traj, WEATHER_AGENT_TOOLS)})
+        # 模型 token 用量：服务端未返回 usage 时留空，不用估算值冒充成本。
+        usage_fn = getattr(usage_client, "usage_summary", None)
+        tokens = usage_fn() if callable(usage_fn) else None
+        if tokens:
+            agent_info["tokens"] = tokens
         # 哈希只覆盖决策路径；耗时、时间戳、run_id 不参与
         agent_info["trajectory_sha256"] = replay_mod.trajectory_hash(agent_info)
         # 先把轨迹放进结果：即使下面判定为失败，result.json 里也能看到模型做了什么。

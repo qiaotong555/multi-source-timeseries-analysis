@@ -138,3 +138,10 @@ def test_cli_allows_replay_without_input_or_question():
     args = _build_parser().parse_args(["run", "--replay", "x.json"])
     assert args.replay == "x.json"
     assert args.input is None and args.question is None
+
+
+def test_diff_treats_nan_and_null_as_same_missing_value():
+    """落盘把 NaN 写成 null；重放内存里仍是 nan，二者语义相同，不能判不一致。"""
+    assert diff_paths({"a": float("nan")}, {"a": None}) == []
+    assert diff_paths({"a": None}, {"a": float("nan")}) == []
+    assert diff_paths({"a": 1.0}, {"a": None})       # 真差异仍要报

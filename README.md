@@ -36,6 +36,11 @@ python -m evals.split_eval
 python -m evals.benchmark
 # LLM 计划层评估（需配置 MTSA_LLM_BASE_URL / API_KEY / MODEL，约 15 秒）
 python -m evals.llm_eval
+
+# Agent 模式评估（9 个天气用例；步数、覆盖率、重放率、越界、失败率、token）
+python -m evals.agent_eval
+# 只验证指标管线，不调用模型（结果标 source=mock，不能当模型能力结论）
+python -m evals.agent_eval --mock
 ```
 
 ## 运行保护

@@ -12,11 +12,18 @@ Agent 的路径由模型决定，因此「同一输入两次运行结果相同�
 
 为什么哈希不包含 `elapsed_ms`：机器负载会改变耗时，但它不改变分析结论。
 为什么哈希包含 `reason`：理由属于模型输出的一部分，重放时应与原轨迹一致。
+
+NaN 与 null 视为同一语义
+-------------------------
+`result.json` 落盘时 NaN 会被序列化成 null，读回来是 None；而重放时内存里的
+统计量仍是 float('nan')。两者都表示「该检验不适用」，若判为不一致，
+会把正常的重放误报成失败。比对层面做归一化，分析层面不填任何假值。
 """
 from __future__ import annotations
 
 import hashlib
 import json
+import math
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Optional
@@ -111,8 +118,15 @@ def replay_steps(source: dict[str, Any], ctx: tools.ToolContext) -> AgentTraject
     return traj
 
 
+def _missing(value: Any) -> bool:
+    """NaN 与 None 都表示「无值」：落盘后 NaN 会变成 null，二者不能算差异。"""
+    return value is None or (isinstance(value, float) and math.isnan(value))
+
+
 def _diff(a: Any, b: Any, path: str, out: list[str], limit: int) -> None:
     if len(out) >= limit:
+        return
+    if _missing(a) and _missing(b):
         return
     if type(a) is not type(b) and not (isinstance(a, (int, float)) and isinstance(b, (int, float))):
         out.append(f"{path}: type {type(a).__name__} != {type(b).__name__}")
