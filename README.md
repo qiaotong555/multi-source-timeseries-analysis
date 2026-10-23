@@ -21,6 +21,9 @@ python -m mtsa.cli run --scene stock \
 python -m mtsa.cli run --mode agent --scene weather \
     --input fixtures/weather_v1.csv --question "分析温度的趋势、季节性和异常"
 
+# 离线重放：按已保存的轨迹重跑工具，不调用模型
+python -m mtsa.cli run --replay artifacts/<run_id>/result.json
+
 # 批量评估（含 dev/holdout 划分）
 python -m evals.run_evals
 # 只复核划分与阈值选择

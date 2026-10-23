@@ -14,6 +14,7 @@ from typing import Any, Callable
 import pandas as pd
 
 from . import io_loaders, profiler, quality, preprocess, metrics, freq, stats_tests, anomaly
+from . import replay as replay_mod
 from .agent_runtime import WEATHER_AGENT_TOOLS, build_agent_runner
 from .observation import coverage_summary, tool_states
 from .models import (
@@ -26,11 +27,14 @@ from .models import (
     ERR_EMPTY_NUMERIC_COLUMN,
     ERR_INTERNAL_ERROR,
     ERR_LOOKAHEAD_VIOLATION,
+    ERR_REPLAY_INVALID,
+    ERR_REPLAY_MISMATCH,
     ERR_SCENE_NOT_DETECTED,
     ERR_TIME_AXIS_NOT_FOUND,
     MAX_RERUN,
     SCENE_CONFIDENCE_THRESHOLD,
     TASK_ID,
+    AnalysisPlan,
     AnalysisRequest,
     MetricTable,
     AnalysisResult,
@@ -153,6 +157,23 @@ def run_analysis(request: AnalysisRequest, verbose: bool = True) -> AnalysisResu
             print(f"[{code}] {message}")
         return result
 
+    # ---- 0. 重放源 ----
+    # 重放只读取 agent 运行的 result.json；计划、步骤与原始输入都来自这份记录。
+    replay_source = None
+    if request.replay_from:
+        try:
+            replay_source = replay_mod.load_replay(request.replay_from)
+        except replay_mod.ReplayError as exc:
+            return fail(ERR_REPLAY_INVALID, str(exc), path=request.replay_from)
+        if request.mode != "agent":
+            return fail(ERR_REPLAY_INVALID,
+                        "重放只适用于 agent 结果；请使用 --mode agent",
+                        mode=request.mode)
+        if request.param_overrides:
+            return fail(ERR_REPLAY_INVALID,
+                        "重放不接受 --param：计划参数已记录在轨迹中",
+                        overrides=sorted(request.param_overrides))
+
     # ---- 1. 导入 ----
     try:
         timer.run("load_dataset", lambda: {})
@@ -211,21 +232,29 @@ def run_analysis(request: AnalysisRequest, verbose: bool = True) -> AnalysisResu
     # ---- 4. 场景识别与计划 ----
     # 计划由「计划层」产出：有 LLM 配置且校验通过则用模型计划，否则回退规则计划。
     # 无论来源如何，节点 5 至 12 的执行逻辑完全一致，数值结论仍由代码产出。
-    adapter, confidence, scores = detect_scene(raw.frame, profile)
-    if request.scene_id:
-        adapter = get_adapter(request.scene_id)
-        confidence = 1.0
-    elif adapter is None or confidence < SCENE_CONFIDENCE_THRESHOLD:
-        return fail(ERR_SCENE_NOT_DETECTED,
-                    f"场景识别置信度不足（最高 {confidence:.3f} < {SCENE_CONFIDENCE_THRESHOLD}），"
-                    f"请显式指定 --scene",
-                    scores={k: round(v, 4) for k, v in scores.items()})
-    planner = build_planner(adapter)
-    plan, plan_source = planner.plan(request.question, profile, qrep, adapter, raw.frame)
-    plan.scene_confidence = round(float(confidence), 4)
-    plan.plan_source = plan_source
-    if getattr(planner, "last_error", None):
-        warnings.append(f"计划层回退到规则模式：{planner.last_error}")
+    if replay_source is not None:
+        # 重放不重新规划：使用记录里的计划快照，参数与目标列完全一致。
+        plan_data = replay_source["plan"]
+        adapter = get_adapter(plan_data["scene_id"])
+        confidence = float(plan_data.get("scene_confidence") or 1.0)
+        plan = AnalysisPlan.model_validate(plan_data)
+        plan_source = plan_data.get("plan_source", "replay")
+    else:
+        adapter, confidence, scores = detect_scene(raw.frame, profile)
+        if request.scene_id:
+            adapter = get_adapter(request.scene_id)
+            confidence = 1.0
+        elif adapter is None or confidence < SCENE_CONFIDENCE_THRESHOLD:
+            return fail(ERR_SCENE_NOT_DETECTED,
+                        f"场景识别置信度不足（最高 {confidence:.3f} < {SCENE_CONFIDENCE_THRESHOLD}），"
+                        f"请显式指定 --scene",
+                        scores={k: round(v, 4) for k, v in scores.items()})
+        planner = build_planner(adapter)
+        plan, plan_source = planner.plan(request.question, profile, qrep, adapter, raw.frame)
+        plan.scene_confidence = round(float(confidence), 4)
+        plan.plan_source = plan_source
+        if getattr(planner, "last_error", None):
+            warnings.append(f"计划层回退到规则模式：{planner.last_error}")
 
     # ---- 4b. 参数覆盖（调参入口，不修改适配器默认值）----
     if request.param_overrides:
@@ -268,30 +297,36 @@ def run_analysis(request: AnalysisRequest, verbose: bool = True) -> AnalysisResu
                 hint="请改用 --mode pipeline，或等待股票场景的 Agent 实现",
             )
 
-        runner = build_agent_runner(
-            ToolContext(clean=clean, plan=plan, adapter=adapter, quality=qrep),
-            request.question,
-            max_steps=request.agent_max_steps,
-            allowed_tools=WEATHER_AGENT_TOOLS,
-        )
-        if runner is None:
-            return fail(
-                ERR_AGENT_UNAVAILABLE,
-                "Agent 模式需要模型配置，但当前没有可用的客户端",
-                required_env=["MTSA_LLM_BASE_URL", "MTSA_LLM_API_KEY", "MTSA_LLM_MODEL"],
-                hint="配置环境变量后重试；未配置时请使用 --mode pipeline",
-            )
-
+        tool_ctx = ToolContext(clean=clean, plan=plan, adapter=adapter, quality=qrep)
         agent_started = datetime.now().isoformat(timespec="seconds")
         t_agent = time.perf_counter()
-        traj = runner.run()
+        if replay_source is not None:
+            traj = replay_mod.replay_steps(replay_source, tool_ctx)
+        else:
+            runner = build_agent_runner(
+                tool_ctx,
+                request.question,
+                max_steps=request.agent_max_steps,
+                allowed_tools=WEATHER_AGENT_TOOLS,
+            )
+            if runner is None:
+                return fail(
+                    ERR_AGENT_UNAVAILABLE,
+                    "Agent 模式需要模型配置，但当前没有可用的客户端",
+                    required_env=["MTSA_LLM_BASE_URL", "MTSA_LLM_API_KEY", "MTSA_LLM_MODEL"],
+                    hint="配置环境变量后重试；未配置时请使用 --mode pipeline",
+                )
+            traj = runner.run()
         agent_elapsed = int((time.perf_counter() - t_agent) * 1000)
         agent_info = traj.to_dict()
         states = tool_states(traj, WEATHER_AGENT_TOOLS)
         agent_info.update({"mode": "agent", "elapsed_ms": agent_elapsed,
                            "max_steps": request.agent_max_steps,
                            "tool_states": states,
+                           "replay_version": replay_mod.REPLAY_VERSION,
                            "coverage": coverage_summary(plan, traj, WEATHER_AGENT_TOOLS)})
+        # 哈希只覆盖决策路径；耗时、时间戳、run_id 不参与
+        agent_info["trajectory_sha256"] = replay_mod.trajectory_hash(agent_info)
         # 先把轨迹放进结果：即使下面判定为失败，result.json 里也能看到模型做了什么。
         result.data = {"agent": agent_info}
 
@@ -309,7 +344,8 @@ def run_analysis(request: AnalysisRequest, verbose: bool = True) -> AnalysisResu
             node="agent_analysis", started_at=agent_started, elapsed_ms=agent_elapsed,
             status="succeeded",
             summary={"steps": traj.step_count, "terminate_reason": traj.terminate_reason,
-                     "tools_run": traj.tools_run, "allowed_tools": list(WEATHER_AGENT_TOOLS)},
+                     "tools_run": traj.tools_run, "allowed_tools": list(WEATHER_AGENT_TOOLS),
+                     "replayed": replay_source is not None},
         ))
 
         if not traj.tools_run:
@@ -434,6 +470,34 @@ def run_analysis(request: AnalysisRequest, verbose: bool = True) -> AnalysisResu
         "change_points": [c.model_dump(mode="json") for c in change_points],
         "lookahead": leak,
     }
+    if agent_info is not None and replay_source is not None:
+        recorded = {k: v for k, v in replay_source["data"].items() if k != "agent"}
+        diffs = replay_mod.diff_paths(recorded, data)
+        source_hash = replay_source.get("trajectory_sha256")
+        replay_hash = agent_info["trajectory_sha256"]
+        trajectory_match = (source_hash == replay_hash) if source_hash else None
+        data_match = not diffs
+        match = data_match and trajectory_match is not False
+        agent_info["replay"] = {
+            "source": replay_source["path"],
+            "source_hash": source_hash,
+            "replay_hash": replay_hash,
+            "trajectory_match": trajectory_match,
+            "data_match": data_match,
+            "match": match,
+            "mismatches": diffs[:10],
+        }
+        if not match:
+            data["agent"] = agent_info
+            result.data = data
+            return fail(
+                ERR_REPLAY_MISMATCH,
+                "重放结果与原运行不一致，可复现性未通过",
+                source=replay_source["path"],
+                trajectory_match=trajectory_match,
+                mismatches=diffs[:10],
+                hint="先检查工具是否引入了随机源或未固定时间戳，再重新采集轨迹",
+            )
     if agent_info is not None:
         data["agent"] = agent_info
     result.data = data

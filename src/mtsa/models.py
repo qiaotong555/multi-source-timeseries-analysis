@@ -41,6 +41,9 @@ ERR_INTERNAL_ERROR = "INTERNAL_ERROR"
 ERR_AGENT_UNAVAILABLE = "AGENT_UNAVAILABLE"
 ERR_AGENT_SCENE_UNSUPPORTED = "AGENT_SCENE_UNSUPPORTED"
 ERR_AGENT_NO_RESULT = "AGENT_NO_RESULT"
+# 重放专用：源文件不可用，或重放结果与原轨迹不一致
+ERR_REPLAY_INVALID = "REPLAY_INVALID"
+ERR_REPLAY_MISMATCH = "REPLAY_MISMATCH"
 
 
 class MtsaModel(BaseModel):
@@ -75,6 +78,8 @@ class AnalysisRequest(MtsaModel):
     mode: Literal["pipeline", "agent"] = "pipeline"
     # Agent 最大决策步数。默认 8，足以覆盖天气场景的 5 个工具并留出纠错余量。
     agent_max_steps: int = 8
+    # 从一次 agent 运行的 result.json 重放；设置后不调用模型，按记录顺序重跑工具。
+    replay_from: Optional[str] = None
 
 
 # ---------------- 导入与摘要 ----------------

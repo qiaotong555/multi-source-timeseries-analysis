@@ -51,8 +51,10 @@ def _build_parser() -> argparse.ArgumentParser:
     r = sub.add_parser("run", help="执行一次分析")
     r.add_argument("--scene", choices=sorted(_REGISTRY), default=None,
                    help="场景标识；缺省时自动识别")
-    r.add_argument("--input", required=True, help="输入文件路径")
-    r.add_argument("--question", required=True, help="自然语言分析问题")
+    r.add_argument("--input", default=None,
+                   help="输入文件路径；使用 --replay 时可省略（从原结果读取）")
+    r.add_argument("--question", default=None,
+                   help="自然语言分析问题；使用 --replay 时可省略（沿用原问题）")
     r.add_argument("--time-column", default=None)
     r.add_argument("--value-columns", default=None, help="逗号分隔")
     r.add_argument("--group-column", default=None)
@@ -65,6 +67,8 @@ def _build_parser() -> argparse.ArgumentParser:
                    help="运行模式：pipeline 为固定流水线（默认）；agent 由模型选择分析工具，本轮仅天气场景")
     r.add_argument("--agent-max-steps", type=int, default=8, metavar="N",
                    help="Agent 模式最大决策步数，默认 8")
+    r.add_argument("--replay", default=None, metavar="RESULT_JSON",
+                   help="从一次 agent 运行的 result.json 离线重放；不调用模型")
     r.add_argument("--timeout", type=float, default=DEFAULT_TIMEOUT_S,
                    metavar="SEC",
                    help=f"分析超时秒数，默认 {DEFAULT_TIMEOUT_S:.0f}；0 表示不设超时且不进子进程")
@@ -81,6 +85,23 @@ def main(argv: list[str] | None = None) -> int:
             print(f"{k}\t{ad.name}")
         return 0
 
+    if args.replay:
+        from .replay import ReplayError, load_replay
+        try:
+            source = load_replay(args.replay)
+        except ReplayError as exc:
+            print(f"[REPLAY_INVALID] {exc}", file=sys.stderr)
+            return 1
+        args.mode = "agent"
+        args.input = args.input or source["input_path"]
+        args.question = args.question or source["question"]
+    if not args.input:
+        print("缺少 --input（--replay 未能从原结果读取输入路径）", file=sys.stderr)
+        return 1
+    if not args.question:
+        print("缺少 --question", file=sys.stderr)
+        return 1
+
     req = AnalysisRequest(
         request_id=args.request_id or f"req_{datetime.now():%Y%m%d%H%M%S}",
         input_path=args.input,
@@ -94,6 +115,7 @@ def main(argv: list[str] | None = None) -> int:
         output_dir=args.output,
         mode=args.mode,
         agent_max_steps=args.agent_max_steps,
+        replay_from=args.replay,
     )
     if args.timeout and args.timeout > 0:
         result = run_with_timeout(req, timeout_s=args.timeout, verbose=False)

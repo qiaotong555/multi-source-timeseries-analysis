@@ -137,6 +137,9 @@ raw → profile → quality → plan → clean → metrics → spectrum → test
 | 重放 | 读取轨迹，按原顺序重跑工具，不走模型；断言结果与原运行逐位一致 |
 | 验收 | 同一轨迹重放，`result.json` 除 `run_id` 与时间戳外逐字节一致 |
 | 意义 | 这是 Agent 模式下「可复现」的唯一可靠保障——不能指望模型两次输出相同路径 |
+
+> **2026-10-23 已落地**：`src/mtsa/replay.py` + CLI `--replay`；轨迹哈希与数据双重比对，
+> 不一致返回 `REPLAY_MISMATCH`。
 | 风险 | 工具内部若有随机性（如随机种子未固定），重放会失败；须先审计各工具的随机源 |
 
 #### T2.6 双模式并存
