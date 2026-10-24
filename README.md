@@ -16,12 +16,53 @@ pip install -e .     # 开发用：改 src 立即生效
 
 > 本作品为课程/课题提交物，**保留所有权利**，仅授权课程评审与演示使用；详见 `LICENSE`。第三方数据与依赖的条款见 `DATA_SOURCES.md`、`THIRD_PARTY_NOTICES.md`。
 
-一页看懂现状（定位、完成度、未达标项、复现入口）：`项目概要.md`。
+## 评审入口（约 5 分钟）
 
-完整说明（能力边界、评估结果、限制、复现）见 `doc/项目说明书.md`。
-Demo Word 说明文档见 `doc/Agent一键Demo说明_2026-10-24.docx`；可用 `python scripts/make_demo_word.py` 按真实 `artifacts/demo/` 产物重新生成。
-全链路演示见 `doc/全链路Demo_柏林2024.docx`：一份数据（柏林 2024）走完六步，并给出三张单列结果图；`python scripts/make_chain_demo_doc.py --rerun` 会重跑 demo 并重新生成。
-Word 文档第 9 节包含“STA_A 温度单位变化与异常诊断”案例；案例产物位于 `artifacts/demo_case_unit_change_rule/`。
+| 步骤 | 看什么 | 位置 |
+| --- | --- | --- |
+| 1 | 定位、完成度、未达标项，一页看完 | `项目概要.md` |
+| 2 | 一条完整链路跑通（不需要模型、不需要联网） | `python scripts/demo.py --mode pipeline` |
+| 3 | 这份数据的结论长什么样，三张单列图 | `doc/全链路Demo_柏林2024.docx` |
+| 4 | Agent 与固定流水线的差异、工具轨迹与 token | `doc/Agent一键Demo说明_2026-10-24.docx` |
+| 5 | 评估口径、能力边界、未达标项的依据 | `doc/项目说明书.md`、`doc/评估设计.md` |
+
+两份 Word 文档**已随仓库提交**，直接打开即可，不需要重新生成。它们由 `artifacts/` 下的真实运行产物生成，
+而 `artifacts/` 是运行产物目录、不入库（见 `.gitignore`）。要按本机最新结果重建，得先跑出产物：
+
+```bash
+pip install ".[docx]"                         # 生成 Word 才需要的附加依赖
+
+python scripts/demo.py --mode pipeline        # 生成 artifacts/demo/
+python scripts/make_demo_word.py              # 读 artifacts/demo/ 重建 Agent 演示文档
+
+python scripts/make_chain_demo_doc.py --rerun # 重跑柏林 2024 全链路并重建该文档
+```
+
+`doc/Agent一键Demo说明_2026-10-24.docx` 第 9 节还有一次独立运行（STA_A 温度单位变化与异常诊断），
+它写在另一个目录，重建文档前需要先跑（PowerShell 把 `MTSA_PLANNER=rule` 写成 `$env:MTSA_PLANNER='rule'`）：
+
+```bash
+MTSA_PLANNER=rule python scripts/demo.py --mode pipeline --input fixtures/weather_v1.csv \
+  --question "请重点检查 STA_A 温度数据是否发生单位变化，并分析温度趋势和异常点，给出处理建议" \
+  --out artifacts/demo_case_unit_change_rule
+```
+
+## 验证状态（2026-10-24 实测）
+
+| 检查 | 结果 | 命令 |
+| --- | --- | --- |
+| 单元 / 回归测试 | 50 个文件 / 470 项通过，0 失败，407.9 s | `python run_tests.py --timeout 300` |
+| `run_evals` 阈值指标 | 29/29 通过（22 项核心 + LLM 3 + Agent 4），未通过 0 | `python -m evals.run_evals` |
+| 独立结论门禁（`weather_eval_v2`，4 问 × pipeline/agent） | 24/24 通过 | `python -m evals.conclusion_gate_eval` |
+| 坏输入鲁棒性（37 例） | 37/37 不崩溃，错误码与节点齐全 | `python -m evals.robustness_eval` |
+| 10 份真实天气数据（80 次运行） | 14 项检查 13 通过；**R13 未达标**：事件级 Recall 0.0714 < 0.50 | `python -m evals.real_data_eval` |
+| D3 扩容（7 份数据 × 4 问题） | 6 项检查 5 通过；**D3-4 假设被证伪**：小时风速只覆盖 3/4 事件 | `python -m evals.d3_expansion_eval` |
+| 规模上限 | 20 万行；1e5 37 s / 2e5 124 s / 5e5 736 s | `python -m evals.benchmark` |
+
+两项未达标（R13 事件召回、D3-4 阵风）连同原因写在 `项目概要.md` 第 4 节「还没做到 / 没达标的」，没有藏。
+门禁那 24 项跑在 `weather_eval_v2`（异常由生成器按已知位置注入，事件召回才能到 0.9667）；R13 跑在 10 份真实数据 + NOAA 官方风暴事件（真实极端天气与统计异常不同源）。两者口径不同，不能互相替代，也不能拿前者的 0.9667 去掩盖后者的 0.0714。
+
+## 常用命令
 
 ```bash
 # 一键演示（推荐先跑；同数据同问题跑 pipeline + agent，缺模型自动跳过 agent）
@@ -156,7 +197,7 @@ CLI 默认在**子进程**中执行分析：Python 无法中断正在执行的 C
 ## 当前状态与能力边界
 
 **评估状态（2026-10-23）**：A 结论级评估、B 差异溯源、C 第二份数据、D 探针与重复、
-评估收口均已完成。`run_evals` 固定规则计划，22 项阈值指标可复算；结论级结果
+评估收口均已完成。`run_evals` 固定规则计划，22 项核心阈值指标（叠加 LLM/Agent 缓存后共 29 项）可复算、当前全部通过；结论级结果
 （异常/变化点 P/R/F1、差异归因、短数据复核）只报告，尚未设阈值。
 
 **已实现（天气 Agent）**：观察—决策—行动循环、五工具白名单、预算受控的观察摘要、

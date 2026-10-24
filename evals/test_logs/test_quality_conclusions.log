@@ -1,5 +1,5 @@
 # test_quality_conclusions
-# status=PASS exit=0 duration=15.94s passed=4 failed=0 errors=0
+# status=PASS exit=0 duration=16.13s passed=4 failed=0 errors=0
 ....                                                                     [100%]
 ============================== warnings summary ===============================
 tests/test_quality_conclusions.py::test_quality_issues_become_conclusions
@@ -12,5 +12,5 @@ tests/test_quality_conclusions.py::test_zero_detection_is_stated_in_pipeline
     kpss_res = kpss(vals, regression="c", nlags="auto", result_object=False)
 
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
-4 passed, 6 warnings in 14.48s
+4 passed, 6 warnings in 14.83s
 

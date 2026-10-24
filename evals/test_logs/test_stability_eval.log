@@ -1,5 +1,5 @@
 # test_stability_eval
-# status=PASS exit=0 duration=2.5s passed=8 failed=0 errors=0
+# status=PASS exit=0 duration=3.09s passed=8 failed=0 errors=0
 ........                                                                 [100%]
-8 passed in 1.26s
+8 passed in 1.25s
 

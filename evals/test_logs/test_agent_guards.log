@@ -1,5 +1,5 @@
 # test_agent_guards
-# status=PASS exit=0 duration=2.53s passed=9 failed=0 errors=0
+# status=PASS exit=0 duration=2.41s passed=9 failed=0 errors=0
 .........                                                                [100%]
-9 passed in 1.30s
+9 passed in 1.17s
 

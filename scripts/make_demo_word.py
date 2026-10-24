@@ -582,7 +582,7 @@ def build_document() -> Path:
         ["方法说明", "doc/评估设计.md、doc/项目说明书.md", "指标口径、能力边界和限制"],
     ], widths=[1.25, 3.2, 2.25])
     add_heading(doc, "7.2 最简单的复现方式", 2)
-    add_code_block(doc, "cd <repo>\npython scripts/demo.py")
+    add_code_block(doc, "# 在仓库根目录（含 pyproject.toml）执行\npython scripts/demo.py")
     add_para(doc, "默认行为：使用 fixtures/weather_v1.csv，使用天气场景，问题为“分析温度的趋势、季节性和异常点，并检测变化点”，并尝试运行 pipeline 与 agent。", first_line=0.3)
     add_heading(doc, "7.3 常用复现方式", 2)
     add_code_block(doc, "# 只跑 pipeline，不需要模型\npython scripts/demo.py --mode pipeline\n\n# 运行 Agent，需要 MTSA_LLM_BASE_URL、MTSA_LLM_API_KEY、MTSA_LLM_MODEL\npython scripts/demo.py --mode agent\n\n# 指定 v2 数据与问题\npython scripts/demo.py --input fixtures/weather_eval_v2.csv --question \"找出温度湿度的异常、气压的突变，并说明季节规律\" --mode both")
@@ -681,7 +681,7 @@ def build_document() -> Path:
     add_callout(doc, "这个案例说明了什么", "Agent/分析系统的价值不仅是输出一个数字，还包括先识别数据是否可信、记录做过哪些清洗、再在清洗后的数据上给出有证据的结论。", fill=PALE_GREEN, title_color="548235")
 
     add_heading(doc, "9.6 案例复现", 2)
-    add_code_block(doc, "cd <repo>\n$env:MTSA_PLANNER='rule'\npython scripts/demo.py --mode pipeline --input fixtures/weather_v1.csv --question \"请重点检查 STA_A 温度数据是否发生单位变化，并分析温度趋势和异常点，给出处理建议\" --out artifacts/demo_case_unit_change_rule\n\n# 根据案例产物重新生成包含案例章节的 Word 文档\npython scripts/make_demo_word.py")
+    add_code_block(doc, "# 在仓库根目录（含 pyproject.toml）执行\n$env:MTSA_PLANNER='rule'\npython scripts/demo.py --mode pipeline --input fixtures/weather_v1.csv --question \"请重点检查 STA_A 温度数据是否发生单位变化，并分析温度趋势和异常点，给出处理建议\" --out artifacts/demo_case_unit_change_rule\n\n# 根据案例产物重新生成包含案例章节的 Word 文档\npython scripts/make_demo_word.py")
     add_para(doc, "案例证据：artifacts/demo_case_unit_change_rule/pipeline/result.json、artifacts/demo_case_unit_change_rule/pipeline/report.md、artifacts/demo_case_unit_change_rule/demo_summary.json。", style="Small Note")
 
     # Appendix
