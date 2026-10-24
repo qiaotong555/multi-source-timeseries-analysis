@@ -103,6 +103,16 @@ jobs:
           /tmp/venv/bin/pip install dist/*.whl
           /tmp/venv/bin/mtsa list-scenes
 
+      # 陌生人的最短路径：装好 wheel，在仓库之外跑一条命令
+      - name: 装完就能跑（不支持从仓库取数据）
+        run: |
+          cd /tmp
+          /tmp/venv/bin/mtsa demo --out /tmp/demo_out
+          grep -q '"status": "succeeded"' /tmp/demo_out/result.json
+          test -f /tmp/demo_out/report.md
+          test -f /tmp/demo_out/input.csv
+          echo "陌生人路径通过：无仓库、无 fixtures、无模型、无网络"
+
       - uses: actions/upload-artifact@v4
         with:
           name: dist

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""命令行入口：run / list-scenes。
+"""命令行入口：run / demo / list-scenes。
 
 用法：
     python -m mtsa.cli run --scene weather --input fixtures/weather_v1.csv \
@@ -117,12 +117,39 @@ def _build_parser() -> argparse.ArgumentParser:
                    metavar="SEC",
                    help=f"分析超时秒数，默认 {DEFAULT_TIMEOUT_S:.0f}；0 表示不设超时且不进子进程")
 
+    d = sub.add_parser("demo", help="一键演示：合成数据 → 跑完整链路 → 出报告；不需要模型、数据或网络")
+    d.add_argument("--out", default="mtsa_demo", help="输出目录，默认 ./mtsa_demo")
+    d.add_argument("--seed", type=int, default=DEFAULT_SEED, help="合成数据种子，默认与全局一致")
+    d.add_argument("--question", default=None, help="覆盖默认的分析问题")
+    d.add_argument("--timeout", type=float, default=DEFAULT_TIMEOUT_S, metavar="SEC",
+                   help=f"分析超时秒数，默认 {DEFAULT_TIMEOUT_S:.0f}；0 表示进程内直接执行")
+
     sub.add_parser("list-scenes", help="列出已注册场景")
     return p
 
 
 def main(argv: list[str] | None = None) -> int:
     args = _build_parser().parse_args(argv)
+
+    if args.cmd == "demo":
+        from .demo import DEMO_CSV_NAME, DEMO_QUESTION, run_demo
+
+        out_dir = os.path.abspath(args.out)
+        result = run_demo(out_dir, seed=args.seed,
+                          question=args.question or DEMO_QUESTION, timeout=args.timeout)
+        if result.status != "succeeded":
+            code = result.error.code if result.error else "FAILED"
+            message = result.error.message if result.error else "演示失败"
+            print(f"[{code}] {message}", file=sys.stderr)
+            return 1
+        csv_path = os.path.join(out_dir, DEMO_CSV_NAME)
+        rows = sum(1 for _ in open(csv_path, encoding="utf-8")) - 1
+        print(f"完成：run_id={result.run_id}  模式=pipeline（未调用模型）")
+        print(f"数据：{csv_path}（{rows} 行，合成数据，seed={args.seed}）")
+        print(f"报告：{os.path.join(out_dir, 'report.md')}")
+        print(f"结果：{os.path.join(out_dir, 'result.json')}")
+        print('换成自己的数据：mtsa run --scene weather --input <你的.csv> --question "分析温度的趋势和异常"')
+        return 0
 
     if args.cmd == "list-scenes":
         for k, ad in _REGISTRY.items():
