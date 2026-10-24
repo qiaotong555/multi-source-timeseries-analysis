@@ -1,0 +1,33 @@
+{
+  "id": "R16",
+  "name": "ushuaia_hourly_2024",
+  "source": "Open-Meteo Archive API",
+  "note": "南美、高纬寒冷、西风带强风",
+  "retrieved_at": "2026-10-24T15:13:42",
+  "rows": 8784,
+  "stations": [
+    "USH"
+  ],
+  "start": "2024-01-01 00:00:00",
+  "end": "2024-12-31 23:00:00",
+  "frequency": "hourly",
+  "columns": [
+    "temperature",
+    "humidity",
+    "pressure",
+    "wind_speed",
+    "rainfall"
+  ],
+  "dropped_all_null_columns": [],
+  "elevation_m": 52.0,
+  "data_sha1": "93e660631f0ceacf773e95371a0f0c459d4af4f5",
+  "raw": [
+    {
+      "url": "https://archive-api.open-meteo.com/v1/archive?latitude=-54.8&longitude=-68.3&start_date=2024-01-01&end_date=2024-12-31&hourly=temperature_2m,relative_humidity_2m,surface_pressure,wind_speed_10m,precipitation&timezone=UTC",
+      "bytes": 369992,
+      "sha1": "0f96e671dacc647dd9764c2701dd3f30e8768923",
+      "elevation": 52.0
+    }
+  ],
+  "data_path": "fixtures/real_weather/r16_ushuaia_hourly_2024/data.csv"
+}

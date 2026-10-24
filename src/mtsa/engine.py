@@ -553,6 +553,12 @@ def _run_analysis_impl(request: AnalysisRequest, verbose: bool, run_id: str,
     # ---- 9b. 绝对极端（描述性；不并入 anomalies，不参与异常判定） ----
     # 与模式无关：分位数口径固定，cost 很低；Agent 是否执行检测不影响这个字段。
     extremes = anomaly.detect_extremes(clean, plan)
+    # 段上限截断会让「事件是否被覆盖」失真（D2 的 20→100 教训）。截断就必须说。
+    _trunc = sorted({e["column"] for e in extremes if e.get("runs_truncated")})
+    if _trunc:
+        warnings.append(
+            f"极端值段超过上限 {anomaly.EXTREME_MAX_RUNS} 被截断：{_trunc}；"
+            "按时间窗口统计的覆盖类指标可能失真")
 
     # ---- 9c. 预测（仅天气；默认关闭） ----
     # 关闭时不进入分支，data 与报告逐位不变（F5）。重放时若记录里带 forecast，

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-24T10:44:04",
+  "generated_at": "2026-10-24T15:14:17",
   "datasets": [
     {
       "id": "R01",
@@ -361,6 +361,267 @@
         }
       ],
       "data_path": "fixtures/real_weather/r10_toronto_hourly_2024/data.csv"
+    },
+    {
+      "id": "R11",
+      "name": "la_paz_hourly_2024",
+      "source": "Open-Meteo Archive API",
+      "note": "南美、高海拔 3767 m、热带高原，气压仅约 656 hPa",
+      "retrieved_at": "2026-10-24T15:12:59",
+      "rows": 8784,
+      "stations": [
+        "LPB"
+      ],
+      "start": "2024-01-01 00:00:00",
+      "end": "2024-12-31 23:00:00",
+      "frequency": "hourly",
+      "columns": [
+        "temperature",
+        "humidity",
+        "pressure",
+        "wind_speed",
+        "rainfall"
+      ],
+      "dropped_all_null_columns": [],
+      "elevation_m": 3767.0,
+      "data_sha1": "7ba1161b2c75ddbfc8ae3f458fbb3b560d76b6df",
+      "raw": [
+        {
+          "url": "https://archive-api.open-meteo.com/v1/archive?latitude=-16.5&longitude=-68.15&start_date=2024-01-01&end_date=2024-12-31&hourly=temperature_2m,relative_humidity_2m,surface_pressure,wind_speed_10m,precipitation&timezone=UTC",
+          "bytes": 366299,
+          "sha1": "6f3ee0b354de5121f4cfa514284a85ea4311c2bc",
+          "elevation": 3767.0
+        }
+      ],
+      "data_path": "fixtures/real_weather/r11_la_paz_hourly_2024/data.csv"
+    },
+    {
+      "id": "R12",
+      "name": "quito_hourly_2024",
+      "source": "Open-Meteo Archive API",
+      "note": "南美、赤道高原 2850 m、年振幅极小",
+      "retrieved_at": "2026-10-24T15:13:05",
+      "rows": 8784,
+      "stations": [
+        "UIO"
+      ],
+      "start": "2024-01-01 00:00:00",
+      "end": "2024-12-31 23:00:00",
+      "frequency": "hourly",
+      "columns": [
+        "temperature",
+        "humidity",
+        "pressure",
+        "wind_speed",
+        "rainfall"
+      ],
+      "dropped_all_null_columns": [],
+      "elevation_m": 2903.0,
+      "data_sha1": "636cc25ec52c0e197ff4448bf385557546210811",
+      "raw": [
+        {
+          "url": "https://archive-api.open-meteo.com/v1/archive?latitude=-0.18&longitude=-78.47&start_date=2024-01-01&end_date=2024-12-31&hourly=temperature_2m,relative_humidity_2m,surface_pressure,wind_speed_10m,precipitation&timezone=UTC",
+          "bytes": 368940,
+          "sha1": "548b9b1361df58e252a780993b4e0a3c84808eb3",
+          "elevation": 2903.0
+        }
+      ],
+      "data_path": "fixtures/real_weather/r12_quito_hourly_2024/data.csv"
+    },
+    {
+      "id": "R13",
+      "name": "addis_ababa_hourly_2024",
+      "source": "Open-Meteo Archive API",
+      "note": "非洲、赤道高原 2355 m、干湿季分明",
+      "retrieved_at": "2026-10-24T15:13:08",
+      "rows": 8784,
+      "stations": [
+        "ADD"
+      ],
+      "start": "2024-01-01 00:00:00",
+      "end": "2024-12-31 23:00:00",
+      "frequency": "hourly",
+      "columns": [
+        "temperature",
+        "humidity",
+        "pressure",
+        "wind_speed",
+        "rainfall"
+      ],
+      "dropped_all_null_columns": [],
+      "elevation_m": 2444.0,
+      "data_sha1": "e09c4463d84600d1424f9376a6e963281b7ccf53",
+      "raw": [
+        {
+          "url": "https://archive-api.open-meteo.com/v1/archive?latitude=9.03&longitude=38.74&start_date=2024-01-01&end_date=2024-12-31&hourly=temperature_2m,relative_humidity_2m,surface_pressure,wind_speed_10m,precipitation&timezone=UTC",
+          "bytes": 370475,
+          "sha1": "2ec22612af7fbb11fade0498c9bded1b168af9cc",
+          "elevation": 2444.0
+        }
+      ],
+      "data_path": "fixtures/real_weather/r13_addis_ababa_hourly_2024/data.csv"
+    },
+    {
+      "id": "R14",
+      "name": "nairobi_hourly_2024",
+      "source": "Open-Meteo Archive API",
+      "note": "非洲、赤道高原 1795 m、双雨季",
+      "retrieved_at": "2026-10-24T15:13:18",
+      "rows": 8784,
+      "stations": [
+        "NBO"
+      ],
+      "start": "2024-01-01 00:00:00",
+      "end": "2024-12-31 23:00:00",
+      "frequency": "hourly",
+      "columns": [
+        "temperature",
+        "humidity",
+        "pressure",
+        "wind_speed",
+        "rainfall"
+      ],
+      "dropped_all_null_columns": [],
+      "elevation_m": 1668.0,
+      "data_sha1": "7027fa0ef80c7618750146fd7c9575c5ac2380c5",
+      "raw": [
+        {
+          "url": "https://archive-api.open-meteo.com/v1/archive?latitude=-1.29&longitude=36.82&start_date=2024-01-01&end_date=2024-12-31&hourly=temperature_2m,relative_humidity_2m,surface_pressure,wind_speed_10m,precipitation&timezone=UTC",
+          "bytes": 371504,
+          "sha1": "5f8d24884f549217c8ee0dca535f3c63f2a3cca7",
+          "elevation": 1668.0
+        }
+      ],
+      "data_path": "fixtures/real_weather/r14_nairobi_hourly_2024/data.csv"
+    },
+    {
+      "id": "R15",
+      "name": "cairo_hourly_2024",
+      "source": "Open-Meteo Archive API",
+      "note": "非洲、热沙漠，Phoenix 的小时级对照",
+      "retrieved_at": "2026-10-24T15:13:30",
+      "rows": 8784,
+      "stations": [
+        "CAI"
+      ],
+      "start": "2024-01-01 00:00:00",
+      "end": "2024-12-31 23:00:00",
+      "frequency": "hourly",
+      "columns": [
+        "temperature",
+        "humidity",
+        "pressure",
+        "wind_speed",
+        "rainfall"
+      ],
+      "dropped_all_null_columns": [],
+      "elevation_m": 29.0,
+      "data_sha1": "d6426cd82a76bd9c1cbd2298d201448c6425b751",
+      "raw": [
+        {
+          "url": "https://archive-api.open-meteo.com/v1/archive?latitude=30.04&longitude=31.24&start_date=2024-01-01&end_date=2024-12-31&hourly=temperature_2m,relative_humidity_2m,surface_pressure,wind_speed_10m,precipitation&timezone=UTC",
+          "bytes": 381985,
+          "sha1": "be279c8a3241e9a4028444c049e749ffbb6683cf",
+          "elevation": 29.0
+        }
+      ],
+      "data_path": "fixtures/real_weather/r15_cairo_hourly_2024/data.csv"
+    },
+    {
+      "id": "R16",
+      "name": "ushuaia_hourly_2024",
+      "source": "Open-Meteo Archive API",
+      "note": "南美、高纬寒冷、西风带强风",
+      "retrieved_at": "2026-10-24T15:13:42",
+      "rows": 8784,
+      "stations": [
+        "USH"
+      ],
+      "start": "2024-01-01 00:00:00",
+      "end": "2024-12-31 23:00:00",
+      "frequency": "hourly",
+      "columns": [
+        "temperature",
+        "humidity",
+        "pressure",
+        "wind_speed",
+        "rainfall"
+      ],
+      "dropped_all_null_columns": [],
+      "elevation_m": 52.0,
+      "data_sha1": "93e660631f0ceacf773e95371a0f0c459d4af4f5",
+      "raw": [
+        {
+          "url": "https://archive-api.open-meteo.com/v1/archive?latitude=-54.8&longitude=-68.3&start_date=2024-01-01&end_date=2024-12-31&hourly=temperature_2m,relative_humidity_2m,surface_pressure,wind_speed_10m,precipitation&timezone=UTC",
+          "bytes": 369992,
+          "sha1": "0f96e671dacc647dd9764c2701dd3f30e8768923",
+          "elevation": 52.0
+        }
+      ],
+      "data_path": "fixtures/real_weather/r16_ushuaia_hourly_2024/data.csv"
+    },
+    {
+      "id": "R17",
+      "name": "nyc_asos_hourly_2018_2024",
+      "source": "NOAA/NWS ASOS via Iowa Environmental Mesonet",
+      "note": "站点观测、小时报文（:51）、阵风按 ASOS 规则条件报送",
+      "retrieved_at": "2026-10-24T15:14:17",
+      "rows": 61098,
+      "stations": [
+        "NYC"
+      ],
+      "start": "2018-01-01 00:51:00",
+      "end": "2024-12-30 23:51:00",
+      "frequency": "hourly",
+      "columns": [
+        "temperature",
+        "humidity",
+        "pressure",
+        "wind_speed",
+        "wind_gusts",
+        "rainfall"
+      ],
+      "dropped_all_null_columns": [],
+      "elevation_m": null,
+      "data_sha1": "aefa703af8151eb58a20d971c8d4842e25757099",
+      "raw": [
+        {
+          "url": "https://mesonet.agron.iastate.edu/cgi-bin/request/asos.py?station=NYC&data=tmpf&data=relh&data=mslp&data=sknt&data=gust&data=p01i&year1=2018&month1=1&day1=1&year2=2018&month2=12&day2=31&tz=UTC&format=csv&latlon=no&direct=no&report_type=3",
+          "bytes": 460156,
+          "sha1": "f1bb583df5c38138e0b1daecb5eb988fc6f18251"
+        },
+        {
+          "url": "https://mesonet.agron.iastate.edu/cgi-bin/request/asos.py?station=NYC&data=tmpf&data=relh&data=mslp&data=sknt&data=gust&data=p01i&year1=2019&month1=1&day1=1&year2=2019&month2=12&day2=31&tz=UTC&format=csv&latlon=no&direct=no&report_type=3",
+          "bytes": 458862,
+          "sha1": "d6aa7cd7ccd38da66507618102ec583edd998a8f"
+        },
+        {
+          "url": "https://mesonet.agron.iastate.edu/cgi-bin/request/asos.py?station=NYC&data=tmpf&data=relh&data=mslp&data=sknt&data=gust&data=p01i&year1=2020&month1=1&day1=1&year2=2020&month2=12&day2=31&tz=UTC&format=csv&latlon=no&direct=no&report_type=3",
+          "bytes": 465182,
+          "sha1": "da083a89e54e4ca7d7933c4bcc19aafd178303e8"
+        },
+        {
+          "url": "https://mesonet.agron.iastate.edu/cgi-bin/request/asos.py?station=NYC&data=tmpf&data=relh&data=mslp&data=sknt&data=gust&data=p01i&year1=2021&month1=1&day1=1&year2=2021&month2=12&day2=31&tz=UTC&format=csv&latlon=no&direct=no&report_type=3",
+          "bytes": 465313,
+          "sha1": "542c87648370be032958e52db32bfd109ce21341"
+        },
+        {
+          "url": "https://mesonet.agron.iastate.edu/cgi-bin/request/asos.py?station=NYC&data=tmpf&data=relh&data=mslp&data=sknt&data=gust&data=p01i&year1=2022&month1=1&day1=1&year2=2022&month2=12&day2=31&tz=UTC&format=csv&latlon=no&direct=no&report_type=3",
+          "bytes": 468626,
+          "sha1": "392d13c178248fab1e1d65f8f033e0ec8670eb99"
+        },
+        {
+          "url": "https://mesonet.agron.iastate.edu/cgi-bin/request/asos.py?station=NYC&data=tmpf&data=relh&data=mslp&data=sknt&data=gust&data=p01i&year1=2023&month1=1&day1=1&year2=2023&month2=12&day2=31&tz=UTC&format=csv&latlon=no&direct=no&report_type=3",
+          "bytes": 466698,
+          "sha1": "125a20f36b9e798eb910f2dbc4c742bde7bb398d"
+        },
+        {
+          "url": "https://mesonet.agron.iastate.edu/cgi-bin/request/asos.py?station=NYC&data=tmpf&data=relh&data=mslp&data=sknt&data=gust&data=p01i&year1=2024&month1=1&day1=1&year2=2024&month2=12&day2=31&tz=UTC&format=csv&latlon=no&direct=no&report_type=3",
+          "bytes": 467185,
+          "sha1": "bcb6b7ad4da374229b8ce073cfa483909161560c"
+        }
+      ],
+      "data_path": "fixtures/real_weather/r17_nyc_asos_hourly_2018_2024/data.csv"
     }
   ]
 }

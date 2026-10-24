@@ -28,6 +28,8 @@ CANON = {
     "humidity": ("humidity", "rh", "relative_humidity", "湿度"),
     "pressure": ("pressure", "pres", "air_pressure", "气压"),
     "wind": ("wind", "wind_speed", "ws", "风速"),
+    # 阵风单列：D3 的 R17 是站点观测阵风，不能并进平均风速（两者差 2–3 倍）
+    "wind_gust": ("wind_gusts", "wind_gust", "gust", "阵风"),
     "rainfall": ("rainfall", "rain", "precip", "precipitation", "降雨", "降水量"),
 }
 STATION_HINT = ("station", "site", "city", "站点", "城市", "station_id")
@@ -65,9 +67,23 @@ def _canon_map(columns) -> dict[str, str]:
     for canon, aliases in CANON.items():
         for alias in aliases:
             for low, orig in lowered.items():
+                if canon == "wind" and _is_gust(low.lower()):
+                    continue      # 阵风有自己的 canon，不被 wind 通配吞掉
                 if low.lower() == alias or low.lower().startswith(alias + "_") or alias in low.lower():
                     mapping.setdefault(canon, orig)
     return mapping
+
+
+def _is_gust(name: str) -> bool:
+    return "gust" in name or "阵风" in name
+
+
+def _same_source_wind_pair(pair: str) -> bool:
+    """阵风 × 平均风速是同源派生量，不作为「两变量相关」结论报告。"""
+    a, _, b = str(pair).partition("~")
+    al, bl = a.lower(), b.lower()
+    return ((_is_gust(al) and ("wind" in bl or "风速" in b))
+            or (_is_gust(bl) and ("wind" in al or "风速" in a)))
 
 
 class WeatherAdapter(ScenarioAdapter):
@@ -94,7 +110,12 @@ class WeatherAdapter(ScenarioAdapter):
     def plan(self, question: str, profile: DatasetProfile, quality: QualityReport,
              frame: pd.DataFrame) -> AnalysisPlan:
         mapping = _canon_map(frame.columns)
-        targets = [c for c in mapping.values() if c in frame.columns]
+        # 去重：同一列可能同时命中多个 canon（例如只有阵风列时 wind 与 wind_gust 都会指它）
+        targets, seen = [], set()
+        for c in mapping.values():
+            if c in frame.columns and c not in seen:
+                seen.add(c)
+                targets.append(c)
         if not targets:
             targets = profile.numeric_columns[:5]
 
@@ -374,7 +395,9 @@ class WeatherAdapter(ScenarioAdapter):
                     "月度统计按日历月聚合，跨年样本合并了不同年份")
 
         # 相关性结论
-        corr_rows = [r for r in ctx.metrics.rows if r.metric_id.startswith("ts.corr.pearson:")]
+        corr_rows = [r for r in ctx.metrics.rows
+                     if r.metric_id.startswith("ts.corr.pearson:")
+                     and not _same_source_wind_pair(r.column)]
         strong = sorted(corr_rows, key=lambda r: abs(r.value or 0), reverse=True)[:3]
         for r in strong:
             if r.value is None or abs(r.value) < 0.3:
@@ -385,7 +408,9 @@ class WeatherAdapter(ScenarioAdapter):
                 [r.metric_id], ["art_fig_corr"], "src/mtsa/metrics.py::compute_metrics",
                 "相关不等于因果；两列可能共同受季节驱动")
 
-        lag_rows = [r for r in ctx.metrics.rows if r.metric_id.startswith("ts.corr.best_lag:")]
+        lag_rows = [r for r in ctx.metrics.rows
+                    if r.metric_id.startswith("ts.corr.best_lag:")
+                    and not _same_source_wind_pair(r.column)]
         for r in lag_rows[:2]:
             if r.value in (None, 0):
                 continue

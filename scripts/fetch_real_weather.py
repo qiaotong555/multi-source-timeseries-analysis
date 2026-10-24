@@ -18,6 +18,7 @@ import zipfile
 from datetime import datetime
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -65,6 +66,42 @@ DATASETS = [
     {"id": "R10", "name": "toronto_hourly_2024", "kind": "eccc",
      "station_id": "51459", "station": "YYZ", "year": 2024,
      "source": "ECCC Bulk Data", "note": "月度 CSV 拼接、BOM、空白缺测"},
+
+    # ---- D3：南美 / 非洲 / 高海拔（五要素，与 R01-R05 同口径）----
+    # 阵风问题不用再分析产品回答：ERA5 的 10 m 阵风在复杂地形/高纬有系统性高估
+    # （实测 Ushuaia 阵风中位数 26.6 m/s），会把极端值报告写坏。
+    # 观测阵风单独由 R17 提供（NOAA/NWS ASOS 站点报）。
+    {"id": "R11", "name": "la_paz_hourly_2024", "kind": "openmeteo_hourly",
+     "lat": -16.50, "lon": -68.15, "start": "2024-01-01", "end": "2024-12-31",
+     "station": "LPB", "source": "Open-Meteo Archive API",
+     "note": "南美、高海拔 3767 m、热带高原，气压仅约 656 hPa"},
+    {"id": "R12", "name": "quito_hourly_2024", "kind": "openmeteo_hourly",
+     "lat": -0.18, "lon": -78.47, "start": "2024-01-01", "end": "2024-12-31",
+     "station": "UIO", "source": "Open-Meteo Archive API",
+     "note": "南美、赤道高原 2850 m、年振幅极小"},
+    {"id": "R13", "name": "addis_ababa_hourly_2024", "kind": "openmeteo_hourly",
+     "lat": 9.03, "lon": 38.74, "start": "2024-01-01", "end": "2024-12-31",
+     "station": "ADD", "source": "Open-Meteo Archive API",
+     "note": "非洲、赤道高原 2355 m、干湿季分明"},
+    {"id": "R14", "name": "nairobi_hourly_2024", "kind": "openmeteo_hourly",
+     "lat": -1.29, "lon": 36.82, "start": "2024-01-01", "end": "2024-12-31",
+     "station": "NBO", "source": "Open-Meteo Archive API",
+     "note": "非洲、赤道高原 1795 m、双雨季"},
+    {"id": "R15", "name": "cairo_hourly_2024", "kind": "openmeteo_hourly",
+     "lat": 30.04, "lon": 31.24, "start": "2024-01-01", "end": "2024-12-31",
+     "station": "CAI", "source": "Open-Meteo Archive API",
+     "note": "非洲、热沙漠，Phoenix 的小时级对照"},
+    {"id": "R16", "name": "ushuaia_hourly_2024", "kind": "openmeteo_hourly",
+     "lat": -54.80, "lon": -68.30, "start": "2024-01-01", "end": "2024-12-31",
+     "station": "USH", "source": "Open-Meteo Archive API",
+     "note": "南美、高纬寒冷、西风带强风"},
+
+    # 观测阵风：与 R06 同一站（NYC Central Park），但为小时 ASOS 报文。
+    # 目的：用真实观测检验 D2 的「日均风速看不见阵风」，并覆盖 4 条 L2 大风事件。
+    {"id": "R17", "name": "nyc_asos_hourly_2018_2024", "kind": "iem_asos",
+     "station": "NYC", "year_start": 2018, "year_end": 2024,
+     "source": "NOAA/NWS ASOS via Iowa Environmental Mesonet",
+     "note": "站点观测、小时报文（:51）、阵风按 ASOS 规则条件报送"},
 ]
 
 
@@ -115,8 +152,9 @@ def convert_openmeteo(ds: dict) -> tuple[pd.DataFrame, list[dict]]:
     for name, lat, lon in stations:
         url = openmeteo_url(ds, lat, lon)
         payload = fetch(url)
-        raws.append({"url": url, "bytes": len(payload), "sha1": sha1_bytes(payload)})
         js = json.loads(payload.decode("utf-8"))
+        raws.append({"url": url, "bytes": len(payload), "sha1": sha1_bytes(payload),
+                     "elevation": js.get("elevation")})
         if ds["kind"] != "openmeteo_daily":
             h = js["hourly"]
             frames.append(_frame(h["time"], name,
@@ -221,6 +259,40 @@ def convert_eccc(ds: dict) -> tuple[pd.DataFrame, list[dict]]:
     return out, raws
 
 
+def convert_iem_asos(ds: dict) -> tuple[pd.DataFrame, list[dict]]:
+    """NOAA/NWS ASOS 小时报文（经 IEM 的 CSV 接口），按年下载后拼接。
+
+    单位：tmpf→°C、sknt→m/s、p01i→mm、mslp 已是 hPa。
+    阵风：ASOS 只在阵风超过持续风约 10 kt 时才报送，其余小时为空。
+    「未报送阵风」不等于「没有阵风」，所以派生列取 max(持续风, 报送阵风)——
+    这样既保留观测到的阵风，也不会把 85% 的空缺插值成一条假的平滑序列。
+    """
+    frames, raws = [], []
+    for year in range(ds["year_start"], ds["year_end"] + 1):
+        url = ("https://mesonet.agron.iastate.edu/cgi-bin/request/asos.py?station=%s"
+               "&data=tmpf&data=relh&data=mslp&data=sknt&data=gust&data=p01i"
+               "&year1=%d&month1=1&day1=1&year2=%d&month2=12&day2=31"
+               "&tz=UTC&format=csv&latlon=no&direct=no&report_type=3"
+               % (ds["station"], year, year))
+        payload = fetch(url)
+        raws.append({"url": url, "bytes": len(payload), "sha1": sha1_bytes(payload)})
+        df = pd.read_csv(io.BytesIO(payload), comment="#", na_values=["M"])
+        if "station" not in df or df.empty:
+            continue
+        tmpf = pd.to_numeric(df["tmpf"], errors="coerce")
+        sknt = pd.to_numeric(df["sknt"], errors="coerce")
+        gust = pd.to_numeric(df["gust"], errors="coerce")
+        wind = sknt * 0.514444
+        frames.append(_frame(df["valid"].values, ds["station"],
+                             temperature=(tmpf - 32.0) * 5.0 / 9.0,
+                             humidity=pd.to_numeric(df["relh"], errors="coerce"),
+                             pressure=pd.to_numeric(df["mslp"], errors="coerce"),
+                             wind_speed=wind,
+                             wind_gusts=np.fmax(gust * 0.514444, wind),
+                             rainfall=pd.to_numeric(df["p01i"], errors="coerce") * 25.4))
+    return pd.concat(frames, ignore_index=True), raws
+
+
 CONVERTERS = {
     "openmeteo_hourly": convert_openmeteo,
     "openmeteo_daily": convert_openmeteo,
@@ -228,6 +300,7 @@ CONVERTERS = {
     "ghcn": convert_ghcn,
     "dwd": convert_dwd,
     "eccc": convert_eccc,
+    "iem_asos": convert_iem_asos,
 }
 
 
@@ -274,6 +347,8 @@ def build(ds: dict, force: bool = False) -> dict:
         "frequency": "daily" if ds["kind"] == "openmeteo_daily" or ds["kind"] == "ghcn" else "hourly",
         "columns": value_cols,
         "dropped_all_null_columns": all_null,
+        "elevation_m": next((r.get("elevation") for r in raws
+                             if isinstance(r.get("elevation"), (int, float))), None),
         "data_sha1": sha1_file(data_path),
         "raw": raws,
         "data_path": str(data_path.relative_to(ROOT)).replace(os.sep, "/"),

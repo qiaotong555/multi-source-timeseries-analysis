@@ -1,0 +1,33 @@
+{
+  "id": "R13",
+  "name": "addis_ababa_hourly_2024",
+  "source": "Open-Meteo Archive API",
+  "note": "非洲、赤道高原 2355 m、干湿季分明",
+  "retrieved_at": "2026-10-24T15:13:08",
+  "rows": 8784,
+  "stations": [
+    "ADD"
+  ],
+  "start": "2024-01-01 00:00:00",
+  "end": "2024-12-31 23:00:00",
+  "frequency": "hourly",
+  "columns": [
+    "temperature",
+    "humidity",
+    "pressure",
+    "wind_speed",
+    "rainfall"
+  ],
+  "dropped_all_null_columns": [],
+  "elevation_m": 2444.0,
+  "data_sha1": "e09c4463d84600d1424f9376a6e963281b7ccf53",
+  "raw": [
+    {
+      "url": "https://archive-api.open-meteo.com/v1/archive?latitude=9.03&longitude=38.74&start_date=2024-01-01&end_date=2024-12-31&hourly=temperature_2m,relative_humidity_2m,surface_pressure,wind_speed_10m,precipitation&timezone=UTC",
+      "bytes": 370475,
+      "sha1": "2ec22612af7fbb11fade0498c9bded1b168af9cc",
+      "elevation": 2444.0
+    }
+  ],
+  "data_path": "fixtures/real_weather/r13_addis_ababa_hourly_2024/data.csv"
+}

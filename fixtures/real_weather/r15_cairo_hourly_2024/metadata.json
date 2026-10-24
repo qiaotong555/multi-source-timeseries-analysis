@@ -1,0 +1,33 @@
+{
+  "id": "R15",
+  "name": "cairo_hourly_2024",
+  "source": "Open-Meteo Archive API",
+  "note": "非洲、热沙漠，Phoenix 的小时级对照",
+  "retrieved_at": "2026-10-24T15:13:30",
+  "rows": 8784,
+  "stations": [
+    "CAI"
+  ],
+  "start": "2024-01-01 00:00:00",
+  "end": "2024-12-31 23:00:00",
+  "frequency": "hourly",
+  "columns": [
+    "temperature",
+    "humidity",
+    "pressure",
+    "wind_speed",
+    "rainfall"
+  ],
+  "dropped_all_null_columns": [],
+  "elevation_m": 29.0,
+  "data_sha1": "d6426cd82a76bd9c1cbd2298d201448c6425b751",
+  "raw": [
+    {
+      "url": "https://archive-api.open-meteo.com/v1/archive?latitude=30.04&longitude=31.24&start_date=2024-01-01&end_date=2024-12-31&hourly=temperature_2m,relative_humidity_2m,surface_pressure,wind_speed_10m,precipitation&timezone=UTC",
+      "bytes": 381985,
+      "sha1": "be279c8a3241e9a4028444c049e749ffbb6683cf",
+      "elevation": 29.0
+    }
+  ],
+  "data_path": "fixtures/real_weather/r15_cairo_hourly_2024/data.csv"
+}

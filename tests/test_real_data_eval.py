@@ -31,12 +31,14 @@ def _load_script(name: str):
 
 # ---------- 数据注册 ----------
 
-def test_registry_has_ten_unique_datasets():
+def test_registry_ids_are_sorted_and_unique():
+    """D3 起 registry 从 10 份增到 17 份；R01–R10 的编号与内容必须保持不变。"""
     reg = load_registry()
-    assert len(reg) == 10
     ids = [m["id"] for m in reg]
+    assert len(reg) >= 10
     assert ids == sorted(ids)
-    assert len(set(ids)) == 10
+    assert len(set(ids)) == len(ids)
+    assert set("R%02d" % i for i in range(1, 11)) <= set(ids)
 
 
 def test_every_dataset_has_files_and_matching_sha1():
@@ -56,12 +58,17 @@ def test_registry_covers_multiple_sources_and_frequencies():
     assert len({m["frequency"] for m in reg}) >= 2
 
 
-def test_converter_defines_ten_datasets_with_unique_ids():
+def test_converter_and_registry_agree_on_datasets():
+    """脚本里的数据集定义必须与 registry 一一对应，否则「重跑能复原」是假的。"""
     mod = _load_script("fetch_real_weather.py")
     ids = [d["id"] for d in mod.DATASETS]
-    assert ids == ["R%02d" % i for i in range(1, 11)]
+    assert len(set(ids)) == len(ids)
+    assert ids == ["R%02d" % i for i in range(1, len(ids) + 1)]
+    assert set(ids) == {m["id"] for m in load_registry()}
     url = mod.openmeteo_url(mod.DATASETS[0], 52.52, 13.41)
     assert "temperature_2m" in url and "timezone=UTC" in url
+    # 旧 10 份的请求口径不能被后续改动带偏（URL 变了 SHA1 就对不上）
+    assert "wind_gusts" not in url
 
 
 # ---------- 标注协议 ----------

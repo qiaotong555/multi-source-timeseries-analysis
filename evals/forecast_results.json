@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-24T14:53:23",
+  "generated_at": "2026-10-24T15:32:55",
   "params": {
     "methods": [
       "seasonal_naive",
@@ -871,29 +871,564 @@
           "points": 8783
         }
       ]
+    },
+    {
+      "id": "R11_la_paz_hourly_2024",
+      "path": "fixtures/real_weather/r11_la_paz_hourly_2024/data.csv",
+      "rows": 8784,
+      "period": 24,
+      "horizon": 24,
+      "columns": [
+        {
+          "column": "temperature",
+          "status": "ok",
+          "selected": "seasonal_naive",
+          "selected_reason": "基线（候选未优于基线）",
+          "selected_mase": 0.7775,
+          "baseline_mase": 0.7775,
+          "beats_baseline": false,
+          "interval_coverage": 0.8802,
+          "interval_coverage_points": 384,
+          "origins_used": 40,
+          "points": 8784
+        },
+        {
+          "column": "humidity",
+          "status": "ok",
+          "selected": "seasonal_naive",
+          "selected_reason": "基线（候选未优于基线）",
+          "selected_mase": 0.7904,
+          "baseline_mase": 0.7904,
+          "beats_baseline": false,
+          "interval_coverage": 0.8776,
+          "interval_coverage_points": 384,
+          "origins_used": 40,
+          "points": 8784
+        },
+        {
+          "column": "pressure",
+          "status": "ok",
+          "selected": "seasonal_naive",
+          "selected_reason": "基线（候选未优于基线）",
+          "selected_mase": 0.7418,
+          "baseline_mase": 0.7418,
+          "beats_baseline": false,
+          "interval_coverage": 0.8932,
+          "interval_coverage_points": 384,
+          "origins_used": 40,
+          "points": 8784
+        },
+        {
+          "column": "wind_speed",
+          "status": "ok",
+          "selected": "seasonal_naive",
+          "selected_reason": "基线（候选未优于基线）",
+          "selected_mase": 0.9075,
+          "baseline_mase": 0.9075,
+          "beats_baseline": false,
+          "interval_coverage": 0.8516,
+          "interval_coverage_points": 384,
+          "origins_used": 40,
+          "points": 8784
+        },
+        {
+          "column": "rainfall",
+          "status": "ok",
+          "selected": "seasonal_naive",
+          "selected_reason": "基线（候选未优于基线）",
+          "selected_mase": 1.2539,
+          "baseline_mase": 1.2539,
+          "beats_baseline": false,
+          "interval_coverage": 0.8776,
+          "interval_coverage_points": 384,
+          "origins_used": 40,
+          "points": 8784
+        }
+      ]
+    },
+    {
+      "id": "R12_quito_hourly_2024",
+      "path": "fixtures/real_weather/r12_quito_hourly_2024/data.csv",
+      "rows": 8784,
+      "period": 24,
+      "horizon": 24,
+      "columns": [
+        {
+          "column": "temperature",
+          "status": "ok",
+          "selected": "seasonal_naive",
+          "selected_reason": "基线（候选未优于基线）",
+          "selected_mase": 0.9656,
+          "baseline_mase": 0.9656,
+          "beats_baseline": false,
+          "interval_coverage": 0.9271,
+          "interval_coverage_points": 384,
+          "origins_used": 40,
+          "points": 8784
+        },
+        {
+          "column": "humidity",
+          "status": "ok",
+          "selected": "seasonal_naive",
+          "selected_reason": "基线（候选未优于基线）",
+          "selected_mase": 0.9993,
+          "baseline_mase": 0.9993,
+          "beats_baseline": false,
+          "interval_coverage": 0.8854,
+          "interval_coverage_points": 384,
+          "origins_used": 40,
+          "points": 8784
+        },
+        {
+          "column": "pressure",
+          "status": "ok",
+          "selected": "seasonal_naive",
+          "selected_reason": "基线（候选未优于基线）",
+          "selected_mase": 0.9603,
+          "baseline_mase": 0.9603,
+          "beats_baseline": false,
+          "interval_coverage": 0.9349,
+          "interval_coverage_points": 384,
+          "origins_used": 40,
+          "points": 8784
+        },
+        {
+          "column": "wind_speed",
+          "status": "ok",
+          "selected": "seasonal_naive",
+          "selected_reason": "基线（候选未优于基线）",
+          "selected_mase": 1.0165,
+          "baseline_mase": 1.0165,
+          "beats_baseline": false,
+          "interval_coverage": 0.875,
+          "interval_coverage_points": 384,
+          "origins_used": 40,
+          "points": 8784
+        },
+        {
+          "column": "rainfall",
+          "status": "ok",
+          "selected": "seasonal_naive",
+          "selected_reason": "基线（候选未优于基线）",
+          "selected_mase": 1.0484,
+          "baseline_mase": 1.0484,
+          "beats_baseline": false,
+          "interval_coverage": 0.8281,
+          "interval_coverage_points": 384,
+          "origins_used": 40,
+          "points": 8784
+        }
+      ]
+    },
+    {
+      "id": "R13_addis_ababa_hourly_2024",
+      "path": "fixtures/real_weather/r13_addis_ababa_hourly_2024/data.csv",
+      "rows": 8784,
+      "period": 24,
+      "horizon": 24,
+      "columns": [
+        {
+          "column": "temperature",
+          "status": "ok",
+          "selected": "seasonal_naive",
+          "selected_reason": "基线（候选未优于基线）",
+          "selected_mase": 0.7768,
+          "baseline_mase": 0.7768,
+          "beats_baseline": false,
+          "interval_coverage": 0.9062,
+          "interval_coverage_points": 384,
+          "origins_used": 40,
+          "points": 8784
+        },
+        {
+          "column": "humidity",
+          "status": "ok",
+          "selected": "seasonal_naive",
+          "selected_reason": "基线（候选未优于基线）",
+          "selected_mase": 1.0543,
+          "baseline_mase": 1.0543,
+          "beats_baseline": false,
+          "interval_coverage": 0.8542,
+          "interval_coverage_points": 384,
+          "origins_used": 40,
+          "points": 8784
+        },
+        {
+          "column": "pressure",
+          "status": "ok",
+          "selected": "seasonal_naive",
+          "selected_reason": "基线（候选未优于基线）",
+          "selected_mase": 0.8456,
+          "baseline_mase": 0.8456,
+          "beats_baseline": false,
+          "interval_coverage": 0.9036,
+          "interval_coverage_points": 384,
+          "origins_used": 40,
+          "points": 8784
+        },
+        {
+          "column": "wind_speed",
+          "status": "ok",
+          "selected": "seasonal_naive",
+          "selected_reason": "基线（候选未优于基线）",
+          "selected_mase": 0.7784,
+          "baseline_mase": 0.7784,
+          "beats_baseline": false,
+          "interval_coverage": 0.9141,
+          "interval_coverage_points": 384,
+          "origins_used": 40,
+          "points": 8784
+        },
+        {
+          "column": "rainfall",
+          "status": "ok",
+          "selected": "seasonal_naive",
+          "selected_reason": "候选未优于基线（回退 seasonal_naive）",
+          "selected_mase": 0.4373,
+          "baseline_mase": 0.4373,
+          "beats_baseline": false,
+          "interval_coverage": 0.9948,
+          "interval_coverage_points": 384,
+          "origins_used": 40,
+          "points": 8784
+        }
+      ]
+    },
+    {
+      "id": "R14_nairobi_hourly_2024",
+      "path": "fixtures/real_weather/r14_nairobi_hourly_2024/data.csv",
+      "rows": 8784,
+      "period": 24,
+      "horizon": 24,
+      "columns": [
+        {
+          "column": "temperature",
+          "status": "ok",
+          "selected": "seasonal_naive",
+          "selected_reason": "基线（候选未优于基线）",
+          "selected_mase": 0.9143,
+          "baseline_mase": 0.9143,
+          "beats_baseline": false,
+          "interval_coverage": 0.9193,
+          "interval_coverage_points": 384,
+          "origins_used": 40,
+          "points": 8784
+        },
+        {
+          "column": "humidity",
+          "status": "ok",
+          "selected": "seasonal_naive",
+          "selected_reason": "基线（候选未优于基线）",
+          "selected_mase": 1.0127,
+          "baseline_mase": 1.0127,
+          "beats_baseline": false,
+          "interval_coverage": 0.9036,
+          "interval_coverage_points": 384,
+          "origins_used": 40,
+          "points": 8784
+        },
+        {
+          "column": "pressure",
+          "status": "ok",
+          "selected": "seasonal_naive",
+          "selected_reason": "基线（候选未优于基线）",
+          "selected_mase": 0.8327,
+          "baseline_mase": 0.8327,
+          "beats_baseline": false,
+          "interval_coverage": 0.9167,
+          "interval_coverage_points": 384,
+          "origins_used": 40,
+          "points": 8784
+        },
+        {
+          "column": "wind_speed",
+          "status": "ok",
+          "selected": "seasonal_naive",
+          "selected_reason": "基线（候选未优于基线）",
+          "selected_mase": 1.0084,
+          "baseline_mase": 1.0084,
+          "beats_baseline": false,
+          "interval_coverage": 0.8516,
+          "interval_coverage_points": 384,
+          "origins_used": 40,
+          "points": 8784
+        },
+        {
+          "column": "rainfall",
+          "status": "ok",
+          "selected": "moving_average",
+          "selected_reason": "优于基线（MASE 相对基线下降 ≥5%）",
+          "selected_mase": 1.2513,
+          "baseline_mase": 1.3601,
+          "beats_baseline": true,
+          "interval_coverage": 0.8854,
+          "interval_coverage_points": 384,
+          "origins_used": 40,
+          "points": 8784
+        }
+      ]
+    },
+    {
+      "id": "R15_cairo_hourly_2024",
+      "path": "fixtures/real_weather/r15_cairo_hourly_2024/data.csv",
+      "rows": 8784,
+      "period": 24,
+      "horizon": 24,
+      "columns": [
+        {
+          "column": "temperature",
+          "status": "ok",
+          "selected": "seasonal_naive",
+          "selected_reason": "基线（候选未优于基线）",
+          "selected_mase": 0.6901,
+          "baseline_mase": 0.6901,
+          "beats_baseline": false,
+          "interval_coverage": 0.8438,
+          "interval_coverage_points": 384,
+          "origins_used": 40,
+          "points": 8784
+        },
+        {
+          "column": "humidity",
+          "status": "ok",
+          "selected": "seasonal_naive",
+          "selected_reason": "基线（候选未优于基线）",
+          "selected_mase": 0.905,
+          "baseline_mase": 0.905,
+          "beats_baseline": false,
+          "interval_coverage": 0.8594,
+          "interval_coverage_points": 384,
+          "origins_used": 40,
+          "points": 8784
+        },
+        {
+          "column": "pressure",
+          "status": "ok",
+          "selected": "drift",
+          "selected_reason": "优于基线（MASE 相对基线下降 ≥5%）",
+          "selected_mase": 0.8209,
+          "baseline_mase": 0.9231,
+          "beats_baseline": true,
+          "interval_coverage": 0.9062,
+          "interval_coverage_points": 384,
+          "origins_used": 40,
+          "points": 8784
+        },
+        {
+          "column": "wind_speed",
+          "status": "ok",
+          "selected": "seasonal_naive",
+          "selected_reason": "基线（候选未优于基线）",
+          "selected_mase": 0.8997,
+          "baseline_mase": 0.8997,
+          "beats_baseline": false,
+          "interval_coverage": 0.8724,
+          "interval_coverage_points": 384,
+          "origins_used": 40,
+          "points": 8784
+        },
+        {
+          "column": "rainfall",
+          "status": "ok",
+          "selected": "drift",
+          "selected_reason": "优于基线（MASE 相对基线下降 ≥5%）",
+          "selected_mase": 0.2633,
+          "baseline_mase": 0.7153,
+          "beats_baseline": true,
+          "interval_coverage": 0.987,
+          "interval_coverage_points": 384,
+          "origins_used": 40,
+          "points": 8784
+        }
+      ]
+    },
+    {
+      "id": "R16_ushuaia_hourly_2024",
+      "path": "fixtures/real_weather/r16_ushuaia_hourly_2024/data.csv",
+      "rows": 8784,
+      "period": 24,
+      "horizon": 24,
+      "columns": [
+        {
+          "column": "temperature",
+          "status": "ok",
+          "selected": "seasonal_naive",
+          "selected_reason": "基线（候选未优于基线）",
+          "selected_mase": 1.012,
+          "baseline_mase": 1.012,
+          "beats_baseline": false,
+          "interval_coverage": 0.8828,
+          "interval_coverage_points": 384,
+          "origins_used": 40,
+          "points": 8784
+        },
+        {
+          "column": "humidity",
+          "status": "ok",
+          "selected": "seasonal_naive",
+          "selected_reason": "基线（候选未优于基线）",
+          "selected_mase": 1.1119,
+          "baseline_mase": 1.1119,
+          "beats_baseline": false,
+          "interval_coverage": 0.8776,
+          "interval_coverage_points": 384,
+          "origins_used": 40,
+          "points": 8784
+        },
+        {
+          "column": "pressure",
+          "status": "ok",
+          "selected": "drift",
+          "selected_reason": "优于基线（MASE 相对基线下降 ≥5%）",
+          "selected_mase": 0.7393,
+          "baseline_mase": 0.9702,
+          "beats_baseline": true,
+          "interval_coverage": 0.9245,
+          "interval_coverage_points": 384,
+          "origins_used": 40,
+          "points": 8784
+        },
+        {
+          "column": "wind_speed",
+          "status": "ok",
+          "selected": "moving_average",
+          "selected_reason": "优于基线（MASE 相对基线下降 ≥5%）",
+          "selected_mase": 1.0453,
+          "baseline_mase": 1.1595,
+          "beats_baseline": true,
+          "interval_coverage": 0.8099,
+          "interval_coverage_points": 384,
+          "origins_used": 40,
+          "points": 8784
+        },
+        {
+          "column": "rainfall",
+          "status": "ok",
+          "selected": "moving_average",
+          "selected_reason": "优于基线（MASE 相对基线下降 ≥5%）",
+          "selected_mase": 0.7905,
+          "baseline_mase": 0.9644,
+          "beats_baseline": true,
+          "interval_coverage": 0.875,
+          "interval_coverage_points": 384,
+          "origins_used": 40,
+          "points": 8784
+        }
+      ]
+    },
+    {
+      "id": "R17_nyc_asos_hourly_2018_2024",
+      "path": "fixtures/real_weather/r17_nyc_asos_hourly_2018_2024/data.csv",
+      "rows": 61098,
+      "period": 24,
+      "horizon": 24,
+      "columns": [
+        {
+          "column": "temperature",
+          "status": "ok",
+          "selected": "seasonal_naive",
+          "selected_reason": "候选未优于基线（回退 seasonal_naive）",
+          "selected_mase": 0.7932,
+          "baseline_mase": 0.7932,
+          "beats_baseline": false,
+          "interval_coverage": 0.7943,
+          "interval_coverage_points": 384,
+          "origins_used": 40,
+          "points": 61098
+        },
+        {
+          "column": "humidity",
+          "status": "ok",
+          "selected": "seasonal_naive",
+          "selected_reason": "候选未优于基线（回退 seasonal_naive）",
+          "selected_mase": 0.9299,
+          "baseline_mase": 0.9299,
+          "beats_baseline": false,
+          "interval_coverage": 0.7682,
+          "interval_coverage_points": 384,
+          "origins_used": 40,
+          "points": 61098
+        },
+        {
+          "column": "pressure",
+          "status": "ok",
+          "selected": "drift",
+          "selected_reason": "优于基线（MASE 相对基线下降 ≥5%）",
+          "selected_mase": 0.7071,
+          "baseline_mase": 0.8937,
+          "beats_baseline": true,
+          "interval_coverage": 0.8776,
+          "interval_coverage_points": 384,
+          "origins_used": 40,
+          "points": 61098
+        },
+        {
+          "column": "wind_speed",
+          "status": "ok",
+          "selected": "moving_average",
+          "selected_reason": "优于基线（MASE 相对基线下降 ≥5%）",
+          "selected_mase": 0.9418,
+          "baseline_mase": 1.1275,
+          "beats_baseline": true,
+          "interval_coverage": 0.8464,
+          "interval_coverage_points": 384,
+          "origins_used": 40,
+          "points": 61098
+        },
+        {
+          "column": "wind_gusts",
+          "status": "ok",
+          "selected": "moving_average",
+          "selected_reason": "优于基线（MASE 相对基线下降 ≥5%）",
+          "selected_mase": 1.0379,
+          "baseline_mase": 1.2114,
+          "beats_baseline": true,
+          "interval_coverage": 0.8125,
+          "interval_coverage_points": 384,
+          "origins_used": 40,
+          "points": 61098
+        },
+        {
+          "column": "rainfall",
+          "status": "ok",
+          "selected": "moving_average",
+          "selected_reason": "优于基线（MASE 相对基线下降 ≥5%）",
+          "selected_mase": 0.9239,
+          "baseline_mase": 0.9895,
+          "beats_baseline": true,
+          "interval_coverage": 0.8359,
+          "interval_coverage_points": 384,
+          "origins_used": 40,
+          "points": 61098
+        }
+      ]
     }
   ],
   "summary": {
-    "columns_ok": 58,
+    "columns_ok": 94,
     "columns_skipped": 0,
-    "coverage_pooled": 0.8673,
-    "coverage_min": 0.7995,
-    "coverage_max": 0.987,
-    "coverage_points": 19552,
+    "coverage_pooled": 0.8722,
+    "coverage_min": 0.7682,
+    "coverage_max": 0.9948,
+    "coverage_points": 33376,
     "coverage_out_of_band": [
       "rainfall@TYO=0.987",
-      "temperature=0.7995"
+      "temperature=0.7995",
+      "rainfall=0.9948",
+      "rainfall=0.987",
+      "temperature=0.7943",
+      "humidity=0.7682"
     ],
-    "mase_defined": 58,
-    "mase_le_1": 43,
-    "mase_le_1_share": 0.7414,
-    "beats_baseline": 30,
-    "beats_baseline_share": 0.5172,
+    "mase_defined": 94,
+    "mase_le_1": 68,
+    "mase_le_1_share": 0.7234,
+    "beats_baseline": 40,
+    "beats_baseline_share": 0.4255,
     "missing_reason": [],
     "selected_counts": {
-      "moving_average": 24,
-      "drift": 6,
-      "seasonal_naive": 28
+      "moving_average": 30,
+      "seasonal_naive": 54,
+      "drift": 10
     },
     "passed": {
       "F3": true,

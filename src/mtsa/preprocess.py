@@ -170,10 +170,14 @@ def clean_dataset(
     # 5) 插值
     imputed = 0
     imputed_index: list[str] = []
+    imputed_columns: dict[str, list[str]] = {}
     if numeric_cols:
         na_before = int(frame[numeric_cols].isna().sum().sum())
         if na_before:
             imputed_index = [str(ts) for ts in frame.index[frame[numeric_cols].isna().any(axis=1)]]
+            # 逐列记录：哪一列在这个时刻是补出来的。行级并集只保留给旧调用方兜底。
+            imputed_columns = {c: [str(ts) for ts in frame.index[frame[c].isna()]]
+                               for c in numeric_cols if frame[c].isna().any()}
             if isinstance(frame.index, pd.DatetimeIndex):
                 frame[numeric_cols] = frame[numeric_cols].interpolate(
                     method="time", limit_direction="both"
@@ -218,5 +222,6 @@ def clean_dataset(
         dropped_rows=int(dropped),
         imputed_cells=int(imputed),
         imputed_index=imputed_index,
+        imputed_columns=imputed_columns,
         unit_conversions=conversions,
     )

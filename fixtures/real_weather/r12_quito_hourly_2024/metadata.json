@@ -1,0 +1,33 @@
+{
+  "id": "R12",
+  "name": "quito_hourly_2024",
+  "source": "Open-Meteo Archive API",
+  "note": "南美、赤道高原 2850 m、年振幅极小",
+  "retrieved_at": "2026-10-24T15:13:05",
+  "rows": 8784,
+  "stations": [
+    "UIO"
+  ],
+  "start": "2024-01-01 00:00:00",
+  "end": "2024-12-31 23:00:00",
+  "frequency": "hourly",
+  "columns": [
+    "temperature",
+    "humidity",
+    "pressure",
+    "wind_speed",
+    "rainfall"
+  ],
+  "dropped_all_null_columns": [],
+  "elevation_m": 2903.0,
+  "data_sha1": "636cc25ec52c0e197ff4448bf385557546210811",
+  "raw": [
+    {
+      "url": "https://archive-api.open-meteo.com/v1/archive?latitude=-0.18&longitude=-78.47&start_date=2024-01-01&end_date=2024-12-31&hourly=temperature_2m,relative_humidity_2m,surface_pressure,wind_speed_10m,precipitation&timezone=UTC",
+      "bytes": 368940,
+      "sha1": "548b9b1361df58e252a780993b4e0a3c84808eb3",
+      "elevation": 2903.0
+    }
+  ],
+  "data_path": "fixtures/real_weather/r12_quito_hourly_2024/data.csv"
+}

@@ -1,0 +1,63 @@
+{
+  "id": "R17",
+  "name": "nyc_asos_hourly_2018_2024",
+  "source": "NOAA/NWS ASOS via Iowa Environmental Mesonet",
+  "note": "站点观测、小时报文（:51）、阵风按 ASOS 规则条件报送",
+  "retrieved_at": "2026-10-24T15:14:17",
+  "rows": 61098,
+  "stations": [
+    "NYC"
+  ],
+  "start": "2018-01-01 00:51:00",
+  "end": "2024-12-30 23:51:00",
+  "frequency": "hourly",
+  "columns": [
+    "temperature",
+    "humidity",
+    "pressure",
+    "wind_speed",
+    "wind_gusts",
+    "rainfall"
+  ],
+  "dropped_all_null_columns": [],
+  "elevation_m": null,
+  "data_sha1": "aefa703af8151eb58a20d971c8d4842e25757099",
+  "raw": [
+    {
+      "url": "https://mesonet.agron.iastate.edu/cgi-bin/request/asos.py?station=NYC&data=tmpf&data=relh&data=mslp&data=sknt&data=gust&data=p01i&year1=2018&month1=1&day1=1&year2=2018&month2=12&day2=31&tz=UTC&format=csv&latlon=no&direct=no&report_type=3",
+      "bytes": 460156,
+      "sha1": "f1bb583df5c38138e0b1daecb5eb988fc6f18251"
+    },
+    {
+      "url": "https://mesonet.agron.iastate.edu/cgi-bin/request/asos.py?station=NYC&data=tmpf&data=relh&data=mslp&data=sknt&data=gust&data=p01i&year1=2019&month1=1&day1=1&year2=2019&month2=12&day2=31&tz=UTC&format=csv&latlon=no&direct=no&report_type=3",
+      "bytes": 458862,
+      "sha1": "d6aa7cd7ccd38da66507618102ec583edd998a8f"
+    },
+    {
+      "url": "https://mesonet.agron.iastate.edu/cgi-bin/request/asos.py?station=NYC&data=tmpf&data=relh&data=mslp&data=sknt&data=gust&data=p01i&year1=2020&month1=1&day1=1&year2=2020&month2=12&day2=31&tz=UTC&format=csv&latlon=no&direct=no&report_type=3",
+      "bytes": 465182,
+      "sha1": "da083a89e54e4ca7d7933c4bcc19aafd178303e8"
+    },
+    {
+      "url": "https://mesonet.agron.iastate.edu/cgi-bin/request/asos.py?station=NYC&data=tmpf&data=relh&data=mslp&data=sknt&data=gust&data=p01i&year1=2021&month1=1&day1=1&year2=2021&month2=12&day2=31&tz=UTC&format=csv&latlon=no&direct=no&report_type=3",
+      "bytes": 465313,
+      "sha1": "542c87648370be032958e52db32bfd109ce21341"
+    },
+    {
+      "url": "https://mesonet.agron.iastate.edu/cgi-bin/request/asos.py?station=NYC&data=tmpf&data=relh&data=mslp&data=sknt&data=gust&data=p01i&year1=2022&month1=1&day1=1&year2=2022&month2=12&day2=31&tz=UTC&format=csv&latlon=no&direct=no&report_type=3",
+      "bytes": 468626,
+      "sha1": "392d13c178248fab1e1d65f8f033e0ec8670eb99"
+    },
+    {
+      "url": "https://mesonet.agron.iastate.edu/cgi-bin/request/asos.py?station=NYC&data=tmpf&data=relh&data=mslp&data=sknt&data=gust&data=p01i&year1=2023&month1=1&day1=1&year2=2023&month2=12&day2=31&tz=UTC&format=csv&latlon=no&direct=no&report_type=3",
+      "bytes": 466698,
+      "sha1": "125a20f36b9e798eb910f2dbc4c742bde7bb398d"
+    },
+    {
+      "url": "https://mesonet.agron.iastate.edu/cgi-bin/request/asos.py?station=NYC&data=tmpf&data=relh&data=mslp&data=sknt&data=gust&data=p01i&year1=2024&month1=1&day1=1&year2=2024&month2=12&day2=31&tz=UTC&format=csv&latlon=no&direct=no&report_type=3",
+      "bytes": 467185,
+      "sha1": "bcb6b7ad4da374229b8ce073cfa483909161560c"
+    }
+  ],
+  "data_path": "fixtures/real_weather/r17_nyc_asos_hourly_2018_2024/data.csv"
+}

@@ -1,0 +1,33 @@
+{
+  "id": "R11",
+  "name": "la_paz_hourly_2024",
+  "source": "Open-Meteo Archive API",
+  "note": "南美、高海拔 3767 m、热带高原，气压仅约 656 hPa",
+  "retrieved_at": "2026-10-24T15:12:59",
+  "rows": 8784,
+  "stations": [
+    "LPB"
+  ],
+  "start": "2024-01-01 00:00:00",
+  "end": "2024-12-31 23:00:00",
+  "frequency": "hourly",
+  "columns": [
+    "temperature",
+    "humidity",
+    "pressure",
+    "wind_speed",
+    "rainfall"
+  ],
+  "dropped_all_null_columns": [],
+  "elevation_m": 3767.0,
+  "data_sha1": "7ba1161b2c75ddbfc8ae3f458fbb3b560d76b6df",
+  "raw": [
+    {
+      "url": "https://archive-api.open-meteo.com/v1/archive?latitude=-16.5&longitude=-68.15&start_date=2024-01-01&end_date=2024-12-31&hourly=temperature_2m,relative_humidity_2m,surface_pressure,wind_speed_10m,precipitation&timezone=UTC",
+      "bytes": 366299,
+      "sha1": "6f3ee0b354de5121f4cfa514284a85ea4311c2bc",
+      "elevation": 3767.0
+    }
+  ],
+  "data_path": "fixtures/real_weather/r11_la_paz_hourly_2024/data.csv"
+}

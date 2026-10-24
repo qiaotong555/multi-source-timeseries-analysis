@@ -175,8 +175,12 @@ class CleanDataset(MtsaModel):
     operations: list[dict[str, Any]] = Field(default_factory=list)
     dropped_rows: int = 0
     imputed_cells: int = 0
-    # 被插值填补的采样点：这些点的值来自填补而非观测，不能作为异常点判定依据
+    # 被插值填补的采样点：这些点的值来自填补而非观测，不能作为异常点判定依据。
+    # 注意这是**行级并集**：任一行只要有任一列被插补就会计入。
     imputed_index: list[str] = Field(default_factory=list)
+    # 逐列的插补位置（列名 → 时间戳列表）。行级并集会把「别列的缺失」算到这一列头上：
+    # R17 上 61098 行里有 4930+ 个时间戳被别的列连坐，导致 75% 的阵风 p99 观测被误剔除。
+    imputed_columns: dict[str, list[str]] = Field(default_factory=dict)
     unit_conversions: list[dict[str, Any]] = Field(default_factory=list)
 
 

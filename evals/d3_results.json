@@ -1,0 +1,734 @@
+{
+  "generated_at": "2026-10-24T15:31:59",
+  "new_datasets": [
+    {
+      "id": "R11",
+      "name": "la_paz_hourly_2024",
+      "source": "Open-Meteo Archive API",
+      "note": "南美、高海拔 3767 m、热带高原，气压仅约 656 hPa",
+      "rows": 8784,
+      "stations": [
+        "LPB"
+      ],
+      "start": "2024-01-01 00:00:00",
+      "end": "2024-12-31 23:00:00",
+      "frequency": "hourly",
+      "columns": [
+        "temperature",
+        "humidity",
+        "pressure",
+        "wind_speed",
+        "rainfall"
+      ],
+      "elevation_m": 3767.0,
+      "data_sha1": "7ba1161b2c75ddbfc8ae3f458fbb3b560d76b6df"
+    },
+    {
+      "id": "R12",
+      "name": "quito_hourly_2024",
+      "source": "Open-Meteo Archive API",
+      "note": "南美、赤道高原 2850 m、年振幅极小",
+      "rows": 8784,
+      "stations": [
+        "UIO"
+      ],
+      "start": "2024-01-01 00:00:00",
+      "end": "2024-12-31 23:00:00",
+      "frequency": "hourly",
+      "columns": [
+        "temperature",
+        "humidity",
+        "pressure",
+        "wind_speed",
+        "rainfall"
+      ],
+      "elevation_m": 2903.0,
+      "data_sha1": "636cc25ec52c0e197ff4448bf385557546210811"
+    },
+    {
+      "id": "R13",
+      "name": "addis_ababa_hourly_2024",
+      "source": "Open-Meteo Archive API",
+      "note": "非洲、赤道高原 2355 m、干湿季分明",
+      "rows": 8784,
+      "stations": [
+        "ADD"
+      ],
+      "start": "2024-01-01 00:00:00",
+      "end": "2024-12-31 23:00:00",
+      "frequency": "hourly",
+      "columns": [
+        "temperature",
+        "humidity",
+        "pressure",
+        "wind_speed",
+        "rainfall"
+      ],
+      "elevation_m": 2444.0,
+      "data_sha1": "e09c4463d84600d1424f9376a6e963281b7ccf53"
+    },
+    {
+      "id": "R14",
+      "name": "nairobi_hourly_2024",
+      "source": "Open-Meteo Archive API",
+      "note": "非洲、赤道高原 1795 m、双雨季",
+      "rows": 8784,
+      "stations": [
+        "NBO"
+      ],
+      "start": "2024-01-01 00:00:00",
+      "end": "2024-12-31 23:00:00",
+      "frequency": "hourly",
+      "columns": [
+        "temperature",
+        "humidity",
+        "pressure",
+        "wind_speed",
+        "rainfall"
+      ],
+      "elevation_m": 1668.0,
+      "data_sha1": "7027fa0ef80c7618750146fd7c9575c5ac2380c5"
+    },
+    {
+      "id": "R15",
+      "name": "cairo_hourly_2024",
+      "source": "Open-Meteo Archive API",
+      "note": "非洲、热沙漠，Phoenix 的小时级对照",
+      "rows": 8784,
+      "stations": [
+        "CAI"
+      ],
+      "start": "2024-01-01 00:00:00",
+      "end": "2024-12-31 23:00:00",
+      "frequency": "hourly",
+      "columns": [
+        "temperature",
+        "humidity",
+        "pressure",
+        "wind_speed",
+        "rainfall"
+      ],
+      "elevation_m": 29.0,
+      "data_sha1": "d6426cd82a76bd9c1cbd2298d201448c6425b751"
+    },
+    {
+      "id": "R16",
+      "name": "ushuaia_hourly_2024",
+      "source": "Open-Meteo Archive API",
+      "note": "南美、高纬寒冷、西风带强风",
+      "rows": 8784,
+      "stations": [
+        "USH"
+      ],
+      "start": "2024-01-01 00:00:00",
+      "end": "2024-12-31 23:00:00",
+      "frequency": "hourly",
+      "columns": [
+        "temperature",
+        "humidity",
+        "pressure",
+        "wind_speed",
+        "rainfall"
+      ],
+      "elevation_m": 52.0,
+      "data_sha1": "93e660631f0ceacf773e95371a0f0c459d4af4f5"
+    },
+    {
+      "id": "R17",
+      "name": "nyc_asos_hourly_2018_2024",
+      "source": "NOAA/NWS ASOS via Iowa Environmental Mesonet",
+      "note": "站点观测、小时报文（:51）、阵风按 ASOS 规则条件报送",
+      "rows": 61098,
+      "stations": [
+        "NYC"
+      ],
+      "start": "2018-01-01 00:51:00",
+      "end": "2024-12-30 23:51:00",
+      "frequency": "hourly",
+      "columns": [
+        "temperature",
+        "humidity",
+        "pressure",
+        "wind_speed",
+        "wind_gusts",
+        "rainfall"
+      ],
+      "elevation_m": null,
+      "data_sha1": "aefa703af8151eb58a20d971c8d4842e25757099"
+    }
+  ],
+  "continents": {
+    "R11": "南美",
+    "R12": "南美",
+    "R13": "非洲",
+    "R14": "非洲",
+    "R15": "非洲",
+    "R16": "南美",
+    "R17": "北美"
+  },
+  "targets": {
+    "R11": [
+      "temperature",
+      "humidity",
+      "pressure",
+      "wind_speed",
+      "rainfall"
+    ],
+    "R12": [
+      "temperature",
+      "humidity",
+      "pressure",
+      "wind_speed",
+      "rainfall"
+    ],
+    "R13": [
+      "temperature",
+      "humidity",
+      "pressure",
+      "wind_speed",
+      "rainfall"
+    ],
+    "R14": [
+      "temperature",
+      "humidity",
+      "pressure",
+      "wind_speed",
+      "rainfall"
+    ],
+    "R15": [
+      "temperature",
+      "humidity",
+      "pressure",
+      "wind_speed",
+      "rainfall"
+    ],
+    "R16": [
+      "temperature",
+      "humidity",
+      "pressure",
+      "wind_speed",
+      "rainfall"
+    ],
+    "R17": [
+      "temperature",
+      "humidity",
+      "pressure",
+      "wind_speed",
+      "wind_gusts",
+      "rainfall"
+    ]
+  },
+  "old_sha1_unchanged": {
+    "R01": true,
+    "R02": true,
+    "R03": true,
+    "R04": true,
+    "R05": true,
+    "R06": true,
+    "R07": true,
+    "R08": true,
+    "R09": true,
+    "R10": true
+  },
+  "runs": [
+    {
+      "dataset": "R11",
+      "question": "q1",
+      "status": "succeeded",
+      "conclusions": 28,
+      "evidence_coverage": 1.0,
+      "quality_codes": [
+        "OUTLIER_CANDIDATE",
+        "POSSIBLE_UNIT_CHANGE"
+      ],
+      "extremes": 8,
+      "forecast": false,
+      "labels": 0,
+      "rows": 8784
+    },
+    {
+      "dataset": "R11",
+      "question": "q2",
+      "status": "succeeded",
+      "conclusions": 28,
+      "evidence_coverage": 1.0,
+      "quality_codes": [
+        "OUTLIER_CANDIDATE",
+        "POSSIBLE_UNIT_CHANGE"
+      ],
+      "extremes": 8,
+      "forecast": false,
+      "labels": 0,
+      "rows": 8784
+    },
+    {
+      "dataset": "R11",
+      "question": "q3",
+      "status": "succeeded",
+      "conclusions": 28,
+      "evidence_coverage": 1.0,
+      "quality_codes": [
+        "OUTLIER_CANDIDATE",
+        "POSSIBLE_UNIT_CHANGE"
+      ],
+      "extremes": 8,
+      "forecast": false,
+      "labels": 0,
+      "rows": 8784
+    },
+    {
+      "dataset": "R11",
+      "question": "q4",
+      "status": "succeeded",
+      "conclusions": 28,
+      "evidence_coverage": 1.0,
+      "quality_codes": [
+        "OUTLIER_CANDIDATE",
+        "POSSIBLE_UNIT_CHANGE"
+      ],
+      "extremes": 8,
+      "forecast": false,
+      "labels": 0,
+      "rows": 8784
+    },
+    {
+      "dataset": "R12",
+      "question": "q1",
+      "status": "succeeded",
+      "conclusions": 29,
+      "evidence_coverage": 1.0,
+      "quality_codes": [
+        "LEVEL_SHIFT",
+        "OUTLIER_CANDIDATE"
+      ],
+      "extremes": 8,
+      "forecast": false,
+      "labels": 0,
+      "rows": 8784
+    },
+    {
+      "dataset": "R12",
+      "question": "q2",
+      "status": "succeeded",
+      "conclusions": 29,
+      "evidence_coverage": 1.0,
+      "quality_codes": [
+        "LEVEL_SHIFT",
+        "OUTLIER_CANDIDATE"
+      ],
+      "extremes": 8,
+      "forecast": false,
+      "labels": 0,
+      "rows": 8784
+    },
+    {
+      "dataset": "R12",
+      "question": "q3",
+      "status": "succeeded",
+      "conclusions": 29,
+      "evidence_coverage": 1.0,
+      "quality_codes": [
+        "LEVEL_SHIFT",
+        "OUTLIER_CANDIDATE"
+      ],
+      "extremes": 8,
+      "forecast": false,
+      "labels": 0,
+      "rows": 8784
+    },
+    {
+      "dataset": "R12",
+      "question": "q4",
+      "status": "succeeded",
+      "conclusions": 29,
+      "evidence_coverage": 1.0,
+      "quality_codes": [
+        "LEVEL_SHIFT",
+        "OUTLIER_CANDIDATE"
+      ],
+      "extremes": 8,
+      "forecast": false,
+      "labels": 0,
+      "rows": 8784
+    },
+    {
+      "dataset": "R13",
+      "question": "q1",
+      "status": "succeeded",
+      "conclusions": 27,
+      "evidence_coverage": 1.0,
+      "quality_codes": [
+        "LEVEL_SHIFT",
+        "OUTLIER_CANDIDATE"
+      ],
+      "extremes": 8,
+      "forecast": false,
+      "labels": 0,
+      "rows": 8784
+    },
+    {
+      "dataset": "R13",
+      "question": "q2",
+      "status": "succeeded",
+      "conclusions": 27,
+      "evidence_coverage": 1.0,
+      "quality_codes": [
+        "LEVEL_SHIFT",
+        "OUTLIER_CANDIDATE"
+      ],
+      "extremes": 8,
+      "forecast": false,
+      "labels": 0,
+      "rows": 8784
+    },
+    {
+      "dataset": "R13",
+      "question": "q3",
+      "status": "succeeded",
+      "conclusions": 27,
+      "evidence_coverage": 1.0,
+      "quality_codes": [
+        "LEVEL_SHIFT",
+        "OUTLIER_CANDIDATE"
+      ],
+      "extremes": 8,
+      "forecast": false,
+      "labels": 0,
+      "rows": 8784
+    },
+    {
+      "dataset": "R13",
+      "question": "q4",
+      "status": "succeeded",
+      "conclusions": 27,
+      "evidence_coverage": 1.0,
+      "quality_codes": [
+        "LEVEL_SHIFT",
+        "OUTLIER_CANDIDATE"
+      ],
+      "extremes": 8,
+      "forecast": false,
+      "labels": 0,
+      "rows": 8784
+    },
+    {
+      "dataset": "R14",
+      "question": "q1",
+      "status": "succeeded",
+      "conclusions": 30,
+      "evidence_coverage": 1.0,
+      "quality_codes": [
+        "LEVEL_SHIFT",
+        "OUTLIER_CANDIDATE"
+      ],
+      "extremes": 8,
+      "forecast": false,
+      "labels": 0,
+      "rows": 8784
+    },
+    {
+      "dataset": "R14",
+      "question": "q2",
+      "status": "succeeded",
+      "conclusions": 30,
+      "evidence_coverage": 1.0,
+      "quality_codes": [
+        "LEVEL_SHIFT",
+        "OUTLIER_CANDIDATE"
+      ],
+      "extremes": 8,
+      "forecast": false,
+      "labels": 0,
+      "rows": 8784
+    },
+    {
+      "dataset": "R14",
+      "question": "q3",
+      "status": "succeeded",
+      "conclusions": 30,
+      "evidence_coverage": 1.0,
+      "quality_codes": [
+        "LEVEL_SHIFT",
+        "OUTLIER_CANDIDATE"
+      ],
+      "extremes": 8,
+      "forecast": false,
+      "labels": 0,
+      "rows": 8784
+    },
+    {
+      "dataset": "R14",
+      "question": "q4",
+      "status": "succeeded",
+      "conclusions": 30,
+      "evidence_coverage": 1.0,
+      "quality_codes": [
+        "LEVEL_SHIFT",
+        "OUTLIER_CANDIDATE"
+      ],
+      "extremes": 8,
+      "forecast": false,
+      "labels": 0,
+      "rows": 8784
+    },
+    {
+      "dataset": "R15",
+      "question": "q1",
+      "status": "succeeded",
+      "conclusions": 29,
+      "evidence_coverage": 1.0,
+      "quality_codes": [
+        "LEVEL_SHIFT",
+        "OUTLIER_CANDIDATE",
+        "SAMPLING_GAP"
+      ],
+      "extremes": 7,
+      "forecast": false,
+      "labels": 0,
+      "rows": 8784
+    },
+    {
+      "dataset": "R15",
+      "question": "q2",
+      "status": "succeeded",
+      "conclusions": 29,
+      "evidence_coverage": 1.0,
+      "quality_codes": [
+        "LEVEL_SHIFT",
+        "OUTLIER_CANDIDATE",
+        "SAMPLING_GAP"
+      ],
+      "extremes": 7,
+      "forecast": false,
+      "labels": 0,
+      "rows": 8784
+    },
+    {
+      "dataset": "R15",
+      "question": "q3",
+      "status": "succeeded",
+      "conclusions": 29,
+      "evidence_coverage": 1.0,
+      "quality_codes": [
+        "LEVEL_SHIFT",
+        "OUTLIER_CANDIDATE",
+        "SAMPLING_GAP"
+      ],
+      "extremes": 7,
+      "forecast": false,
+      "labels": 0,
+      "rows": 8784
+    },
+    {
+      "dataset": "R15",
+      "question": "q4",
+      "status": "succeeded",
+      "conclusions": 29,
+      "evidence_coverage": 1.0,
+      "quality_codes": [
+        "LEVEL_SHIFT",
+        "OUTLIER_CANDIDATE",
+        "SAMPLING_GAP"
+      ],
+      "extremes": 7,
+      "forecast": false,
+      "labels": 0,
+      "rows": 8784
+    },
+    {
+      "dataset": "R16",
+      "question": "q1",
+      "status": "succeeded",
+      "conclusions": 29,
+      "evidence_coverage": 1.0,
+      "quality_codes": [
+        "OUTLIER_CANDIDATE"
+      ],
+      "extremes": 8,
+      "forecast": false,
+      "labels": 0,
+      "rows": 8784
+    },
+    {
+      "dataset": "R16",
+      "question": "q2",
+      "status": "succeeded",
+      "conclusions": 29,
+      "evidence_coverage": 1.0,
+      "quality_codes": [
+        "OUTLIER_CANDIDATE"
+      ],
+      "extremes": 8,
+      "forecast": false,
+      "labels": 0,
+      "rows": 8784
+    },
+    {
+      "dataset": "R16",
+      "question": "q3",
+      "status": "succeeded",
+      "conclusions": 29,
+      "evidence_coverage": 1.0,
+      "quality_codes": [
+        "OUTLIER_CANDIDATE"
+      ],
+      "extremes": 8,
+      "forecast": false,
+      "labels": 0,
+      "rows": 8784
+    },
+    {
+      "dataset": "R16",
+      "question": "q4",
+      "status": "succeeded",
+      "conclusions": 29,
+      "evidence_coverage": 1.0,
+      "quality_codes": [
+        "OUTLIER_CANDIDATE"
+      ],
+      "extremes": 8,
+      "forecast": false,
+      "labels": 0,
+      "rows": 8784
+    },
+    {
+      "dataset": "R17",
+      "question": "q1",
+      "status": "succeeded",
+      "conclusions": 38,
+      "evidence_coverage": 1.0,
+      "quality_codes": [
+        "MISSING_VALUES",
+        "OUTLIER_CANDIDATE",
+        "SAMPLING_GAP"
+      ],
+      "extremes": 9,
+      "forecast": false,
+      "labels": 202,
+      "rows": 61098
+    },
+    {
+      "dataset": "R17",
+      "question": "q2",
+      "status": "succeeded",
+      "conclusions": 38,
+      "evidence_coverage": 1.0,
+      "quality_codes": [
+        "MISSING_VALUES",
+        "OUTLIER_CANDIDATE",
+        "SAMPLING_GAP"
+      ],
+      "extremes": 9,
+      "forecast": false,
+      "labels": 202,
+      "rows": 61098
+    },
+    {
+      "dataset": "R17",
+      "question": "q3",
+      "status": "succeeded",
+      "conclusions": 38,
+      "evidence_coverage": 1.0,
+      "quality_codes": [
+        "MISSING_VALUES",
+        "OUTLIER_CANDIDATE",
+        "SAMPLING_GAP"
+      ],
+      "extremes": 9,
+      "forecast": false,
+      "labels": 202,
+      "rows": 61098
+    },
+    {
+      "dataset": "R17",
+      "question": "q4",
+      "status": "succeeded",
+      "conclusions": 38,
+      "evidence_coverage": 1.0,
+      "quality_codes": [
+        "MISSING_VALUES",
+        "OUTLIER_CANDIDATE",
+        "SAMPLING_GAP"
+      ],
+      "extremes": 9,
+      "forecast": false,
+      "labels": 202,
+      "rows": 61098
+    }
+  ],
+  "gust_check": {
+    "threshold": 12.8611,
+    "events": [
+      {
+        "event_id": "High Wind(NEW YORK (MANHATTAN))；同列相邻≤1天的官方条目合并为一个事件窗口",
+        "start": "2018-03-02 00:00:00",
+        "kind": "High Wind",
+        "wind_gusts": true,
+        "wind_speed": true
+      },
+      {
+        "event_id": "High Wind(NEW YORK (MANHATTAN))；同列相邻≤1天的官方条目合并为一个事件窗口",
+        "start": "2020-04-13 00:00:00",
+        "kind": "High Wind",
+        "wind_gusts": true,
+        "wind_speed": true
+      },
+      {
+        "event_id": "Thunderstorm Wind(NEW YORK)；同列相邻≤1天的官方条目合并为一个事件窗口",
+        "start": "2023-08-13 00:00:00",
+        "kind": "Thunderstorm Wind",
+        "wind_gusts": false,
+        "wind_speed": false
+      },
+      {
+        "event_id": "High Wind(NEW YORK (MANHATTAN))；同列相邻≤1天的官方条目合并为一个事件窗口",
+        "start": "2024-03-11 00:00:00",
+        "kind": "High Wind",
+        "wind_gusts": true,
+        "wind_speed": true
+      }
+    ],
+    "gust_hits": 3,
+    "mean_hits": 3
+  },
+  "checks": [
+    {
+      "id": "D3-1",
+      "name": "新增 7 份、≥2 大洲、海拔≥1500m ≥4、来源可复核、旧 SHA1 不变",
+      "ok": true,
+      "detail": "7 份 / 北美、南美、非洲 / 高海拔 4 份 / 来源 齐全 / 旧 SHA1 全同 True"
+    },
+    {
+      "id": "D3-2",
+      "name": "R17 的 wind_gusts 是独立目标列",
+      "ok": true,
+      "detail": "R17=['temperature', 'humidity', 'pressure', 'wind_speed', 'wind_gusts', 'rainfall']；其余 6 份无阵风列"
+    },
+    {
+      "id": "D3-3",
+      "name": "7×4=28 次全部成功，证据覆盖率 1.000",
+      "ok": true,
+      "detail": "28/28 成功，最低证据覆盖 1.0"
+    },
+    {
+      "id": "D3-4",
+      "name": "4 条 L2 大风事件窗口内阵风有 p99、小时平均风速没有",
+      "ok": false,
+      "detail": "阵风命中 3/4、小时平均风速命中 3/4（R17 阵风 p99=12.86 m/s）"
+    },
+    {
+      "id": "D3-4b",
+      "name": "（事后）分辨率对比：R06 日均 1/4 vs R17 小时 3/4",
+      "ok": true,
+      "gate": false,
+      "detail": "R06 日均风速覆盖 1/4（D2 已发布），R17 小时阵风/平均风速各 3/4；唯一未覆盖的 2023-08-13 为 Thunderstorm Wind，Central Park 当日阵风峰值仅 8.2 m/s"
+    },
+    {
+      "id": "D3-2b",
+      "name": "极端段未被上限截断（时间覆盖完整）",
+      "ok": true,
+      "detail": "截断的数据集/列：无"
+    }
+  ],
+  "passed": false
+}

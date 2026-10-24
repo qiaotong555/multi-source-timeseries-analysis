@@ -1,15 +1,15 @@
 # F：预测回测评估
 
-生成时间：2026-10-24T14:53:23
-数据：11 份（v2 fixture + 10 份公开真实天气数据）
+生成时间：2026-10-24T15:32:55
+数据：18 份（v2 fixture + 10 份公开真实天气数据）
 方法：seasonal_naive（基线）/ moving_average（窗=周期）/ drift（末值+平均增量）；按 walk-forward MASE 选型，候选须相对基线下降 ≥5% 才允许替换
 
 ## 门禁
 
 | 项 | 实际 | 阈值 | 结果 |
 | --- | --- | --- | --- |
-| F3 汇总 90% 区间覆盖率 | 0.8673 | [0.80, 0.98] | PASS |
-| F4 MASE≤1.0 的列占比 | 0.7414（43/58） | ≥ 0.50 | PASS |
+| F3 汇总 90% 区间覆盖率 | 0.8722 | [0.80, 0.98] | PASS |
+| F4 MASE≤1.0 的列占比 | 0.7234（68/94） | ≥ 0.50 | PASS |
 | F4 未优于基线的列都有选型说明 | 是 | 0 缺失 | PASS |
 
 **全部通过**
@@ -18,15 +18,15 @@
 
 | 项 | 值 |
 | --- | --- |
-| 参与评估的列 | 58 |
+| 参与评估的列 | 94 |
 | 样本不足未预测的列 | 0 |
-| 覆盖率（按点加权） | 0.8673 |
-| 覆盖率（逐列最小 / 最大） | 0.7995 / 0.987 |
-| 覆盖率参与点数 | 19552 |
-| 覆盖率落在 [0.80, 0.98] 之外的列 | rainfall@TYO=0.987、temperature=0.7995 |
-| 选中方法 MASE≤1.0 | 43 / 58 = 0.7414 |
-| 选中方法优于基线 | 30 / 58 = 0.5172 |
-| 选中的方法 | drift 6 列、moving_average 24 列、seasonal_naive 28 列 |
+| 覆盖率（按点加权） | 0.8722 |
+| 覆盖率（逐列最小 / 最大） | 0.7682 / 0.9948 |
+| 覆盖率参与点数 | 33376 |
+| 覆盖率落在 [0.80, 0.98] 之外的列 | rainfall@TYO=0.987、temperature=0.7995、rainfall=0.9948、rainfall=0.987、temperature=0.7943、humidity=0.7682 |
+| 选中方法 MASE≤1.0 | 68 / 94 = 0.7234 |
+| 选中方法优于基线 | 40 / 94 = 0.4255 |
+| 选中的方法 | drift 10 列、moving_average 30 列、seasonal_naive 54 列 |
 
 ## 逐数据集
 
@@ -90,6 +90,42 @@
 | R10_toronto_hourly_2024 | 8783 | 24 | 24 | humidity | seasonal_naive | 0.8715 | 0.8715 | 0.8516 |
 | R10_toronto_hourly_2024 | 8783 | 24 | 24 | pressure | moving_average | 0.8192 | 0.9394 | 0.849 |
 | R10_toronto_hourly_2024 | 8783 | 24 | 24 | wind_speed | moving_average | 0.9863 | 1.1187 | 0.8646 |
+| R11_la_paz_hourly_2024 | 8784 | 24 | 24 | temperature | seasonal_naive | 0.7775 | 0.7775 | 0.8802 |
+| R11_la_paz_hourly_2024 | 8784 | 24 | 24 | humidity | seasonal_naive | 0.7904 | 0.7904 | 0.8776 |
+| R11_la_paz_hourly_2024 | 8784 | 24 | 24 | pressure | seasonal_naive | 0.7418 | 0.7418 | 0.8932 |
+| R11_la_paz_hourly_2024 | 8784 | 24 | 24 | wind_speed | seasonal_naive | 0.9075 | 0.9075 | 0.8516 |
+| R11_la_paz_hourly_2024 | 8784 | 24 | 24 | rainfall | seasonal_naive | 1.2539 | 1.2539 | 0.8776 |
+| R12_quito_hourly_2024 | 8784 | 24 | 24 | temperature | seasonal_naive | 0.9656 | 0.9656 | 0.9271 |
+| R12_quito_hourly_2024 | 8784 | 24 | 24 | humidity | seasonal_naive | 0.9993 | 0.9993 | 0.8854 |
+| R12_quito_hourly_2024 | 8784 | 24 | 24 | pressure | seasonal_naive | 0.9603 | 0.9603 | 0.9349 |
+| R12_quito_hourly_2024 | 8784 | 24 | 24 | wind_speed | seasonal_naive | 1.0165 | 1.0165 | 0.875 |
+| R12_quito_hourly_2024 | 8784 | 24 | 24 | rainfall | seasonal_naive | 1.0484 | 1.0484 | 0.8281 |
+| R13_addis_ababa_hourly_2024 | 8784 | 24 | 24 | temperature | seasonal_naive | 0.7768 | 0.7768 | 0.9062 |
+| R13_addis_ababa_hourly_2024 | 8784 | 24 | 24 | humidity | seasonal_naive | 1.0543 | 1.0543 | 0.8542 |
+| R13_addis_ababa_hourly_2024 | 8784 | 24 | 24 | pressure | seasonal_naive | 0.8456 | 0.8456 | 0.9036 |
+| R13_addis_ababa_hourly_2024 | 8784 | 24 | 24 | wind_speed | seasonal_naive | 0.7784 | 0.7784 | 0.9141 |
+| R13_addis_ababa_hourly_2024 | 8784 | 24 | 24 | rainfall | seasonal_naive | 0.4373 | 0.4373 | 0.9948 |
+| R14_nairobi_hourly_2024 | 8784 | 24 | 24 | temperature | seasonal_naive | 0.9143 | 0.9143 | 0.9193 |
+| R14_nairobi_hourly_2024 | 8784 | 24 | 24 | humidity | seasonal_naive | 1.0127 | 1.0127 | 0.9036 |
+| R14_nairobi_hourly_2024 | 8784 | 24 | 24 | pressure | seasonal_naive | 0.8327 | 0.8327 | 0.9167 |
+| R14_nairobi_hourly_2024 | 8784 | 24 | 24 | wind_speed | seasonal_naive | 1.0084 | 1.0084 | 0.8516 |
+| R14_nairobi_hourly_2024 | 8784 | 24 | 24 | rainfall | moving_average | 1.2513 | 1.3601 | 0.8854 |
+| R15_cairo_hourly_2024 | 8784 | 24 | 24 | temperature | seasonal_naive | 0.6901 | 0.6901 | 0.8438 |
+| R15_cairo_hourly_2024 | 8784 | 24 | 24 | humidity | seasonal_naive | 0.905 | 0.905 | 0.8594 |
+| R15_cairo_hourly_2024 | 8784 | 24 | 24 | pressure | drift | 0.8209 | 0.9231 | 0.9062 |
+| R15_cairo_hourly_2024 | 8784 | 24 | 24 | wind_speed | seasonal_naive | 0.8997 | 0.8997 | 0.8724 |
+| R15_cairo_hourly_2024 | 8784 | 24 | 24 | rainfall | drift | 0.2633 | 0.7153 | 0.987 |
+| R16_ushuaia_hourly_2024 | 8784 | 24 | 24 | temperature | seasonal_naive | 1.012 | 1.012 | 0.8828 |
+| R16_ushuaia_hourly_2024 | 8784 | 24 | 24 | humidity | seasonal_naive | 1.1119 | 1.1119 | 0.8776 |
+| R16_ushuaia_hourly_2024 | 8784 | 24 | 24 | pressure | drift | 0.7393 | 0.9702 | 0.9245 |
+| R16_ushuaia_hourly_2024 | 8784 | 24 | 24 | wind_speed | moving_average | 1.0453 | 1.1595 | 0.8099 |
+| R16_ushuaia_hourly_2024 | 8784 | 24 | 24 | rainfall | moving_average | 0.7905 | 0.9644 | 0.875 |
+| R17_nyc_asos_hourly_2018_2024 | 61098 | 24 | 24 | temperature | seasonal_naive | 0.7932 | 0.7932 | 0.7943 |
+| R17_nyc_asos_hourly_2018_2024 | 61098 | 24 | 24 | humidity | seasonal_naive | 0.9299 | 0.9299 | 0.7682 |
+| R17_nyc_asos_hourly_2018_2024 | 61098 | 24 | 24 | pressure | drift | 0.7071 | 0.8937 | 0.8776 |
+| R17_nyc_asos_hourly_2018_2024 | 61098 | 24 | 24 | wind_speed | moving_average | 0.9418 | 1.1275 | 0.8464 |
+| R17_nyc_asos_hourly_2018_2024 | 61098 | 24 | 24 | wind_gusts | moving_average | 1.0379 | 1.2114 | 0.8125 |
+| R17_nyc_asos_hourly_2018_2024 | 61098 | 24 | 24 | rainfall | moving_average | 0.9239 | 0.9895 | 0.8359 |
 
 ## 读数注意
 

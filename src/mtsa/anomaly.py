@@ -185,7 +185,7 @@ def detect_change_points(clean: CleanDataset, plan: AnalysisPlan) -> list[Change
 
 EXTREME_QUANTILE = 0.99
 EXTREME_MIN_POINTS = 100
-EXTREME_MAX_RUNS = 100
+EXTREME_MAX_RUNS = 2000
 HIGH_ONLY_HINTS = ("rain", "precip", "wind", "gust", "降雨", "风速")
 
 
@@ -230,13 +230,21 @@ def detect_extremes(clean: CleanDataset, plan: AnalysisPlan) -> list[dict]:
         q = EXTREME_QUANTILE
     imputed = {str(x) for x in (clean.imputed_index or [])}
     imputed_mask = pd.Series([str(i) in imputed for i in frame.index], index=frame.index)
+    # 逐列插补位置优先：行级并集会让「气压缺一个点」把同刻的阵风极值一起排除掉。
+    # 没有逐列信息时（旧调用方/单测）退回行级，行为与 D2 一致。
+    per_col = getattr(clean, "imputed_columns", None) or {}
     out: list[dict] = []
 
     for col in plan.target_columns:
         if col not in frame.columns:
             continue
         s = pd.to_numeric(frame[col], errors="coerce")
-        observed = s.notna() & ~imputed_mask
+        if per_col:
+            bad = {str(x) for x in (per_col.get(col) or [])}
+            col_mask = pd.Series([str(i) in bad for i in frame.index], index=frame.index)
+        else:
+            col_mask = imputed_mask
+        observed = s.notna() & ~col_mask
         if int(observed.sum()) < EXTREME_MIN_POINTS:
             continue
         vals = s[observed]

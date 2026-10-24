@@ -55,15 +55,21 @@ def test_imputed_extreme_point_is_excluded():
 
 
 def test_runs_are_capped_and_total_is_reported():
-    base = np.linspace(0, 100, 4000)
-    vals = base.copy()
-    for k in range(125):
-        vals[20 + 30 * k] = 1000.0
+    """上限 2000（D3 从 100 提高：100 段在 7 年小时序列上砍掉了 3/4 的时间轴）。
+
+    超过上限才截断，且 run_count 必须仍是全量——否则「被截断」这件事会被读成「就这么少」。
+    """
+    n = 9000
+    vals = np.linspace(0, 100, n)
+    k = 0
+    for i in range(10, n - 10, 3):
+        vals[i] = 1000.0
+        k += 1
     df = _frame(vals)
     out = anomaly.detect_extremes(_clean(df), make_plan("weather", ["temperature"]))
     high = next(e for e in out if e["tail"] == "high")
-    assert high["run_count"] == 125
-    assert len(high["runs"]) == anomaly.EXTREME_MAX_RUNS == 100
+    assert high["run_count"] == k
+    assert len(high["runs"]) == anomaly.EXTREME_MAX_RUNS == 2000
     assert high["runs_truncated"] is True
 
 

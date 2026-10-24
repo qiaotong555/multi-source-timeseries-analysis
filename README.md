@@ -81,6 +81,9 @@ python -m evals.agent_eval --input fixtures/weather_short_v1.csv     --out evals
 python -m evals.repro_check     artifacts/c_short_pipeline_rule_1/result.json     artifacts/c_short_pipeline_rule_2/result.json
 python -m evals.conclusion_eval --result-root artifacts/c_short_agent_eval     --labels fixtures/labels_weather_short_v1.csv     --truth fixtures/truth_weather_short_v1.json     --out evals/conclusion_eval_short_agent_results.json
 
+# D3 数据扩容验收：7 份新数据 × 4 问题 + 阵风可观测性（约 7 分钟）
+python -m evals.d3_expansion_eval
+
 # 鲁棒性矩阵：37 个坏输入/边界用例（固定 rule 计划，约 72 秒）
 python -m evals.robustness_eval
 # 只跑某一组
@@ -140,7 +143,7 @@ CLI 默认在**子进程**中执行分析：Python 无法中断正在执行的 C
 轨迹哈希与离线重放、`pipeline / agent / auto` 三模式、关键词范围下限（`guided`）、
 13 用例评估与两模式对照。
 
-**真实数据验证（B，2026-10-24）**：10 份公开天气数据（4 来源、2 频率、87,818 行）
+**真实数据验证（B，2026-10-24）**：10 份公开天气数据（4 来源、2 频率、87,818 行；D3 又扩到 17 份）
 × 4 问题 × pipeline/agent = 80 次，80/80 成功、证据覆盖 1.000、L1 质量事件 Recall 1.000
 （可定位 1.000）。真实数据暴露了 R08 单位误判、R05 多站点重复时间戳误报
 （17,568 条，清洗分组本身正确）、质量问题不进结论等问题；**R08 已在 C1 修复**（零换算，峰值月恢复 8 月）、**R05 已在 C2 修复**（重复 17,568 → 0）、**质量与零检出结论已在 C3 补齐**（Q2 20/20 有 `数据口径`，需求覆盖 0.800 → 1.000）、**缺口定位已在 C4 补齐**（可定位 0.500 → 1.000）、**L2 真值已在 D1 建立**（NOAA StormEvents 14 条事件；异常事件 Recall 0.071，E4 未达标）、**绝对极端通道已在 D2 加入**（`data.extremes`，p99/p1，覆盖 7/14 条事件，与统计异常分开）、

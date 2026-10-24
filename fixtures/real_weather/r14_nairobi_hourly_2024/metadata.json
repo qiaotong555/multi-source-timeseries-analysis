@@ -1,0 +1,33 @@
+{
+  "id": "R14",
+  "name": "nairobi_hourly_2024",
+  "source": "Open-Meteo Archive API",
+  "note": "非洲、赤道高原 1795 m、双雨季",
+  "retrieved_at": "2026-10-24T15:13:18",
+  "rows": 8784,
+  "stations": [
+    "NBO"
+  ],
+  "start": "2024-01-01 00:00:00",
+  "end": "2024-12-31 23:00:00",
+  "frequency": "hourly",
+  "columns": [
+    "temperature",
+    "humidity",
+    "pressure",
+    "wind_speed",
+    "rainfall"
+  ],
+  "dropped_all_null_columns": [],
+  "elevation_m": 1668.0,
+  "data_sha1": "7027fa0ef80c7618750146fd7c9575c5ac2380c5",
+  "raw": [
+    {
+      "url": "https://archive-api.open-meteo.com/v1/archive?latitude=-1.29&longitude=36.82&start_date=2024-01-01&end_date=2024-12-31&hourly=temperature_2m,relative_humidity_2m,surface_pressure,wind_speed_10m,precipitation&timezone=UTC",
+      "bytes": 371504,
+      "sha1": "5f8d24884f549217c8ee0dca535f3c63f2a3cca7",
+      "elevation": 1668.0
+    }
+  ],
+  "data_path": "fixtures/real_weather/r14_nairobi_hourly_2024/data.csv"
+}
