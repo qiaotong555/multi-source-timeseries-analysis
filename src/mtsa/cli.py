@@ -60,8 +60,18 @@ def _resolve_mode(cli_mode: str | None, env: dict | None = None) -> str:
     return "pipeline"
 
 
+def _version() -> str:
+    """装了包就报包版本；直接用源码跑（未安装）时如实写 uninstalled。"""
+    try:
+        from importlib.metadata import version
+        return version("mtsa")
+    except Exception:                            # noqa: BLE001  未安装时 metadata 不存在
+        return "uninstalled"
+
+
 def _build_parser() -> argparse.ArgumentParser:
-    p = argparse.ArgumentParser(prog="mtsa.cli", description="多源时序数据量化分析与可视化 Agent")
+    p = argparse.ArgumentParser(prog="mtsa", description="多源时序数据量化分析与可视化 Agent")
+    p.add_argument("--version", action="version", version=f"mtsa {_version()}")
     sub = p.add_subparsers(dest="cmd", required=True)
 
     r = sub.add_parser("run", help="执行一次分析")
@@ -95,7 +105,12 @@ def _build_parser() -> argparse.ArgumentParser:
     r.add_argument("--agent-max-extra-steps", type=int, default=1, metavar="N",
                    help="guided 模式下限之外允许追加的步数，默认 1")
     r.add_argument("--agent-max-tokens", type=int, default=0, metavar="N",
-                   help="Agent 累计 token 上限，默认 0（不限制）；超限以 token_budget 结束")
+                   help="Agent 累计 token 上限，默认 0（不限制）；到限前一次调用会被拦下，"
+                        "以 token_budget 结束")
+    r.add_argument("--price-table", default=None, metavar="PATH",
+                   help="价目表 JSON 路径，用于把 token 估算成金额；缺省读环境变量 "
+                        "MTSA_PRICE_TABLE。都未配置时不做金额换算，也不按 0 计价；"
+                        "路径无效会直接失败")
     r.add_argument("--replay", default=None, metavar="RESULT_JSON",
                    help="从一次 agent 运行的 result.json 离线重放；不调用模型")
     r.add_argument("--timeout", type=float, default=DEFAULT_TIMEOUT_S,
@@ -148,6 +163,7 @@ def main(argv: list[str] | None = None) -> int:
         agent_scope=args.agent_scope,
         agent_max_extra_steps=args.agent_max_extra_steps,
         agent_max_tokens=args.agent_max_tokens,
+        price_table=args.price_table,
         replay_from=args.replay,
         forecast=args.forecast,
         forecast_horizon=args.forecast_horizon,

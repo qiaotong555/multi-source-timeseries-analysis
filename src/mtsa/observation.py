@@ -76,6 +76,35 @@ def _json(value: Any) -> str:
     return json.dumps(_compact(value), ensure_ascii=False, separators=(",", ":"))
 
 
+# 未执行原因要能落到报告里，不能只写「未执行」。四个状态各有各的说法。
+_TERMINATE_CN = {
+    "finish": "模型主动结束",
+    "budget_exhausted": "预算或范围步数用尽",
+    "max_steps": "到达步数上限",
+    "idle_loop": "连续空转终止",
+    "no_tools": "没有可用工具",
+    "error": "运行时错误",
+}
+
+
+def tool_reason(traj, tool: str, state: str) -> str:
+    """failed / skipped / not_run 的可读原因；ok 返回空串。"""
+    if state == "ok":
+        return ""
+    res = traj.results.get(tool)
+    if state == "failed":
+        return getattr(res, "error", None) or "工具执行失败（未给出原因）"
+    if state == "skipped":
+        return getattr(res, "reason", None) or "前置条件不满足"
+    for reject in getattr(traj, "rejects", []) or []:
+        if reject.get("action") == tool:
+            return "被范围策略拒绝（%s）" % (reject.get("kind") or "unknown")
+    term = getattr(traj, "terminate_reason", "") or ""
+    if term and term != "finish":
+        return "未轮到：%s" % _TERMINATE_CN.get(term, term)
+    return "模型未选择该工具"
+
+
 def coverage_summary(plan: AnalysisPlan, traj, allowed_tools: Sequence[str]) -> dict[str, Any]:
     """已执行工具与计划分析项的覆盖情况。
 
@@ -90,6 +119,14 @@ def coverage_summary(plan: AnalysisPlan, traj, allowed_tools: Sequence[str]) -> 
     covered = {a for t in executed for a in TOOL_COVERS.get(t, ()) if a in planned}
     missing_analyses = [a for a in planned if a not in covered]
 
+    states = tool_states(traj, allowed)
+    tools = [{
+        "tool": t,
+        "state": states[t],
+        "reason": tool_reason(traj, t, states[t]),
+        "covers": [a for a in TOOL_COVERS.get(t, ()) if a in planned],
+    } for t in allowed]
+
     return {
         "allowed_tools": allowed,
         "executed_tools": executed,
@@ -99,6 +136,7 @@ def coverage_summary(plan: AnalysisPlan, traj, allowed_tools: Sequence[str]) -> 
         "covered_analyses": [a for a in planned if a in covered],
         "missing_analyses": missing_analyses,
         "analysis_coverage": round(len(covered) / len(planned), 4) if planned else 1.0,
+        "tools": tools,
     }
 
 

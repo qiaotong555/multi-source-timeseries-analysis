@@ -65,3 +65,27 @@ def test_load_csv_with_bom(tmp_path):
     p.write_text("\ufefftimestamp,value\n2024-01-01,1\n", encoding="utf-8")
     raw = io_loaders.load_dataset(str(p))
     assert list(raw.frame.columns) == ["timestamp", "value"]
+
+def test_missing_excel_engine_reports_install_hint(tmp_path, monkeypatch):
+    """没装 openpyxl 时不能只抛 ImportError，要告诉用户装什么。"""
+    path = tmp_path / "a.xlsx"
+    path.write_bytes(b"not-a-real-xlsx")
+
+    def boom(*args, **kwargs):
+        raise ImportError("No module named 'openpyxl'")
+
+    monkeypatch.setattr(io_loaders.pd, "read_excel", boom)
+    with pytest.raises(ValueError, match="openpyxl"):
+        io_loaders.load_dataset(str(path))
+
+
+def test_missing_h5py_reports_install_hint(tmp_path, monkeypatch):
+    path = tmp_path / "a.h5"
+    path.write_bytes(b"\x00" * 16)
+
+    def boom(name):
+        raise ImportError(f"No module named '{name}'")
+
+    monkeypatch.setattr(io_loaders, "_import_optional", boom)
+    with pytest.raises(ValueError, match="h5py"):
+        io_loaders.load_dataset(str(path))

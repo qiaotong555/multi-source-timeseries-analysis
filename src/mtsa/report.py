@@ -33,8 +33,11 @@ def _fmt(v, nd: int = 6) -> str:
     return str(v)
 
 
+_STATE_CN = {"ok": "已执行", "skipped": "跳过", "failed": "失败", "not_run": "未执行"}
+
+
 def _budget_label(budget: dict) -> str:
-    """报告里的 token 预算一行：三种状态必须能一眼区分。"""
+    """报告里的 token 预算一行：几种状态必须能一眼区分。"""
     if not budget or not budget.get("enforced"):
         used = budget.get("used")
         return "未设限" + (f"（已用 {used}）" if used else "")
@@ -42,7 +45,22 @@ def _budget_label(budget: dict) -> str:
     if budget.get("unavailable"):
         return f"上限 {limit}；服务端未返回 usage，未生效"
     text = f"{budget.get('used') or 0} / {limit}"
-    return text + ("（已用尽）" if budget.get("exhausted") else "")
+    if not budget.get("exhausted"):
+        return text
+    pre = budget.get("precheck") or {}
+    if pre.get("blocked"):
+        return text + f"（调用前拦截：下次约需 {pre.get('reserve')}）"
+    return text + "（已用尽）"
+
+
+def _cost_label(cost: dict) -> str:
+    """报告里的成本一行。金额一律标「估算」，并写出 token 分项依据。"""
+    total = cost.get("total")
+    if total is None:
+        return "—"
+    tokens = cost.get("tokens") or {}
+    return (f"{cost.get('currency') or ''} {total:.6f}（估算；输入 {tokens.get('prompt', 0)} / "
+            f"缓存 {tokens.get('cached', 0)} / 输出 {tokens.get('completion', 0)} token）")
 
 
 def _issue_range_cell(issue: object) -> str:
@@ -179,6 +197,8 @@ def render_report(
              ["下限外追加步数", (f"{scope.get('extra_used', 0)}/{scope.get('max_extra_steps', 0)}"
                                if scope.get("enforced") else "—")],
              ["token 预算", _budget_label(agent.get("budget") or {})],
+             *([["成本（估算）", _cost_label(agent.get("cost") or {})]]
+               if agent.get("cost") else []),
              ["步数", str(agent.get("step_count", 0))],
              ["已执行工具", "、".join(executed) or "—"],
              ["未执行工具", "、".join(not_run) or "—"],
@@ -188,7 +208,22 @@ def render_report(
              ["计划分析项覆盖率", f"{cov.get('analysis_coverage', 0):.2f}（{len(cov.get('covered_analyses') or [])}/{len(cov.get('planned_analyses') or [])}）" if cov else "—"],
              ["被拒动作", str(len(agent.get("rejects") or []))]],
         ))
+        if agent.get("cost"):
+            lines.append("")
+            lines.append("> 金额按给定价目表与 token 用量估算，**不等于供应商账单**；"
+                         "它只用于成本展示与预算提示，不参与任何统计计算或结论。")
         lines.append("")
+        cov_tools = cov.get("tools") or []
+        if cov_tools:
+            lines.append("**覆盖矩阵**：每个工具的状态、它负责的分析项、以及未执行的原因。")
+            lines.append("")
+            lines.append(_md_table(
+                ["工具", "状态", "覆盖分析项", "原因"],
+                [[t.get("tool", ""), _STATE_CN.get(t.get("state", ""), t.get("state", "")),
+                  "、".join(t.get("covers") or []) or "—",
+                  t.get("reason") or "—"] for t in cov_tools],
+            ))
+            lines.append("")
         steps = list(agent.get("steps") or [])
         if steps:
             rows = []

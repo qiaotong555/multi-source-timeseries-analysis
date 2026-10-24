@@ -230,6 +230,11 @@ class AgentRunner:
         ))
         self._decision_errors = 0
         self._scope_rejects = 0
+        # E2：预算前置检查的状态。用在报告里区分「调用后才发现超限」与
+        # 「调用前就拦住」，否则两者都表现为 token_budget，看不出差在哪。
+        self._reserve_value: Optional[int] = None
+        self._reserve_basis = "unavailable"
+        self._precheck_blocked = False
 
     # ---------------- 对外入口 ----------------
 
@@ -248,10 +253,19 @@ class AgentRunner:
                 self.traj.terminate_reason = TERMINATE_SCOPE_UNMET
                 break
             used = self._usage_total()
-            if self.max_tokens and used is not None and used >= self.max_tokens:
-                # 在下一次模型调用之前停：超限前已选中的工具会执行完，结果不丢
-                self.traj.terminate_reason = TERMINATE_TOKEN_BUDGET
-                break
+            if self.max_tokens and used is not None:
+                if used >= self.max_tokens:
+                    # 已经到限：下一次模型调用之前停，此前已选中的工具仍执行完
+                    self.traj.terminate_reason = TERMINATE_TOKEN_BUDGET
+                    break
+                reserve, basis = self._reserve_tokens(used)
+                self._reserve_value, self._reserve_basis = reserve, basis
+                if reserve is not None and used + reserve > self.max_tokens:
+                    # 预扣：按已观测的单次调用量估计，下一步会超限就直接停，
+                    # 而不是先花掉再报告「小幅超限」。
+                    self._precheck_blocked = True
+                    self.traj.terminate_reason = TERMINATE_TOKEN_BUDGET
+                    break
 
             try:
                 decision = self._decide()
@@ -362,6 +376,33 @@ class AgentRunner:
             return None
         return total if total > 0 else None
 
+    def _reserve_tokens(self, used: int) -> tuple[Optional[int], str]:
+        """估计下一次模型调用的 token 数，用于预算前置检查。
+
+        只用真实观测值：优先服务端记录的单次最大值，缺失时退回均值。
+        `calls == 0` 时没有依据，返回 None——第一次调用无法预扣，
+        这时只能退回「调用后检查」，并在 budget 里标成 unavailable。
+        """
+        fn = getattr(self.client, "usage_summary", None)
+        if not callable(fn):
+            return None, "unavailable"
+        try:
+            usage = fn()
+        except Exception:                      # noqa: BLE001
+            return None, "unavailable"
+        if not isinstance(usage, dict):
+            return None, "unavailable"
+        try:
+            calls = int(usage.get("calls") or 0)
+        except (TypeError, ValueError):
+            calls = 0
+        if calls <= 0 or used <= 0:
+            return None, "unavailable"
+        raw_max = usage.get("max_call_tokens")
+        if isinstance(raw_max, (int, float)) and not isinstance(raw_max, bool) and raw_max > 0:
+            return int(raw_max), "observed_max"
+        return -(-used // calls), "observed_avg"      # 向上取整
+
     def _budget_report(self) -> dict[str, Any]:
         used = self._usage_total()
         limit = self.max_tokens
@@ -374,6 +415,14 @@ class AgentRunner:
             "exhausted": self.traj.terminate_reason == TERMINATE_TOKEN_BUDGET,
             # 设了限但服务端不给用量：预算事实上没生效，必须如实标注
             "unavailable": bool(enforced and used is None),
+            # E2 前置检查：reserve 是「下一次调用预计消耗」，basis 说明依据，
+            # blocked 表示这次是调用前拦下的（used 仍小于 limit）。
+            "precheck": {
+                "enabled": bool(enforced and used is not None),
+                "reserve": self._reserve_value,
+                "basis": self._reserve_basis,
+                "blocked": self._precheck_blocked,
+            },
         }
 
     def _reject_scope(self, detail: str) -> None:

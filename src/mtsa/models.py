@@ -44,6 +44,8 @@ ERR_AGENT_NO_RESULT = "AGENT_NO_RESULT"
 # 重放专用：源文件不可用，或重放结果与原轨迹不一致
 ERR_REPLAY_INVALID = "REPLAY_INVALID"
 ERR_REPLAY_MISMATCH = "REPLAY_MISMATCH"
+# E2：价目表缺失或非法。不静默按 0 计价，必须让调用方看到。
+ERR_PRICE_TABLE = "PRICE_TABLE_INVALID"
 
 
 class MtsaModel(BaseModel):
@@ -84,6 +86,9 @@ class AnalysisRequest(MtsaModel):
     # 下限之外允许追加的步数，仅 guided 生效。
     agent_max_extra_steps: int = 1
     # Agent 累计 token 上限（0 = 不限制）。只约束模型调用，不约束工具执行。
+    # E2 成本语义：价目表路径（也可用环境变量 MTSA_PRICE_TABLE）。
+    # 未配置时不做金额换算；配置了但读不到会直接失败，不静默跳过。
+    price_table: Optional[str] = None
     agent_max_tokens: int = 0
     # 预测（F）：默认关闭，避免改变既有报告；开启后附带 walk-forward 回测。
     forecast: bool = False

@@ -44,6 +44,9 @@ class OpenAICompatClient:
         self.calls = 0
         self.usage_totals = {"prompt_tokens": 0, "completion_tokens": 0,
                              "total_tokens": 0, "cached_tokens": 0}
+        # 单次调用的最大 token 数：预算前置检查要用它估计「下一次调用大概要花多少」，
+        # 用均值会低估长上下文那一步，进而超限。
+        self.max_call_tokens = 0
 
     def chat_json(self, system: str, user: str) -> dict[str, Any]:
         """发起一次对话，返回解析后的 JSON 对象；任何异常都转成 LLMError。"""
@@ -96,6 +99,11 @@ class OpenAICompatClient:
                 self.usage_totals[key] += int(usage.get(key) or 0)
             except (TypeError, ValueError):
                 continue
+        try:
+            call_total = int(usage.get("total_tokens") or 0)
+        except (TypeError, ValueError):
+            call_total = 0
+        self.max_call_tokens = max(self.max_call_tokens, call_total)
         details = usage.get("prompt_tokens_details")
         if isinstance(details, dict):
             try:
@@ -107,7 +115,8 @@ class OpenAICompatClient:
         """返回本次客户端生命周期内的累计用量；服务端没给 usage 时返回 None。"""
         if not self.calls or not self.usage_totals["total_tokens"]:
             return None
-        return {"calls": self.calls, **self.usage_totals}
+        return {"calls": self.calls, "max_call_tokens": self.max_call_tokens,
+                **self.usage_totals}
 
     @staticmethod
     def _extract_json(payload: dict[str, Any]) -> dict[str, Any]:

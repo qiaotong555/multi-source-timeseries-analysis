@@ -112,3 +112,63 @@ def test_tool_states_distinguish_failed_skipped_and_not_run():
     traj.results["c"] = ToolResult(tool="c", outcome="skipped")
     states = tool_states(traj, ["a", "b", "c", "d"])
     assert states == {"a": "ok", "b": "failed", "c": "skipped", "d": "not_run"}
+
+def test_coverage_gives_reason_for_every_not_run_tool():
+    """B1：未执行不能只写状态，必须给出原因；ok 的工具不写原因。"""
+    ctx = _ctx()
+    traj = _traj(1, executed=("detect_anomalies",))
+    traj.terminate_reason = "budget_exhausted"
+    cov = coverage_summary(ctx.plan, traj, WEATHER_AGENT_TOOLS)
+    by_tool = {t["tool"]: t for t in cov["tools"]}
+    assert set(by_tool) == set(WEATHER_AGENT_TOOLS)
+    assert by_tool["detect_anomalies"]["state"] == "ok"
+    assert by_tool["detect_anomalies"]["reason"] == ""
+    assert by_tool["compute_metrics"]["state"] == "not_run"
+    assert "预算" in by_tool["compute_metrics"]["reason"]
+
+
+def test_scope_rejection_is_named_as_the_reason():
+    ctx = _ctx()
+    traj = _traj(1, executed=("detect_anomalies",))
+    traj.rejects.append({"kind": "scope_exceeded", "action": "run_stat_tests",
+                         "detail": "范围之外"})
+    cov = coverage_summary(ctx.plan, traj, WEATHER_AGENT_TOOLS)
+    by_tool = {t["tool"]: t for t in cov["tools"]}
+    assert "范围策略拒绝" in by_tool["run_stat_tests"]["reason"]
+    assert "scope_exceeded" in by_tool["run_stat_tests"]["reason"]
+
+
+def test_unselected_tool_says_model_did_not_pick_it():
+    ctx = _ctx()
+    traj = _traj(1, executed=("detect_anomalies",))
+    traj.terminate_reason = "finish"
+    cov = coverage_summary(ctx.plan, traj, WEATHER_AGENT_TOOLS)
+    by_tool = {t["tool"]: t for t in cov["tools"]}
+    assert by_tool["analyze_spectrum"]["reason"] == "模型未选择该工具"
+
+
+def test_failed_and_skipped_tools_carry_their_own_reason():
+    ctx = _ctx()
+    traj = AgentTrajectory(question="q")
+    traj.results["run_stat_tests"] = ToolResult(tool="run_stat_tests", outcome="failed",
+                                                error="boom")
+    traj.results["compute_metrics"] = ToolResult(tool="compute_metrics", outcome="skipped",
+                                                 reason="前置：缺少目标列")
+    cov = coverage_summary(ctx.plan, traj, WEATHER_AGENT_TOOLS)
+    by_tool = {t["tool"]: t for t in cov["tools"]}
+    assert by_tool["run_stat_tests"]["reason"] == "boom"
+    assert by_tool["compute_metrics"]["reason"] == "前置：缺少目标列"
+
+
+def test_coverage_matrix_lists_analyses_each_tool_covers():
+    """矩阵只列「该工具负责、且本次计划里确实排了」的分析项。"""
+    ctx = _ctx()
+    traj = _traj(1, executed=("detect_anomalies",))
+    cov = coverage_summary(ctx.plan, traj, WEATHER_AGENT_TOOLS)
+    by_tool = {t["tool"]: t for t in cov["tools"]}
+    assert set(cov["planned_analyses"]) == {"trend", "corr", "anomaly", "changepoint"}
+    assert by_tool["detect_anomalies"]["covers"] == ["anomaly"]
+    assert by_tool["detect_change_points"]["covers"] == ["changepoint"]
+    assert by_tool["compute_metrics"]["covers"] == ["trend", "corr"]
+    # 工具负责但计划里没排的分析项不出现——不能把「没排进计划」说成「工具不负责」
+    assert by_tool["analyze_spectrum"]["covers"] == []

@@ -76,16 +76,26 @@ def _act(name: str, reason: str = "需要") -> dict:
 
 
 def test_budget_stops_before_next_model_call():
+    """E2：改成调用前预扣——第二步会超限，就不发第二次请求。"""
     client = UsageClient([_act("compute_metrics"), _act("run_stat_tests")], per_call=100)
     traj = AgentRunner(_ctx(), client, "评估这条序列是否平稳", max_tokens=150).run()
     assert traj.terminate_reason == "token_budget"
-    assert client.calls == 2                       # 刚好两次调用后停，没有第三次
-    assert traj.step_count == 2                    # 超限前选中的工具仍执行完
-    assert traj.budget["used"] == 200
+    assert client.calls == 1                       # 第二次调用被前置拦下
+    assert traj.step_count == 1                    # 已选中的工具仍执行完
+    assert traj.budget["used"] == 100
     assert traj.budget["limit"] == 150
     assert traj.budget["exhausted"] is True
-    assert traj.budget["remaining"] == 0
+    assert traj.budget["remaining"] == 50
     assert traj.budget["unavailable"] is False
+    assert traj.budget["precheck"]["blocked"] is True
+
+
+def test_post_check_still_used_when_one_call_already_exceeds():
+    """单次调用就越过上限时，前置检查没有可用的历史值，靠调用后判断兜住。"""
+    client = UsageClient([_act("compute_metrics")], per_call=100)
+    traj = AgentRunner(_ctx(), client, "看看数据", max_tokens=50).run()
+    assert traj.budget["precheck"]["blocked"] is False
+    assert traj.budget["exhausted"] is True
 
 
 def test_budget_stops_after_one_step():
@@ -124,7 +134,9 @@ def test_budget_is_serialized():
     d = AgentRunner(_ctx(), client, "看看数据", max_tokens=50).run().to_dict()
     assert d["budget"] == {"limit": 50, "used": 100, "remaining": 0,
                            "enforced": True, "exhausted": True,
-                           "unavailable": False}
+                           "unavailable": False,
+                           "precheck": {"enabled": True, "reserve": None,
+                                        "basis": "unavailable", "blocked": False}}
 
 
 def test_finish_on_last_call_is_not_reported_as_budget_cut():

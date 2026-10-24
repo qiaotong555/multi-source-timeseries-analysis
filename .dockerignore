@@ -1,0 +1,11 @@
+.git
+.gitignore
+artifacts
+evals/test_logs
+doc/*.docx
+**/__pycache__
+**/*.pyc
+.pytest_cache
+dist
+build
+*.egg-info

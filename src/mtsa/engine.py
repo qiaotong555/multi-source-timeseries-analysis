@@ -30,6 +30,7 @@ from .models import (
     ERR_EMPTY_NUMERIC_COLUMN,
     ERR_INTERNAL_ERROR,
     ERR_LOOKAHEAD_VIOLATION,
+    ERR_PRICE_TABLE,
     ERR_REPLAY_INVALID,
     ERR_REPLAY_MISMATCH,
     ERR_SCENE_NOT_DETECTED,
@@ -49,6 +50,7 @@ from .scenarios import stock as stock_scene  # noqa: F401  注册适配器
 from .scenarios import weather as weather_scene  # noqa: F401
 from .scenarios.base import ScenarioContext, detect_scene, get_adapter
 from .tools import ToolContext
+from . import cost as cost_mod
 from . import report as report_mod
 from . import viz as viz_mod
 from .planner import build_planner
@@ -421,6 +423,17 @@ def _run_analysis_impl(request: AnalysisRequest, verbose: bool, run_id: str,
                 hint="请改用 --mode pipeline，或等待股票场景的 Agent 实现",
             )
 
+        # E2 成本语义：价目表先校验再跑，配置错误不该等到花完 token 才暴露。
+        # 未配置时 price_table 为 None，金额字段整体缺失（不写 0 冒充免费）。
+        price_table = None
+        price_path = request.price_table or cost_mod.price_table_path()
+        if price_path:
+            try:
+                price_table = cost_mod.load_price_table(price_path)
+            except cost_mod.PriceTableError as exc:
+                return fail(ERR_PRICE_TABLE, str(exc), path=price_path,
+                            hint="金额是可选能力；不需要金额时去掉 --price-table / "
+                                 f"{cost_mod.ENV_PRICE_TABLE}")
         tool_ctx = ToolContext(clean=clean, plan=plan, adapter=adapter, quality=qrep)
         agent_started = datetime.now().isoformat(timespec="seconds")
         t_agent = time.perf_counter()
@@ -461,13 +474,29 @@ def _run_analysis_impl(request: AnalysisRequest, verbose: bool, run_id: str,
         tokens = usage_fn() if callable(usage_fn) else None
         if tokens:
             agent_info["tokens"] = tokens
+        if price_table is not None:
+            if tokens:
+                try:
+                    agent_info["cost"] = cost_mod.estimate_cost(tokens, price_table)
+                except cost_mod.CostError as exc:
+                    warnings.append(f"金额未计算：{exc}")
+            else:
+                warnings.append(
+                    "已配置价目表，但服务端未返回 usage：本次金额无法计算（不估算）")
         budget = agent_info.get("budget") or {}
         if budget.get("unavailable"):
             warnings.append("token 预算未生效：服务端未返回 usage；本次运行未按预算截断")
         if budget.get("exhausted"):
-            warnings.append(
-                "token 预算已用尽（{}/{}），运行被截断；未覆盖的分析见 scope.missing，"
-                "不能当作完整分析引用".format(budget.get("used"), budget.get("limit")))
+            precheck = budget.get("precheck") or {}
+            if precheck.get("blocked"):
+                warnings.append(
+                    "token 预算前置拦截（已用 {}/{}，下次调用预计再需 {}，会超限），"
+                    "运行被截断；未覆盖的分析见 scope.missing，不能当作完整分析引用".format(
+                        budget.get("used"), budget.get("limit"), precheck.get("reserve")))
+            else:
+                warnings.append(
+                    "token 预算已用尽（{}/{}），运行被截断；未覆盖的分析见 scope.missing，"
+                    "不能当作完整分析引用".format(budget.get("used"), budget.get("limit")))
         # 哈希只覆盖决策路径；耗时、时间戳、run_id 不参与
         agent_info["trajectory_sha256"] = replay_mod.trajectory_hash(agent_info)
         # 先把轨迹放进结果：即使下面判定为失败，result.json 里也能看到模型做了什么。

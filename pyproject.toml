@@ -6,7 +6,31 @@ build-backend = "setuptools.build_meta"
 name = "mtsa"
 version = "0.1.0"
 description = "多源时序数据量化分析与可视化 Agent（课题 12 / S06）"
+readme = "README.md"
+# 许可证见根目录 LICENSE（课程提交物，保留所有权利）。
+# 不在此声明 license 字段：PEP 639 的 SPDX 写法要求 setuptools>=77，
+# 而本项目承诺 setuptools>=68 可构建，声明了反而会让老环境装不上。
 requires-python = ">=3.11"
+# 下界是 2026-10-24 实际跑通全量测试的版本；更低的版本未验证，不承诺兼容。
+dependencies = [
+    "pandas>=3.0,<4",
+    "numpy>=2.5,<3",
+    "scipy>=1.18,<2",
+    "statsmodels>=0.15,<0.16",
+    "plotly>=7.1,<8",
+    "kaleido>=1.4,<2",
+    "pydantic>=2.13,<3",
+]
+
+[project.optional-dependencies]
+# 只有生成 Word 演示文档（scripts/make_*.py）才需要，运行分析与报告不需要。
+docx = ["python-docx>=1.2"]
+# 只处理 CSV 时不需要；读 Excel / Parquet / HDF5 才装
+io = ["openpyxl>=3.1", "pyarrow>=25", "h5py>=3.16"]
+dev = ["pytest>=8"]
+
+[project.scripts]
+mtsa = "mtsa.cli:main"
 
 [tool.setuptools]
 package-dir = { "" = "src" }

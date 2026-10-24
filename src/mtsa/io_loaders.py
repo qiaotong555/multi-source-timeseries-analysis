@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 import hashlib
+import importlib
 import os
 from typing import Optional
 
@@ -26,6 +27,28 @@ def sha1_of_file(path: str, chunk: int = 1 << 20) -> str:
     return h.hexdigest()
 
 
+# 可选格式的依赖：缺失时要给「装哪个包」的指令，而不是把 ImportError 原样抛给用户
+_OPTIONAL_DEP = {
+    ".xlsx": ("openpyxl", "mtsa[io]"),
+    ".xls": ("openpyxl", "mtsa[io]"),
+    ".parquet": ("pyarrow", "mtsa[io]"),
+    ".h5": ("h5py", "mtsa[io]"),
+    ".hdf5": ("h5py", "mtsa[io]"),
+}
+
+
+def _import_optional(name: str):
+    """可选依赖的唯一导入入口，便于测试模拟「没装」。"""
+    return importlib.import_module(name)
+
+
+def _missing_dep(fmt: str, exc: ImportError) -> ValueError:
+    mod, extra = _OPTIONAL_DEP.get(fmt, (exc.name or "该格式的依赖", "mtsa[io]"))
+    return ValueError(
+        f"读取 {fmt} 需要可选依赖 {mod}：pip install \"{extra}\"（或直接 pip install {mod}）；"
+        "只处理 CSV 时不需要装它")
+
+
 def _read_table(path: str, fmt: str) -> pd.DataFrame:
     if fmt in (".csv",):
         try:
@@ -33,9 +56,15 @@ def _read_table(path: str, fmt: str) -> pd.DataFrame:
         except UnicodeDecodeError:
             return pd.read_csv(path, encoding="gbk")
     if fmt in (".xlsx", ".xls"):
-        return pd.read_excel(path)
+        try:
+            return pd.read_excel(path)
+        except ImportError as exc:
+            raise _missing_dep(fmt, exc) from exc
     if fmt == ".parquet":
-        return pd.read_parquet(path)
+        try:
+            return pd.read_parquet(path)
+        except ImportError as exc:
+            raise _missing_dep(fmt, exc) from exc
     raise ValueError(f"unsupported format: {fmt}")
 
 
@@ -62,7 +91,10 @@ def _read_mat(path: str) -> pd.DataFrame:
 
 
 def _read_hdf5(path: str) -> pd.DataFrame:
-    import h5py
+    try:
+        h5py = _import_optional("h5py")
+    except ImportError as exc:
+        raise _missing_dep(".h5", exc) from exc
 
     with h5py.File(path, "r") as f:
         keys = []

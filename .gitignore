@@ -23,3 +23,7 @@ venv/
 .DS_Store
 Thumbs.db
 fixtures/real_weather/*/raw/
+
+# 打包产物
+build/
+dist/
