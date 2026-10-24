@@ -482,7 +482,8 @@ def build_findings(per_dataset, runs) -> list[dict]:
                 "short": "多站点重复时间戳误报",
                 "body": ("该文件是 %d 个站点共享同一时间轴的长表。质量层按整表 `timestamp` 判重，"
                          "把「同一时刻的不同站点」算成重复；按 `(station, timestamp)` 判重实际为 %d 条。"
-                         "清洗阶段随后按时间求均值，把不同气候带的序列混成一条。"
+                         "清洗阶段本身正确：`group_columns=['station']`，透视后为 8,784 行 × 15 列，"
+                         "三个站点分别出结论。缺陷只在质量报告的计数口径。"
                          % (n_st, d["facts"]["per_station_duplicate_rows"])),
                 "evidence": ["fixtures/real_weather/%s/data.csv" % d["name"]],
             })
