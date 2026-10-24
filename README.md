@@ -158,6 +158,7 @@ python -m mtsa.cli run --replay artifacts/<run_id>/result.json   # 离线重放�
 | `spec/已完成任务.md` / `spec/任务书归档.md` | 各项验收表与遗留限制（「当时要求什么」的对照证据） |
 | `doc/全链路Demo_柏林2024.docx` | 5 页演示：一份数据走完六步 + 三张结果图 |
 | `doc/Agent一键Demo说明_2026-10-24.docx` | 一键 demo 的图文说明（含单位变化诊断案例） |
+| `doc/第二阶段报告_上海2024.docx` / `.pdf` | 第二阶段报告（A4 十页，课堂汇报版）：拿上海 2024 逐小时天气从零跑一遍，含 4 张图、口播稿与 8 条问答；重跑 `python scripts/fetch_shanghai_2024.py` 后用 `python scripts/make_stage2_report.py` 重新生成 |
 | `doc/Agent全流程Demo_2026-10-23.docx` | 10-23 旧版演示（历史留档，评审看上面两份） |
 | `doc/articles/可审计性是一种产品能力.md` | 对外文章（约 2,400 字）：门禁 24/24 与真实事件 0.0714 并存的原因，讲证据绑定、阈值冻结与失败公开 |
 | 同名 `.docx` / `.pdf` | 同一篇文章的排版版（A4 六页，含出处表）；改完 `.md` 后跑 `python scripts/make_article_doc.py` 重新导出（自带自检：段落或关键数字丢失时非零退出） |
