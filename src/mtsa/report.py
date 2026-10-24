@@ -306,6 +306,68 @@ def render_report(
         lines.append("极端值：未检出（样本不足或列无变化）。")
     lines.append("")
 
+    # 8c) 预测（仅 --forecast 时存在）
+    fc = getattr(ctx, "forecast", None)
+    if fc:
+        fc_cols = list(fc.get("columns") or [])
+        ok_cols = [c for c in fc_cols if c.get("status") == "ok"]
+        used = {}
+        for c in ok_cols:
+            used[c.get("selected")] = used.get(c.get("selected"), 0) + 1
+        beats = [c for c in ok_cols if c.get("beats_baseline")]
+        covs = [c.get("interval_coverage") for c in ok_cols
+                if c.get("interval_coverage") is not None]
+        lines.append("## 8c. 预测（回测口径）")
+        lines.append("")
+        lines.append(_md_table(
+            ["项目", "取值"],
+            [["预测步数（horizon）", f"{fc.get('horizon')} 步"],
+             ["季节周期", f"{fc.get('period')}"],
+             ["区间水平", f"{float(fc.get('interval_level') or 0):.0%}"],
+             ["回测设置", f"最后 30% 内等距 {fc.get('origins')} 个 origin；"
+                         f"区间标定取最近 {fc.get('calib_window')} 个"],
+             ["基线方法", "seasonal_naive（候选须把 MASE 压低 ≥5% 才替换）"],
+             ["选中方法分布", "、".join(f"{k} {v} 列" for k, v in sorted(used.items())) or "—"],
+             ["优于基线的列", f"{len(beats)}/{len(ok_cols)}" if ok_cols else "—"],
+             ["区间覆盖率区间", (f"{min(covs):.1%} ~ {max(covs):.1%}" if covs else "—")],
+             ["未预测的列", "、".join(c.get("column") for c in fc_cols
+                                  if c.get("status") != "ok") or "—"]],
+        ))
+        lines.append("")
+        rows = []
+        for c in fc_cols:
+            if c.get("status") != "ok":
+                rows.append([c.get("column"), "未预测", "—", "—", "—", "—",
+                             c.get("note") or "样本不足"])
+                continue
+            rows.append([c.get("column"), c.get("selected"),
+                         _fmt(c.get("selected_mase"), 4), _fmt(c.get("baseline_mase"), 4),
+                         "是" if c.get("beats_baseline") else "否",
+                         _fmt(c.get("interval_coverage"), 4), c.get("selected_reason") or "—"])
+        if rows:
+            lines.append(_md_table(
+                ["列", "选中方法", "MASE", "基线 MASE", "优于基线", "区间覆盖率", "选型说明"],
+                rows[:MAX_TABLE_ROWS]))
+            lines.append("")
+        for c in ok_cols[:3]:
+            pts = list(c.get("forecast") or [])
+            lines.append(f"### {c['column']}：未来 {len(pts)} 步")
+            lines.append("")
+            shown = pts[:8] + ([pts[-1]] if len(pts) > 8 else [])
+            lines.append(_md_table(
+                ["时间", "预测值", "90% 下界", "90% 上界"],
+                [[p.get("timestamp") or "—", _fmt(p.get("value"), 4),
+                  _fmt(p.get("lo"), 4), _fmt(p.get("hi"), 4)] for p in shown]))
+            lines.append("")
+            if len(pts) > 8:
+                lines.append(f"> 另有 {len(pts) - 9} 步未列出，完整未来点见 `result.json` 的 "
+                             f"`data.forecast.columns[].forecast`。")
+                lines.append("")
+        lines.append("> 预测是回测口径下的条件推断，**不是事实**。假设是「未来 p 阶季节形态与"
+                     "回测窗口内一致」；horizon 越长误差越大，90% 区间由历史回测误差标定，"
+                     "覆盖率见上表。与第 8 节的异常、第 8b 节的绝对极端不是同一口径。")
+        lines.append("")
+
     # 9) 结论
     lines.append("## 9. 结论与限制")
     lines.append("")
@@ -366,6 +428,11 @@ def write_clean_csv(ctx: ScenarioContext, outdir: str) -> Artifact:
 def write_repro_script(dataset_info: dict, outdir: str) -> Artifact:
     os.makedirs(outdir, exist_ok=True)
     path = os.path.join(outdir, "reproduce.py")
+    # 开启预测时把参数写进脚本，否则「复现」复现出来的是一份没有预测的报告
+    forecast_args = ""
+    if dataset_info.get("forecast"):
+        forecast_args = ('\n        "--forecast",\n'
+                         '        "--forecast-horizon", "%s",' % dataset_info.get("forecast_horizon"))
     content = f'''# -*- coding: utf-8 -*-
 """复现脚本：与本次运行完全相同的参数。"""
 import sys, os
@@ -379,7 +446,7 @@ if __name__ == "__main__":
         "--scene", "{dataset_info.get("scene_id")}",
         "--input", r"{dataset_info.get("input_path")}",
         "--question", "{dataset_info.get("question")}",
-        "--seed", "{dataset_info.get("seed")}",
+        "--seed", "{dataset_info.get("seed")}",{forecast_args}
     ]
     raise SystemExit(main())
 '''

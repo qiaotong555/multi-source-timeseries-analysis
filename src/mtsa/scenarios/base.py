@@ -38,6 +38,7 @@ class ScenarioContext:
         quality: QualityReport,
         executed_tools: Optional[set[str]] = None,
         extremes: Optional[list[dict]] = None,
+        forecast: Optional[dict] = None,
     ):
         self.clean = clean
         self.plan = plan
@@ -53,6 +54,8 @@ class ScenarioContext:
         self.executed_tools = set(executed_tools) if executed_tools is not None else None
         # 绝对极端值（经验分位），与统计异常分开；流水线与 Agent 都会计算。
         self.extremes = list(extremes or [])
+        # 预测（F）：默认 None（关闭）；开启时为包含回测与区间的字典。
+        self.forecast = forecast
 
     def tool_ran(self, name: str) -> bool:
         return True if self.executed_tools is None else name in self.executed_tools

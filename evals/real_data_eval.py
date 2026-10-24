@@ -595,7 +595,9 @@ def build_checks(per_dataset, runs, registry, by_id) -> dict[str, Any]:
                 # C3：质量问题进结论
                 "src/mtsa/scenarios/base.py",
                 # D2：绝对极端通道（分位尾）
-                "src/mtsa/anomaly.py"}
+                "src/mtsa/anomaly.py",
+                # F：预测（点预测/区间/walk-forward 回测），默认关闭
+                "src/mtsa/forecast.py", "src/mtsa/cli.py"}
     # 以「B 的首轮提交」为基线，而不是工作区：这样报告在提交前后都可复现。
     b_baseline = "3404b43"
     dirty = []
@@ -613,7 +615,7 @@ def build_checks(per_dataset, runs, registry, by_id) -> dict[str, Any]:
         except (OSError, subprocess.SubprocessError):
             dirty = ["<git unavailable>"]
     unexpected = [x for x in dirty if x not in c1_files]
-    add("R10 分析代码改动仅限 C1/C2/C3 允许清单", not unexpected,
+    add("R10 分析代码改动仅限 C1/C2/C3/D2/F 允许清单", not unexpected,
         "变更 %d 项，清单外 %d 项（%s）" % (
             len(dirty), len(unexpected), ",".join(sorted(dirty)) or "无"),
         "清单外 0 项")

@@ -455,6 +455,38 @@ class WeatherAdapter(ScenarioAdapter):
                     [], ["art_clean_csv"], "src/mtsa/anomaly.py::detect_extremes",
                     "分位阈值随数据分布变化；换站点或季节需重新确认")
 
+        # 预测（F）：只在开启 --forecast 时存在；单独分类，不混进解释性结论。
+        fc = getattr(ctx, "forecast", None)
+        if fc:
+            ok_cols = [c for c in (fc.get("columns") or []) if c.get("status") == "ok"]
+            for c in ok_cols[:3]:
+                first = (c.get("forecast") or [{}])[0]
+                cov = c.get("interval_coverage")
+                cov_txt = (f"90% 区间回测覆盖率 {cov:.1%}" if cov is not None
+                           else "区间覆盖率未测（回测 origin 不足）")
+                base_mase = c.get("baseline_mase")
+                sel_mase = c.get("selected_mase")
+                mase_txt = ("回测 MASE %.3f（基线 seasonal naive %.3f）" % (sel_mase, base_mase)
+                            if sel_mase is not None and base_mase is not None
+                            else "回测 MASE 不可用（序列近乎常数）")
+                judge = ("优于基线" if c.get("beats_baseline")
+                         else "未优于 seasonal naive，已回退基线")
+                add("预测",
+                    f"{c['column']}：horizon {c['horizon']} 步、季节周期 {c['period']}，"
+                    f"选中 {c['selected']}，{mase_txt}，{judge}，{cov_txt}；"
+                    f"首个预测点 {first.get('timestamp') or '—'} 约 {first.get('value')}"
+                    f"（90% 区间 {first.get('lo')} ~ {first.get('hi')}）。",
+                    [], ["art_report_md", "art_clean_csv"],
+                    "src/mtsa/forecast.py::build_forecast",
+                    "预测是回测口径下的条件推断，不是事实；假设季节形态延续，"
+                    "horizon 越长误差越大，不能用于交易或避险决策")
+            n_bad = len(fc.get("columns") or []) - len(ok_cols)
+            if n_bad > 0:
+                add("预测",
+                    f"另有 {n_bad} 列因样本不足未做预测，未给出任何替代估计。",
+                    [], ["art_report_md"], "src/mtsa/forecast.py::build_forecast",
+                    "不给预测也不给占位值；缺数据时只能补数据或缩短 horizon")
+
         # 只有质量结论、没有任何分析结论时，仍然要说明「不足以支撑分析」。
         if not [c for c in conclusions if c.category != "数据口径"]:
             add("总体", "样本量或字段不足，未生成可支持的结构化结论。", [], [],

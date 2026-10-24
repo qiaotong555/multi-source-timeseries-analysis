@@ -85,6 +85,9 @@ class AnalysisRequest(MtsaModel):
     agent_max_extra_steps: int = 1
     # Agent 累计 token 上限（0 = 不限制）。只约束模型调用，不约束工具执行。
     agent_max_tokens: int = 0
+    # 预测（F）：默认关闭，避免改变既有报告；开启后附带 walk-forward 回测。
+    forecast: bool = False
+    forecast_horizon: Optional[int] = None
     # 从一次 agent 运行的 result.json 重放；设置后不调用模型，按记录顺序重跑工具。
     replay_from: Optional[str] = None
 

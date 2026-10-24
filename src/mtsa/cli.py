@@ -85,6 +85,10 @@ def _build_parser() -> argparse.ArgumentParser:
                         "缺省读 MTSA_AGENT，再缺省 pipeline")
     r.add_argument("--agent-max-steps", type=int, default=8, metavar="N",
                    help="Agent 模式最大决策步数，默认 8")
+    r.add_argument("--forecast", action="store_true",
+                   help="附加预测：点预测 + 90%% 区间 + walk-forward 回测（仅天气）")
+    r.add_argument("--forecast-horizon", type=int, default=None, metavar="N",
+                   help="预测步数，默认一个季节周期，上限 168")
     r.add_argument("--agent-scope", choices=("guided", "free"), default="guided",
                    help="Agent 范围策略：guided 按问题关键词设下限（步数稳定）；"
                         "free 完全由模型决定范围（步数会波动）")
@@ -145,6 +149,8 @@ def main(argv: list[str] | None = None) -> int:
         agent_max_extra_steps=args.agent_max_extra_steps,
         agent_max_tokens=args.agent_max_tokens,
         replay_from=args.replay,
+        forecast=args.forecast,
+        forecast_horizon=args.forecast_horizon,
     )
     if args.timeout and args.timeout > 0:
         result = run_with_timeout(req, timeout_s=args.timeout, verbose=False)

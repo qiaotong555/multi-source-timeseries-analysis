@@ -16,6 +16,7 @@ from typing import Any, Callable
 import pandas as pd
 
 from . import io_loaders, profiler, quality, preprocess, metrics, freq, stats_tests, anomaly
+from . import forecast as forecast_mod
 from . import replay as replay_mod
 from .agent_runtime import WEATHER_AGENT_TOOLS, build_agent_runner
 from .observation import coverage_summary, tool_states
@@ -553,6 +554,27 @@ def _run_analysis_impl(request: AnalysisRequest, verbose: bool, run_id: str,
     # 与模式无关：分位数口径固定，cost 很低；Agent 是否执行检测不影响这个字段。
     extremes = anomaly.detect_extremes(clean, plan)
 
+    # ---- 9c. 预测（仅天气；默认关闭） ----
+    # 关闭时不进入分支，data 与报告逐位不变（F5）。重放时若记录里带 forecast，
+    # 就重算一次，让重放比对覆盖这个字段。
+    want_forecast = request.forecast or bool(
+        replay_source is not None and "forecast" in (replay_source.get("data") or {}))
+    forecast_res = None
+    if want_forecast:
+        if plan.scene_id != "weather":
+            warnings.append("预测只支持天气场景，已跳过（未写入 data.forecast）")
+        else:
+            forecast_res = timer.run(
+                "forecast", lambda: forecast_mod.build_forecast(
+                    clean, plan, request.forecast_horizon))
+            events[-1].summary = {"columns": len(forecast_res["columns"]),
+                                  "period": forecast_res["period"],
+                                  "horizon": forecast_res["horizon"]}
+            bad = [c["column"] for c in forecast_res["columns"]
+                   if c.get("status") != "ok"]
+            if bad:
+                warnings.append(f"以下列因样本不足未做预测：{bad}")
+
     # ---- 10. 未来数据泄漏检查（股票场景） ----
     leak: list[dict] = []
     if plan.scene_id == "stock":
@@ -570,7 +592,8 @@ def _run_analysis_impl(request: AnalysisRequest, verbose: bool, run_id: str,
     if agent_info is not None:
         executed_tools = set(agent_info.get("tools_run") or [])
     ctx = ScenarioContext(clean, plan, mtab, spectra, tests, anomalies, change_points, extra, qrep,
-                          executed_tools=executed_tools, extremes=extremes)
+                          executed_tools=executed_tools, extremes=extremes,
+                          forecast=forecast_res)
     specs = adapter.figure_specs(plan)
     artifacts, fig_warnings = viz_mod.build_figures(ctx, specs, outdir)
     warnings.extend(fig_warnings)
@@ -593,6 +616,10 @@ def _run_analysis_impl(request: AnalysisRequest, verbose: bool, run_id: str,
         "mode": effective_mode,
         "mode_requested": requested_mode,
     }
+    # 只在开启预测时才写这两个键：关闭时 datasets[0] 的字段集合保持不变（F5）
+    if forecast_res is not None:
+        dataset_info["forecast"] = True
+        dataset_info["forecast_horizon"] = forecast_res["horizon"]
     rep_art = report_mod.render_report(ctx, artifacts, conclusions, evidences, qrep, profile,
                                        dataset_info, outdir, warnings, agent=agent_info)
     script_art = report_mod.write_repro_script(dataset_info, outdir)
@@ -624,6 +651,7 @@ def _run_analysis_impl(request: AnalysisRequest, verbose: bool, run_id: str,
         "anomalies": [a.model_dump(mode="json") for a in anomalies],
         "change_points": [c.model_dump(mode="json") for c in change_points],
         "extremes": extremes,
+        **({"forecast": forecast_res} if forecast_res is not None else {}),
         "lookahead": leak,
     }
     if agent_info is not None and replay_source is not None:

@@ -1,5 +1,5 @@
 # test_agent_runtime
-# status=PASS exit=0 duration=5.16s passed=26 failed=0 errors=0
+# status=PASS exit=0 duration=3.47s passed=26 failed=0 errors=0
 ..........................                                               [100%]
-26 passed in 2.80s
+26 passed in 2.05s
 
