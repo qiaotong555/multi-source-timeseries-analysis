@@ -4,7 +4,13 @@
 异常检测、统计检验和可视化，输出可复现的分析报告。**引擎与场景解耦**，当前内置天气（主场景）
 与股票（扩展场景）两个适配器，用同一工作流验证可迁移性。
 
+完整说明（能力边界、评估结果、限制、复现）见 `doc/项目说明书.md`。
+
 ```bash
+# 一键演示（推荐先跑；同数据同问题跑 pipeline + agent，缺模型自动跳过 agent）
+python scripts/demo.py
+python scripts/demo.py --mode pipeline
+
 # 环境：受管虚拟环境 ~/.workbuddy/binaries/python/envs/mtsa（Python 3.13.14）
 # 依赖安装见 doc/架构设计.md；src 需在导入路径上（PYTHONPATH=src 或 pip install -e .）
 
@@ -175,6 +181,7 @@ free 本批没有低频抖动，但 30 次同批不能替代跨版本结论；`p
 
 ```text
 src/mtsa/      引擎实现（导入 / 摘要 / 质量 / 预处理 / 指标 / 频域 / 检验 / 异常 / 图表 / 报告 / 编排）
+scripts/       一键演示 demo.py（pipeline + agent 摘要）
   scenarios/   场景适配器（weather 主场景、stock 扩展场景）
 tests/         单元测试与回归测试
 evals/         评估脚本与评估记录
