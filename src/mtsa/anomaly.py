@@ -182,3 +182,84 @@ def detect_change_points(clean: CleanDataset, plan: AnalysisPlan) -> list[Change
                     confidence="medium",
                 ))
     return out
+
+EXTREME_QUANTILE = 0.99
+EXTREME_MIN_POINTS = 100
+EXTREME_MAX_RUNS = 100
+HIGH_ONLY_HINTS = ("rain", "precip", "wind", "gust", "降雨", "风速")
+
+
+def _high_only(column: object) -> bool:
+    """降雨与风速只关心高端；温度/湿度/气压两端都看。"""
+    low = str(column).lower()
+    return any(h in low for h in HIGH_ONLY_HINTS)
+
+
+def _extreme_runs(mask: pd.Series, index: pd.Index) -> tuple[list[dict], int]:
+    """把连续为真的点压成区间，最多保留 100 段；返回 (段列表, 截断前总段数)。
+
+    上限不能太小：1% 的尾在小时数据上可有几十段，截得太狠会把后段事件漏掉，
+    使「事件覆盖」被 payload 上限而不是检测能力决定（D2 首跑踩过）。
+    """
+    arr = mask.to_numpy()
+    runs: list[dict] = []
+    i, n = 0, len(arr)
+    while i < n:
+        if arr[i]:
+            j = i
+            while j + 1 < n and arr[j + 1]:
+                j += 1
+            runs.append({"start": str(index[i]), "end": str(index[j]), "count": j - i + 1})
+            i = j + 1
+        else:
+            i += 1
+    return runs[:EXTREME_MAX_RUNS], len(runs)
+
+
+def detect_extremes(clean: CleanDataset, plan: AnalysisPlan) -> list[dict]:
+    """绝对极端值：超过本列经验 p99（或低于 p1）的观测点。
+
+    与 `detect_anomalies` 的「统计异常」是两件事：
+    - 异常 = 偏离自身趋势/季节后的残差过大；
+    - 极端 = 原始取值落在自身分布的两端。
+    热浪在夏季是常态（不异常），但可以超过 p99（极端）。两者分开报告，互不替代。
+    """
+    frame = clean.frame
+    q = float(plan.parameters.get("extreme_quantile") or EXTREME_QUANTILE)
+    if not (0.5 < q < 1.0):
+        q = EXTREME_QUANTILE
+    imputed = {str(x) for x in (clean.imputed_index or [])}
+    imputed_mask = pd.Series([str(i) in imputed for i in frame.index], index=frame.index)
+    out: list[dict] = []
+
+    for col in plan.target_columns:
+        if col not in frame.columns:
+            continue
+        s = pd.to_numeric(frame[col], errors="coerce")
+        observed = s.notna() & ~imputed_mask
+        if int(observed.sum()) < EXTREME_MIN_POINTS:
+            continue
+        vals = s[observed]
+        hi = float(vals.quantile(q))
+        lo = float(vals.quantile(1.0 - q))
+        if not np.isfinite(hi) or not np.isfinite(lo) or hi <= lo:
+            continue
+
+        tails = [("high", hi, s >= hi)]
+        if not _high_only(col):
+            tails.append(("low", lo, s <= lo))
+        for tail, thr, mask in tails:
+            mask = mask & observed
+            count = int(mask.sum())
+            if count == 0:
+                continue
+            runs, total = _extreme_runs(mask, frame.index)
+            out.append({
+                "column": col, "tail": tail, "quantile": q,
+                "threshold": round(float(thr), 6), "count": count,
+                "run_count": total, "runs_truncated": total > len(runs),
+                "runs": runs,
+                "method": "empirical_quantile_tail",
+            })
+    return out
+

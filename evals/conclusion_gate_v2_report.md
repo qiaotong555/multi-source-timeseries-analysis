@@ -1,6 +1,6 @@
 # 方案 2：独立结论门禁报告
 
-生成时间：2026-10-24T13:19:33
+生成时间：2026-10-24T14:24:59
 数据：`fixtures/weather_eval_v2.csv`（SHA1 `2ee8077e5ddc8f446a793e04729ad50dd85c1eac`）
 标签：`fixtures/labels_weather_eval_v2.csv`（SHA1 `3afbe2a3ee7a1cc9e3d11ee7465c090fc92da460`）
 真值：`fixtures/truth_weather_eval_v2.json`（SHA1 `5ffb2e5eb29df3889fa2bf0c4a6887db19439d92`）
@@ -54,14 +54,14 @@
 
 | 用例 | 模式 | 状态 | 步数 | 终止 | 结论数 | 证据覆盖 | 需求覆盖 | 异常点 TP/FP/FN | 异常事件 TP/FP/FN | 变化点 TP/FP/FN |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| v2_full_1 | pipeline | succeeded | — | — | 47 | 1.000 | 1.00 | 84/0/16 | 29/0/1 | 2/4/0 |
-| v2_full_1 | agent | succeeded | 4 | budget_exhausted | 47 | 1.000 | 1.00 | 84/0/16 | 29/0/1 | 2/4/0 |
-| v2_full_2 | pipeline | succeeded | — | — | 47 | 1.000 | 1.00 | 84/0/16 | 29/0/1 | 2/4/0 |
-| v2_full_2 | agent | succeeded | 5 | model_finished | 47 | 1.000 | 1.00 | 84/0/16 | 29/0/1 | 2/4/0 |
-| v2_full_3 | pipeline | succeeded | — | — | 47 | 1.000 | 1.00 | 84/0/16 | 29/0/1 | 2/4/0 |
-| v2_full_3 | agent | succeeded | 4 | budget_exhausted | 47 | 1.000 | 1.00 | 84/0/16 | 29/0/1 | 2/4/0 |
-| v2_full_4 | pipeline | succeeded | — | — | 47 | 1.000 | 1.00 | 84/0/16 | 29/0/1 | 2/4/0 |
-| v2_full_4 | agent | succeeded | 4 | budget_exhausted | 47 | 1.000 | 1.00 | 84/0/16 | 29/0/1 | 2/4/0 |
+| v2_full_1 | pipeline | succeeded | — | — | 50 | 1.000 | 1.00 | 84/0/16 | 29/0/1 | 2/4/0 |
+| v2_full_1 | agent | succeeded | 4 | budget_exhausted | 50 | 1.000 | 1.00 | 84/0/16 | 29/0/1 | 2/4/0 |
+| v2_full_2 | pipeline | succeeded | — | — | 50 | 1.000 | 1.00 | 84/0/16 | 29/0/1 | 2/4/0 |
+| v2_full_2 | agent | succeeded | 5 | model_finished | 50 | 1.000 | 1.00 | 84/0/16 | 29/0/1 | 2/4/0 |
+| v2_full_3 | pipeline | succeeded | — | — | 50 | 1.000 | 1.00 | 84/0/16 | 29/0/1 | 2/4/0 |
+| v2_full_3 | agent | succeeded | 4 | budget_exhausted | 50 | 1.000 | 1.00 | 84/0/16 | 29/0/1 | 2/4/0 |
+| v2_full_4 | pipeline | succeeded | — | — | 50 | 1.000 | 1.00 | 84/0/16 | 29/0/1 | 2/4/0 |
+| v2_full_4 | agent | succeeded | 4 | budget_exhausted | 50 | 1.000 | 1.00 | 84/0/16 | 29/0/1 | 2/4/0 |
 
 ## 阈值检查
 

@@ -67,6 +67,16 @@ def _issue_range_cell(issue: object) -> str:
     return "—"
 
 
+def _extreme_longest(item: dict) -> str:
+    runs = item.get("runs") or []
+    if not runs:
+        return "—"
+    r = max(runs, key=lambda x: x.get("count") or 0)
+    a, b = r.get("start"), r.get("end")
+    body = a if a == b else f"{a}~{b}"
+    return f"{body}（{r.get('count')} 点）"
+
+
 def _md_table(headers: list[str], rows: list[list[str]]) -> str:
     out = ["| " + " | ".join(headers) + " |", "|" + "|".join(["---"] * len(headers)) + "|"]
     for r in rows:
@@ -274,6 +284,26 @@ def render_report(
         ))
     else:
         lines.append("变化点：未检出。")
+    lines.append("")
+
+    # 8b) 绝对极端
+    exts = getattr(ctx, "extremes", None) or []
+    lines.append("## 8b. 极端值（绝对阈值）")
+    lines.append("")
+    if exts:
+        rows = [[e.get("column"), "高" if e.get("tail") == "high" else "低",
+                 f"p{e.get('quantile')}", _fmt(e.get("threshold")),
+                 str(e.get("count")), str(e.get("run_count")), _extreme_longest(e)]
+                for e in exts[:MAX_TABLE_ROWS]]
+        lines.append(_md_table(["列", "方向", "分位", "阈值", "点数", "段数", "最长段"], rows))
+        if len(exts) > MAX_TABLE_ROWS:
+            lines.append("")
+            lines.append(f"> 仅列出前 {MAX_TABLE_ROWS} 项，完整清单见 `result.json` 的 `data.extremes`。")
+        lines.append("")
+        lines.append("> 极端值按「本列经验分位」判定，回答「有没有超过自身分布的两端」；"
+                     "与第 8 节的统计异常不是同一判据，不能互相替代。")
+    else:
+        lines.append("极端值：未检出（样本不足或列无变化）。")
     lines.append("")
 
     # 9) 结论

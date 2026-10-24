@@ -323,6 +323,40 @@ def score_anomaly_events(events: list[dict[str, Any]], anomaly_rows: list[dict[s
             "precision": prec, "f1": round(f1, 4), "rows": matched_rows}
 
 
+def _event_tail(event: dict[str, Any]) -> str:
+    return "low" if "cold" in (event.get("event_types") or "").lower() else "high"
+
+
+def score_extreme_events(events: list[dict[str, Any]],
+                         extreme_rows: list[dict[str, Any]]) -> dict[str, Any]:
+    """L2 事件是否被「绝对极端」通道覆盖：同列、同方向、任一极端段与窗口相交。"""
+    if not events:
+        return {"total": 0, "covered": 0, "coverage": None, "rows": []}
+    rows = []
+    for e in events:
+        a, b = _day(e.get("start")), _day(e.get("end"))
+        tail = _event_tail(e)
+        hit = False
+        if a is not None and b is not None:
+            for x in extreme_rows:
+                if x.get("column") != e.get("column") or x.get("tail") != tail:
+                    continue
+                for r in x.get("runs") or []:
+                    s0, t0 = _day(r.get("start")), _day(r.get("end"))
+                    if s0 is not None and t0 is not None and not (t0 < a or s0 > b):
+                        hit = True
+                        break
+                if hit:
+                    break
+        rows.append({"dataset": e.get("dataset"), "column": e.get("column"),
+                     "start": e.get("start"), "end": e.get("end"),
+                     "event_types": e.get("event_types"), "tail": tail,
+                     "covered": hit})
+    cov = sum(1 for r in rows if r["covered"])
+    return {"total": len(rows), "covered": cov, "coverage": ratio(cov, len(rows)),
+            "rows": rows}
+
+
 def run_one(meta: dict[str, Any], q: dict[str, Any], mode: str, force: bool) -> dict[str, Any]:
     out = os.path.join(OUT_ROOT, meta["id"], "%s_%s" % (q["id"], mode))
     os.makedirs(out, exist_ok=True)
@@ -375,6 +409,7 @@ def collect_run(meta: dict[str, Any], q: dict[str, Any], mode: str,
         "quality_issue_rows": quality.get("issues") or [],
         "anomalies": len(data.get("anomalies") or []),
         "_anomaly_rows": data.get("anomalies") or [],
+        "_extremes": data.get("extremes") or [],
         "change_points": len(data.get("change_points") or []),
         "anomaly_candidate_count": quality.get("anomaly_candidate_count"),
         "executed_tools": executed_tools(doc, mode) if doc else [],
@@ -409,6 +444,12 @@ def summarize_dataset(meta, runs, labels, facts, l2_events=None) -> dict[str, An
             ran = "detect_anomalies" in (r.get("executed_tools") or [])
             ev_modes[mode] = score_anomaly_events(
                 l2_events, r.get("_anomaly_rows") or [], ran)
+    extreme_rows = []
+    r0 = next((x for x in runs if x["status"] == "succeeded"), None)
+    if r0 is not None:
+        extreme_rows = r0.get("_extremes") or []
+    out["extreme_events"] = score_extreme_events(l2_events, extreme_rows)
+
     out["anomaly_events"] = {
         "total": len(l2_events),
         "columns": sorted({x.get("column") for x in l2_events if x.get("column")}),
@@ -552,7 +593,9 @@ def build_checks(per_dataset, runs, registry, by_id) -> dict[str, Any]:
                 # C2：质量报告按实体判重
                 "src/mtsa/models.py", "src/mtsa/profiler.py", "src/mtsa/report.py",
                 # C3：质量问题进结论
-                "src/mtsa/scenarios/base.py"}
+                "src/mtsa/scenarios/base.py",
+                # D2：绝对极端通道（分位尾）
+                "src/mtsa/anomaly.py"}
     # 以「B 的首轮提交」为基线，而不是工作区：这样报告在提交前后都可复现。
     b_baseline = "3404b43"
     dirty = []
@@ -589,8 +632,13 @@ def build_checks(per_dataset, runs, registry, by_id) -> dict[str, Any]:
     ev_rec = [d["anomaly_events"]["modes"]["pipeline"]["recall"] for d in per_dataset
               if d["anomaly_events"]["modes"]["pipeline"]["recall"] is not None]
     mrec = mean(ev_rec)
+    ex_total = sum(d["extreme_events"]["total"] for d in per_dataset)
+    ex_cov = sum(d["extreme_events"]["covered"] for d in per_dataset)
     add("R13 事件级 Recall >= 0.50（pipeline q1）",
         mrec is not None and mrec >= THRESHOLDS["anomaly_event_recall"], mrec, ">= 0.50")
+    add("R14 极端值通道覆盖 L2 事件 >= 0.50",
+        ex_total > 0 and ratio(ex_cov, ex_total) >= 0.50,
+        "%d/%d" % (ex_cov, ex_total), ">= 0.50")
     return {"checks": checks, "passed": all(c["ok"] for c in checks)}
 
 
@@ -806,6 +854,7 @@ def render_md(doc) -> str:
         ("anomaly_events.modes.pipeline.precision", "事件 Precision（pipeline q1）"),
         ("anomaly_events.modes.pipeline.f1", "事件 F1（pipeline q1）"),
         ("anomaly_events.modes.agent.recall", "事件 Recall（agent q1）"),
+        ("extreme_events.coverage", "极端值事件覆盖率"),
         ("anomaly_jaccard", "两模式异常 Jaccard"),
         ("changepoint_jaccard", "两模式变化点 Jaccard"),
     ):
@@ -867,6 +916,29 @@ def render_md(doc) -> str:
                 (r.get("event_types") or "").replace(";", "/"), "是" if r["matched"] else "否"))
     L += ["", "> L2 只覆盖 R03（Phoenix）与 R06（NYC）；其余 8 份数据没有可离线复核的官方事件，"
           "异常指标对这些数据保持 N/A。来源与选样规则见 `fixtures/real_weather/l2_sources/sources.json`。", ""]
+
+    L += ["## 4c. 极端值通道对 L2 事件的覆盖", "",
+          "> 绝对极端 = 超过本列经验 p99（或低于 p1）的观测点，与统计异常分开。",
+          "> 事件被覆盖 = 窗口内同列、同方向存在任一极端段。", "",
+          "| 数据集 | 事件 | 覆盖 | 覆盖率 |", "| --- | ---: | ---: | ---: |"]
+    for d in ds:
+        ee = d.get("extreme_events") or {}
+        if not ee.get("total"):
+            continue
+        L.append("| %s | %d | %d | %s |" % (
+            d["id"], ee["total"], ee["covered"], _f(ee["coverage"])))
+    L += ["", "### 4c.1 事件明细", "",
+          "| 数据集 | 列 | 事件窗口 | 官方类型 | 方向 | 覆盖 |",
+          "| --- | --- | --- | --- | --- | --- |"]
+    for d in ds:
+        for r in ((d.get("extreme_events") or {}).get("rows") or []):
+            L.append("| %s | %s | %s ~ %s | %s | %s | %s |" % (
+                d["id"], r.get("column"), str(r.get("start"))[:10], str(r.get("end"))[:10],
+                (r.get("event_types") or "").replace(";", "/"),
+                "高" if r.get("tail") == "high" else "低",
+                "是" if r["covered"] else "否"))
+    L += ["", "> 极端值回答「有没有超过自身分布的两端」，不是「偏离趋势/季节」。"
+          "两者不能互相替代；统计异常的事件 Recall 见 4b。", ""]
 
     L += ["## 5. 关键发现", "",
           "> **C1 修复后复跑说明**：首轮暴露的 F1（R08 季节性升温被误判为华氏度段，"
@@ -971,6 +1043,7 @@ def main(argv=None) -> int:
         ["anomaly_events", "modes", "pipeline", "precision"],
         ["anomaly_events", "modes", "pipeline", "f1"],
         ["anomaly_events", "modes", "agent", "recall"],
+        ["extreme_events", "coverage"],
         ["anomaly_jaccard"], ["changepoint_jaccard"],
     ):
         key = ".".join(path)

@@ -549,6 +549,10 @@ def _run_analysis_impl(request: AnalysisRequest, verbose: bool, run_id: str,
         timer.run("detect_anomalies", lambda: {"anomalies": len(anomalies),
                                                "change_points": len(change_points)})
 
+    # ---- 9b. 绝对极端（描述性；不并入 anomalies，不参与异常判定） ----
+    # 与模式无关：分位数口径固定，cost 很低；Agent 是否执行检测不影响这个字段。
+    extremes = anomaly.detect_extremes(clean, plan)
+
     # ---- 10. 未来数据泄漏检查（股票场景） ----
     leak: list[dict] = []
     if plan.scene_id == "stock":
@@ -566,7 +570,7 @@ def _run_analysis_impl(request: AnalysisRequest, verbose: bool, run_id: str,
     if agent_info is not None:
         executed_tools = set(agent_info.get("tools_run") or [])
     ctx = ScenarioContext(clean, plan, mtab, spectra, tests, anomalies, change_points, extra, qrep,
-                          executed_tools=executed_tools)
+                          executed_tools=executed_tools, extremes=extremes)
     specs = adapter.figure_specs(plan)
     artifacts, fig_warnings = viz_mod.build_figures(ctx, specs, outdir)
     warnings.extend(fig_warnings)
@@ -619,6 +623,7 @@ def _run_analysis_impl(request: AnalysisRequest, verbose: bool, run_id: str,
         "tests": [t.model_dump(mode="json") for t in tests],
         "anomalies": [a.model_dump(mode="json") for a in anomalies],
         "change_points": [c.model_dump(mode="json") for c in change_points],
+        "extremes": extremes,
         "lookahead": leak,
     }
     if agent_info is not None and replay_source is not None:

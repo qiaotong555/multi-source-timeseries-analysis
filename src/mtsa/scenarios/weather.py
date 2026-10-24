@@ -438,6 +438,23 @@ class WeatherAdapter(ScenarioAdapter):
                 [], ["art_fig_anomaly"], "src/mtsa/anomaly.py::detect_change_points",
                 "未检出不等于不存在；密集或幅度较小的变化点可能低于检出下限")
 
+        # 绝对极端：与统计异常分开报告；只在检测工具执行过时输出，避免替 agent 扩权。
+        exts = list(getattr(ctx, "extremes", None) or [])
+        if exts and ctx.tool_ran("detect_anomalies"):
+            for e in exts[:3]:
+                tail_cn = "高" if e.get("tail") == "high" else "低"
+                runs = e.get("runs") or []
+                longest = max(runs, key=lambda r: r.get("count") or 0) if runs else {}
+                seg = (f"最长段 {longest.get('start')}~{longest.get('end')}"
+                       f"（{longest.get('count')} 点）") if longest else "无连续段"
+                add("极端值",
+                    f"{e.get('column')} 的{tail_cn}端 p{float(e.get('quantile') or 0.99) * 100:g} "
+                    f"阈值 {float(e.get('threshold') or 0):g}：{e.get('count')} 个点、"
+                    f"{e.get('run_count')} 段；{seg}。"
+                    f"这是按本列经验分位判定的绝对极端，不等同于统计异常。",
+                    [], ["art_clean_csv"], "src/mtsa/anomaly.py::detect_extremes",
+                    "分位阈值随数据分布变化；换站点或季节需重新确认")
+
         # 只有质量结论、没有任何分析结论时，仍然要说明「不足以支撑分析」。
         if not [c for c in conclusions if c.category != "数据口径"]:
             add("总体", "样本量或字段不足，未生成可支持的结构化结论。", [], [],
