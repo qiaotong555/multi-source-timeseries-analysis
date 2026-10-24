@@ -160,6 +160,7 @@ python -m mtsa.cli run --replay artifacts/<run_id>/result.json   # 离线重放�
 | `doc/Agent一键Demo说明_2026-10-24.docx` | 一键 demo 的图文说明（含单位变化诊断案例） |
 | `doc/Agent全流程Demo_2026-10-23.docx` | 10-23 旧版演示（历史留档，评审看上面两份） |
 | `doc/articles/可审计性是一种产品能力.md` | 对外文章（约 2,400 字）：门禁 24/24 与真实事件 0.0714 并存的原因，讲证据绑定、阈值冻结与失败公开 |
+| 同名 `.docx` / `.pdf` | 同一篇文章的排版版（A4 六页，含出处表）；改完 `.md` 后跑 `python scripts/make_article_doc.py` 重新导出（自带自检：段落或关键数字丢失时非零退出） |
 
 ---
 
@@ -168,8 +169,8 @@ python -m mtsa.cli run --replay artifacts/<run_id>/result.json   # 离线重放�
 ```text
 src/mtsa/            引擎：导入 / 摘要 / 质量 / 预处理 / 指标 / 频域 / 检验 / 异常 / 图表 / 报告 / 编排
   scenarios/         场景适配器（weather 主场景；stock 仅 pipeline）
-scripts/             一键 demo、真实数据抓取与标注、两份 Word 文档生成
-tests/               50 个测试文件
+scripts/             一键 demo、真实数据抓取与标注、Word/PDF 文档生成
+tests/               51 个测试文件
 evals/               20 个评估脚本 + 结果 JSON + 评估记录
 fixtures/            固定样例、真实数据 registry、标签与真值
 artifacts/           运行产物（按 run_id 隔离，不入库）
