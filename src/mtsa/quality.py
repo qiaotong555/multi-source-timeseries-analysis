@@ -17,6 +17,12 @@ ROBUST_Z_THRESHOLD = 5.0
 LEVEL_SHIFT_SIGMA = 3.0
 UNIT_RATIO_LOW = 0.5
 UNIT_RATIO_HIGH = 2.0
+# °F→°C 是仿射变换：真正发生量纲切换时，边界在换算后会重新连续；
+# 季节升温/昼夜落差只是「数值变了」，换算后边界反而更远。用它区分两者。
+UNIT_CONTINUITY_MAX = 0.25
+# 边界跳变至少是邻域典型步长的多少倍，才值得考虑「单位变化」。
+UNIT_JUMP_TYPICAL_MIN = 8.0
+TEMPERATURE_HINTS = ("temp", "tt_tu", "气温", "温度")
 
 
 def robust_sigma(series: pd.Series) -> float:
@@ -62,8 +68,39 @@ def _refine_boundary(s: pd.Series, k: int, step: int) -> int:
     return lo + j
 
 
+def is_temperature_column(name: object) -> bool:
+    """温度列才适用 °F→°C 判据；风速/降雨的量纲换算因子不同。"""
+    low = str(name).lower()
+    return any(h in low for h in TEMPERATURE_HINTS)
+
+
+def _fahrenheit_step_evidence(values: np.ndarray, k: int, half_window: int = 6) -> bool:
+    """判断 k 处的断开是否更像一次 °F→°C（而不是季节升温）。
+
+    J1 跳变幅度：边界跳变 >= 邻域典型步长的 8 倍（排除正常波动）；
+    J3 边界连续：换算后（任一侧）边界跳变 <= 原跳变的 25%（真正的量纲切换
+    会让两侧重新接上；季节升温换算后只会更远）。
+    """
+    v = np.asarray(values, dtype=float)
+    if k <= 0 or k >= len(v):
+        return False
+    lo, hi = max(0, k - half_window), min(len(v), k + half_window)
+    diffs = np.abs(np.diff(v[lo:hi]))
+    diffs = diffs[np.isfinite(diffs)]
+    typical = float(np.median(diffs)) if len(diffs) else 0.0
+    jump = abs(float(v[k]) - float(v[k - 1]))
+    if not np.isfinite(jump) or jump <= 0:
+        return False
+    if typical > 0 and jump < UNIT_JUMP_TYPICAL_MIN * typical:
+        return False
+    converted = min(abs((v[k] - 32.0) / 1.8 - v[k - 1]),
+                    abs(v[k] - (v[k - 1] - 32.0) / 1.8))
+    return bool(np.isfinite(converted) and converted <= UNIT_CONTINUITY_MAX * jump)
+
+
 def detect_level_shifts(series: pd.Series, window: Optional[int] = None,
-                        k_sigma: float = LEVEL_SHIFT_SIGMA * 2) -> list[dict]:
+                        k_sigma: float = LEVEL_SHIFT_SIGMA * 2,
+                        temperature: bool = False) -> list[dict]:
     """定位持续水平跳变，并区分「普通水平跳变」与「疑似单位变化」。
 
     做法：对每个候选分割点比较前后窗口的中位数得到位移序列 delta，再用 delta
@@ -73,6 +110,7 @@ def detect_level_shifts(series: pd.Series, window: Optional[int] = None,
     前后中位数比值显著偏离 1（默认 <0.5 或 >2）时判定为疑似单位或量纲变化。
     """
     s = pd.to_numeric(series, errors="coerce").dropna()
+    values = s.to_numpy(dtype=float)
     n = len(s)
     if n < 60:
         return []
@@ -118,6 +156,10 @@ def detect_level_shifts(series: pd.Series, window: Optional[int] = None,
             continue
         ratio = a / b
         kind = "unit" if (ratio < UNIT_RATIO_LOW or ratio > UNIT_RATIO_HIGH) else "mean"
+        # 温度列必须同时满足「阶跃 + 换算后边界连续」，否则只是一次水平跳变
+        # （例如春季升温），不能按 °F→°C 处理。
+        if kind == "unit" and temperature and not _fahrenheit_step_evidence(values, k):
+            kind = "mean"
         out.append({"index": int(s.index[k]), "position": int(k),
                     "before_median": b, "after_median": a,
                     "ratio": ratio, "kind": kind})
@@ -214,11 +256,12 @@ def check_quality(
         series_plan = [(c, None, frame[c]) for c in columns]
 
     for c, gval, series in series_plan:
+        is_temp = is_temperature_column(c)
         series_for_shift = series
         if parsed_time is not None and len(frame) > 1:
             order = pd.Series(parsed_time, index=frame.index).loc[series.index].sort_values().index
             series_for_shift = series.loc[order]
-        for hit in detect_level_shifts(series_for_shift):
+        for hit in detect_level_shifts(series_for_shift, temperature=is_temp):
             tag = f"（分组 {gval}）" if gval else ""
             # 起始时间必须给出：输入可能乱序，行标签不能代表时间先后
             start_ts = None

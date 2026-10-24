@@ -31,7 +31,6 @@ CANON = {
     "rainfall": ("rainfall", "rain", "precip", "precipitation", "降雨", "降水量"),
 }
 STATION_HINT = ("station", "site", "city", "站点", "城市", "station_id")
-UNIT_RATIO_F2C = (2.4, 4.2)
 
 
 def _canon_map(columns) -> dict[str, str]:
@@ -104,13 +103,14 @@ class WeatherAdapter(ScenarioAdapter):
             if not m:
                 continue
             ratio = float(m.group(1))
-            # 进入异常量纲时比值 >1，退出时为其倒数，两种形态都要识别
-            in_range = (UNIT_RATIO_F2C[0] <= ratio <= UNIT_RATIO_F2C[1]
-                        or UNIT_RATIO_F2C[0] <= 1.0 / ratio <= UNIT_RATIO_F2C[1])
-            if in_range:
-                pending.setdefault((iss.column, iss.group), []).append((iss.start, ratio))
+            # 这里只用比值判断「进入」还是「退出」异常量纲（>1 进入，<1 退出）。
+            # 比值能否作为量纲证据已由质量层判定：温度列必须同时满足
+            # 「阶跃幅度」与「换算后边界连续」。不再用固定区间 [2.4, 4.2]
+            # 过滤——该区间依赖基线温度（比值 = 1.8 + 32/T），冷站点会误伤。
+            pending.setdefault((iss.column, iss.group), []).append((iss.start, ratio))
 
         conversions = []
+        open_intervals = []
         for (col, gval), items in pending.items():
             items.sort(key=lambda x: x[0])
             i = 0
@@ -127,12 +127,12 @@ class WeatherAdapter(ScenarioAdapter):
                 else:
                     i += 1
             if i == len(items) - 1:
-                # 只有一个转移点：无法判断结束位置，按开放区间处理并在结论中声明
-                conversions.append({
-                    "column": col, "kind": "fahrenheit_to_celsius",
-                    "start_time": items[i][0],
-                    "group_column": group_col, "group_value": gval,
-                    "from_unit": "°F", "to_unit": "°C",
+                # 只有一个转移点：无法区分「量纲变化」与「真实水平跳变」，
+                # 不自动换算，只交给人工核对（避免一次误判改写整份数据）。
+                open_intervals.append({
+                    "column": col, "start_time": items[i][0],
+                    "group_value": gval, "ratio": items[i][1],
+                    "reason": "single_transition",
                 })
 
         analyses = [
@@ -148,6 +148,7 @@ class WeatherAdapter(ScenarioAdapter):
             # 已知限制：未用独立保留集复核该阈值。
             "anomaly_threshold": 8.0,
             "unit_conversions": conversions,
+            "unit_change_open_intervals": open_intervals,
         }
         return AnalysisPlan(
             scene_id="weather",

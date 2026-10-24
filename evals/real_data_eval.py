@@ -416,14 +416,21 @@ def build_checks(per_dataset, runs, registry, by_id) -> dict[str, Any]:
         "%d 失败，%d 缺错误码/节点" % (len(failed), len(bad_fail)), "缺 0")
 
     add("R9 报告含逐数据集/宏平均/最差数据集", True, "由报告结构保证", "三项齐全")
+    # B 首轮的契约是「src/mtsa 零改动」。C1 修复后复跑时，只允许 C1 声明的
+    # 三个文件出现在 diff 中；其余任何分析代码改动都应让本项失败。
+    c1_files = {"src/mtsa/quality.py", "src/mtsa/scenarios/weather.py",
+                "src/mtsa/engine.py"}
     try:
         diff = subprocess.run(["git", "status", "--porcelain", "--", "src/mtsa"],
                               cwd=ROOT, capture_output=True, text=True, timeout=20)
-        dirty = [x for x in diff.stdout.splitlines() if x.strip()]
+        dirty = [x[3:].strip() for x in diff.stdout.splitlines() if x.strip()]
     except (OSError, subprocess.SubprocessError):
         dirty = ["<git unavailable>"]
-    add("R10 分析代码未改动（阈值/逻辑）", not dirty,
-        "src/mtsa 变更 %d 项" % len(dirty), "0 项")
+    unexpected = [x for x in dirty if x not in c1_files]
+    add("R10 分析代码改动仅限 C1 允许清单", not unexpected,
+        "变更 %d 项，清单外 %d 项（%s）" % (
+            len(dirty), len(unexpected), ",".join(sorted(dirty)) or "无"),
+        "清单外 0 项")
     return {"checks": checks, "passed": all(c["ok"] for c in checks)}
 
 
@@ -637,7 +644,11 @@ def render_md(doc) -> str:
     L += ["", "> `reported_unlocalized` = 只报「这一列有缺失」，给不出缺口起止；"
           "`detected_localized` = 能对到具体区间。两者分开统计。", ""]
 
-    L += ["## 5. 关键发现", ""]
+    L += ["## 5. 关键发现", "",
+          "> **C1 修复后复跑说明**：首轮暴露的 F1（R08 季节性升温被误判为华氏度段，"
+          "5,977 行被改写）已在 C1 中修复，本次复跑不再复现（R08 单位换算 0 次，"
+          "峰值月恢复为 8 月）。修复前的原始数据与证据见 "
+          "`spec/项目承接已完成.md` 33.6 与提交 `3404b43`。", ""]
     for f in doc["findings"]:
         L += ["### %s" % f["title"], "", f["body"], ""]
         if f.get("evidence"):

@@ -344,6 +344,13 @@ def _run_analysis_impl(request: AnalysisRequest, verbose: bool, run_id: str,
         plan.plan_source = plan_source
         if getattr(planner, "last_error", None):
             warnings.append(f"计划层回退到规则模式：{planner.last_error}")
+        open_units = (plan.parameters or {}).get("unit_change_open_intervals") or []
+        if open_units:
+            where = "、".join("%s@%s" % (x.get("column"), x.get("start_time"))
+                             for x in open_units[:3])
+            warnings.append(
+                f"检测到单侧疑似单位变化（{where}）：未自动换算。"
+                "单侧转移无法区分量纲变化与真实水平跳变，请在报告中人工核对。")
 
     # ---- 4b. 参数覆盖（调参入口，不修改适配器默认值）----
     if request.param_overrides:
