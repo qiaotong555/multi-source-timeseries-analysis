@@ -420,12 +420,22 @@ def build_checks(per_dataset, runs, registry, by_id) -> dict[str, Any]:
     # 三个文件出现在 diff 中；其余任何分析代码改动都应让本项失败。
     c1_files = {"src/mtsa/quality.py", "src/mtsa/scenarios/weather.py",
                 "src/mtsa/engine.py"}
+    # 以「B 的首轮提交」为基线，而不是工作区：这样报告在提交前后都可复现。
+    b_baseline = "3404b43"
+    dirty = []
     try:
-        diff = subprocess.run(["git", "status", "--porcelain", "--", "src/mtsa"],
+        diff = subprocess.run(["git", "diff", "--name-only", b_baseline, "--", "src/mtsa"],
                               cwd=ROOT, capture_output=True, text=True, timeout=20)
-        dirty = [x[3:].strip() for x in diff.stdout.splitlines() if x.strip()]
+        if diff.returncode != 0:
+            raise subprocess.SubprocessError(diff.stderr.strip())
+        dirty = [x.strip() for x in diff.stdout.splitlines() if x.strip()]
     except (OSError, subprocess.SubprocessError):
-        dirty = ["<git unavailable>"]
+        try:
+            st = subprocess.run(["git", "status", "--porcelain", "--", "src/mtsa"],
+                                cwd=ROOT, capture_output=True, text=True, timeout=20)
+            dirty = [x[3:].strip() for x in st.stdout.splitlines() if x.strip()]
+        except (OSError, subprocess.SubprocessError):
+            dirty = ["<git unavailable>"]
     unexpected = [x for x in dirty if x not in c1_files]
     add("R10 分析代码改动仅限 C1 允许清单", not unexpected,
         "变更 %d 项，清单外 %d 项（%s）" % (

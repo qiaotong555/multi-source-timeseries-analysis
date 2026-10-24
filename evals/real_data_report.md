@@ -1,6 +1,6 @@
 # B：十份真实天气数据验证报告
 
-生成时间：2026-10-24T11:38:10
+生成时间：2026-10-24T11:44:46
 运行矩阵：10 数据集 × 4 问题 × 2 模式 = **80 次运行**
 模型：`deepseek-chat`；agent 固定 `guided` + `MTSA_PLANNER=rule`，token 上限 8000。
 数据：`fixtures/real_weather/`（registry.json 记录来源与 SHA1）。
