@@ -36,6 +36,7 @@ class ScenarioContext:
         change_points: list[ChangePoint],
         extra: MetricTable,
         quality: QualityReport,
+        executed_tools: Optional[set[str]] = None,
     ):
         self.clean = clean
         self.plan = plan
@@ -46,6 +47,12 @@ class ScenarioContext:
         self.change_points = change_points
         self.extra = extra
         self.quality = quality
+        # None 表示固定流水线（所有分析项都执行过）；agent 模式传入实际成功的工具，
+        # 用于区分「执行了但没检出」与「根本没执行」。
+        self.executed_tools = set(executed_tools) if executed_tools is not None else None
+
+    def tool_ran(self, name: str) -> bool:
+        return True if self.executed_tools is None else name in self.executed_tools
 
     def metric(self, metric_id: str):
         rows = [r for r in self.metrics.rows if r.metric_id == metric_id]

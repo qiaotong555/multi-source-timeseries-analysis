@@ -1,6 +1,6 @@
 # 鲁棒性矩阵报告
 
-生成时间：2026-10-24T12:02:50
+生成时间：2026-10-24T12:46:27
 口径：固定 `MTSA_PLANNER=rule`；Agent 用例只测边界，不调用真实模型。
 
 ## 汇总
@@ -25,43 +25,43 @@
 
 | 编号 | 组 | 输入 | 预期 | 实际 | 错误码 | 警告 | 结论 | 无证据 | 耗时(ms) | 判定 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| load_missing | 导入 | 文件不存在 | failed | failed | DATA_LOAD_FAILED | 0 | 0 | 0 | 0.8 | PASS |
-| load_empty | 导入 | 0 字节文件 | failed | failed | DATA_LOAD_FAILED | 0 | 0 | 0 | 0.7 | PASS |
-| load_header_only | 导入 | 只有表头 | failed | failed | DATA_LOAD_FAILED | 0 | 0 | 0 | 7.8 | PASS |
-| load_malformed | 导入 | 畸形 CSV（列数不一致） | failed | failed | DATA_LOAD_FAILED | 0 | 0 | 0 | 1.5 | PASS |
-| load_unsupported | 导入 | 不支持的 .txt | failed | failed | DATA_LOAD_FAILED | 0 | 0 | 0 | 0.7 | PASS |
+| load_missing | 导入 | 文件不存在 | failed | failed | DATA_LOAD_FAILED | 0 | 0 | 0 | 0.9 | PASS |
+| load_empty | 导入 | 0 字节文件 | failed | failed | DATA_LOAD_FAILED | 0 | 0 | 0 | 0.8 | PASS |
+| load_header_only | 导入 | 只有表头 | failed | failed | DATA_LOAD_FAILED | 0 | 0 | 0 | 15.5 | PASS |
+| load_malformed | 导入 | 畸形 CSV（列数不一致） | failed | failed | DATA_LOAD_FAILED | 0 | 0 | 0 | 1.7 | PASS |
+| load_unsupported | 导入 | 不支持的 .txt | failed | failed | DATA_LOAD_FAILED | 0 | 0 | 0 | 0.9 | PASS |
 | load_directory | 导入 | 把目录当输入文件 | failed | failed | DATA_LOAD_FAILED | 0 | 0 | 0 | 0.7 | PASS |
-| load_json_as_csv | 导入 | JSON 内容但扩展名 .csv | failed | failed | DATA_LOAD_FAILED | 0 | 0 | 0 | 5.6 | PASS |
-| time_missing | 时间轴 | 没有时间列 | failed | failed | TIME_AXIS_NOT_FOUND | 0 | 0 | 0 | 17.7 | PASS |
-| time_unparseable | 时间轴 | 时间列全部不可解析 | failed | failed | TIME_AXIS_NOT_FOUND | 0 | 0 | 0 | 37.3 | PASS |
-| time_mixed_tz | 时间轴 | 混合时区偏移 | any | failed | TIME_AXIS_NOT_FOUND | 0 | 0 | 0 | 21.9 | PASS |
-| time_all_same | 时间轴 | 所有时间戳相同 | any | succeeded | — | 4 | 1 | 0 | 3857.6 | PASS |
-| time_out_of_order | 时间轴 | 时间戳乱序 | succeeded | succeeded | — | 2 | 14 | 0 | 3233.6 | PASS |
-| time_duplicates | 时间轴 | 重复时间戳 | succeeded | succeeded | — | 2 | 14 | 0 | 2986.4 | PASS |
-| time_gap | 时间轴 | 48 小时缺口 | succeeded | succeeded | — | 2 | 13 | 0 | 2943.2 | PASS |
-| num_none | 数值 | 只有时间与文本列 | failed | failed | EMPTY_NUMERIC_COLUMN | 0 | 0 | 0 | 31.8 | PASS |
-| num_all_nan | 数值 | 目标列全 NaN | any | succeeded | — | 2 | 20 | 0 | 3432.6 | PASS |
-| num_constant | 数值 | 目标列恒定 | succeeded | succeeded | — | 3 | 18 | 0 | 3493.6 | PASS |
-| num_inf | 数值 | 含 +inf / -inf | succeeded | succeeded | — | 3 | 26 | 0 | 3525.6 | PASS |
-| num_huge | 数值 | 1e12 量级 | any | succeeded | — | 2 | 26 | 0 | 3619.2 | PASS |
-| num_negative_rain | 数值 | 降雨为负 | succeeded | succeeded | — | 2 | 26 | 0 | 3518.7 | PASS |
-| num_missing_50 | 数值 | 温度 50% 缺失 | succeeded | succeeded | — | 3 | 25 | 0 | 3532.2 | PASS |
-| num_one_row | 数值 | 1 行样本 | any | succeeded | — | 4 | 1 | 0 | 2882.1 | PASS |
-| num_ten_rows | 数值 | 10 行样本 | any | succeeded | — | 4 | 7 | 0 | 2958.8 | PASS |
-| enc_gbk | 编码 | GBK 编码中文站点 | succeeded | succeeded | — | 2 | 13 | 0 | 3042.2 | PASS |
-| enc_bom | 编码 | UTF-8 BOM | succeeded | succeeded | — | 2 | 26 | 0 | 3555.7 | PASS |
-| schema_duplicate_columns | 编码 | 重复列名 | any | succeeded | — | 2 | 26 | 0 | 3654.0 | PASS |
-| schema_weird_names | 编码 | 列名含换行与指令文本 | any | succeeded | — | 2 | 26 | 0 | 3900.4 | PASS |
-| schema_no_target | 编码 | 没有场景可识别的数值列 | any | failed | SCENE_NOT_DETECTED | 0 | 0 | 0 | 36.9 | PASS |
-| scale_over_limit | 规模 | 超过行数上限 | failed | failed | DATASET_TOO_LARGE | 0 | 0 | 0 | 11.2 | PASS |
-| scale_at_limit | 规模 | 恰好等于行数上限 | succeeded | succeeded | — | 3 | 13 | 0 | 3517.1 | PASS |
-| q_empty | 问题 | 空问题（CLI） | cli | — | — | 0 | 0 | 0 | 1.4 | PASS |
-| q_long | 问题 | 3000 字长问题 | succeeded | succeeded | — | 2 | 13 | 0 | 3124.3 | PASS |
-| q_forecast | 问题 | 越界：预测未来 | succeeded | succeeded | — | 2 | 13 | 0 | 2943.0 | PASS |
-| q_injection | 问题 | 提示注入 | succeeded | succeeded | — | 2 | 13 | 0 | 3735.1 | PASS |
-| agent_stock | Agent | agent + 股票场景 | failed | failed | AGENT_SCENE_UNSUPPORTED | 1 | 0 | 0 | 98.1 | PASS |
-| agent_no_model | Agent | agent + 无模型配置 | failed | failed | AGENT_UNAVAILABLE | 2 | 0 | 0 | 303.3 | PASS |
-| agent_bad_input | Agent | agent + 无有效数值列 | failed | failed | EMPTY_NUMERIC_COLUMN | 0 | 0 | 0 | 29.5 | PASS |
+| load_json_as_csv | 导入 | JSON 内容但扩展名 .csv | failed | failed | DATA_LOAD_FAILED | 0 | 0 | 0 | 2.4 | PASS |
+| time_missing | 时间轴 | 没有时间列 | failed | failed | TIME_AXIS_NOT_FOUND | 0 | 0 | 0 | 22.2 | PASS |
+| time_unparseable | 时间轴 | 时间列全部不可解析 | failed | failed | TIME_AXIS_NOT_FOUND | 0 | 0 | 0 | 46.0 | PASS |
+| time_mixed_tz | 时间轴 | 混合时区偏移 | any | failed | TIME_AXIS_NOT_FOUND | 0 | 0 | 0 | 25.9 | PASS |
+| time_all_same | 时间轴 | 所有时间戳相同 | any | succeeded | — | 4 | 4 | 0 | 3454.9 | PASS |
+| time_out_of_order | 时间轴 | 时间戳乱序 | succeeded | succeeded | — | 2 | 17 | 0 | 3060.4 | PASS |
+| time_duplicates | 时间轴 | 重复时间戳 | succeeded | succeeded | — | 2 | 18 | 0 | 3081.3 | PASS |
+| time_gap | 时间轴 | 48 小时缺口 | succeeded | succeeded | — | 2 | 16 | 0 | 3128.0 | PASS |
+| num_none | 数值 | 只有时间与文本列 | failed | failed | EMPTY_NUMERIC_COLUMN | 0 | 0 | 0 | 30.3 | PASS |
+| num_all_nan | 数值 | 目标列全 NaN | any | succeeded | — | 2 | 22 | 0 | 3487.4 | PASS |
+| num_constant | 数值 | 目标列恒定 | succeeded | succeeded | — | 3 | 20 | 0 | 4417.8 | PASS |
+| num_inf | 数值 | 含 +inf / -inf | succeeded | succeeded | — | 3 | 29 | 0 | 3788.5 | PASS |
+| num_huge | 数值 | 1e12 量级 | any | succeeded | — | 2 | 28 | 0 | 3611.6 | PASS |
+| num_negative_rain | 数值 | 降雨为负 | succeeded | succeeded | — | 2 | 28 | 0 | 3631.6 | PASS |
+| num_missing_50 | 数值 | 温度 50% 缺失 | succeeded | succeeded | — | 3 | 28 | 0 | 3695.0 | PASS |
+| num_one_row | 数值 | 1 行样本 | any | succeeded | — | 4 | 3 | 0 | 2915.1 | PASS |
+| num_ten_rows | 数值 | 10 行样本 | any | succeeded | — | 4 | 10 | 0 | 2903.4 | PASS |
+| enc_gbk | 编码 | GBK 编码中文站点 | succeeded | succeeded | — | 2 | 15 | 0 | 3013.8 | PASS |
+| enc_bom | 编码 | UTF-8 BOM | succeeded | succeeded | — | 2 | 28 | 0 | 3721.2 | PASS |
+| schema_duplicate_columns | 编码 | 重复列名 | any | succeeded | — | 2 | 28 | 0 | 3702.2 | PASS |
+| schema_weird_names | 编码 | 列名含换行与指令文本 | any | succeeded | — | 2 | 28 | 0 | 3802.9 | PASS |
+| schema_no_target | 编码 | 没有场景可识别的数值列 | any | failed | SCENE_NOT_DETECTED | 0 | 0 | 0 | 21.4 | PASS |
+| scale_over_limit | 规模 | 超过行数上限 | failed | failed | DATASET_TOO_LARGE | 0 | 0 | 0 | 15.1 | PASS |
+| scale_at_limit | 规模 | 恰好等于行数上限 | succeeded | succeeded | — | 3 | 16 | 0 | 3313.7 | PASS |
+| q_empty | 问题 | 空问题（CLI） | cli | — | — | 0 | 0 | 0 | 1.9 | PASS |
+| q_long | 问题 | 3000 字长问题 | succeeded | succeeded | — | 2 | 15 | 0 | 3182.4 | PASS |
+| q_forecast | 问题 | 越界：预测未来 | succeeded | succeeded | — | 2 | 15 | 0 | 3026.7 | PASS |
+| q_injection | 问题 | 提示注入 | succeeded | succeeded | — | 2 | 15 | 0 | 3184.3 | PASS |
+| agent_stock | Agent | agent + 股票场景 | failed | failed | AGENT_SCENE_UNSUPPORTED | 1 | 0 | 0 | 101.7 | PASS |
+| agent_no_model | Agent | agent + 无模型配置 | failed | failed | AGENT_UNAVAILABLE | 2 | 0 | 0 | 333.4 | PASS |
+| agent_bad_input | Agent | agent + 无有效数值列 | failed | failed | EMPTY_NUMERIC_COLUMN | 0 | 0 | 0 | 32.4 | PASS |
 
 ## 失败与发现
 

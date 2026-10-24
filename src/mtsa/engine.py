@@ -562,7 +562,11 @@ def _run_analysis_impl(request: AnalysisRequest, verbose: bool, run_id: str,
                         hint="信号列与次日收益相关系数绝对值超过 0.80，不能使用未来信息构造信号")
 
     # ---- 11. 图表 ----
-    ctx = ScenarioContext(clean, plan, mtab, spectra, tests, anomalies, change_points, extra, qrep)
+    executed_tools = None
+    if agent_info is not None:
+        executed_tools = set(agent_info.get("tools_run") or [])
+    ctx = ScenarioContext(clean, plan, mtab, spectra, tests, anomalies, change_points, extra, qrep,
+                          executed_tools=executed_tools)
     specs = adapter.figure_specs(plan)
     artifacts, fig_warnings = viz_mod.build_figures(ctx, specs, outdir)
     warnings.extend(fig_warnings)

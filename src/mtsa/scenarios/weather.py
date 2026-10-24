@@ -288,6 +288,30 @@ class WeatherAdapter(ScenarioAdapter):
                     [], ["art_clean_csv"], "src/mtsa/preprocess.py::_apply_unit_conversions",
                     "换算依据为前后中位数比值落在华氏—摄氏区间，属推断，需与数据来源方确认")
 
+        # 质量问题：每条 issue 生成一条「数据口径」结论；没有问题时也要明确说「未发现」。
+        issues = list(ctx.quality.issues)
+        if issues:
+            for iss in issues[:8]:
+                where = []
+                if iss.column:
+                    where.append(f"列 {iss.column}")
+                if iss.group:
+                    where.append(f"分组 {iss.group}")
+                prefix = ("，".join(where) + " ") if where else ""
+                add("数据口径",
+                    f"{iss.code}：{prefix}{iss.detail}（数量 {iss.count}）。",
+                    [], ["art_clean_csv"], "src/mtsa/quality.py::check_quality",
+                    "质量检查只报告，不修改原始数据；对应清洗动作见报告第 4 节")
+            if len(issues) > 8:
+                add("数据口径",
+                    f"另有 {len(issues) - 8} 条质量问题未逐条列出，详见报告第 2 节。",
+                    [], ["art_clean_csv"], "src/mtsa/quality.py::check_quality")
+        else:
+            add("数据口径",
+                "未发现数据质量问题（检查项：缺失、重复、乱序、采样缺口、单位变化、异常候选）。",
+                [], [], "src/mtsa/quality.py::check_quality",
+                "检查项之外的异常（如传感器漂移）仍需业务确认")
+
         for col in ctx.plan.target_columns:
             mk = ctx.metric(f"ts.trend.mann_kendall_p:{col}")
             tau = ctx.metric(f"ts.trend.mann_kendall_tau:{col}")
@@ -367,7 +391,29 @@ class WeatherAdapter(ScenarioAdapter):
                 [], ["art_fig_anomaly"], "src/mtsa/anomaly.py::detect_change_points",
                 "二分分割受最大深度限制，密集变化点可能被合并")
 
-        if not conclusions:
+        # 零检出：只有「工具确实执行过」才能说「未发现」。
+        params = ctx.plan.parameters or {}
+        if ctx.tool_ran("detect_anomalies") and not ctx.anomalies:
+            thr = params.get("anomaly_threshold")
+            win = params.get("rolling_window")
+            detail = []
+            if thr is not None:
+                detail.append(f"稳健 Z 阈值 {thr}")
+            if win is not None:
+                detail.append(f"滚动窗口 {win}")
+            method = ("，".join(detail) + "；") if detail else ""
+            add("异常检测",
+                f"未发现异常点（{method}已对 {len(ctx.plan.target_columns)} 条目标序列执行检测）。",
+                [], ["art_fig_anomaly"], "src/mtsa/anomaly.py::detect_anomalies",
+                "未检出不等于不存在；阈值与窗口可配置，极端事件需业务确认")
+        if ctx.tool_ran("detect_change_points") and not ctx.change_points:
+            add("变化点",
+                f"未发现均值突变（二分分割；已对 {len(ctx.plan.target_columns)} 条目标序列执行检测）。",
+                [], ["art_fig_anomaly"], "src/mtsa/anomaly.py::detect_change_points",
+                "未检出不等于不存在；密集或幅度较小的变化点可能低于检出下限")
+
+        # 只有质量结论、没有任何分析结论时，仍然要说明「不足以支撑分析」。
+        if not [c for c in conclusions if c.category != "数据口径"]:
             add("总体", "样本量或字段不足，未生成可支持的结构化结论。", [], [],
                 "src/mtsa/scenarios/weather.py::conclusions", "需补充数据后重跑")
         return conclusions, evidences

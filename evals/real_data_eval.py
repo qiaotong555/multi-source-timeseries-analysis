@@ -422,7 +422,9 @@ def build_checks(per_dataset, runs, registry, by_id) -> dict[str, Any]:
     c1_files = {"src/mtsa/quality.py", "src/mtsa/scenarios/weather.py",
                 "src/mtsa/engine.py",
                 # C2：质量报告按实体判重
-                "src/mtsa/models.py", "src/mtsa/profiler.py", "src/mtsa/report.py"}
+                "src/mtsa/models.py", "src/mtsa/profiler.py", "src/mtsa/report.py",
+                # C3：质量问题进结论
+                "src/mtsa/scenarios/base.py"}
     # 以「B 的首轮提交」为基线，而不是工作区：这样报告在提交前后都可复现。
     b_baseline = "3404b43"
     dirty = []
@@ -440,7 +442,7 @@ def build_checks(per_dataset, runs, registry, by_id) -> dict[str, Any]:
         except (OSError, subprocess.SubprocessError):
             dirty = ["<git unavailable>"]
     unexpected = [x for x in dirty if x not in c1_files]
-    add("R10 分析代码改动仅限 C1/C2 允许清单", not unexpected,
+    add("R10 分析代码改动仅限 C1/C2/C3 允许清单", not unexpected,
         "变更 %d 项，清单外 %d 项（%s）" % (
             len(dirty), len(unexpected), ",".join(sorted(dirty)) or "无"),
         "清单外 0 项")
@@ -509,15 +511,16 @@ def build_findings(per_dataset, runs) -> list[dict]:
             })
     q2 = [r for r in runs if r["question"] == "q2" and r["status"] == "succeeded"]
     no_q = sum(1 for r in q2 if not r["conclusion_categories"].get("数据口径"))
-    out.append({
-        "title": "F3 质量问题只进报告第 2 节，不进结论",
-                "short": "质量问题不进结论",
-        "body": ("问题 2 明确问「缺失、重复、乱序、采样缺口、单位变化」，但 %d/%d 次成功运行里"
-                 "没有一条 `数据口径` 结论；质量信息只出现在 `report.md` 的「2. 数据质量报告」"
-                 "表格和 `warnings` 中。因此结论级指标无法评价数据质量问答。"
-                 % (no_q, len(q2))),
-        "evidence": ["evals/real_data_report.md 第 2 节"],
-    })
+    if no_q:
+        out.append({
+            "title": "F3 质量问题只进报告第 2 节，不进结论",
+            "short": "质量问题不进结论",
+            "body": ("问题 2 明确问「缺失、重复、乱序、采样缺口、单位变化」，但 %d/%d 次成功运行里"
+                     "没有一条 `数据口径` 结论；质量信息只出现在 `report.md` 的「2. 数据质量报告」"
+                     "表格和 `warnings` 中。因此结论级指标无法评价数据质量问答。"
+                     % (no_q, len(q2))),
+            "evidence": ["evals/real_data_report.md 第 2 节"],
+        })
     tot = sum(d["quality_match"]["total"] for d in per_dataset)
     loc = sum(d["quality_match"]["localized"] for d in per_dataset)
     out.append({
@@ -665,7 +668,12 @@ def render_md(doc) -> str:
           "",
           "> **C2 修复后复跑说明**：首轮暴露的 F2（R05 三站点共享时间轴被报 17,568 条重复）"
           "已在 C2 中修复，本次复跑不再复现（duplicate_timestamps=0，清洗仍为 "
-          "8,784 行 × 15 列）。见 `spec/项目承接已完成.md` 第 35 章。", ""]
+          "8,784 行 × 15 列）。见 `spec/项目承接已完成.md` 第 35 章。",
+          "",
+          "> **C3 修复后复跑说明**：首轮暴露的 F3（质量问题不进结论）与 F7（零检出无结论）"
+          "已在 C3 中修复：Q2 的 20 次运行全部有 `数据口径` 结论（修复前 2/20），"
+          "12 个零异常运行全部给出「未发现异常/变化点」（修复前 12 个静默），"
+          "需求覆盖 0.800 → 1.000。见 `spec/项目承接已完成.md` 第 36 章。", ""]
     for f in doc["findings"]:
         L += ["### %s" % f["title"], "", f["body"], ""]
         if f.get("evidence"):
