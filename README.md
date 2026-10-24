@@ -4,8 +4,23 @@
 异常检测、统计检验和可视化，可选地给出带区间的点预测，输出可复现的分析报告。**引擎与场景解耦**，当前内置天气（主场景）
 与股票（扩展场景）两个适配器，用同一工作流验证可迁移性。
 
+## 安装
+
+```bash
+pip install .        # 装成命令行工具，之后直接用 mtsa
+pip install -e .     # 开发用：改 src 立即生效
+```
+
+面向使用者的完整说明（Python 版本、数据格式、错误对照表、Docker）见 **`doc/安装与首次运行.md`**。
+镜像定义在 `Dockerfile`；本机无 Docker，**尚未实际构建验证**，这一点在文档里也写明了。
+
+> 本作品为课程/课题提交物，**保留所有权利**，仅授权课程评审与演示使用；详见 `LICENSE`。第三方数据与依赖的条款见 `DATA_SOURCES.md`、`THIRD_PARTY_NOTICES.md`。
+
+一页看懂现状（定位、完成度、未达标项、复现入口）：`项目概要.md`。
+
 完整说明（能力边界、评估结果、限制、复现）见 `doc/项目说明书.md`。
 Demo Word 说明文档见 `doc/Agent一键Demo说明_2026-10-24.docx`；可用 `python scripts/make_demo_word.py` 按真实 `artifacts/demo/` 产物重新生成。
+全链路演示见 `doc/全链路Demo_柏林2024.docx`：一份数据（柏林 2024）走完六步，并给出三张单列结果图；`python scripts/make_chain_demo_doc.py --rerun` 会重跑 demo 并重新生成。
 Word 文档第 9 节包含“STA_A 温度单位变化与异常诊断”案例；案例产物位于 `artifacts/demo_case_unit_change_rule/`。
 
 ```bash
@@ -37,6 +52,12 @@ python -m mtsa.cli run --mode agent --scene weather \
 python -m mtsa.cli run --mode agent --scene weather \
     --input fixtures/weather_v1.csv --question "分析温度的趋势、季节性与异常" \
     --agent-max-tokens 2000
+
+# 金额估算（可选）：给一份价目表 JSON，模板见 config/prices.example.json
+# 未配置时不换算金额；路径/字段有误会直接报 PRICE_TABLE_INVALID，不按 0 计价
+python -m mtsa.cli run --mode agent --scene weather \
+    --input fixtures/weather_v1.csv --question "分析温度的趋势、季节性与异常" \
+    --agent-max-tokens 2000 --price-table config/prices.example.json
 
 # 离线重放：按已保存的轨迹重跑工具，不调用模型
 python -m mtsa.cli run --replay artifacts/<run_id>/result.json
@@ -92,7 +113,7 @@ python -m evals.robustness_eval --only 导入,时间轴,数值
 # 方案 2：独立数据上的结论门禁（weather_eval_v2；4 问题 × pipeline/agent）
 # 需要 MTSA_LLM_* 才能跑 agent；--pipeline-only 可离线只跑确定性流水线
 python -m evals.conclusion_gate_eval
-python -m evals.conclusion_gate_eval --pipeline-only
+python -m evals.conclusion_gate_eval --pipeline-only   # 写到 *_pipeline_only.json，不覆盖正式门禁
 # 重建 v2 数据（确定性，数据 SHA1 应为 2ee8077e…）
 PYTHONPATH=. python fixtures/gen_weather_eval_v2.py
 
@@ -221,6 +242,7 @@ doc/           架构设计、接口与字段、评估设计、改进记录、Ag
 ## 边界
 
 - 输入文件只读，从不修改、移动或删除。
+- **多站点（长表 + `group_columns`）为正式支持场景**：清洗按实体分组，判重按 `(实体, 时间)`。
 - 股票场景不提供真实投资建议，不做自动交易；回测不含交易成本与滑点，结论中显式声明。
 - 不做彩票中奖号码预测；彩票场景不在当前任务范围。
 - 数值结论全部由计算代码产出，模型不参与任何数值计算。LLM 只参与两处选择：计划层选择分析项，
@@ -233,3 +255,18 @@ doc/           架构设计、接口与字段、评估设计、改进记录、Ag
 
 开发以 `spec/当前开发任务.md` 为准；架构、接口与字段变更验证后同步到 `doc/`。
 评估记录必须包含数据集版本、指标实测值、失败样例与修改前后对比；未实际运行不得声明通过。
+
+## 授权与使用
+
+本作品为课程/课题「课题 12 · AI for Science · S06」的提交物，**保留所有权利**（All rights reserved）。
+授权范围仅限该课程/课题的评审、演示与存档；复制、再分发、修改、商用均需事先书面许可。
+完整条款见 [`LICENSE`](LICENSE)；需要单独给合作方试用时，用 [`doc/评估授权函_模板.md`](doc/评估授权函_模板.md) 出具书面授权。
+
+第三方材料的条款是独立的，不随本许可证变化：
+
+| 文件 | 管什么 |
+| --- | --- |
+| `DATA_SOURCES.md` | `fixtures/` 下 17 份外部数据的来源、许可证与**必须保留的署名文本** |
+| `THIRD_PARTY_NOTICES.md` | pandas / numpy / scipy / statsmodels / plotly 等依赖的许可证 |
+
+> 说明：数据署名（CC BY 4.0）是数据提供方的要求，与代码是否开源无关；删掉署名即违反数据条款。
