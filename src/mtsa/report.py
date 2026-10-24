@@ -15,6 +15,8 @@ from .models import Artifact, Conclusion, Evidence
 from .scenarios.base import ScenarioContext
 
 MAX_TABLE_ROWS = 120
+# 质量表逐段列出区间（最多与 runs 的上限一致）；结论里只取前 3 段。
+MAX_RUNS_IN_TABLE = 20
 
 
 def _fmt(v, nd: int = 6) -> str:
@@ -41,6 +43,28 @@ def _budget_label(budget: dict) -> str:
         return f"上限 {limit}；服务端未返回 usage，未生效"
     text = f"{budget.get('used') or 0} / {limit}"
     return text + ("（已用尽）" if budget.get("exhausted") else "")
+
+
+def _issue_range_cell(issue: object) -> str:
+    """质量表「区间」列：有 runs 时给前几段，否则退回 start~end。"""
+    runs = getattr(issue, "runs", None) or []
+    if runs:
+        parts = []
+        for r in runs[:MAX_RUNS_IN_TABLE]:
+            a = r.get("start") or "—"
+            b = r.get("end") or "—"
+            who = f" [分组 {r['group']}]" if r.get("group") else ""
+            body = a if a == b else f"{a}~{b}"
+            parts.append(f"{body}（{r.get('count')} 点）{who}")
+        total = getattr(issue, "run_count", 0) or len(runs)
+        if total > len(runs[:MAX_RUNS_IN_TABLE]):
+            parts.append(f"共 {total} 段")
+        return "；".join(parts)
+    start = getattr(issue, "start", None)
+    if start:
+        end = getattr(issue, "end", None)
+        return f"{start}~{end}" if end and end != start else str(start)
+    return "—"
 
 
 def _md_table(headers: list[str], rows: list[list[str]]) -> str:
@@ -97,8 +121,8 @@ def render_report(
     issues = getattr(quality, "issues", [])
     if issues:
         rows = [[i.code, i.severity, i.column or "—", i.group or "—",
-                 str(i.count), i.detail] for i in issues]
-        lines.append(_md_table(["问题代码", "级别", "列", "分组", "数量", "说明"],
+                 str(i.count), _issue_range_cell(i), i.detail] for i in issues]
+        lines.append(_md_table(["问题代码", "级别", "列", "分组", "数量", "区间", "说明"],
                                rows[:MAX_TABLE_ROWS]))
         if len(rows) > MAX_TABLE_ROWS:
             lines.append("")

@@ -134,7 +134,8 @@ def match_quality(labels: list[dict[str, Any]],
                   issues: list[dict[str, Any]]) -> dict[str, Any]:
     """L1 标签与质量层问题逐条匹配。
 
-    detected_localized：代码+列对上，且问题带可对照的起止时间；
+    detected_localized：代码+列对上，且问题的任一 runs[].start 能对到标签起点
+    （只给区间起点不算：必须落在任意一段的起点附近）；
     reported_unlocalized：代码+列对上，但只有计数，不知道缺口在哪；
     not_detected：没有对应代码，或该列未被报告。
     """
@@ -151,13 +152,20 @@ def match_quality(labels: list[dict[str, Any]],
         if not cands:
             rows.append({**lab, "status": "not_detected", "reason": "未报告 %s" % code})
             continue
-        localized = False
+        starts = []
         for i in cands:
-            if i.get("start") and lab.get("start"):
+            rs = [r.get("start") for r in (i.get("runs") or []) if r.get("start")]
+            starts.extend(rs if rs else [i.get("start")])
+        localized = False
+        if lab.get("start"):
+            for sv in starts:
+                if not sv:
+                    continue
                 try:
-                    a, b = pd.Timestamp(str(i["start"])), pd.Timestamp(str(lab["start"]))
+                    a, b = pd.Timestamp(str(sv)), pd.Timestamp(str(lab["start"]))
                     if abs((a - b).total_seconds()) <= 2 * 86400:
                         localized = True
+                        break
                 except (ValueError, TypeError):
                     pass
         rows.append({**lab,
@@ -523,14 +531,16 @@ def build_findings(per_dataset, runs) -> list[dict]:
         })
     tot = sum(d["quality_match"]["total"] for d in per_dataset)
     loc = sum(d["quality_match"]["localized"] for d in per_dataset)
-    out.append({
-        "title": "F4 L1 质量事件 %d 条，能定位到区间的只有 %d 条" % (tot, loc),
-                "short": "质量事件不可定位",
-        "body": ("`MISSING_VALUES` 只给列的缺失率与计数，没有缺口起止；`DUPLICATE_TIMESTAMPS`、"
-                 "`OUT_OF_ORDER` 也只给计数。只有 `SAMPLING_GAP` 带起止时间。"
-                 "所以 Recall 高不代表可追溯，可定位 Recall 才是更严格的读法。"),
-        "evidence": ["fixtures/real_weather/*/labels.csv", "src/mtsa/quality.py"],
-    })
+    # C4 之后仍保留该发现的条件：只要还有标签对不上区间，就如实列出。
+    if loc < tot:
+        out.append({
+            "title": "F4 L1 质量事件 %d 条，能定位到区间的只有 %d 条" % (tot, loc),
+            "short": "质量事件不可定位",
+            "body": ("`MISSING_VALUES` 只给列的缺失率与计数，没有缺口起止；`DUPLICATE_TIMESTAMPS`、"
+                     "`OUT_OF_ORDER` 也只给计数。只有 `SAMPLING_GAP` 带起止时间。"
+                     "所以 Recall 高不代表可追溯，可定位 Recall 才是更严格的读法。"),
+            "evidence": ["fixtures/real_weather/*/labels.csv", "src/mtsa/quality.py"],
+        })
     out.append({
         "title": "F5 L2 为空：异常 P/R/F1 本轮不计分",
                 "short": "L2 为空、异常不计分",
@@ -673,7 +683,12 @@ def render_md(doc) -> str:
           "> **C3 修复后复跑说明**：首轮暴露的 F3（质量问题不进结论）与 F7（零检出无结论）"
           "已在 C3 中修复：Q2 的 20 次运行全部有 `数据口径` 结论（修复前 2/20），"
           "12 个零异常运行全部给出「未发现异常/变化点」（修复前 12 个静默），"
-          "需求覆盖 0.800 → 1.000。见 `spec/项目承接已完成.md` 第 36 章。", ""]
+          "需求覆盖 0.800 → 1.000。见 `spec/项目承接已完成.md` 第 36 章。",
+          "",
+          "> **C4 修复后复跑说明**：首轮暴露的 F4（7 条 L1 只有 1 条能定位到区间）已在 C4 中修复："
+          "本次复跑 7/7 可定位（可定位 Recall 1.000，最差数据集 1.000）。`MISSING_VALUES` 现在"
+          "带连续缺失段的起止与点数，完整清单见 `result.json` 的 `data.quality.issues[].runs`。"
+          "见 `spec/项目承接已完成.md` 第 37 章。", ""]
     for f in doc["findings"]:
         L += ["### %s" % f["title"], "", f["body"], ""]
         if f.get("evidence"):
@@ -763,8 +778,7 @@ def main(argv=None) -> int:
               for r in runs}
     failed = [r for r in runs if r["status"] != "succeeded"]
     headline = ("%d 次运行 %d 成功、%d 失败；pipeline 证据覆盖率 %s，agent %s；"
-                "L1 质量事件 Recall %s（可定位 %s），需求覆盖 %s。主要问题不是「跑不动」，"
-                "而是口径与推断缺陷：%s。" % (
+                "L1 质量事件 Recall %s（可定位 %s），需求覆盖 %s。剩余问题：%s。" % (
                     len(runs), len(runs) - len(failed), len(failed),
                     _f(macro_map.get("by_mode.pipeline.evidence_coverage")),
                     _f(macro_map.get("by_mode.agent.evidence_coverage")),

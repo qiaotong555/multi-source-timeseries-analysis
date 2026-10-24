@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-24T12:46:51",
+  "generated_at": "2026-10-24T13:06:27",
   "model": "deepseek-chat",
   "modes": [
     "pipeline",
@@ -78,7 +78,7 @@
           "anomalies": 124.0,
           "change_points": 0.75,
           "tool_coverage": 0.65,
-          "tokens": 4519.25,
+          "tokens": 4512.75,
           "terminate_reasons": {
             "budget_exhausted": 3,
             "model_finished": 1
@@ -185,7 +185,7 @@
           "anomalies": 32.0,
           "change_points": 0.0,
           "tool_coverage": 0.65,
-          "tokens": 4428.75,
+          "tokens": 4419.75,
           "terminate_reasons": {
             "budget_exhausted": 3,
             "model_finished": 1
@@ -290,9 +290,9 @@
           "need_coverage": 1.0,
           "reports_with_quality_section": 4,
           "anomalies": 14.0,
-          "change_points": 0.75,
-          "tool_coverage": 0.65,
-          "tokens": 4450.0,
+          "change_points": 0.5,
+          "tool_coverage": 0.6,
+          "tokens": 4191.5,
           "terminate_reasons": {
             "budget_exhausted": 3,
             "model_finished": 1
@@ -317,7 +317,7 @@
         {
           "question": "q3",
           "anomaly_jaccard": 1.0,
-          "changepoint_jaccard": 1.0,
+          "changepoint_jaccard": 0.0,
           "pipeline_anomalies": 14,
           "agent_anomalies": 14
         },
@@ -330,7 +330,7 @@
         }
       ],
       "anomaly_jaccard": 1.0,
-      "changepoint_jaccard": 0.75
+      "changepoint_jaccard": 0.5
     },
     {
       "id": "R04",
@@ -399,7 +399,7 @@
           "anomalies": 226.0,
           "change_points": 0.0,
           "tool_coverage": 0.65,
-          "tokens": 4436.0,
+          "tokens": 4441.25,
           "terminate_reasons": {
             "budget_exhausted": 3,
             "model_finished": 1
@@ -508,7 +508,7 @@
           "anomalies": 156.0,
           "change_points": 1.5,
           "tool_coverage": 0.65,
-          "tokens": 4735.5,
+          "tokens": 4728.0,
           "terminate_reasons": {
             "budget_exhausted": 3,
             "model_finished": 1
@@ -582,9 +582,9 @@
       "quality_match": {
         "total": 6,
         "detected": 6,
-        "localized": 0,
+        "localized": 6,
         "recall": 1.0,
-        "localized_recall": 0.0,
+        "localized_recall": 1.0,
         "recall_ci": {
           "k": 6,
           "n": 6,
@@ -602,7 +602,7 @@
             "count": "4",
             "source": "fixtures/real_weather/r06_nyc_central_park_daily_2018_2024/data.csv",
             "note": "连续缺失 4 个采样点",
-            "status": "reported_unlocalized",
+            "status": "detected_localized",
             "reason": "命中 MISSING_VALUES"
           },
           {
@@ -614,7 +614,7 @@
             "count": "149",
             "source": "fixtures/real_weather/r06_nyc_central_park_daily_2018_2024/data.csv",
             "note": "连续缺失 149 个采样点",
-            "status": "reported_unlocalized",
+            "status": "detected_localized",
             "reason": "命中 MISSING_VALUES"
           },
           {
@@ -626,7 +626,7 @@
             "count": "5",
             "source": "fixtures/real_weather/r06_nyc_central_park_daily_2018_2024/data.csv",
             "note": "连续缺失 5 个采样点",
-            "status": "reported_unlocalized",
+            "status": "detected_localized",
             "reason": "命中 MISSING_VALUES"
           },
           {
@@ -638,7 +638,7 @@
             "count": "32",
             "source": "fixtures/real_weather/r06_nyc_central_park_daily_2018_2024/data.csv",
             "note": "连续缺失 32 个采样点",
-            "status": "reported_unlocalized",
+            "status": "detected_localized",
             "reason": "命中 MISSING_VALUES"
           },
           {
@@ -650,7 +650,7 @@
             "count": "8",
             "source": "fixtures/real_weather/r06_nyc_central_park_daily_2018_2024/data.csv",
             "note": "连续缺失 8 个采样点",
-            "status": "reported_unlocalized",
+            "status": "detected_localized",
             "reason": "命中 MISSING_VALUES"
           },
           {
@@ -662,7 +662,7 @@
             "count": "8",
             "source": "fixtures/real_weather/r06_nyc_central_park_daily_2018_2024/data.csv",
             "note": "连续缺失 8 个采样点",
-            "status": "reported_unlocalized",
+            "status": "detected_localized",
             "reason": "命中 MISSING_VALUES"
           }
         ]
@@ -692,7 +692,7 @@
           "anomalies": 5.0,
           "change_points": 0.0,
           "tool_coverage": 0.65,
-          "tokens": 4422.5,
+          "tokens": 4422.25,
           "terminate_reasons": {
             "budget_exhausted": 3,
             "model_finished": 1
@@ -795,7 +795,7 @@
           "anomalies": 5.0,
           "change_points": 0.0,
           "tool_coverage": 0.65,
-          "tokens": 4389.5,
+          "tokens": 4390.25,
           "terminate_reasons": {
             "budget_exhausted": 3,
             "model_finished": 1
@@ -917,7 +917,7 @@
           "anomalies": 0.0,
           "change_points": 0.0,
           "tool_coverage": 0.65,
-          "tokens": 4325.5,
+          "tokens": 4322.25,
           "terminate_reasons": {
             "budget_exhausted": 3,
             "model_finished": 1
@@ -1018,7 +1018,7 @@
           "anomalies": 0.0,
           "change_points": 0.0,
           "tool_coverage": 0.65,
-          "tokens": 4255.25,
+          "tokens": 4239.5,
           "terminate_reasons": {
             "budget_exhausted": 3,
             "model_finished": 1
@@ -1125,7 +1125,7 @@
           "anomalies": 51.0,
           "change_points": 1.5,
           "tool_coverage": 0.65,
-          "tokens": 4463.0,
+          "tokens": 4463.5,
           "terminate_reasons": {
             "budget_exhausted": 3,
             "model_finished": 1
@@ -1255,11 +1255,11 @@
     "by_mode.agent.evidence_coverage": 1.0,
     "by_mode.pipeline.need_coverage": 1.0,
     "by_mode.agent.need_coverage": 1.0,
-    "by_mode.agent.tool_coverage": 0.65,
+    "by_mode.agent.tool_coverage": 0.645,
     "quality_match.recall": 1.0,
-    "quality_match.localized_recall": 0.5,
+    "quality_match.localized_recall": 1.0,
     "anomaly_jaccard": 1.0,
-    "changepoint_jaccard": 0.9
+    "changepoint_jaccard": 0.875
   },
   "worst": {
     "by_mode.pipeline.success_rate": {
@@ -1353,18 +1353,9 @@
       ]
     },
     "by_mode.agent.tool_coverage": {
-      "value": 0.65,
+      "value": 0.6,
       "datasets": [
-        "R01",
-        "R02",
-        "R03",
-        "R04",
-        "R05",
-        "R06",
-        "R07",
-        "R08",
-        "R09",
-        "R10"
+        "R03"
       ]
     },
     "quality_match.recall": {
@@ -1375,9 +1366,10 @@
       ]
     },
     "quality_match.localized_recall": {
-      "value": 0.0,
+      "value": 1.0,
       "datasets": [
-        "R06"
+        "R06",
+        "R08"
       ]
     },
     "anomaly_jaccard": {
@@ -1396,12 +1388,9 @@
       ]
     },
     "changepoint_jaccard": {
-      "value": 0.75,
+      "value": 0.5,
       "datasets": [
-        "R01",
-        "R03",
-        "R05",
-        "R10"
+        "R03"
       ]
     }
   },
@@ -1473,15 +1462,6 @@
   "passed": true,
   "findings": [
     {
-      "title": "F4 L1 质量事件 7 条，能定位到区间的只有 1 条",
-      "short": "质量事件不可定位",
-      "body": "`MISSING_VALUES` 只给列的缺失率与计数，没有缺口起止；`DUPLICATE_TIMESTAMPS`、`OUT_OF_ORDER` 也只给计数。只有 `SAMPLING_GAP` 带起止时间。所以 Recall 高不代表可追溯，可定位 Recall 才是更严格的读法。",
-      "evidence": [
-        "fixtures/real_weather/*/labels.csv",
-        "src/mtsa/quality.py"
-      ]
-    },
-    {
       "title": "F5 L2 为空：异常 P/R/F1 本轮不计分",
       "short": "L2 为空、异常不计分",
       "body": "没有取得可离线复核的官方极端事件清单，`l2_verified_events.csv` 只有表头。异常与变化点只报数量（L3），不把无标签候选当成误报，也不当成命中。",
@@ -1497,7 +1477,7 @@
       ]
     }
   ],
-  "headline": "80 次运行 80 成功、0 失败；pipeline 证据覆盖率 1.000，agent 1.000；L1 质量事件 Recall 1.000（可定位 0.500），需求覆盖 1.000。主要问题不是「跑不动」，而是口径与推断缺陷：质量事件不可定位；L2 为空、异常不计分；F6 两个源整列不报送，已在转换阶段剔除。",
+  "headline": "80 次运行 80 成功、0 失败；pipeline 证据覆盖率 1.000，agent 1.000；L1 质量事件 Recall 1.000（可定位 1.000），需求覆盖 1.000。剩余问题：L2 为空、异常不计分；F6 两个源整列不报送，已在转换阶段剔除。",
   "runs": [
     {
       "dataset": "R01",
@@ -1535,7 +1515,10 @@
           "start": null,
           "end": null,
           "count": 65,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "POSSIBLE_UNIT_CHANGE",
@@ -1546,7 +1529,10 @@
           "start": "2024-02-09 21:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 957 个采样点前后中位数 0.100 → 0.000（比值 0.000），疑似单位或量纲变化"
+          "detail": "第 957 个采样点前后中位数 0.100 → 0.000（比值 0.000），疑似单位或量纲变化",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         }
       ],
       "anomalies": 124,
@@ -1603,7 +1589,10 @@
           "start": null,
           "end": null,
           "count": 65,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "POSSIBLE_UNIT_CHANGE",
@@ -1614,7 +1603,10 @@
           "start": "2024-02-09 21:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 957 个采样点前后中位数 0.100 → 0.000（比值 0.000），疑似单位或量纲变化"
+          "detail": "第 957 个采样点前后中位数 0.100 → 0.000（比值 0.000），疑似单位或量纲变化",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         }
       ],
       "anomalies": 124,
@@ -1628,7 +1620,7 @@
       ],
       "steps": 4,
       "terminate_reason": "budget_exhausted",
-      "tokens": 5404,
+      "tokens": 5396,
       "missing_tools": [
         "run_stat_tests"
       ],
@@ -1672,7 +1664,10 @@
           "start": null,
           "end": null,
           "count": 65,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "POSSIBLE_UNIT_CHANGE",
@@ -1683,7 +1678,10 @@
           "start": "2024-02-09 21:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 957 个采样点前后中位数 0.100 → 0.000（比值 0.000），疑似单位或量纲变化"
+          "detail": "第 957 个采样点前后中位数 0.100 → 0.000（比值 0.000），疑似单位或量纲变化",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         }
       ],
       "anomalies": 124,
@@ -1738,7 +1736,10 @@
           "start": null,
           "end": null,
           "count": 65,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "POSSIBLE_UNIT_CHANGE",
@@ -1749,7 +1750,10 @@
           "start": "2024-02-09 21:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 957 个采样点前后中位数 0.100 → 0.000（比值 0.000），疑似单位或量纲变化"
+          "detail": "第 957 个采样点前后中位数 0.100 → 0.000（比值 0.000），疑似单位或量纲变化",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         }
       ],
       "anomalies": 124,
@@ -1761,7 +1765,7 @@
       ],
       "steps": 2,
       "terminate_reason": "budget_exhausted",
-      "tokens": 3042,
+      "tokens": 3037,
       "missing_tools": [
         "analyze_spectrum",
         "run_stat_tests",
@@ -1807,7 +1811,10 @@
           "start": null,
           "end": null,
           "count": 65,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "POSSIBLE_UNIT_CHANGE",
@@ -1818,7 +1825,10 @@
           "start": "2024-02-09 21:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 957 个采样点前后中位数 0.100 → 0.000（比值 0.000），疑似单位或量纲变化"
+          "detail": "第 957 个采样点前后中位数 0.100 → 0.000（比值 0.000），疑似单位或量纲变化",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         }
       ],
       "anomalies": 124,
@@ -1874,7 +1884,10 @@
           "start": null,
           "end": null,
           "count": 65,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "POSSIBLE_UNIT_CHANGE",
@@ -1885,7 +1898,10 @@
           "start": "2024-02-09 21:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 957 个采样点前后中位数 0.100 → 0.000（比值 0.000），疑似单位或量纲变化"
+          "detail": "第 957 个采样点前后中位数 0.100 → 0.000（比值 0.000），疑似单位或量纲变化",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         }
       ],
       "anomalies": 124,
@@ -1898,7 +1914,7 @@
       ],
       "steps": 3,
       "terminate_reason": "model_finished",
-      "tokens": 4210,
+      "tokens": 4199,
       "missing_tools": [
         "analyze_spectrum",
         "run_stat_tests"
@@ -1943,7 +1959,10 @@
           "start": null,
           "end": null,
           "count": 65,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "POSSIBLE_UNIT_CHANGE",
@@ -1954,7 +1973,10 @@
           "start": "2024-02-09 21:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 957 个采样点前后中位数 0.100 → 0.000（比值 0.000），疑似单位或量纲变化"
+          "detail": "第 957 个采样点前后中位数 0.100 → 0.000（比值 0.000），疑似单位或量纲变化",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         }
       ],
       "anomalies": 124,
@@ -2011,7 +2033,10 @@
           "start": null,
           "end": null,
           "count": 65,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "POSSIBLE_UNIT_CHANGE",
@@ -2022,7 +2047,10 @@
           "start": "2024-02-09 21:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 957 个采样点前后中位数 0.100 → 0.000（比值 0.000），疑似单位或量纲变化"
+          "detail": "第 957 个采样点前后中位数 0.100 → 0.000（比值 0.000），疑似单位或量纲变化",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         }
       ],
       "anomalies": 124,
@@ -2036,7 +2064,7 @@
       ],
       "steps": 4,
       "terminate_reason": "budget_exhausted",
-      "tokens": 5421,
+      "tokens": 5419,
       "missing_tools": [
         "run_stat_tests"
       ],
@@ -2080,7 +2108,10 @@
           "start": null,
           "end": null,
           "count": 1,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "OUTLIER_CANDIDATE",
@@ -2091,7 +2122,10 @@
           "start": null,
           "end": null,
           "count": 90,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -2102,7 +2136,10 @@
           "start": "2024-03-02 01:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 1465 个采样点存在水平跳变（比值 1.095）"
+          "detail": "第 1465 个采样点存在水平跳变（比值 1.095）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -2113,7 +2150,10 @@
           "start": "2024-03-30 01:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 2137 个采样点存在水平跳变（比值 1.087）"
+          "detail": "第 2137 个采样点存在水平跳变（比值 1.087）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -2124,7 +2164,10 @@
           "start": "2024-12-03 07:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 8095 个采样点存在水平跳变（比值 0.906）"
+          "detail": "第 8095 个采样点存在水平跳变（比值 0.906）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         }
       ],
       "anomalies": 32,
@@ -2181,7 +2224,10 @@
           "start": null,
           "end": null,
           "count": 1,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "OUTLIER_CANDIDATE",
@@ -2192,7 +2238,10 @@
           "start": null,
           "end": null,
           "count": 90,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -2203,7 +2252,10 @@
           "start": "2024-03-02 01:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 1465 个采样点存在水平跳变（比值 1.095）"
+          "detail": "第 1465 个采样点存在水平跳变（比值 1.095）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -2214,7 +2266,10 @@
           "start": "2024-03-30 01:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 2137 个采样点存在水平跳变（比值 1.087）"
+          "detail": "第 2137 个采样点存在水平跳变（比值 1.087）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -2225,7 +2280,10 @@
           "start": "2024-12-03 07:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 8095 个采样点存在水平跳变（比值 0.906）"
+          "detail": "第 8095 个采样点存在水平跳变（比值 0.906）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         }
       ],
       "anomalies": 32,
@@ -2239,7 +2297,7 @@
       ],
       "steps": 4,
       "terminate_reason": "budget_exhausted",
-      "tokens": 5277,
+      "tokens": 5273,
       "missing_tools": [
         "run_stat_tests"
       ],
@@ -2283,7 +2341,10 @@
           "start": null,
           "end": null,
           "count": 1,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "OUTLIER_CANDIDATE",
@@ -2294,7 +2355,10 @@
           "start": null,
           "end": null,
           "count": 90,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -2305,7 +2369,10 @@
           "start": "2024-03-02 01:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 1465 个采样点存在水平跳变（比值 1.095）"
+          "detail": "第 1465 个采样点存在水平跳变（比值 1.095）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -2316,7 +2383,10 @@
           "start": "2024-03-30 01:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 2137 个采样点存在水平跳变（比值 1.087）"
+          "detail": "第 2137 个采样点存在水平跳变（比值 1.087）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -2327,7 +2397,10 @@
           "start": "2024-12-03 07:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 8095 个采样点存在水平跳变（比值 0.906）"
+          "detail": "第 8095 个采样点存在水平跳变（比值 0.906）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         }
       ],
       "anomalies": 32,
@@ -2382,7 +2455,10 @@
           "start": null,
           "end": null,
           "count": 1,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "OUTLIER_CANDIDATE",
@@ -2393,7 +2469,10 @@
           "start": null,
           "end": null,
           "count": 90,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -2404,7 +2483,10 @@
           "start": "2024-03-02 01:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 1465 个采样点存在水平跳变（比值 1.095）"
+          "detail": "第 1465 个采样点存在水平跳变（比值 1.095）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -2415,7 +2497,10 @@
           "start": "2024-03-30 01:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 2137 个采样点存在水平跳变（比值 1.087）"
+          "detail": "第 2137 个采样点存在水平跳变（比值 1.087）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -2426,7 +2511,10 @@
           "start": "2024-12-03 07:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 8095 个采样点存在水平跳变（比值 0.906）"
+          "detail": "第 8095 个采样点存在水平跳变（比值 0.906）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         }
       ],
       "anomalies": 32,
@@ -2438,7 +2526,7 @@
       ],
       "steps": 2,
       "terminate_reason": "budget_exhausted",
-      "tokens": 3027,
+      "tokens": 3011,
       "missing_tools": [
         "analyze_spectrum",
         "run_stat_tests",
@@ -2484,7 +2572,10 @@
           "start": null,
           "end": null,
           "count": 1,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "OUTLIER_CANDIDATE",
@@ -2495,7 +2586,10 @@
           "start": null,
           "end": null,
           "count": 90,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -2506,7 +2600,10 @@
           "start": "2024-03-02 01:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 1465 个采样点存在水平跳变（比值 1.095）"
+          "detail": "第 1465 个采样点存在水平跳变（比值 1.095）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -2517,7 +2614,10 @@
           "start": "2024-03-30 01:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 2137 个采样点存在水平跳变（比值 1.087）"
+          "detail": "第 2137 个采样点存在水平跳变（比值 1.087）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -2528,7 +2628,10 @@
           "start": "2024-12-03 07:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 8095 个采样点存在水平跳变（比值 0.906）"
+          "detail": "第 8095 个采样点存在水平跳变（比值 0.906）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         }
       ],
       "anomalies": 32,
@@ -2584,7 +2687,10 @@
           "start": null,
           "end": null,
           "count": 1,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "OUTLIER_CANDIDATE",
@@ -2595,7 +2701,10 @@
           "start": null,
           "end": null,
           "count": 90,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -2606,7 +2715,10 @@
           "start": "2024-03-02 01:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 1465 个采样点存在水平跳变（比值 1.095）"
+          "detail": "第 1465 个采样点存在水平跳变（比值 1.095）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -2617,7 +2729,10 @@
           "start": "2024-03-30 01:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 2137 个采样点存在水平跳变（比值 1.087）"
+          "detail": "第 2137 个采样点存在水平跳变（比值 1.087）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -2628,7 +2743,10 @@
           "start": "2024-12-03 07:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 8095 个采样点存在水平跳变（比值 0.906）"
+          "detail": "第 8095 个采样点存在水平跳变（比值 0.906）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         }
       ],
       "anomalies": 32,
@@ -2641,7 +2759,7 @@
       ],
       "steps": 3,
       "terminate_reason": "model_finished",
-      "tokens": 4125,
+      "tokens": 4103,
       "missing_tools": [
         "analyze_spectrum",
         "run_stat_tests"
@@ -2686,7 +2804,10 @@
           "start": null,
           "end": null,
           "count": 1,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "OUTLIER_CANDIDATE",
@@ -2697,7 +2818,10 @@
           "start": null,
           "end": null,
           "count": 90,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -2708,7 +2832,10 @@
           "start": "2024-03-02 01:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 1465 个采样点存在水平跳变（比值 1.095）"
+          "detail": "第 1465 个采样点存在水平跳变（比值 1.095）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -2719,7 +2846,10 @@
           "start": "2024-03-30 01:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 2137 个采样点存在水平跳变（比值 1.087）"
+          "detail": "第 2137 个采样点存在水平跳变（比值 1.087）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -2730,7 +2860,10 @@
           "start": "2024-12-03 07:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 8095 个采样点存在水平跳变（比值 0.906）"
+          "detail": "第 8095 个采样点存在水平跳变（比值 0.906）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         }
       ],
       "anomalies": 32,
@@ -2787,7 +2920,10 @@
           "start": null,
           "end": null,
           "count": 1,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "OUTLIER_CANDIDATE",
@@ -2798,7 +2934,10 @@
           "start": null,
           "end": null,
           "count": 90,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -2809,7 +2948,10 @@
           "start": "2024-03-02 01:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 1465 个采样点存在水平跳变（比值 1.095）"
+          "detail": "第 1465 个采样点存在水平跳变（比值 1.095）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -2820,7 +2962,10 @@
           "start": "2024-03-30 01:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 2137 个采样点存在水平跳变（比值 1.087）"
+          "detail": "第 2137 个采样点存在水平跳变（比值 1.087）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -2831,7 +2976,10 @@
           "start": "2024-12-03 07:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 8095 个采样点存在水平跳变（比值 0.906）"
+          "detail": "第 8095 个采样点存在水平跳变（比值 0.906）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         }
       ],
       "anomalies": 32,
@@ -2845,7 +2993,7 @@
       ],
       "steps": 4,
       "terminate_reason": "budget_exhausted",
-      "tokens": 5286,
+      "tokens": 5292,
       "missing_tools": [
         "run_stat_tests"
       ],
@@ -2888,7 +3036,10 @@
           "start": null,
           "end": null,
           "count": 40,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         }
       ],
       "anomalies": 14,
@@ -2944,7 +3095,10 @@
           "start": null,
           "end": null,
           "count": 40,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         }
       ],
       "anomalies": 14,
@@ -2958,7 +3112,7 @@
       ],
       "steps": 4,
       "terminate_reason": "budget_exhausted",
-      "tokens": 5329,
+      "tokens": 5326,
       "missing_tools": [
         "run_stat_tests"
       ],
@@ -3001,7 +3155,10 @@
           "start": null,
           "end": null,
           "count": 40,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         }
       ],
       "anomalies": 14,
@@ -3055,7 +3212,10 @@
           "start": null,
           "end": null,
           "count": 40,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         }
       ],
       "anomalies": 14,
@@ -3067,7 +3227,7 @@
       ],
       "steps": 2,
       "terminate_reason": "budget_exhausted",
-      "tokens": 3007,
+      "tokens": 3009,
       "missing_tools": [
         "analyze_spectrum",
         "run_stat_tests",
@@ -3112,7 +3272,10 @@
           "start": null,
           "end": null,
           "count": 40,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         }
       ],
       "anomalies": 14,
@@ -3141,15 +3304,14 @@
       "result_exists": true,
       "report_exists": true,
       "report_has_quality_section": true,
-      "conclusion_count": 17,
+      "conclusion_count": 16,
       "conclusion_categories": {
         "数据口径": 1,
         "趋势": 5,
         "季节性": 5,
         "相关性": 3,
         "滞后关系": 1,
-        "异常检测": 1,
-        "变化点": 1
+        "异常检测": 1
       },
       "evidence_coverage": 1.0,
       "need_coverage": 1.0,
@@ -3167,23 +3329,26 @@
           "start": null,
           "end": null,
           "count": 40,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         }
       ],
       "anomalies": 14,
-      "change_points": 1,
+      "change_points": 0,
       "anomaly_candidate_count": 40,
       "executed_tools": [
         "compute_metrics",
-        "detect_anomalies",
-        "detect_change_points"
+        "detect_anomalies"
       ],
-      "steps": 3,
+      "steps": 2,
       "terminate_reason": "model_finished",
-      "tokens": 4125,
+      "tokens": 3087,
       "missing_tools": [
         "analyze_spectrum",
-        "run_stat_tests"
+        "run_stat_tests",
+        "detect_change_points"
       ],
       "unit_conversions": [],
       "error": {},
@@ -3224,7 +3389,10 @@
           "start": null,
           "end": null,
           "count": 40,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         }
       ],
       "anomalies": 14,
@@ -3280,7 +3448,10 @@
           "start": null,
           "end": null,
           "count": 40,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         }
       ],
       "anomalies": 14,
@@ -3294,7 +3465,7 @@
       ],
       "steps": 4,
       "terminate_reason": "budget_exhausted",
-      "tokens": 5339,
+      "tokens": 5344,
       "missing_tools": [
         "run_stat_tests"
       ],
@@ -3338,7 +3509,10 @@
           "start": null,
           "end": null,
           "count": 3,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "OUTLIER_CANDIDATE",
@@ -3349,7 +3523,10 @@
           "start": null,
           "end": null,
           "count": 107,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -3360,7 +3537,10 @@
           "start": "2024-01-13 04:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 292 个采样点存在水平跳变（比值 -0.831）"
+          "detail": "第 292 个采样点存在水平跳变（比值 -0.831）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -3371,7 +3551,10 @@
           "start": "2024-11-14 19:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 7651 个采样点存在水平跳变（比值 -0.620）"
+          "detail": "第 7651 个采样点存在水平跳变（比值 -0.620）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         }
       ],
       "anomalies": 226,
@@ -3428,7 +3611,10 @@
           "start": null,
           "end": null,
           "count": 3,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "OUTLIER_CANDIDATE",
@@ -3439,7 +3625,10 @@
           "start": null,
           "end": null,
           "count": 107,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -3450,7 +3639,10 @@
           "start": "2024-01-13 04:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 292 个采样点存在水平跳变（比值 -0.831）"
+          "detail": "第 292 个采样点存在水平跳变（比值 -0.831）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -3461,7 +3653,10 @@
           "start": "2024-11-14 19:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 7651 个采样点存在水平跳变（比值 -0.620）"
+          "detail": "第 7651 个采样点存在水平跳变（比值 -0.620）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         }
       ],
       "anomalies": 226,
@@ -3475,7 +3670,7 @@
       ],
       "steps": 4,
       "terminate_reason": "budget_exhausted",
-      "tokens": 5293,
+      "tokens": 5296,
       "missing_tools": [
         "run_stat_tests"
       ],
@@ -3519,7 +3714,10 @@
           "start": null,
           "end": null,
           "count": 3,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "OUTLIER_CANDIDATE",
@@ -3530,7 +3728,10 @@
           "start": null,
           "end": null,
           "count": 107,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -3541,7 +3742,10 @@
           "start": "2024-01-13 04:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 292 个采样点存在水平跳变（比值 -0.831）"
+          "detail": "第 292 个采样点存在水平跳变（比值 -0.831）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -3552,7 +3756,10 @@
           "start": "2024-11-14 19:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 7651 个采样点存在水平跳变（比值 -0.620）"
+          "detail": "第 7651 个采样点存在水平跳变（比值 -0.620）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         }
       ],
       "anomalies": 226,
@@ -3607,7 +3814,10 @@
           "start": null,
           "end": null,
           "count": 3,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "OUTLIER_CANDIDATE",
@@ -3618,7 +3828,10 @@
           "start": null,
           "end": null,
           "count": 107,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -3629,7 +3842,10 @@
           "start": "2024-01-13 04:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 292 个采样点存在水平跳变（比值 -0.831）"
+          "detail": "第 292 个采样点存在水平跳变（比值 -0.831）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -3640,7 +3856,10 @@
           "start": "2024-11-14 19:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 7651 个采样点存在水平跳变（比值 -0.620）"
+          "detail": "第 7651 个采样点存在水平跳变（比值 -0.620）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         }
       ],
       "anomalies": 226,
@@ -3652,7 +3871,7 @@
       ],
       "steps": 2,
       "terminate_reason": "budget_exhausted",
-      "tokens": 3023,
+      "tokens": 3024,
       "missing_tools": [
         "analyze_spectrum",
         "run_stat_tests",
@@ -3698,7 +3917,10 @@
           "start": null,
           "end": null,
           "count": 3,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "OUTLIER_CANDIDATE",
@@ -3709,7 +3931,10 @@
           "start": null,
           "end": null,
           "count": 107,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -3720,7 +3945,10 @@
           "start": "2024-01-13 04:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 292 个采样点存在水平跳变（比值 -0.831）"
+          "detail": "第 292 个采样点存在水平跳变（比值 -0.831）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -3731,7 +3959,10 @@
           "start": "2024-11-14 19:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 7651 个采样点存在水平跳变（比值 -0.620）"
+          "detail": "第 7651 个采样点存在水平跳变（比值 -0.620）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         }
       ],
       "anomalies": 226,
@@ -3787,7 +4018,10 @@
           "start": null,
           "end": null,
           "count": 3,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "OUTLIER_CANDIDATE",
@@ -3798,7 +4032,10 @@
           "start": null,
           "end": null,
           "count": 107,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -3809,7 +4046,10 @@
           "start": "2024-01-13 04:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 292 个采样点存在水平跳变（比值 -0.831）"
+          "detail": "第 292 个采样点存在水平跳变（比值 -0.831）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -3820,7 +4060,10 @@
           "start": "2024-11-14 19:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 7651 个采样点存在水平跳变（比值 -0.620）"
+          "detail": "第 7651 个采样点存在水平跳变（比值 -0.620）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         }
       ],
       "anomalies": 226,
@@ -3833,7 +4076,7 @@
       ],
       "steps": 3,
       "terminate_reason": "model_finished",
-      "tokens": 4128,
+      "tokens": 4140,
       "missing_tools": [
         "analyze_spectrum",
         "run_stat_tests"
@@ -3878,7 +4121,10 @@
           "start": null,
           "end": null,
           "count": 3,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "OUTLIER_CANDIDATE",
@@ -3889,7 +4135,10 @@
           "start": null,
           "end": null,
           "count": 107,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -3900,7 +4149,10 @@
           "start": "2024-01-13 04:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 292 个采样点存在水平跳变（比值 -0.831）"
+          "detail": "第 292 个采样点存在水平跳变（比值 -0.831）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -3911,7 +4163,10 @@
           "start": "2024-11-14 19:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 7651 个采样点存在水平跳变（比值 -0.620）"
+          "detail": "第 7651 个采样点存在水平跳变（比值 -0.620）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         }
       ],
       "anomalies": 226,
@@ -3968,7 +4223,10 @@
           "start": null,
           "end": null,
           "count": 3,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "OUTLIER_CANDIDATE",
@@ -3979,7 +4237,10 @@
           "start": null,
           "end": null,
           "count": 107,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -3990,7 +4251,10 @@
           "start": "2024-01-13 04:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 292 个采样点存在水平跳变（比值 -0.831）"
+          "detail": "第 292 个采样点存在水平跳变（比值 -0.831）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -4001,7 +4265,10 @@
           "start": "2024-11-14 19:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 7651 个采样点存在水平跳变（比值 -0.620）"
+          "detail": "第 7651 个采样点存在水平跳变（比值 -0.620）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         }
       ],
       "anomalies": 226,
@@ -4015,7 +4282,7 @@
       ],
       "steps": 4,
       "terminate_reason": "budget_exhausted",
-      "tokens": 5300,
+      "tokens": 5305,
       "missing_tools": [
         "run_stat_tests"
       ],
@@ -4060,7 +4327,10 @@
           "start": null,
           "end": null,
           "count": 251,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "OUTLIER_CANDIDATE",
@@ -4071,7 +4341,10 @@
           "start": null,
           "end": null,
           "count": 261,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -4082,7 +4355,10 @@
           "start": "2024-03-02 01:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 1465 个采样点（分组 SIN）存在水平跳变（比值 1.095）"
+          "detail": "第 1465 个采样点（分组 SIN）存在水平跳变（比值 1.095）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -4093,7 +4369,10 @@
           "start": "2024-03-30 01:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 2137 个采样点（分组 SIN）存在水平跳变（比值 1.087）"
+          "detail": "第 2137 个采样点（分组 SIN）存在水平跳变（比值 1.087）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -4104,7 +4383,10 @@
           "start": "2024-12-03 07:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 8095 个采样点（分组 SIN）存在水平跳变（比值 0.906）"
+          "detail": "第 8095 个采样点（分组 SIN）存在水平跳变（比值 0.906）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -4115,7 +4397,10 @@
           "start": "2024-03-22 09:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 1953 个采样点（分组 TYO）存在水平跳变（比值 1.667）"
+          "detail": "第 1953 个采样点（分组 TYO）存在水平跳变（比值 1.667）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "POSSIBLE_UNIT_CHANGE",
@@ -4126,7 +4411,10 @@
           "start": "2024-05-12 20:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 3188 个采样点（分组 TYO）前后中位数 27.200 → 12.500（比值 0.460），疑似单位或量纲变化"
+          "detail": "第 3188 个采样点（分组 TYO）前后中位数 27.200 → 12.500（比值 0.460），疑似单位或量纲变化",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "POSSIBLE_UNIT_CHANGE",
@@ -4137,7 +4425,10 @@
           "start": "2024-09-03 05:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 5909 个采样点（分组 TYO）前后中位数 0.100 → 0.000（比值 0.000），疑似单位或量纲变化"
+          "detail": "第 5909 个采样点（分组 TYO）前后中位数 0.100 → 0.000（比值 0.000），疑似单位或量纲变化",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         }
       ],
       "anomalies": 156,
@@ -4195,7 +4486,10 @@
           "start": null,
           "end": null,
           "count": 251,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "OUTLIER_CANDIDATE",
@@ -4206,7 +4500,10 @@
           "start": null,
           "end": null,
           "count": 261,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -4217,7 +4514,10 @@
           "start": "2024-03-02 01:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 1465 个采样点（分组 SIN）存在水平跳变（比值 1.095）"
+          "detail": "第 1465 个采样点（分组 SIN）存在水平跳变（比值 1.095）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -4228,7 +4528,10 @@
           "start": "2024-03-30 01:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 2137 个采样点（分组 SIN）存在水平跳变（比值 1.087）"
+          "detail": "第 2137 个采样点（分组 SIN）存在水平跳变（比值 1.087）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -4239,7 +4542,10 @@
           "start": "2024-12-03 07:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 8095 个采样点（分组 SIN）存在水平跳变（比值 0.906）"
+          "detail": "第 8095 个采样点（分组 SIN）存在水平跳变（比值 0.906）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -4250,7 +4556,10 @@
           "start": "2024-03-22 09:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 1953 个采样点（分组 TYO）存在水平跳变（比值 1.667）"
+          "detail": "第 1953 个采样点（分组 TYO）存在水平跳变（比值 1.667）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "POSSIBLE_UNIT_CHANGE",
@@ -4261,7 +4570,10 @@
           "start": "2024-05-12 20:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 3188 个采样点（分组 TYO）前后中位数 27.200 → 12.500（比值 0.460），疑似单位或量纲变化"
+          "detail": "第 3188 个采样点（分组 TYO）前后中位数 27.200 → 12.500（比值 0.460），疑似单位或量纲变化",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "POSSIBLE_UNIT_CHANGE",
@@ -4272,7 +4584,10 @@
           "start": "2024-09-03 05:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 5909 个采样点（分组 TYO）前后中位数 0.100 → 0.000（比值 0.000），疑似单位或量纲变化"
+          "detail": "第 5909 个采样点（分组 TYO）前后中位数 0.100 → 0.000（比值 0.000），疑似单位或量纲变化",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         }
       ],
       "anomalies": 156,
@@ -4286,7 +4601,7 @@
       ],
       "steps": 4,
       "terminate_reason": "budget_exhausted",
-      "tokens": 5693,
+      "tokens": 5672,
       "missing_tools": [
         "run_stat_tests"
       ],
@@ -4331,7 +4646,10 @@
           "start": null,
           "end": null,
           "count": 251,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "OUTLIER_CANDIDATE",
@@ -4342,7 +4660,10 @@
           "start": null,
           "end": null,
           "count": 261,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -4353,7 +4674,10 @@
           "start": "2024-03-02 01:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 1465 个采样点（分组 SIN）存在水平跳变（比值 1.095）"
+          "detail": "第 1465 个采样点（分组 SIN）存在水平跳变（比值 1.095）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -4364,7 +4688,10 @@
           "start": "2024-03-30 01:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 2137 个采样点（分组 SIN）存在水平跳变（比值 1.087）"
+          "detail": "第 2137 个采样点（分组 SIN）存在水平跳变（比值 1.087）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -4375,7 +4702,10 @@
           "start": "2024-12-03 07:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 8095 个采样点（分组 SIN）存在水平跳变（比值 0.906）"
+          "detail": "第 8095 个采样点（分组 SIN）存在水平跳变（比值 0.906）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -4386,7 +4716,10 @@
           "start": "2024-03-22 09:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 1953 个采样点（分组 TYO）存在水平跳变（比值 1.667）"
+          "detail": "第 1953 个采样点（分组 TYO）存在水平跳变（比值 1.667）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "POSSIBLE_UNIT_CHANGE",
@@ -4397,7 +4730,10 @@
           "start": "2024-05-12 20:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 3188 个采样点（分组 TYO）前后中位数 27.200 → 12.500（比值 0.460），疑似单位或量纲变化"
+          "detail": "第 3188 个采样点（分组 TYO）前后中位数 27.200 → 12.500（比值 0.460），疑似单位或量纲变化",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "POSSIBLE_UNIT_CHANGE",
@@ -4408,7 +4744,10 @@
           "start": "2024-09-03 05:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 5909 个采样点（分组 TYO）前后中位数 0.100 → 0.000（比值 0.000），疑似单位或量纲变化"
+          "detail": "第 5909 个采样点（分组 TYO）前后中位数 0.100 → 0.000（比值 0.000），疑似单位或量纲变化",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         }
       ],
       "anomalies": 156,
@@ -4464,7 +4803,10 @@
           "start": null,
           "end": null,
           "count": 251,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "OUTLIER_CANDIDATE",
@@ -4475,7 +4817,10 @@
           "start": null,
           "end": null,
           "count": 261,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -4486,7 +4831,10 @@
           "start": "2024-03-02 01:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 1465 个采样点（分组 SIN）存在水平跳变（比值 1.095）"
+          "detail": "第 1465 个采样点（分组 SIN）存在水平跳变（比值 1.095）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -4497,7 +4845,10 @@
           "start": "2024-03-30 01:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 2137 个采样点（分组 SIN）存在水平跳变（比值 1.087）"
+          "detail": "第 2137 个采样点（分组 SIN）存在水平跳变（比值 1.087）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -4508,7 +4859,10 @@
           "start": "2024-12-03 07:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 8095 个采样点（分组 SIN）存在水平跳变（比值 0.906）"
+          "detail": "第 8095 个采样点（分组 SIN）存在水平跳变（比值 0.906）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -4519,7 +4873,10 @@
           "start": "2024-03-22 09:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 1953 个采样点（分组 TYO）存在水平跳变（比值 1.667）"
+          "detail": "第 1953 个采样点（分组 TYO）存在水平跳变（比值 1.667）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "POSSIBLE_UNIT_CHANGE",
@@ -4530,7 +4887,10 @@
           "start": "2024-05-12 20:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 3188 个采样点（分组 TYO）前后中位数 27.200 → 12.500（比值 0.460），疑似单位或量纲变化"
+          "detail": "第 3188 个采样点（分组 TYO）前后中位数 27.200 → 12.500（比值 0.460），疑似单位或量纲变化",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "POSSIBLE_UNIT_CHANGE",
@@ -4541,7 +4901,10 @@
           "start": "2024-09-03 05:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 5909 个采样点（分组 TYO）前后中位数 0.100 → 0.000（比值 0.000），疑似单位或量纲变化"
+          "detail": "第 5909 个采样点（分组 TYO）前后中位数 0.100 → 0.000（比值 0.000），疑似单位或量纲变化",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         }
       ],
       "anomalies": 156,
@@ -4553,7 +4916,7 @@
       ],
       "steps": 2,
       "terminate_reason": "budget_exhausted",
-      "tokens": 3186,
+      "tokens": 3183,
       "missing_tools": [
         "analyze_spectrum",
         "run_stat_tests",
@@ -4600,7 +4963,10 @@
           "start": null,
           "end": null,
           "count": 251,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "OUTLIER_CANDIDATE",
@@ -4611,7 +4977,10 @@
           "start": null,
           "end": null,
           "count": 261,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -4622,7 +4991,10 @@
           "start": "2024-03-02 01:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 1465 个采样点（分组 SIN）存在水平跳变（比值 1.095）"
+          "detail": "第 1465 个采样点（分组 SIN）存在水平跳变（比值 1.095）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -4633,7 +5005,10 @@
           "start": "2024-03-30 01:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 2137 个采样点（分组 SIN）存在水平跳变（比值 1.087）"
+          "detail": "第 2137 个采样点（分组 SIN）存在水平跳变（比值 1.087）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -4644,7 +5019,10 @@
           "start": "2024-12-03 07:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 8095 个采样点（分组 SIN）存在水平跳变（比值 0.906）"
+          "detail": "第 8095 个采样点（分组 SIN）存在水平跳变（比值 0.906）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -4655,7 +5033,10 @@
           "start": "2024-03-22 09:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 1953 个采样点（分组 TYO）存在水平跳变（比值 1.667）"
+          "detail": "第 1953 个采样点（分组 TYO）存在水平跳变（比值 1.667）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "POSSIBLE_UNIT_CHANGE",
@@ -4666,7 +5047,10 @@
           "start": "2024-05-12 20:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 3188 个采样点（分组 TYO）前后中位数 27.200 → 12.500（比值 0.460），疑似单位或量纲变化"
+          "detail": "第 3188 个采样点（分组 TYO）前后中位数 27.200 → 12.500（比值 0.460），疑似单位或量纲变化",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "POSSIBLE_UNIT_CHANGE",
@@ -4677,7 +5061,10 @@
           "start": "2024-09-03 05:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 5909 个采样点（分组 TYO）前后中位数 0.100 → 0.000（比值 0.000），疑似单位或量纲变化"
+          "detail": "第 5909 个采样点（分组 TYO）前后中位数 0.100 → 0.000（比值 0.000），疑似单位或量纲变化",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         }
       ],
       "anomalies": 156,
@@ -4734,7 +5121,10 @@
           "start": null,
           "end": null,
           "count": 251,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "OUTLIER_CANDIDATE",
@@ -4745,7 +5135,10 @@
           "start": null,
           "end": null,
           "count": 261,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -4756,7 +5149,10 @@
           "start": "2024-03-02 01:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 1465 个采样点（分组 SIN）存在水平跳变（比值 1.095）"
+          "detail": "第 1465 个采样点（分组 SIN）存在水平跳变（比值 1.095）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -4767,7 +5163,10 @@
           "start": "2024-03-30 01:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 2137 个采样点（分组 SIN）存在水平跳变（比值 1.087）"
+          "detail": "第 2137 个采样点（分组 SIN）存在水平跳变（比值 1.087）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -4778,7 +5177,10 @@
           "start": "2024-12-03 07:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 8095 个采样点（分组 SIN）存在水平跳变（比值 0.906）"
+          "detail": "第 8095 个采样点（分组 SIN）存在水平跳变（比值 0.906）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -4789,7 +5191,10 @@
           "start": "2024-03-22 09:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 1953 个采样点（分组 TYO）存在水平跳变（比值 1.667）"
+          "detail": "第 1953 个采样点（分组 TYO）存在水平跳变（比值 1.667）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "POSSIBLE_UNIT_CHANGE",
@@ -4800,7 +5205,10 @@
           "start": "2024-05-12 20:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 3188 个采样点（分组 TYO）前后中位数 27.200 → 12.500（比值 0.460），疑似单位或量纲变化"
+          "detail": "第 3188 个采样点（分组 TYO）前后中位数 27.200 → 12.500（比值 0.460），疑似单位或量纲变化",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "POSSIBLE_UNIT_CHANGE",
@@ -4811,7 +5219,10 @@
           "start": "2024-09-03 05:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 5909 个采样点（分组 TYO）前后中位数 0.100 → 0.000（比值 0.000），疑似单位或量纲变化"
+          "detail": "第 5909 个采样点（分组 TYO）前后中位数 0.100 → 0.000（比值 0.000），疑似单位或量纲变化",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         }
       ],
       "anomalies": 156,
@@ -4824,7 +5235,7 @@
       ],
       "steps": 3,
       "terminate_reason": "model_finished",
-      "tokens": 4367,
+      "tokens": 4365,
       "missing_tools": [
         "analyze_spectrum",
         "run_stat_tests"
@@ -4870,7 +5281,10 @@
           "start": null,
           "end": null,
           "count": 251,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "OUTLIER_CANDIDATE",
@@ -4881,7 +5295,10 @@
           "start": null,
           "end": null,
           "count": 261,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -4892,7 +5309,10 @@
           "start": "2024-03-02 01:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 1465 个采样点（分组 SIN）存在水平跳变（比值 1.095）"
+          "detail": "第 1465 个采样点（分组 SIN）存在水平跳变（比值 1.095）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -4903,7 +5323,10 @@
           "start": "2024-03-30 01:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 2137 个采样点（分组 SIN）存在水平跳变（比值 1.087）"
+          "detail": "第 2137 个采样点（分组 SIN）存在水平跳变（比值 1.087）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -4914,7 +5337,10 @@
           "start": "2024-12-03 07:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 8095 个采样点（分组 SIN）存在水平跳变（比值 0.906）"
+          "detail": "第 8095 个采样点（分组 SIN）存在水平跳变（比值 0.906）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -4925,7 +5351,10 @@
           "start": "2024-03-22 09:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 1953 个采样点（分组 TYO）存在水平跳变（比值 1.667）"
+          "detail": "第 1953 个采样点（分组 TYO）存在水平跳变（比值 1.667）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "POSSIBLE_UNIT_CHANGE",
@@ -4936,7 +5365,10 @@
           "start": "2024-05-12 20:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 3188 个采样点（分组 TYO）前后中位数 27.200 → 12.500（比值 0.460），疑似单位或量纲变化"
+          "detail": "第 3188 个采样点（分组 TYO）前后中位数 27.200 → 12.500（比值 0.460），疑似单位或量纲变化",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "POSSIBLE_UNIT_CHANGE",
@@ -4947,7 +5379,10 @@
           "start": "2024-09-03 05:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 5909 个采样点（分组 TYO）前后中位数 0.100 → 0.000（比值 0.000），疑似单位或量纲变化"
+          "detail": "第 5909 个采样点（分组 TYO）前后中位数 0.100 → 0.000（比值 0.000），疑似单位或量纲变化",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         }
       ],
       "anomalies": 156,
@@ -5005,7 +5440,10 @@
           "start": null,
           "end": null,
           "count": 251,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "OUTLIER_CANDIDATE",
@@ -5016,7 +5454,10 @@
           "start": null,
           "end": null,
           "count": 261,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -5027,7 +5468,10 @@
           "start": "2024-03-02 01:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 1465 个采样点（分组 SIN）存在水平跳变（比值 1.095）"
+          "detail": "第 1465 个采样点（分组 SIN）存在水平跳变（比值 1.095）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -5038,7 +5482,10 @@
           "start": "2024-03-30 01:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 2137 个采样点（分组 SIN）存在水平跳变（比值 1.087）"
+          "detail": "第 2137 个采样点（分组 SIN）存在水平跳变（比值 1.087）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -5049,7 +5496,10 @@
           "start": "2024-12-03 07:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 8095 个采样点（分组 SIN）存在水平跳变（比值 0.906）"
+          "detail": "第 8095 个采样点（分组 SIN）存在水平跳变（比值 0.906）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -5060,7 +5510,10 @@
           "start": "2024-03-22 09:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 1953 个采样点（分组 TYO）存在水平跳变（比值 1.667）"
+          "detail": "第 1953 个采样点（分组 TYO）存在水平跳变（比值 1.667）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "POSSIBLE_UNIT_CHANGE",
@@ -5071,7 +5524,10 @@
           "start": "2024-05-12 20:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 3188 个采样点（分组 TYO）前后中位数 27.200 → 12.500（比值 0.460），疑似单位或量纲变化"
+          "detail": "第 3188 个采样点（分组 TYO）前后中位数 27.200 → 12.500（比值 0.460），疑似单位或量纲变化",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "POSSIBLE_UNIT_CHANGE",
@@ -5082,7 +5538,10 @@
           "start": "2024-09-03 05:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 5909 个采样点（分组 TYO）前后中位数 0.100 → 0.000（比值 0.000），疑似单位或量纲变化"
+          "detail": "第 5909 个采样点（分组 TYO）前后中位数 0.100 → 0.000（比值 0.000），疑似单位或量纲变化",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         }
       ],
       "anomalies": 156,
@@ -5096,7 +5555,7 @@
       ],
       "steps": 4,
       "terminate_reason": "budget_exhausted",
-      "tokens": 5696,
+      "tokens": 5692,
       "missing_tools": [
         "run_stat_tests"
       ],
@@ -5138,10 +5597,69 @@
           "column": "wind_speed",
           "group": null,
           "row_label": null,
-          "start": null,
-          "end": null,
+          "start": "2018-09-13 00:00:00",
+          "end": "2024-06-24 00:00:00",
           "count": 212,
-          "detail": "缺失率 8.29%"
+          "detail": "缺失率 8.29%，11 段连续缺失",
+          "runs": [
+            {
+              "start": "2018-09-13 00:00:00",
+              "end": "2018-09-16 00:00:00",
+              "count": 4
+            },
+            {
+              "start": "2018-10-13 00:00:00",
+              "end": "2019-03-10 00:00:00",
+              "count": 149
+            },
+            {
+              "start": "2020-01-22 00:00:00",
+              "end": "2020-01-26 00:00:00",
+              "count": 5
+            },
+            {
+              "start": "2020-05-18 00:00:00",
+              "end": "2020-06-18 00:00:00",
+              "count": 32
+            },
+            {
+              "start": "2021-09-09 00:00:00",
+              "end": "2021-09-09 00:00:00",
+              "count": 1
+            },
+            {
+              "start": "2021-09-15 00:00:00",
+              "end": "2021-09-22 00:00:00",
+              "count": 8
+            },
+            {
+              "start": "2021-09-27 00:00:00",
+              "end": "2021-10-04 00:00:00",
+              "count": 8
+            },
+            {
+              "start": "2023-05-22 00:00:00",
+              "end": "2023-05-22 00:00:00",
+              "count": 1
+            },
+            {
+              "start": "2024-01-24 00:00:00",
+              "end": "2024-01-24 00:00:00",
+              "count": 1
+            },
+            {
+              "start": "2024-01-27 00:00:00",
+              "end": "2024-01-27 00:00:00",
+              "count": 1
+            },
+            {
+              "start": "2024-06-23 00:00:00",
+              "end": "2024-06-24 00:00:00",
+              "count": 2
+            }
+          ],
+          "run_count": 11,
+          "runs_truncated": false
         },
         {
           "code": "OUTLIER_CANDIDATE",
@@ -5152,7 +5670,10 @@
           "start": null,
           "end": null,
           "count": 18,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "POSSIBLE_UNIT_CHANGE",
@@ -5163,7 +5684,10 @@
           "start": "2019-05-31 00:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 515 个采样点前后中位数 0.800 → 0.000（比值 0.000），疑似单位或量纲变化"
+          "detail": "第 515 个采样点前后中位数 0.800 → 0.000（比值 0.000），疑似单位或量纲变化",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         }
       ],
       "anomalies": 5,
@@ -5218,10 +5742,69 @@
           "column": "wind_speed",
           "group": null,
           "row_label": null,
-          "start": null,
-          "end": null,
+          "start": "2018-09-13 00:00:00",
+          "end": "2024-06-24 00:00:00",
           "count": 212,
-          "detail": "缺失率 8.29%"
+          "detail": "缺失率 8.29%，11 段连续缺失",
+          "runs": [
+            {
+              "start": "2018-09-13 00:00:00",
+              "end": "2018-09-16 00:00:00",
+              "count": 4
+            },
+            {
+              "start": "2018-10-13 00:00:00",
+              "end": "2019-03-10 00:00:00",
+              "count": 149
+            },
+            {
+              "start": "2020-01-22 00:00:00",
+              "end": "2020-01-26 00:00:00",
+              "count": 5
+            },
+            {
+              "start": "2020-05-18 00:00:00",
+              "end": "2020-06-18 00:00:00",
+              "count": 32
+            },
+            {
+              "start": "2021-09-09 00:00:00",
+              "end": "2021-09-09 00:00:00",
+              "count": 1
+            },
+            {
+              "start": "2021-09-15 00:00:00",
+              "end": "2021-09-22 00:00:00",
+              "count": 8
+            },
+            {
+              "start": "2021-09-27 00:00:00",
+              "end": "2021-10-04 00:00:00",
+              "count": 8
+            },
+            {
+              "start": "2023-05-22 00:00:00",
+              "end": "2023-05-22 00:00:00",
+              "count": 1
+            },
+            {
+              "start": "2024-01-24 00:00:00",
+              "end": "2024-01-24 00:00:00",
+              "count": 1
+            },
+            {
+              "start": "2024-01-27 00:00:00",
+              "end": "2024-01-27 00:00:00",
+              "count": 1
+            },
+            {
+              "start": "2024-06-23 00:00:00",
+              "end": "2024-06-24 00:00:00",
+              "count": 2
+            }
+          ],
+          "run_count": 11,
+          "runs_truncated": false
         },
         {
           "code": "OUTLIER_CANDIDATE",
@@ -5232,7 +5815,10 @@
           "start": null,
           "end": null,
           "count": 18,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "POSSIBLE_UNIT_CHANGE",
@@ -5243,7 +5829,10 @@
           "start": "2019-05-31 00:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 515 个采样点前后中位数 0.800 → 0.000（比值 0.000），疑似单位或量纲变化"
+          "detail": "第 515 个采样点前后中位数 0.800 → 0.000（比值 0.000），疑似单位或量纲变化",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         }
       ],
       "anomalies": 5,
@@ -5257,7 +5846,7 @@
       ],
       "steps": 4,
       "terminate_reason": "budget_exhausted",
-      "tokens": 5258,
+      "tokens": 5263,
       "missing_tools": [
         "run_stat_tests"
       ],
@@ -5299,10 +5888,69 @@
           "column": "wind_speed",
           "group": null,
           "row_label": null,
-          "start": null,
-          "end": null,
+          "start": "2018-09-13 00:00:00",
+          "end": "2024-06-24 00:00:00",
           "count": 212,
-          "detail": "缺失率 8.29%"
+          "detail": "缺失率 8.29%，11 段连续缺失",
+          "runs": [
+            {
+              "start": "2018-09-13 00:00:00",
+              "end": "2018-09-16 00:00:00",
+              "count": 4
+            },
+            {
+              "start": "2018-10-13 00:00:00",
+              "end": "2019-03-10 00:00:00",
+              "count": 149
+            },
+            {
+              "start": "2020-01-22 00:00:00",
+              "end": "2020-01-26 00:00:00",
+              "count": 5
+            },
+            {
+              "start": "2020-05-18 00:00:00",
+              "end": "2020-06-18 00:00:00",
+              "count": 32
+            },
+            {
+              "start": "2021-09-09 00:00:00",
+              "end": "2021-09-09 00:00:00",
+              "count": 1
+            },
+            {
+              "start": "2021-09-15 00:00:00",
+              "end": "2021-09-22 00:00:00",
+              "count": 8
+            },
+            {
+              "start": "2021-09-27 00:00:00",
+              "end": "2021-10-04 00:00:00",
+              "count": 8
+            },
+            {
+              "start": "2023-05-22 00:00:00",
+              "end": "2023-05-22 00:00:00",
+              "count": 1
+            },
+            {
+              "start": "2024-01-24 00:00:00",
+              "end": "2024-01-24 00:00:00",
+              "count": 1
+            },
+            {
+              "start": "2024-01-27 00:00:00",
+              "end": "2024-01-27 00:00:00",
+              "count": 1
+            },
+            {
+              "start": "2024-06-23 00:00:00",
+              "end": "2024-06-24 00:00:00",
+              "count": 2
+            }
+          ],
+          "run_count": 11,
+          "runs_truncated": false
         },
         {
           "code": "OUTLIER_CANDIDATE",
@@ -5313,7 +5961,10 @@
           "start": null,
           "end": null,
           "count": 18,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "POSSIBLE_UNIT_CHANGE",
@@ -5324,7 +5975,10 @@
           "start": "2019-05-31 00:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 515 个采样点前后中位数 0.800 → 0.000（比值 0.000），疑似单位或量纲变化"
+          "detail": "第 515 个采样点前后中位数 0.800 → 0.000（比值 0.000），疑似单位或量纲变化",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         }
       ],
       "anomalies": 5,
@@ -5377,10 +6031,69 @@
           "column": "wind_speed",
           "group": null,
           "row_label": null,
-          "start": null,
-          "end": null,
+          "start": "2018-09-13 00:00:00",
+          "end": "2024-06-24 00:00:00",
           "count": 212,
-          "detail": "缺失率 8.29%"
+          "detail": "缺失率 8.29%，11 段连续缺失",
+          "runs": [
+            {
+              "start": "2018-09-13 00:00:00",
+              "end": "2018-09-16 00:00:00",
+              "count": 4
+            },
+            {
+              "start": "2018-10-13 00:00:00",
+              "end": "2019-03-10 00:00:00",
+              "count": 149
+            },
+            {
+              "start": "2020-01-22 00:00:00",
+              "end": "2020-01-26 00:00:00",
+              "count": 5
+            },
+            {
+              "start": "2020-05-18 00:00:00",
+              "end": "2020-06-18 00:00:00",
+              "count": 32
+            },
+            {
+              "start": "2021-09-09 00:00:00",
+              "end": "2021-09-09 00:00:00",
+              "count": 1
+            },
+            {
+              "start": "2021-09-15 00:00:00",
+              "end": "2021-09-22 00:00:00",
+              "count": 8
+            },
+            {
+              "start": "2021-09-27 00:00:00",
+              "end": "2021-10-04 00:00:00",
+              "count": 8
+            },
+            {
+              "start": "2023-05-22 00:00:00",
+              "end": "2023-05-22 00:00:00",
+              "count": 1
+            },
+            {
+              "start": "2024-01-24 00:00:00",
+              "end": "2024-01-24 00:00:00",
+              "count": 1
+            },
+            {
+              "start": "2024-01-27 00:00:00",
+              "end": "2024-01-27 00:00:00",
+              "count": 1
+            },
+            {
+              "start": "2024-06-23 00:00:00",
+              "end": "2024-06-24 00:00:00",
+              "count": 2
+            }
+          ],
+          "run_count": 11,
+          "runs_truncated": false
         },
         {
           "code": "OUTLIER_CANDIDATE",
@@ -5391,7 +6104,10 @@
           "start": null,
           "end": null,
           "count": 18,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "POSSIBLE_UNIT_CHANGE",
@@ -5402,7 +6118,10 @@
           "start": "2019-05-31 00:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 515 个采样点前后中位数 0.800 → 0.000（比值 0.000），疑似单位或量纲变化"
+          "detail": "第 515 个采样点前后中位数 0.800 → 0.000（比值 0.000），疑似单位或量纲变化",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         }
       ],
       "anomalies": 5,
@@ -5414,7 +6133,7 @@
       ],
       "steps": 2,
       "terminate_reason": "budget_exhausted",
-      "tokens": 3040,
+      "tokens": 3042,
       "missing_tools": [
         "analyze_spectrum",
         "run_stat_tests",
@@ -5458,10 +6177,69 @@
           "column": "wind_speed",
           "group": null,
           "row_label": null,
-          "start": null,
-          "end": null,
+          "start": "2018-09-13 00:00:00",
+          "end": "2024-06-24 00:00:00",
           "count": 212,
-          "detail": "缺失率 8.29%"
+          "detail": "缺失率 8.29%，11 段连续缺失",
+          "runs": [
+            {
+              "start": "2018-09-13 00:00:00",
+              "end": "2018-09-16 00:00:00",
+              "count": 4
+            },
+            {
+              "start": "2018-10-13 00:00:00",
+              "end": "2019-03-10 00:00:00",
+              "count": 149
+            },
+            {
+              "start": "2020-01-22 00:00:00",
+              "end": "2020-01-26 00:00:00",
+              "count": 5
+            },
+            {
+              "start": "2020-05-18 00:00:00",
+              "end": "2020-06-18 00:00:00",
+              "count": 32
+            },
+            {
+              "start": "2021-09-09 00:00:00",
+              "end": "2021-09-09 00:00:00",
+              "count": 1
+            },
+            {
+              "start": "2021-09-15 00:00:00",
+              "end": "2021-09-22 00:00:00",
+              "count": 8
+            },
+            {
+              "start": "2021-09-27 00:00:00",
+              "end": "2021-10-04 00:00:00",
+              "count": 8
+            },
+            {
+              "start": "2023-05-22 00:00:00",
+              "end": "2023-05-22 00:00:00",
+              "count": 1
+            },
+            {
+              "start": "2024-01-24 00:00:00",
+              "end": "2024-01-24 00:00:00",
+              "count": 1
+            },
+            {
+              "start": "2024-01-27 00:00:00",
+              "end": "2024-01-27 00:00:00",
+              "count": 1
+            },
+            {
+              "start": "2024-06-23 00:00:00",
+              "end": "2024-06-24 00:00:00",
+              "count": 2
+            }
+          ],
+          "run_count": 11,
+          "runs_truncated": false
         },
         {
           "code": "OUTLIER_CANDIDATE",
@@ -5472,7 +6250,10 @@
           "start": null,
           "end": null,
           "count": 18,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "POSSIBLE_UNIT_CHANGE",
@@ -5483,7 +6264,10 @@
           "start": "2019-05-31 00:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 515 个采样点前后中位数 0.800 → 0.000（比值 0.000），疑似单位或量纲变化"
+          "detail": "第 515 个采样点前后中位数 0.800 → 0.000（比值 0.000），疑似单位或量纲变化",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         }
       ],
       "anomalies": 5,
@@ -5537,10 +6321,69 @@
           "column": "wind_speed",
           "group": null,
           "row_label": null,
-          "start": null,
-          "end": null,
+          "start": "2018-09-13 00:00:00",
+          "end": "2024-06-24 00:00:00",
           "count": 212,
-          "detail": "缺失率 8.29%"
+          "detail": "缺失率 8.29%，11 段连续缺失",
+          "runs": [
+            {
+              "start": "2018-09-13 00:00:00",
+              "end": "2018-09-16 00:00:00",
+              "count": 4
+            },
+            {
+              "start": "2018-10-13 00:00:00",
+              "end": "2019-03-10 00:00:00",
+              "count": 149
+            },
+            {
+              "start": "2020-01-22 00:00:00",
+              "end": "2020-01-26 00:00:00",
+              "count": 5
+            },
+            {
+              "start": "2020-05-18 00:00:00",
+              "end": "2020-06-18 00:00:00",
+              "count": 32
+            },
+            {
+              "start": "2021-09-09 00:00:00",
+              "end": "2021-09-09 00:00:00",
+              "count": 1
+            },
+            {
+              "start": "2021-09-15 00:00:00",
+              "end": "2021-09-22 00:00:00",
+              "count": 8
+            },
+            {
+              "start": "2021-09-27 00:00:00",
+              "end": "2021-10-04 00:00:00",
+              "count": 8
+            },
+            {
+              "start": "2023-05-22 00:00:00",
+              "end": "2023-05-22 00:00:00",
+              "count": 1
+            },
+            {
+              "start": "2024-01-24 00:00:00",
+              "end": "2024-01-24 00:00:00",
+              "count": 1
+            },
+            {
+              "start": "2024-01-27 00:00:00",
+              "end": "2024-01-27 00:00:00",
+              "count": 1
+            },
+            {
+              "start": "2024-06-23 00:00:00",
+              "end": "2024-06-24 00:00:00",
+              "count": 2
+            }
+          ],
+          "run_count": 11,
+          "runs_truncated": false
         },
         {
           "code": "OUTLIER_CANDIDATE",
@@ -5551,7 +6394,10 @@
           "start": null,
           "end": null,
           "count": 18,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "POSSIBLE_UNIT_CHANGE",
@@ -5562,7 +6408,10 @@
           "start": "2019-05-31 00:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 515 个采样点前后中位数 0.800 → 0.000（比值 0.000），疑似单位或量纲变化"
+          "detail": "第 515 个采样点前后中位数 0.800 → 0.000（比值 0.000），疑似单位或量纲变化",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         }
       ],
       "anomalies": 5,
@@ -5575,7 +6424,7 @@
       ],
       "steps": 3,
       "terminate_reason": "model_finished",
-      "tokens": 4121,
+      "tokens": 4120,
       "missing_tools": [
         "analyze_spectrum",
         "run_stat_tests"
@@ -5618,10 +6467,69 @@
           "column": "wind_speed",
           "group": null,
           "row_label": null,
-          "start": null,
-          "end": null,
+          "start": "2018-09-13 00:00:00",
+          "end": "2024-06-24 00:00:00",
           "count": 212,
-          "detail": "缺失率 8.29%"
+          "detail": "缺失率 8.29%，11 段连续缺失",
+          "runs": [
+            {
+              "start": "2018-09-13 00:00:00",
+              "end": "2018-09-16 00:00:00",
+              "count": 4
+            },
+            {
+              "start": "2018-10-13 00:00:00",
+              "end": "2019-03-10 00:00:00",
+              "count": 149
+            },
+            {
+              "start": "2020-01-22 00:00:00",
+              "end": "2020-01-26 00:00:00",
+              "count": 5
+            },
+            {
+              "start": "2020-05-18 00:00:00",
+              "end": "2020-06-18 00:00:00",
+              "count": 32
+            },
+            {
+              "start": "2021-09-09 00:00:00",
+              "end": "2021-09-09 00:00:00",
+              "count": 1
+            },
+            {
+              "start": "2021-09-15 00:00:00",
+              "end": "2021-09-22 00:00:00",
+              "count": 8
+            },
+            {
+              "start": "2021-09-27 00:00:00",
+              "end": "2021-10-04 00:00:00",
+              "count": 8
+            },
+            {
+              "start": "2023-05-22 00:00:00",
+              "end": "2023-05-22 00:00:00",
+              "count": 1
+            },
+            {
+              "start": "2024-01-24 00:00:00",
+              "end": "2024-01-24 00:00:00",
+              "count": 1
+            },
+            {
+              "start": "2024-01-27 00:00:00",
+              "end": "2024-01-27 00:00:00",
+              "count": 1
+            },
+            {
+              "start": "2024-06-23 00:00:00",
+              "end": "2024-06-24 00:00:00",
+              "count": 2
+            }
+          ],
+          "run_count": 11,
+          "runs_truncated": false
         },
         {
           "code": "OUTLIER_CANDIDATE",
@@ -5632,7 +6540,10 @@
           "start": null,
           "end": null,
           "count": 18,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "POSSIBLE_UNIT_CHANGE",
@@ -5643,7 +6554,10 @@
           "start": "2019-05-31 00:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 515 个采样点前后中位数 0.800 → 0.000（比值 0.000），疑似单位或量纲变化"
+          "detail": "第 515 个采样点前后中位数 0.800 → 0.000（比值 0.000），疑似单位或量纲变化",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         }
       ],
       "anomalies": 5,
@@ -5698,10 +6612,69 @@
           "column": "wind_speed",
           "group": null,
           "row_label": null,
-          "start": null,
-          "end": null,
+          "start": "2018-09-13 00:00:00",
+          "end": "2024-06-24 00:00:00",
           "count": 212,
-          "detail": "缺失率 8.29%"
+          "detail": "缺失率 8.29%，11 段连续缺失",
+          "runs": [
+            {
+              "start": "2018-09-13 00:00:00",
+              "end": "2018-09-16 00:00:00",
+              "count": 4
+            },
+            {
+              "start": "2018-10-13 00:00:00",
+              "end": "2019-03-10 00:00:00",
+              "count": 149
+            },
+            {
+              "start": "2020-01-22 00:00:00",
+              "end": "2020-01-26 00:00:00",
+              "count": 5
+            },
+            {
+              "start": "2020-05-18 00:00:00",
+              "end": "2020-06-18 00:00:00",
+              "count": 32
+            },
+            {
+              "start": "2021-09-09 00:00:00",
+              "end": "2021-09-09 00:00:00",
+              "count": 1
+            },
+            {
+              "start": "2021-09-15 00:00:00",
+              "end": "2021-09-22 00:00:00",
+              "count": 8
+            },
+            {
+              "start": "2021-09-27 00:00:00",
+              "end": "2021-10-04 00:00:00",
+              "count": 8
+            },
+            {
+              "start": "2023-05-22 00:00:00",
+              "end": "2023-05-22 00:00:00",
+              "count": 1
+            },
+            {
+              "start": "2024-01-24 00:00:00",
+              "end": "2024-01-24 00:00:00",
+              "count": 1
+            },
+            {
+              "start": "2024-01-27 00:00:00",
+              "end": "2024-01-27 00:00:00",
+              "count": 1
+            },
+            {
+              "start": "2024-06-23 00:00:00",
+              "end": "2024-06-24 00:00:00",
+              "count": 2
+            }
+          ],
+          "run_count": 11,
+          "runs_truncated": false
         },
         {
           "code": "OUTLIER_CANDIDATE",
@@ -5712,7 +6685,10 @@
           "start": null,
           "end": null,
           "count": 18,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "POSSIBLE_UNIT_CHANGE",
@@ -5723,7 +6699,10 @@
           "start": "2019-05-31 00:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 515 个采样点前后中位数 0.800 → 0.000（比值 0.000），疑似单位或量纲变化"
+          "detail": "第 515 个采样点前后中位数 0.800 → 0.000（比值 0.000），疑似单位或量纲变化",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         }
       ],
       "anomalies": 5,
@@ -5737,7 +6716,7 @@
       ],
       "steps": 4,
       "terminate_reason": "budget_exhausted",
-      "tokens": 5271,
+      "tokens": 5264,
       "missing_tools": [
         "run_stat_tests"
       ],
@@ -5778,10 +6757,19 @@
           "column": "temperature",
           "group": null,
           "row_label": null,
-          "start": null,
-          "end": null,
+          "start": "2021-07-15 00:00:00",
+          "end": "2021-07-15 00:00:00",
           "count": 1,
-          "detail": "缺失率 0.04%"
+          "detail": "缺失率 0.04%，1 段连续缺失",
+          "runs": [
+            {
+              "start": "2021-07-15 00:00:00",
+              "end": "2021-07-15 00:00:00",
+              "count": 1
+            }
+          ],
+          "run_count": 1,
+          "runs_truncated": false
         },
         {
           "code": "OUTLIER_CANDIDATE",
@@ -5792,7 +6780,10 @@
           "start": null,
           "end": null,
           "count": 27,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "POSSIBLE_UNIT_CHANGE",
@@ -5803,7 +6794,10 @@
           "start": "2022-10-15 00:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 1748 个采样点前后中位数 0.200 → 0.600（比值 3.000），疑似单位或量纲变化"
+          "detail": "第 1748 个采样点前后中位数 0.200 → 0.600（比值 3.000），疑似单位或量纲变化",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         }
       ],
       "anomalies": 5,
@@ -5857,10 +6851,19 @@
           "column": "temperature",
           "group": null,
           "row_label": null,
-          "start": null,
-          "end": null,
+          "start": "2021-07-15 00:00:00",
+          "end": "2021-07-15 00:00:00",
           "count": 1,
-          "detail": "缺失率 0.04%"
+          "detail": "缺失率 0.04%，1 段连续缺失",
+          "runs": [
+            {
+              "start": "2021-07-15 00:00:00",
+              "end": "2021-07-15 00:00:00",
+              "count": 1
+            }
+          ],
+          "run_count": 1,
+          "runs_truncated": false
         },
         {
           "code": "OUTLIER_CANDIDATE",
@@ -5871,7 +6874,10 @@
           "start": null,
           "end": null,
           "count": 27,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "POSSIBLE_UNIT_CHANGE",
@@ -5882,7 +6888,10 @@
           "start": "2022-10-15 00:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 1748 个采样点前后中位数 0.200 → 0.600（比值 3.000），疑似单位或量纲变化"
+          "detail": "第 1748 个采样点前后中位数 0.200 → 0.600（比值 3.000），疑似单位或量纲变化",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         }
       ],
       "anomalies": 5,
@@ -5896,7 +6905,7 @@
       ],
       "steps": 4,
       "terminate_reason": "budget_exhausted",
-      "tokens": 5205,
+      "tokens": 5207,
       "missing_tools": [
         "run_stat_tests"
       ],
@@ -5937,10 +6946,19 @@
           "column": "temperature",
           "group": null,
           "row_label": null,
-          "start": null,
-          "end": null,
+          "start": "2021-07-15 00:00:00",
+          "end": "2021-07-15 00:00:00",
           "count": 1,
-          "detail": "缺失率 0.04%"
+          "detail": "缺失率 0.04%，1 段连续缺失",
+          "runs": [
+            {
+              "start": "2021-07-15 00:00:00",
+              "end": "2021-07-15 00:00:00",
+              "count": 1
+            }
+          ],
+          "run_count": 1,
+          "runs_truncated": false
         },
         {
           "code": "OUTLIER_CANDIDATE",
@@ -5951,7 +6969,10 @@
           "start": null,
           "end": null,
           "count": 27,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "POSSIBLE_UNIT_CHANGE",
@@ -5962,7 +6983,10 @@
           "start": "2022-10-15 00:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 1748 个采样点前后中位数 0.200 → 0.600（比值 3.000），疑似单位或量纲变化"
+          "detail": "第 1748 个采样点前后中位数 0.200 → 0.600（比值 3.000），疑似单位或量纲变化",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         }
       ],
       "anomalies": 5,
@@ -6014,10 +7038,19 @@
           "column": "temperature",
           "group": null,
           "row_label": null,
-          "start": null,
-          "end": null,
+          "start": "2021-07-15 00:00:00",
+          "end": "2021-07-15 00:00:00",
           "count": 1,
-          "detail": "缺失率 0.04%"
+          "detail": "缺失率 0.04%，1 段连续缺失",
+          "runs": [
+            {
+              "start": "2021-07-15 00:00:00",
+              "end": "2021-07-15 00:00:00",
+              "count": 1
+            }
+          ],
+          "run_count": 1,
+          "runs_truncated": false
         },
         {
           "code": "OUTLIER_CANDIDATE",
@@ -6028,7 +7061,10 @@
           "start": null,
           "end": null,
           "count": 27,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "POSSIBLE_UNIT_CHANGE",
@@ -6039,7 +7075,10 @@
           "start": "2022-10-15 00:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 1748 个采样点前后中位数 0.200 → 0.600（比值 3.000），疑似单位或量纲变化"
+          "detail": "第 1748 个采样点前后中位数 0.200 → 0.600（比值 3.000），疑似单位或量纲变化",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         }
       ],
       "anomalies": 5,
@@ -6051,7 +7090,7 @@
       ],
       "steps": 2,
       "terminate_reason": "budget_exhausted",
-      "tokens": 3039,
+      "tokens": 3036,
       "missing_tools": [
         "analyze_spectrum",
         "run_stat_tests",
@@ -6094,10 +7133,19 @@
           "column": "temperature",
           "group": null,
           "row_label": null,
-          "start": null,
-          "end": null,
+          "start": "2021-07-15 00:00:00",
+          "end": "2021-07-15 00:00:00",
           "count": 1,
-          "detail": "缺失率 0.04%"
+          "detail": "缺失率 0.04%，1 段连续缺失",
+          "runs": [
+            {
+              "start": "2021-07-15 00:00:00",
+              "end": "2021-07-15 00:00:00",
+              "count": 1
+            }
+          ],
+          "run_count": 1,
+          "runs_truncated": false
         },
         {
           "code": "OUTLIER_CANDIDATE",
@@ -6108,7 +7156,10 @@
           "start": null,
           "end": null,
           "count": 27,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "POSSIBLE_UNIT_CHANGE",
@@ -6119,7 +7170,10 @@
           "start": "2022-10-15 00:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 1748 个采样点前后中位数 0.200 → 0.600（比值 3.000），疑似单位或量纲变化"
+          "detail": "第 1748 个采样点前后中位数 0.200 → 0.600（比值 3.000），疑似单位或量纲变化",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         }
       ],
       "anomalies": 5,
@@ -6172,10 +7226,19 @@
           "column": "temperature",
           "group": null,
           "row_label": null,
-          "start": null,
-          "end": null,
+          "start": "2021-07-15 00:00:00",
+          "end": "2021-07-15 00:00:00",
           "count": 1,
-          "detail": "缺失率 0.04%"
+          "detail": "缺失率 0.04%，1 段连续缺失",
+          "runs": [
+            {
+              "start": "2021-07-15 00:00:00",
+              "end": "2021-07-15 00:00:00",
+              "count": 1
+            }
+          ],
+          "run_count": 1,
+          "runs_truncated": false
         },
         {
           "code": "OUTLIER_CANDIDATE",
@@ -6186,7 +7249,10 @@
           "start": null,
           "end": null,
           "count": 27,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "POSSIBLE_UNIT_CHANGE",
@@ -6197,7 +7263,10 @@
           "start": "2022-10-15 00:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 1748 个采样点前后中位数 0.200 → 0.600（比值 3.000），疑似单位或量纲变化"
+          "detail": "第 1748 个采样点前后中位数 0.200 → 0.600（比值 3.000），疑似单位或量纲变化",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         }
       ],
       "anomalies": 5,
@@ -6210,7 +7279,7 @@
       ],
       "steps": 3,
       "terminate_reason": "model_finished",
-      "tokens": 4103,
+      "tokens": 4121,
       "missing_tools": [
         "analyze_spectrum",
         "run_stat_tests"
@@ -6252,10 +7321,19 @@
           "column": "temperature",
           "group": null,
           "row_label": null,
-          "start": null,
-          "end": null,
+          "start": "2021-07-15 00:00:00",
+          "end": "2021-07-15 00:00:00",
           "count": 1,
-          "detail": "缺失率 0.04%"
+          "detail": "缺失率 0.04%，1 段连续缺失",
+          "runs": [
+            {
+              "start": "2021-07-15 00:00:00",
+              "end": "2021-07-15 00:00:00",
+              "count": 1
+            }
+          ],
+          "run_count": 1,
+          "runs_truncated": false
         },
         {
           "code": "OUTLIER_CANDIDATE",
@@ -6266,7 +7344,10 @@
           "start": null,
           "end": null,
           "count": 27,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "POSSIBLE_UNIT_CHANGE",
@@ -6277,7 +7358,10 @@
           "start": "2022-10-15 00:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 1748 个采样点前后中位数 0.200 → 0.600（比值 3.000），疑似单位或量纲变化"
+          "detail": "第 1748 个采样点前后中位数 0.200 → 0.600（比值 3.000），疑似单位或量纲变化",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         }
       ],
       "anomalies": 5,
@@ -6331,10 +7415,19 @@
           "column": "temperature",
           "group": null,
           "row_label": null,
-          "start": null,
-          "end": null,
+          "start": "2021-07-15 00:00:00",
+          "end": "2021-07-15 00:00:00",
           "count": 1,
-          "detail": "缺失率 0.04%"
+          "detail": "缺失率 0.04%，1 段连续缺失",
+          "runs": [
+            {
+              "start": "2021-07-15 00:00:00",
+              "end": "2021-07-15 00:00:00",
+              "count": 1
+            }
+          ],
+          "run_count": 1,
+          "runs_truncated": false
         },
         {
           "code": "OUTLIER_CANDIDATE",
@@ -6345,7 +7438,10 @@
           "start": null,
           "end": null,
           "count": 27,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "POSSIBLE_UNIT_CHANGE",
@@ -6356,7 +7452,10 @@
           "start": "2022-10-15 00:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 1748 个采样点前后中位数 0.200 → 0.600（比值 3.000），疑似单位或量纲变化"
+          "detail": "第 1748 个采样点前后中位数 0.200 → 0.600（比值 3.000），疑似单位或量纲变化",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         }
       ],
       "anomalies": 5,
@@ -6370,7 +7469,7 @@
       ],
       "steps": 4,
       "terminate_reason": "budget_exhausted",
-      "tokens": 5211,
+      "tokens": 5197,
       "missing_tools": [
         "run_stat_tests"
       ],
@@ -6413,7 +7512,16 @@
           "start": "2024-04-23 06:00:00",
           "end": "2024-04-23 11:00:00",
           "count": 1,
-          "detail": "最大缺口 18000 秒，预计缺失 4 个采样点"
+          "detail": "最大缺口 18000 秒，预计缺失 4 个采样点",
+          "runs": [
+            {
+              "start": "2024-04-23 06:00:00",
+              "end": "2024-04-23 11:00:00",
+              "count": 4
+            }
+          ],
+          "run_count": 1,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -6424,7 +7532,10 @@
           "start": "2024-04-26 23:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 2803 个采样点存在水平跳变（比值 3.193）"
+          "detail": "第 2803 个采样点存在水平跳变（比值 3.193）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         }
       ],
       "anomalies": 0,
@@ -6480,7 +7591,16 @@
           "start": "2024-04-23 06:00:00",
           "end": "2024-04-23 11:00:00",
           "count": 1,
-          "detail": "最大缺口 18000 秒，预计缺失 4 个采样点"
+          "detail": "最大缺口 18000 秒，预计缺失 4 个采样点",
+          "runs": [
+            {
+              "start": "2024-04-23 06:00:00",
+              "end": "2024-04-23 11:00:00",
+              "count": 4
+            }
+          ],
+          "run_count": 1,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -6491,7 +7611,10 @@
           "start": "2024-04-26 23:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 2803 个采样点存在水平跳变（比值 3.193）"
+          "detail": "第 2803 个采样点存在水平跳变（比值 3.193）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         }
       ],
       "anomalies": 0,
@@ -6505,7 +7628,7 @@
       ],
       "steps": 4,
       "terminate_reason": "budget_exhausted",
-      "tokens": 5125,
+      "tokens": 5127,
       "missing_tools": [
         "run_stat_tests"
       ],
@@ -6548,7 +7671,16 @@
           "start": "2024-04-23 06:00:00",
           "end": "2024-04-23 11:00:00",
           "count": 1,
-          "detail": "最大缺口 18000 秒，预计缺失 4 个采样点"
+          "detail": "最大缺口 18000 秒，预计缺失 4 个采样点",
+          "runs": [
+            {
+              "start": "2024-04-23 06:00:00",
+              "end": "2024-04-23 11:00:00",
+              "count": 4
+            }
+          ],
+          "run_count": 1,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -6559,7 +7691,10 @@
           "start": "2024-04-26 23:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 2803 个采样点存在水平跳变（比值 3.193）"
+          "detail": "第 2803 个采样点存在水平跳变（比值 3.193）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         }
       ],
       "anomalies": 0,
@@ -6613,7 +7748,16 @@
           "start": "2024-04-23 06:00:00",
           "end": "2024-04-23 11:00:00",
           "count": 1,
-          "detail": "最大缺口 18000 秒，预计缺失 4 个采样点"
+          "detail": "最大缺口 18000 秒，预计缺失 4 个采样点",
+          "runs": [
+            {
+              "start": "2024-04-23 06:00:00",
+              "end": "2024-04-23 11:00:00",
+              "count": 4
+            }
+          ],
+          "run_count": 1,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -6624,7 +7768,10 @@
           "start": "2024-04-26 23:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 2803 个采样点存在水平跳变（比值 3.193）"
+          "detail": "第 2803 个采样点存在水平跳变（比值 3.193）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         }
       ],
       "anomalies": 0,
@@ -6636,7 +7783,7 @@
       ],
       "steps": 2,
       "terminate_reason": "budget_exhausted",
-      "tokens": 2996,
+      "tokens": 2989,
       "missing_tools": [
         "analyze_spectrum",
         "run_stat_tests",
@@ -6681,7 +7828,16 @@
           "start": "2024-04-23 06:00:00",
           "end": "2024-04-23 11:00:00",
           "count": 1,
-          "detail": "最大缺口 18000 秒，预计缺失 4 个采样点"
+          "detail": "最大缺口 18000 秒，预计缺失 4 个采样点",
+          "runs": [
+            {
+              "start": "2024-04-23 06:00:00",
+              "end": "2024-04-23 11:00:00",
+              "count": 4
+            }
+          ],
+          "run_count": 1,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -6692,7 +7848,10 @@
           "start": "2024-04-26 23:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 2803 个采样点存在水平跳变（比值 3.193）"
+          "detail": "第 2803 个采样点存在水平跳变（比值 3.193）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         }
       ],
       "anomalies": 0,
@@ -6747,7 +7906,16 @@
           "start": "2024-04-23 06:00:00",
           "end": "2024-04-23 11:00:00",
           "count": 1,
-          "detail": "最大缺口 18000 秒，预计缺失 4 个采样点"
+          "detail": "最大缺口 18000 秒，预计缺失 4 个采样点",
+          "runs": [
+            {
+              "start": "2024-04-23 06:00:00",
+              "end": "2024-04-23 11:00:00",
+              "count": 4
+            }
+          ],
+          "run_count": 1,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -6758,7 +7926,10 @@
           "start": "2024-04-26 23:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 2803 个采样点存在水平跳变（比值 3.193）"
+          "detail": "第 2803 个采样点存在水平跳变（比值 3.193）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         }
       ],
       "anomalies": 0,
@@ -6771,7 +7942,7 @@
       ],
       "steps": 3,
       "terminate_reason": "model_finished",
-      "tokens": 4048,
+      "tokens": 4045,
       "missing_tools": [
         "analyze_spectrum",
         "run_stat_tests"
@@ -6815,7 +7986,16 @@
           "start": "2024-04-23 06:00:00",
           "end": "2024-04-23 11:00:00",
           "count": 1,
-          "detail": "最大缺口 18000 秒，预计缺失 4 个采样点"
+          "detail": "最大缺口 18000 秒，预计缺失 4 个采样点",
+          "runs": [
+            {
+              "start": "2024-04-23 06:00:00",
+              "end": "2024-04-23 11:00:00",
+              "count": 4
+            }
+          ],
+          "run_count": 1,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -6826,7 +8006,10 @@
           "start": "2024-04-26 23:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 2803 个采样点存在水平跳变（比值 3.193）"
+          "detail": "第 2803 个采样点存在水平跳变（比值 3.193）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         }
       ],
       "anomalies": 0,
@@ -6882,7 +8065,16 @@
           "start": "2024-04-23 06:00:00",
           "end": "2024-04-23 11:00:00",
           "count": 1,
-          "detail": "最大缺口 18000 秒，预计缺失 4 个采样点"
+          "detail": "最大缺口 18000 秒，预计缺失 4 个采样点",
+          "runs": [
+            {
+              "start": "2024-04-23 06:00:00",
+              "end": "2024-04-23 11:00:00",
+              "count": 4
+            }
+          ],
+          "run_count": 1,
+          "runs_truncated": false
         },
         {
           "code": "LEVEL_SHIFT",
@@ -6893,7 +8085,10 @@
           "start": "2024-04-26 23:00:00",
           "end": null,
           "count": 1,
-          "detail": "第 2803 个采样点存在水平跳变（比值 3.193）"
+          "detail": "第 2803 个采样点存在水平跳变（比值 3.193）",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         }
       ],
       "anomalies": 0,
@@ -6907,7 +8102,7 @@
       ],
       "steps": 4,
       "terminate_reason": "budget_exhausted",
-      "tokens": 5133,
+      "tokens": 5128,
       "missing_tools": [
         "run_stat_tests"
       ],
@@ -6990,7 +8185,7 @@
       ],
       "steps": 4,
       "terminate_reason": "budget_exhausted",
-      "tokens": 5037,
+      "tokens": 5033,
       "missing_tools": [
         "run_stat_tests"
       ],
@@ -7069,7 +8264,7 @@
       ],
       "steps": 2,
       "terminate_reason": "budget_exhausted",
-      "tokens": 2927,
+      "tokens": 2923,
       "missing_tools": [
         "analyze_spectrum",
         "run_stat_tests",
@@ -7152,7 +8347,7 @@
       ],
       "steps": 3,
       "terminate_reason": "model_finished",
-      "tokens": 3983,
+      "tokens": 3964,
       "missing_tools": [
         "analyze_spectrum",
         "run_stat_tests"
@@ -7236,7 +8431,7 @@
       ],
       "steps": 4,
       "terminate_reason": "budget_exhausted",
-      "tokens": 5074,
+      "tokens": 5038,
       "missing_tools": [
         "run_stat_tests"
       ],
@@ -7279,7 +8474,10 @@
           "start": null,
           "end": null,
           "count": 8,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "OUTLIER_CANDIDATE",
@@ -7290,7 +8488,10 @@
           "start": null,
           "end": null,
           "count": 1,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         }
       ],
       "anomalies": 51,
@@ -7346,7 +8547,10 @@
           "start": null,
           "end": null,
           "count": 8,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "OUTLIER_CANDIDATE",
@@ -7357,7 +8561,10 @@
           "start": null,
           "end": null,
           "count": 1,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         }
       ],
       "anomalies": 51,
@@ -7371,7 +8578,7 @@
       ],
       "steps": 4,
       "terminate_reason": "budget_exhausted",
-      "tokens": 5349,
+      "tokens": 5347,
       "missing_tools": [
         "run_stat_tests"
       ],
@@ -7414,7 +8621,10 @@
           "start": null,
           "end": null,
           "count": 8,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "OUTLIER_CANDIDATE",
@@ -7425,7 +8635,10 @@
           "start": null,
           "end": null,
           "count": 1,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         }
       ],
       "anomalies": 51,
@@ -7479,7 +8692,10 @@
           "start": null,
           "end": null,
           "count": 8,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "OUTLIER_CANDIDATE",
@@ -7490,7 +8706,10 @@
           "start": null,
           "end": null,
           "count": 1,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         }
       ],
       "anomalies": 51,
@@ -7502,7 +8721,7 @@
       ],
       "steps": 2,
       "terminate_reason": "budget_exhausted",
-      "tokens": 3011,
+      "tokens": 3002,
       "missing_tools": [
         "analyze_spectrum",
         "run_stat_tests",
@@ -7547,7 +8766,10 @@
           "start": null,
           "end": null,
           "count": 8,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "OUTLIER_CANDIDATE",
@@ -7558,7 +8780,10 @@
           "start": null,
           "end": null,
           "count": 1,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         }
       ],
       "anomalies": 51,
@@ -7613,7 +8838,10 @@
           "start": null,
           "end": null,
           "count": 8,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "OUTLIER_CANDIDATE",
@@ -7624,7 +8852,10 @@
           "start": null,
           "end": null,
           "count": 1,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         }
       ],
       "anomalies": 51,
@@ -7637,7 +8868,7 @@
       ],
       "steps": 3,
       "terminate_reason": "model_finished",
-      "tokens": 4128,
+      "tokens": 4137,
       "missing_tools": [
         "analyze_spectrum",
         "run_stat_tests"
@@ -7681,7 +8912,10 @@
           "start": null,
           "end": null,
           "count": 8,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "OUTLIER_CANDIDATE",
@@ -7692,7 +8926,10 @@
           "start": null,
           "end": null,
           "count": 1,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         }
       ],
       "anomalies": 51,
@@ -7748,7 +8985,10 @@
           "start": null,
           "end": null,
           "count": 8,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         },
         {
           "code": "OUTLIER_CANDIDATE",
@@ -7759,7 +8999,10 @@
           "start": null,
           "end": null,
           "count": 1,
-          "detail": "稳健 |Z| > 5.0 的候选异常点"
+          "detail": "稳健 |Z| > 5.0 的候选异常点",
+          "runs": [],
+          "run_count": 0,
+          "runs_truncated": false
         }
       ],
       "anomalies": 51,
@@ -7773,7 +9016,7 @@
       ],
       "steps": 4,
       "terminate_reason": "budget_exhausted",
-      "tokens": 5364,
+      "tokens": 5368,
       "missing_tools": [
         "run_stat_tests"
       ],

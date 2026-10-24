@@ -23,6 +23,8 @@ UNIT_CONTINUITY_MAX = 0.25
 # 边界跳变至少是邻域典型步长的多少倍，才值得考虑「单位变化」。
 UNIT_JUMP_TYPICAL_MIN = 8.0
 TEMPERATURE_HINTS = ("temp", "tt_tu", "气温", "温度")
+# 单个 issue 最多保留多少段可定位区间：防止缺测很多的列把报告撑大。
+MAX_ISSUE_RUNS = 20
 
 
 def robust_sigma(series: pd.Series) -> float:
@@ -167,6 +169,79 @@ def detect_level_shifts(series: pd.Series, window: Optional[int] = None,
     return out
 
 
+def _runs_from_mask(times: list, flags: list) -> tuple[list[dict], int]:
+    """把「连续为真」压成 [{start, end, count}]，返回 (最多 20 段, 截断前总段数)。
+
+    times 与 flags 必须已按时间排序且等长；times 元素允许为空串（时间不可解析）。
+    """
+    runs: list[dict] = []
+    n = len(flags)
+    i = 0
+    while i < n:
+        if flags[i]:
+            j = i
+            while j + 1 < n and flags[j + 1]:
+                j += 1
+            runs.append({"start": times[i], "end": times[j], "count": j - i + 1})
+            i = j + 1
+        else:
+            i += 1
+    return runs[:MAX_ISSUE_RUNS], len(runs)
+
+
+def _missing_runs(frame: pd.DataFrame, column: str, parsed_time: Optional[pd.Series],
+                  group_col: Optional[str]) -> tuple[list[dict], int]:
+    """按时间顺序找连续缺失段；有分组列时在每组内部计算，避免实体交错切碎区间。"""
+    if parsed_time is None:
+        times = [str(x) for x in frame.index]
+        runs, total = _runs_from_mask(times, frame[column].isna().tolist())
+        return runs, total
+
+    ts_all = pd.Series(parsed_time, index=frame.index)
+    if group_col and group_col in frame.columns:
+        groups = [(str(g), sub.index) for g, sub in frame.groupby(group_col, dropna=False)]
+    else:
+        groups = [(None, frame.index)]
+
+    out: list[dict] = []
+    total = 0
+    for gval, idx in groups:
+        order = ts_all.loc[idx].sort_values(kind="mergesort").index
+        flags = frame.loc[order, column].isna().tolist()
+        times = [("" if pd.isna(t) else str(t)) for t in ts_all.loc[order]]
+        runs, n = _runs_from_mask(times, flags)
+        total += n
+        for r in runs:
+            if gval is not None:
+                r = {**r, "group": gval}
+            out.append(r)
+    out.sort(key=lambda r: (r.get("start") or "", r.get("group") or ""))
+    return out[:MAX_ISSUE_RUNS], total
+
+
+def _dup_positions(v: pd.Series) -> tuple[Optional[str], Optional[str], Optional[int]]:
+    """重复时间戳的首末位置（只算第 2 次及以后出现的行，与 duplicated() 口径一致）。"""
+    d = v[v.duplicated()]
+    if d.empty:
+        return None, None, None
+    first_idx = d.index[0]
+    row = int(first_idx) if isinstance(first_idx, (int, np.integer)) else None
+    return str(d.iloc[0]), str(d.iloc[-1]), row
+
+
+def _order_positions(v: pd.Series) -> tuple[Optional[str], Optional[str], Optional[int]]:
+    """时间戳下降的首末位置：返回下降点自身的时间，便于与原始数据对照。"""
+    if len(v) < 2:
+        return None, None, None
+    mask = (v.diff().dt.total_seconds() < 0).to_numpy()
+    pos = np.flatnonzero(mask)
+    if len(pos) == 0:
+        return None, None, None
+    first_idx = v.index[int(pos[0])]
+    row = int(first_idx) if isinstance(first_idx, (int, np.integer)) else None
+    return str(v.iloc[int(pos[0])]), str(v.iloc[int(pos[-1])]), row
+
+
 def check_quality(
     raw: RawDataset, profile: DatasetProfile, parsed_time: Optional[pd.Series]
 ) -> QualityReport:
@@ -177,16 +252,25 @@ def check_quality(
         c for c in frame.columns if pd.api.types.is_numeric_dtype(frame[c])
     ]
 
-    # 1) 缺失
+    # 1) 缺失：除了比率与总数，给出连续缺失段的起止与点数，便于对到原始数据。
+    missing_group = next((c for c in (profile.group_columns or []) if c in frame.columns), None)
     for c in columns:
         r = float(frame[c].isna().mean())
         missing_ratio[c] = round(r, 6)
         if r > 0:
             sev = "error" if r > 0.5 else ("warn" if r > 0.05 else "info")
+            runs, total_runs = _missing_runs(frame, c, parsed_time, missing_group)
+            detail = f"缺失率 {r:.2%}"
+            if total_runs:
+                detail += f"，{total_runs} 段连续缺失"
             issues.append(QualityIssue(
                 code="MISSING_VALUES", severity=sev, column=c,
                 count=int(frame[c].isna().sum()),
-                detail=f"缺失率 {r:.2%}",
+                start=(runs[0]["start"] or None) if runs else None,
+                end=(runs[-1]["end"] or None) if runs else None,
+                runs=runs, run_count=total_runs,
+                runs_truncated=total_runs > len(runs),
+                detail=detail,
             ))
 
     # 2) 空数值列
@@ -212,32 +296,40 @@ def check_quality(
                 d = int(v.duplicated().sum())
                 if d:
                     dup_by_group[str(gval)] = d
+                    ds, de, drow = _dup_positions(v)
                     issues.append(QualityIssue(
                         code="DUPLICATE_TIMESTAMPS", severity="warn", column=ta.column,
-                        group=str(gval), count=d,
+                        group=str(gval), count=d, start=ds, end=de, row_label=drow,
                         detail=f"分组 {gval} 内重复 {d} 行，清洗阶段按 (时间, 分组) 聚合",
                     ))
                 o = int((v.diff().dt.total_seconds() < 0).sum()) if len(v) > 1 else 0
                 if o:
+                    os_, oe, orow = _order_positions(v)
                     issues.append(QualityIssue(
                         code="OUT_OF_ORDER", severity="warn", column=ta.column,
-                        group=str(gval), count=o,
+                        group=str(gval), count=o, start=os_, end=oe, row_label=orow,
                         detail=f"分组 {gval} 内时间戳下降 {o} 次，清洗阶段将排序",
                     ))
                 dup += d
                 out_of_order += o
         else:
+            ts_series = (pd.Series(parsed_time, index=frame.index).dropna()
+                         if parsed_time is not None else pd.Series(dtype="datetime64[ns]"))
             if ta.duplicated_count:
                 dup = ta.duplicated_count
+                ds, de, drow = _dup_positions(ts_series)
                 issues.append(QualityIssue(
                     code="DUPLICATE_TIMESTAMPS", severity="warn", column=ta.column,
-                    count=dup, detail="存在重复时间戳，清洗阶段将按聚合规则合并",
+                    count=dup, start=ds, end=de, row_label=drow,
+                    detail="存在重复时间戳，清洗阶段将按聚合规则合并",
                 ))
             if ta.out_of_order_count:
                 out_of_order = ta.out_of_order_count
+                os_, oe, orow = _order_positions(ts_series)
                 issues.append(QualityIssue(
                     code="OUT_OF_ORDER", severity="warn", column=ta.column,
-                    count=out_of_order, detail="时间戳非单调递增，清洗阶段将排序",
+                    count=out_of_order, start=os_, end=oe, row_label=orow,
+                    detail="时间戳非单调递增，清洗阶段将排序",
                 ))
         if ta.parse_ratio < 1.0:
             issues.append(QualityIssue(
@@ -254,9 +346,19 @@ def check_quality(
     gap_count = profile.sampling.gap_count
     if gap_count:
         biggest = max(profile.sampling.gaps, key=lambda g: g["gap_seconds"])
+        gap_runs = []
+        for g in profile.sampling.gaps:
+            item = {"start": g["start"], "end": g["end"],
+                    "count": int(g.get("expected_missing") or 1)}
+            if g.get("group"):
+                item["group"] = str(g["group"])
+            gap_runs.append(item)
+        gap_runs = gap_runs[:MAX_ISSUE_RUNS]
         issues.append(QualityIssue(
             code="SAMPLING_GAP", severity="warn", count=gap_count,
             start=biggest["start"], end=biggest["end"],
+            runs=gap_runs, run_count=gap_count,
+            runs_truncated=gap_count > len(gap_runs),
             detail=f"最大缺口 {biggest['gap_seconds']:.0f} 秒，预计缺失 {biggest['expected_missing']} 个采样点",
         ))
 

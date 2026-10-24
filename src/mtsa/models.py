@@ -147,6 +147,11 @@ class QualityIssue(MtsaModel):
     end: Optional[str] = None
     count: int = 0
     detail: str = ""
+    # 可定位区间：连续段 [{start, end, count}]，按时间排序；多实体时每段额外带 group。
+    # 最多保留 MAX_ISSUE_RUNS 段，截断前总段数见 run_count。
+    runs: list[dict[str, Any]] = Field(default_factory=list)
+    run_count: int = 0
+    runs_truncated: bool = False
 
 
 class QualityReport(MtsaModel):

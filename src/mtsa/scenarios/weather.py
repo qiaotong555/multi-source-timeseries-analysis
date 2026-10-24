@@ -31,6 +31,31 @@ CANON = {
     "rainfall": ("rainfall", "rain", "precip", "precipitation", "降雨", "降水量"),
 }
 STATION_HINT = ("station", "site", "city", "站点", "城市", "station_id")
+# 结论里最多展开几段区间；完整清单在报告第 2 节与 result.json。
+MAX_RUNS_IN_CONCLUSION = 3
+
+
+def _issue_range_text(issue, limit: int = MAX_RUNS_IN_CONCLUSION) -> str:
+    """把问题的可定位区间压成一句短话，避免结论被区间列表淹没。"""
+    runs = getattr(issue, "runs", None) or []
+    if runs:
+        parts = []
+        for r in runs[:limit]:
+            a = r.get("start") or "—"
+            b = r.get("end") or "—"
+            body = a if a == b else f"{a}~{b}"
+            parts.append(f"{body}（{r.get('count')} 点）")
+        total = getattr(issue, "run_count", 0) or len(runs)
+        tail = ""
+        if total > len(runs[:limit]) or getattr(issue, "runs_truncated", False):
+            tail = f"；另有 {max(total - len(runs[:limit]), 0)} 段，完整区间见报告第 2 节"
+        return "，区间 " + "；".join(parts) + tail
+    start = getattr(issue, "start", None)
+    if start:
+        end = getattr(issue, "end", None)
+        body = f"{start}~{end}" if end and end != start else str(start)
+        return f"，起始 {body}"
+    return ""
 
 
 def _canon_map(columns) -> dict[str, str]:
@@ -299,7 +324,8 @@ class WeatherAdapter(ScenarioAdapter):
                     where.append(f"分组 {iss.group}")
                 prefix = ("，".join(where) + " ") if where else ""
                 add("数据口径",
-                    f"{iss.code}：{prefix}{iss.detail}（数量 {iss.count}）。",
+                    f"{iss.code}：{prefix}{iss.detail}（数量 {iss.count}）"
+                    f"{_issue_range_text(iss)}。",
                     [], ["art_clean_csv"], "src/mtsa/quality.py::check_quality",
                     "质量检查只报告，不修改原始数据；对应清洗动作见报告第 4 节")
             if len(issues) > 8:
