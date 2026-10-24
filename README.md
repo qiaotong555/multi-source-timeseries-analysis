@@ -1,313 +1,231 @@
 # 多源时序数据量化分析与可视化 Agent
 
-输入带时间顺序的数据，自动识别数据结构，完成质量检查、预处理、量化指标计算、时域/频域分析、
-异常检测、统计检验和可视化，可选地给出带区间的点预测，输出可复现的分析报告。**引擎与场景解耦**，当前内置天气（主场景）
-与股票（扩展场景）两个适配器，用同一工作流验证可迁移性。
+> 本页是项目概览（一页看完）：它是什么、一条链路怎么走、做到哪一步、哪些没达标、从哪开始看。
+> 完整手册（安装、全部命令、运行保护、能力边界）：[`doc/使用手册.md`](doc/使用手册.md)　|　首次运行：[`doc/安装与首次运行.md`](doc/安装与首次运行.md)
 
-## 安装
+| 项 | 内容 |
+| --- | --- |
+| 任务标识 | `multi_source_timeseries_analysis`（课题 12，AI for Science，S06） |
+| 概要日期 | 2026-10-24 |
+| 一句话 | 输入一份带时间列的多源数据 + 一句自然语言问题，输出「每条结论都绑定证据、可复现、可回放」的分析报告；同一套引擎提供固定流水线与模型编排两种运行方式。 |
+| 核心结论 | 工程链路已闭环、证据体系完整；**分析正确性只证到「统计异常」与「季节/趋势」，官方灾害事件的召回仍为 0.071，未达标**。 |
 
-```bash
-pip install .        # 装成命令行工具，之后直接用 mtsa
-pip install -e .     # 开发用：改 src 立即生效
-```
+> 本文只做「结论 + 索引」，不重复格式契约。
+> 接口与字段以 `doc/接口与字段.md` 为准，任务状态以 `spec/当前开发任务.md` 为准。
 
-面向使用者的完整说明（Python 版本、数据格式、错误对照表、Docker）见 **`doc/安装与首次运行.md`**。
-镜像定义在 `Dockerfile`；本机无 Docker，**尚未实际构建验证**，这一点在文档里也写明了。
+---
 
-> 本作品为课程/课题提交物，**保留所有权利**，仅授权课程评审与演示使用；详见 `LICENSE`。第三方数据与依赖的条款见 `DATA_SOURCES.md`、`THIRD_PARTY_NOTICES.md`。
+## 1. 它是什么
 
-## 评审入口（约 5 分钟）
+**能回答的问题**
 
-| 步骤 | 看什么 | 位置 |
-| --- | --- | --- |
-| 1 | 定位、完成度、未达标项，一页看完 | `项目概要.md` |
-| 2 | 一条完整链路跑通（不需要模型、不需要联网） | `python scripts/demo.py --mode pipeline` |
-| 3 | 这份数据的结论长什么样，三张单列图 | `doc/全链路Demo_柏林2024.docx` |
-| 4 | Agent 与固定流水线的差异、工具轨迹与 token | `doc/Agent一键Demo说明_2026-10-24.docx` |
-| 5 | 评估口径、能力边界、未达标项的依据 | `doc/项目说明书.md`、`doc/评估设计.md` |
+- 这份数据的结构是什么？时间轴连不连续，有没有缺失、重复、乱序、单位异常？
+- 趋势方向、季节振幅、峰谷月份、主周期是多少？
+- 哪些时刻是异常点、哪些区段是持续异常、变化点在哪里？
+- 各列之间是否相关、是否存在滞后关系？
+- 在给定假设下，下一个周期（默认 24 小时）大致是什么范围？（`--forecast`，仅天气）
+- 结果能否复现？每条结论对应哪个数字、哪个文件、哪一行代码？
 
-两份 Word 文档**已随仓库提交**，直接打开即可，不需要重新生成。它们由 `artifacts/` 下的真实运行产物生成，
-而 `artifacts/` 是运行产物目录、不入库（见 `.gitignore`）。要按本机最新结果重建，得先跑出产物：
+**明确不做**
 
-```bash
-pip install ".[docx]"                         # 生成 Word 才需要的附加依赖
+- 不做因果推断，不做交易建议与自动交易；
+- 不让模型参与任何数值计算（模型只决定「先跑哪个工具」）；
+- 不改原始输入文件，所有产物写入独立 `artifacts/<run_id>/`；
+- 股票场景只支持固定流水线，Agent 未实现（请求返回 `AGENT_SCENE_UNSUPPORTED`）；
+- 彩票 / CSI 场景、多模型对比、对外 REST 服务，均未实现。
 
-python scripts/demo.py --mode pipeline        # 生成 artifacts/demo/
-python scripts/make_demo_word.py              # 读 artifacts/demo/ 重建 Agent 演示文档
-
-python scripts/make_chain_demo_doc.py --rerun # 重跑柏林 2024 全链路并重建该文档
-```
-
-`doc/Agent一键Demo说明_2026-10-24.docx` 第 9 节还有一次独立运行（STA_A 温度单位变化与异常诊断），
-它写在另一个目录，重建文档前需要先跑（PowerShell 把 `MTSA_PLANNER=rule` 写成 `$env:MTSA_PLANNER='rule'`）：
-
-```bash
-MTSA_PLANNER=rule python scripts/demo.py --mode pipeline --input fixtures/weather_v1.csv \
-  --question "请重点检查 STA_A 温度数据是否发生单位变化，并分析温度趋势和异常点，给出处理建议" \
-  --out artifacts/demo_case_unit_change_rule
-```
-
-## 验证状态（2026-10-24 实测）
-
-| 检查 | 结果 | 命令 |
-| --- | --- | --- |
-| 单元 / 回归测试 | 50 个文件 / 470 项通过，0 失败，407.9 s | `python run_tests.py --timeout 300` |
-| `run_evals` 阈值指标 | 29/29 通过（22 项核心 + LLM 3 + Agent 4），未通过 0 | `python -m evals.run_evals` |
-| 独立结论门禁（`weather_eval_v2`，4 问 × pipeline/agent） | 24/24 通过 | `python -m evals.conclusion_gate_eval` |
-| 坏输入鲁棒性（37 例） | 37/37 不崩溃，错误码与节点齐全 | `python -m evals.robustness_eval` |
-| 10 份真实天气数据（80 次运行） | 14 项检查 13 通过；**R13 未达标**：事件级 Recall 0.0714 < 0.50 | `python -m evals.real_data_eval` |
-| D3 扩容（7 份数据 × 4 问题） | 6 项检查 5 通过；**D3-4 假设被证伪**：小时风速只覆盖 3/4 事件 | `python -m evals.d3_expansion_eval` |
-| 规模上限 | 20 万行；1e5 37 s / 2e5 124 s / 5e5 736 s | `python -m evals.benchmark` |
-
-两项未达标（R13 事件召回、D3-4 阵风）连同原因写在 `项目概要.md` 第 4 节「还没做到 / 没达标的」，没有藏。
-门禁那 24 项跑在 `weather_eval_v2`（异常由生成器按已知位置注入，事件召回才能到 0.9667）；R13 跑在 10 份真实数据 + NOAA 官方风暴事件（真实极端天气与统计异常不同源）。两者口径不同，不能互相替代，也不能拿前者的 0.9667 去掩盖后者的 0.0714。
-
-## 常用命令
-
-```bash
-# 一键演示（推荐先跑；同数据同问题跑 pipeline + agent，缺模型自动跳过 agent）
-python scripts/demo.py
-python scripts/demo.py --mode pipeline
-
-# 环境：受管虚拟环境 ~/.workbuddy/binaries/python/envs/mtsa（Python 3.13.14）
-# 依赖安装见 doc/架构设计.md；src 需在导入路径上（PYTHONPATH=src 或 pip install -e .）
-
-# 测试（basetemp 每次独立，避免临时目录堆积被清理策略拦截）
-python -m pytest tests -q --basetemp=artifacts/_pt_<时间戳>
-
-# 低内存 / 可超时的逐文件入口（单进程卡死或内存紧张时用）
-# 每个文件独立进程，固定 MTSA_PLANNER=rule、OPENBLAS_NUM_THREADS=1
-python run_tests.py --timeout 300
-
-# 运行分析（默认在子进程中执行，带 600 秒超时）
-python -m mtsa.cli run --scene weather \
-    --input fixtures/weather_v1.csv --question "分析温度的趋势、季节性与极端事件"
-python -m mtsa.cli run --scene stock \
-    --input fixtures/stock_v1.csv  --question "计算收益风险指标并做 walk-forward 回测"
-
-# Agent 模式（本轮仅天气；需配置 MTSA_LLM_BASE_URL / MTSA_LLM_API_KEY / MTSA_LLM_MODEL）
-python -m mtsa.cli run --mode agent --scene weather \
-    --input fixtures/weather_v1.csv --question "分析温度的趋势、季节性和异常"
-
-# 成本上限：累计 token 超限即以 token_budget 结束（默认 0 = 不限制）
-python -m mtsa.cli run --mode agent --scene weather \
-    --input fixtures/weather_v1.csv --question "分析温度的趋势、季节性与异常" \
-    --agent-max-tokens 2000
-
-# 金额估算（可选）：给一份价目表 JSON，模板见 config/prices.example.json
-# 未配置时不换算金额；路径/字段有误会直接报 PRICE_TABLE_INVALID，不按 0 计价
-python -m mtsa.cli run --mode agent --scene weather \
-    --input fixtures/weather_v1.csv --question "分析温度的趋势、季节性与异常" \
-    --agent-max-tokens 2000 --price-table config/prices.example.json
-
-# 离线重放：按已保存的轨迹重跑工具，不调用模型
-python -m mtsa.cli run --replay artifacts/<run_id>/result.json
-
-# 附加预测（仅天气；点预测 + 90% 区间 + walk-forward 回测，默认关闭）
-python -m mtsa.cli run --scene weather \
-    --input fixtures/weather_eval_v2.csv --question "分析温度的趋势" \
-    --forecast --forecast-horizon 24
-
-# 自动模式：有模型且天气走 Agent，否则自动回退固定流水线
-python -m mtsa.cli run --mode auto --scene weather \
-    --input fixtures/weather_v1.csv --question "分析温度的趋势、季节性和异常"
-
-# 批量评估（含 dev/holdout 划分；固定 MTSA_PLANNER=rule，结果与远程模型无关）
-# A/B/C 结论级结果并入输出，但只报告、不参与通过/失败
-python -m evals.run_evals
-# 只复核划分与阈值选择
-python -m evals.split_eval
-# 性能基准（约 8 分钟，结果供 run_evals 读取）
-python -m evals.benchmark
-# LLM 计划层评估（需配置 MTSA_LLM_BASE_URL / API_KEY / MODEL，约 15 秒）
-python -m evals.llm_eval
-
-# Agent 模式评估（13 个天气用例；步数、覆盖率、重放率、越界、失败率、token）
-python -m evals.agent_eval
-# 只验证指标管线，不调用模型（结果标 source=mock，不能当模型能力结论）
-python -m evals.agent_eval --mock
-
-# pipeline / agent 对照（同批 13 个天气用例，固定规则计划）
-python -m evals.mode_compare
-
-# 输出稳定性：同题重复 3 次，guided（关键词下限）vs free（模型自定范围）
-python -m evals.stability_eval --repeats 3
-
-# A 结论级评估：读 artifacts/t212_compare，不改检测阈值
-python -m evals.conclusion_eval
-# B 差异溯源：把 agent 少掉的结论按类别归因
-python -m evals.conclusion_diff
-
-# C 第二份数据：30 天 / 15 分钟 / 单站点 / DST / 10% 缺失
-python -m evals.agent_eval --input fixtures/weather_short_v1.csv     --out evals/agent_eval_short_results.json --out-root artifacts/c_short_agent_eval
-python -m evals.repro_check     artifacts/c_short_pipeline_rule_1/result.json     artifacts/c_short_pipeline_rule_2/result.json
-python -m evals.conclusion_eval --result-root artifacts/c_short_agent_eval     --labels fixtures/labels_weather_short_v1.csv     --truth fixtures/truth_weather_short_v1.json     --out evals/conclusion_eval_short_agent_results.json
-
-# D3 数据扩容验收：7 份新数据 × 4 问题 + 阵风可观测性（约 7 分钟）
-python -m evals.d3_expansion_eval
-
-# 鲁棒性矩阵：37 个坏输入/边界用例（固定 rule 计划，约 72 秒）
-python -m evals.robustness_eval
-# 只跑某一组
-python -m evals.robustness_eval --only 导入,时间轴,数值
-
-# 方案 2：独立数据上的结论门禁（weather_eval_v2；4 问题 × pipeline/agent）
-# 需要 MTSA_LLM_* 才能跑 agent；--pipeline-only 可离线只跑确定性流水线
-python -m evals.conclusion_gate_eval
-python -m evals.conclusion_gate_eval --pipeline-only   # 写到 *_pipeline_only.json，不覆盖正式门禁
-# 重建 v2 数据（确定性，数据 SHA1 应为 2ee8077e…）
-PYTHONPATH=. python fixtures/gen_weather_eval_v2.py
-
-# B 十份真实天气数据：10 数据集 × 4 问题 × pipeline/agent = 80 次
-# 首次需联网下载（约 30 MB）并生成 L1 标签；标签由数据确定性生成
-python scripts/fetch_real_weather.py
-python scripts/build_real_labels.py
-python -m evals.real_data_eval --pipeline-only   # 40 次，离线
-python -m evals.real_data_eval                   # 80 次，agent 需 MTSA_LLM_*
-python scripts/real_cross_check.py               # 跨来源一致性核对
-
-# D 探针与重复：6 个开放/风险/对比问题；free 5 次/用例，guided 1 次/用例
-python -m evals.probe_eval --dry
-MTSA_PLANNER=rule python -m evals.probe_eval --plan free:5,guided:1 --max-tokens 6000 --out evals/probe_eval_results.json --out-root artifacts/d_probe_eval
-```
-
-## 运行保护
-
-| 限制 | 默认 | 调整方式 |
-| --- | --- | --- |
-| 数据规模 | 20 万行，超过即拒绝（`DATASET_TOO_LARGE`） | `MTSA_MAX_ROWS=500000` |
-| 整体超时 | 600 秒，超时终止子进程（`NODE_TIMEOUT`） | `--timeout 900`；`0` 表示不限制且不进子进程 |
-| 运行模式 | 默认 `pipeline` | `--mode agent` / `--mode auto`，或设置 `MTSA_AGENT` |
-| Agent 范围策略 | `guided`：按问题关键词定下限，达标前不得结束，下限外最多追加 1 步 | `--agent-scope free` 恢复“范围完全由模型决定”（步数会波动） |
-| Agent token 预算 | 0（不限制），只记录用量 | `--agent-max-tokens 2000`；超限以 `token_budget` 结束 |
-
-CLI 默认在**子进程**中执行分析：Python 无法中断正在执行的 C 扩展调用（numpy、statsmodels），
-主线程计时器拦不住卡死，只有进程级终止有效。代价是约 3 秒启动开销。
-库调用 `engine.run_analysis()` 不走子进程，行为与以前一致。
-
-**判断成败请读 `result.json` 的 `status`，不要以「产物目录非空」为准**——失败时也会落盘留档。
-
-评估口径：异常检测阈值只在各折 dev 段上选定，指标取各折 holdout 段平均；有效折不足时判为「不可判定」而非通过，详见 `doc/评估设计.md` 第 3 节。
-
-数据集分工：`weather_v1` 用于交付演示与其余指标，`weather_eval_v1` 专用于异常检测的 dev/holdout 评估（异常密度更高，每折 holdout 约 12 个真值）。两者分离，避免在同一套数据上调参又报告。
-
-产物写入 `artifacts/<run_id>/`：`result.json`（结构化结果与证据链）、`report.md`、
-静态图 PNG、交互图 HTML、清洗后数据 CSV、可复现脚本。
-
-## 当前状态与能力边界
-
-**评估状态（2026-10-23）**：A 结论级评估、B 差异溯源、C 第二份数据、D 探针与重复、
-评估收口均已完成。`run_evals` 固定规则计划，22 项核心阈值指标（叠加 LLM/Agent 缓存后共 29 项）可复算、当前全部通过；结论级结果
-（异常/变化点 P/R/F1、差异归因、短数据复核）只报告，尚未设阈值。
-
-**已实现（天气 Agent）**：观察—决策—行动循环、五工具白名单、预算受控的观察摘要、
-决策边界（锁定参数/未知参数/重复调用/步数上限）、失败重试与三态记录、
-轨迹哈希与离线重放、`pipeline / agent / auto` 三模式、关键词范围下限（`guided`）、
-13 用例评估与两模式对照。
-
-**真实数据验证（B，2026-10-24）**：10 份公开天气数据（4 来源、2 频率、87,818 行；D3 又扩到 17 份）
-× 4 问题 × pipeline/agent = 80 次，80/80 成功、证据覆盖 1.000、L1 质量事件 Recall 1.000
-（可定位 1.000）。真实数据暴露了 R08 单位误判、R05 多站点重复时间戳误报
-（17,568 条，清洗分组本身正确）、质量问题不进结论等问题；**R08 已在 C1 修复**（零换算，峰值月恢复 8 月）、**R05 已在 C2 修复**（重复 17,568 → 0）、**质量与零检出结论已在 C3 补齐**（Q2 20/20 有 `数据口径`，需求覆盖 0.800 → 1.000）、**缺口定位已在 C4 补齐**（可定位 0.500 → 1.000）、**L2 真值已在 D1 建立**（NOAA StormEvents 14 条事件；异常事件 Recall 0.071，E4 未达标）、**绝对极端通道已在 D2 加入**（`data.extremes`，p99/p1，覆盖 7/14 条事件，与统计异常分开）、
-**预测已在 F 加入**（`--forecast`，仅天气、默认关闭；11 份数据 58 列，90% 区间覆盖率 0.867，
-MASE≤1.0 占 0.741），详见 `evals/real_data_report.md` 与
-`spec/项目承接已完成.md` 第 34–40 章。
-
-**明确未实现**：股票场景的 Agent（请求 `mode=agent` 返回 `AGENT_SCENE_UNSUPPORTED`）；
-多模型对比；按金额计费换算（只限 token，不换算货币）；`free` 模式下的范围稳定性；
-预测的多变量模型与概率预报（当前只有单变量点预测 + 经验区间），预测也不是股票能力。
+### 两种运行模式
 
 | 模式 | 行为 | 无模型时 |
 | --- | --- | --- |
-| `pipeline`（默认） | 固定跑完 12 项计划 | 正常 |
-| `agent` | 天气场景由模型选择工具 | `AGENT_UNAVAILABLE` |
-| `auto` | 天气 + 有模型才升级 | 回退 pipeline 并写 warning |
+| `pipeline`（默认） | 固定跑完 12 项计划，确定性 | 正常 |
+| `agent` | 天气场景下由模型在白名单 5 个工具里选下一步 | `AGENT_UNAVAILABLE` |
+| `auto` | 天气且有模型才升级，否则回退 | 回退 pipeline 并写 warning |
 
-**真实模型与 Mock 必须分清**：`evals/agent_eval.py --mock` 用脚本客户端，只验证指标管线，
-结果标 `source=mock`，不参与 `run_evals` 判定；真实结论只来自 `source=real`。
+---
 
-**分析项 12 / 13 / 14 的口径**（常见混淆点）：
+## 2. 一条链路的六个步骤
 
-- **12 项**：天气规则计划实际选中的分析项（`trend`、`corr`、`lag`、`extreme`、`spectrum`、
-  `changepoint`、`anomaly`、`test`、`stationarity`、`autocorr`、`normality`、`seasonal`）；
-- **13 项**：计划层 `TOOL_SPECS` 在 12 项基础上多一个 `randomness`；
-- **14 项**：引擎内部开关 `ALL_ANALYSES` 在 13 项基础上多一个 `volatility`。
-
-评估里说的「规则计划覆盖率」固定以 **12 项**为分母；「工具覆盖率」以 **5 个白名单工具**为分母；
-两者不能互相替代。
-
-**两模式实测（13 个天气用例，`guided`，2026-10-23）**：
-
-| 维度 | pipeline | agent |
+| 阶段 | 做什么 | 由谁决定 |
 | --- | --- | --- |
-| 成功 | 13/13 | 13/13 |
-| 平均步数 | 5.00 | 2.54 |
-| 结论（均值） | 39.00 | 29.92（−23.3%） |
-| 需求覆盖率 | 1.00 | 1.00 |
-| 规则计划覆盖率 | 1.00 | 0.66 |
-| 墙钟（均值） | 12.09 s | 12.77 s（+5.6%） |
-| token | 0 | 53,924 |
+| ① 体检 | 时间轴连续性、缺失、重复、乱序、量级与单位；只报告，不自动改数据 | 固定 |
+| ② 计划 | 分析项、目标列、周期、阈值 | 规则；或模型选择（agent） |
+| ③ 清洗 | 插补 / 丢弃 / 单位换算，动作逐条记账 | 固定 |
+| ④ 分析 | 指标、频谱、统计检验、异常、变化点、极端值、泄漏检查 | pipeline 固定；agent 由模型选工具 |
+| ⑤ 结论 | 把数字写成一句话，绑定证据（指标名 / 产物编号 / 计算位置） | 固定 |
+| ⑥ 报告 | `result.json` + `report.md` + 图表 + 清洗数据 + 复现脚本 | 固定 |
 
-9 用例时期的数字（结论 −31.3%、墙钟 +4.7%）保留在 `doc/评估设计.md` 6.5/6.6，
-**不同用例集的降幅不可直接比较**。现行口径见 6.8，逐用例数据见
-`evals/mode_compare_results.json`。
+**三个容易混的口径**：规则计划选中 **12 项**分析；计划层 `TOOL_SPECS` 有 **13 项**（多 `randomness`）；引擎内部 `ALL_ANALYSES` 有 **14 项**（再多 `volatility`）。评估里的「规则计划覆盖率」固定以 12 项为分母，「工具覆盖率」以 5 个白名单工具为分母，两者不可互换。
 
-**结论级评估（A/B，2026-10-23）**：在这份演示数据上，异常点级 P/R/F1 为
-0.130 / 1.000 / 0.229（真值 18、FP 121）；agent 只在 7/13 个用例执行异常检测，
-未执行的 6 个用例少看 108 个真值实例，但去重后真值命中仍为 18/18。两模式结论
-总数 507 vs 389，差 118 条（9.08/用例），**100% 归因于 `tool_not_run`**，无法归因 0 条。
-这说明 Agent 的差异主要是范围而不是精度；也说明「检出 139 个」不等于「139 个都对」。
+---
 
-**探针与重复（D，2026-10-23）**：6 个探针下，free 30 次全部 5 步、39 条结论，
-单次平均 7,030 token；guided 6 次平均 2.17 步、3,475 token，范围下限 6/6 达标。
-free 本批没有低频抖动，但 30 次同批不能替代跨版本结论；`p_compare_station` 有
-3/5 次触发 6,000 token 上限。计划卡「guided/free 各 5 次共 60 次」与「总≤30 次」
-矛盾，本轮取 free 30 + guided 6 = 36 次，取舍见 `spec/项目承接已完成.md` 第 26 章。
+## 3. 现在做到哪里（按证据分级）
 
-结论：Agent 适合窄问题与需要审计路径的场景；需要完整报告、或没有模型配额时用 pipeline。
+| 维度 | 结论 | 关键数字 | 证据 |
+| --- | --- | --- | --- |
+| 工程基线 | **通过** | 50 个测试文件 / 471 项 / 0 失败 / 468.9 s（2026-10-24 19:57） | `evals/test_logs/summary.json` |
+| 鲁棒性 | **通过** | 37 个坏输入与边界用例 37/37，0 崩溃；失败均带错误码与出错节点 | `evals/robustness_results.json` |
+| 结论级门禁（独立数据 v2） | **通过** | 24/24（10 pipeline + 10 agent + 4 非劣性）；事件级命中 R=0.9667、F1=0.9831；点级 P=1.000 / R=0.840 | `evals/conclusion_gate_v2_results.json` |
+| 真实数据验证（B） | **工程通过，正确性未证** | 10 份数据 × 4 问题 × 2 模式 = 80/80 成功，证据覆盖 1.000；14 项验收 13 项通过 | `evals/real_data_results.json` |
+| 数据扩容（D3） | **部分通过** | 新增 7 份（3 大洲、4 份海拔 ≥1500 m），28/28 成功；registry 10 → 17 | `evals/d3_results.json` |
+| 预测（可选，仅天气） | **通过** | 17 份 / 94 列全部完成；90% 区间覆盖率 0.8722（33,376 点）；MASE≤1.0 占 68/94 = 0.723 | `evals/forecast_results.json` |
+| Agent 对照（13 用例） | **可用** | 13/13 成功；2.54 步；需求覆盖 1.00；结论 29.92 vs 39.00（−23.3%）；token 53,924；墙钟 12.77 s vs 12.09 s | `evals/mode_compare_results.json` |
+| 规模与性能 | **有明确上限** | 20 万行上限（`MTSA_MAX_ROWS`）；1e5 行 37.1 s、2e5 行 123.9 s、5e5 行 736 s、1e6 未完成 | `doc/评估设计.md`、`doc/改进记录.md` #4/#6 |
 
-## 目录
+**规模数字**：`src/mtsa` 29 个文件 / 6,330 行；`tests` 目录 50 个 py（逐文件入口统计 50 个文件 / 471 项）；`evals` 20 个文件 / 6,594 行；真实数据 registry 17 份（5 个来源：Open-Meteo / NOAA GHCN-Daily / DWD / ECCC / ASOS；2 种频率：hourly 14、daily 3）。
 
-```text
-src/mtsa/      引擎实现（导入 / 摘要 / 质量 / 预处理 / 指标 / 频域 / 检验 / 异常 / 图表 / 报告 / 编排）
-scripts/       一键演示 demo.py（pipeline + agent 摘要）
-  scenarios/   场景适配器（weather 主场景、stock 扩展场景）
-tests/         单元测试与回归测试
-evals/         评估脚本与评估记录
-fixtures/      固定脱敏样例与真值标签
-artifacts/     运行产物（按 run_id 隔离，不修改输入）
-spec/          当前任务、未来规划、已完成任务、Bug 记录
-doc/           架构设计、接口与字段、评估设计、改进记录、Agent 化改造方案与任务清单、报告源稿（reports/）
+**评估指标**：29 项 = 22 项规则模式阈值指标 + 3 项 LLM 模式指标（合法率、回退率、覆盖率）+ 4 项 Agent 指标（后 7 项仅在对应评估缓存存在时纳入判定）。LLM 覆盖率只统计合法计划，回退时不计入平均——否则「模型全挂」会被算成高覆盖。
+
+---
+
+## 4. 还没做到 / 没达标的（诚实清单）
+
+| 编号 | 缺口 | 实测 | 影响 | 状态 |
+| --- | --- | --- | --- | --- |
+| R13 / E4 | 官方灾害事件召回 | **0.0714**（阈值 ≥0.50）；14 条事件只命中 1 条 | 「能检出真实灾害」这句话目前**不成立**，只能声称能检出统计异常 | 未达标，未立项 |
+| D3-4 | 阵风是否有额外收益 | 阵风 3/4、小时平均风速 3/4（完全相同） | 假设被证伪；真正起作用的是「日均 → 小时」的时间分辨率，且样本只有 4 条事件 | 未通过，按原标准记录 |
+| 变化点判据 | v2 上的 F1 | **0.50**，恰好等于阈值 0.50 | 门禁形同虚设，任何轻微波动都会跌破 | 压线通过，待立项 |
+| 预测覆盖 | 出界列 | 6 列超出 [0.80, 0.98]（降水类、ASOS 不规则报时） | 「一条口径打天下」不够，降水类需单独处理 | 如实记录，未调参迁就 |
+| 检测器能力 | 缓慢漂移与持续偏移 | 逐点判定检不出「单点不超阈、整段偏移」 | 传感器漂移类故障会漏 | 见 `doc/改进记录.md` 遗留问题汇总 |
+| 规模 | 百万行 | 1e6 超 300 s 未完成；ADF 不能截断滞后阶（实测会翻转平稳性判定） | 大文件只能拒绝或降采样 | 已设 20 万行上限 |
+| 场景 | 股票 Agent | `AGENT_SCENE_UNSUPPORTED` | 「多场景 Agent」实际只有天气 | 用户明确暂缓 |
+| 产品化 | E1 可观测性 / E2 金额换算 / E3 REST | 未立项 | 对外交付前必须先做 | 按需启动 |
+
+**一条必须记住的口径**：`agent` 比 `pipeline` 少 23.3% 的结论，**100% 归因于「工具未执行」**，不是算错；但「没跑」也不能当成「没问题」——报告里必须写「未执行」，不能写「未检出」。
+
+---
+
+## 5. 交付物与入口
+
+### 运行
+
+```bash
+# 安装：pip install .（Python >= 3.11）；开发用 pip install -e .
+# 未安装时也可用 PYTHONPATH=src
+python -m mtsa.cli run --scene weather \
+  --input fixtures/weather_v1.csv \
+  --question "分析温度的趋势、季节性和异常点，并检测变化点"
+
+python -m mtsa.cli run --mode agent --scene weather \
+  --input fixtures/weather_v1.csv --question "分析温度的趋势、季节性和异常"
+
+python -m mtsa.cli run --scene weather --input fixtures/weather_eval_v2.csv \
+  --question "分析温度的趋势" --forecast --forecast-horizon 24
+
+python -m mtsa.cli run --replay artifacts/<run_id>/result.json   # 离线重放，不调模型
 ```
 
-## 边界
+**判断成败看 `result.json` 的 `status`，不要以「产物目录非空」为准**——失败时也会落盘留档。
 
-- 输入文件只读，从不修改、移动或删除。
-- **多站点（长表 + `group_columns`）为正式支持场景**：清洗按实体分组，判重按 `(实体, 时间)`。
-- 股票场景不提供真实投资建议，不做自动交易；回测不含交易成本与滑点，结论中显式声明。
-- 不做彩票中奖号码预测；彩票场景不在当前任务范围。
-- 数值结论全部由计算代码产出，模型不参与任何数值计算。LLM 只参与两处选择：计划层选择分析项，
-  以及 Agent 模式选择下一步调用哪个工具。未配置模型时，pipeline 仍可用规则计划运行。
-- **Agent 模式本轮只支持天气场景**；股票场景请求 `--mode agent` 会返回 `AGENT_SCENE_UNSUPPORTED`。
-  Agent 只决定「调用哪些工具」，工具的完整产出与未执行项都会写入 `result.json` 与报告。
-- 对外 REST 服务不在当前任务范围，见 `spec/未来规划.md`。
+### 文档索引
 
-## 文档约定
+| 文档 | 作用 |
+| --- | --- |
+| `doc/使用手册.md` | 全部命令与能力边界（最全） |
+| `doc/项目说明书.md` | 对外说明书：能做什么、做到什么程度、怎么复现 |
+| `doc/架构设计.md` | 12 个节点、两种模式的边界、依赖表 |
+| `doc/接口与字段.md` | `result.json` 字段契约（含 `data.extremes` / `data.forecast`） |
+| `doc/评估设计.md` | 每项指标的算法与口径（含 6.19 预测口径） |
+| `doc/改进记录.md` | T1 起逐条改进账本 + 遗留问题汇总 |
+| `spec/当前开发任务.md` | 当前阶段状态与下一项候选 |
+| `spec/项目承接已完成.md` | 41 章执行记录：做了什么、实测数字、取舍、限制、证据路径 |
+| `spec/已完成任务.md` / `spec/任务书归档.md` | 各项验收表与遗留限制（「当时要求什么」的对照证据） |
+| `doc/全链路Demo_柏林2024.docx` | 5 页演示：一份数据走完六步 + 三张结果图 |
+| `doc/Agent一键Demo说明_2026-10-24.docx` | 一键 demo 的图文说明（含单位变化诊断案例） |
+| `doc/Agent全流程Demo_2026-10-23.docx` | 10-23 旧版演示（历史留档，评审看上面两份） |
 
-开发以 `spec/当前开发任务.md` 为准；架构、接口与字段变更验证后同步到 `doc/`。
-评估记录必须包含数据集版本、指标实测值、失败样例与修改前后对比；未实际运行不得声明通过。
+---
 
-## 授权与使用
+## 6. 目录
+
+```text
+src/mtsa/            引擎：导入 / 摘要 / 质量 / 预处理 / 指标 / 频域 / 检验 / 异常 / 图表 / 报告 / 编排
+  scenarios/         场景适配器（weather 主场景；stock 仅 pipeline）
+scripts/             一键 demo、真实数据抓取与标注、两份 Word 文档生成
+tests/               50 个测试文件
+evals/               20 个评估脚本 + 结果 JSON + 评估记录
+fixtures/            固定样例、真实数据 registry、标签与真值
+artifacts/           运行产物（按 run_id 隔离，不入库）
+spec/                任务书、状态、已完成记录、未来规划
+doc/                 使用手册、架构、接口、评估、改进记录、报告与 Word 交付物
+```
+
+---
+
+## 7. 复现与验收命令
+
+```bash
+# 一键演示：同一份数据跑完六步，不需要模型、不需要联网
+python scripts/demo.py --mode pipeline
+
+# 全量测试（逐文件独立进程，避免单进程卡死）
+python run_tests.py --timeout 300
+
+# 主评估：22 项核心阈值 + LLM 3 项 + Agent 4 项（缓存齐全时共 29 项）
+python -m evals.run_evals
+
+# 独立数据上的结论门禁（4 问题 × pipeline/agent，24 项）
+python -m evals.conclusion_gate_eval --pipeline-only   # 离线；去掉参数会调模型
+
+# 鲁棒性矩阵（37 用例，约 72 s）
+python -m evals.robustness_eval
+
+# 数据扩容与事件覆盖（约 7 分钟）
+python -m evals.d3_expansion_eval
+
+# 预测评估（17 份 / 94 列）
+python -m evals.forecast_eval
+
+# 重跑全链路 demo 并重新生成 Word 演示文档
+python scripts/make_chain_demo_doc.py --rerun
+```
+
+---
+
+## 8. 文档一致性（2026-10-24 已收敛）
+
+C 阶段（交付卫生）修完以下不一致，记录在此防止回退：
+
+| 位置 | 原问题 | 现状 |
+| --- | --- | --- |
+| `doc/项目说明书.md` | 「不做预测」与同文预测能力矛盾 | 改为「不做业务预测与因果推断；`--forecast` 只给点预测 + 经验区间」 |
+| `doc/项目说明书.md` | 输出结构写成子目录 | 改为 `fig_*.png` / `fig_*.html` 直接写在运行目录 |
+| `doc/项目说明书.md` 6.6 | 主表是 F 阶段 11 份 / 58 列 | 标注为「F 阶段口径」，并指向 6.8 的 17 份 / 94 列 |
+| `spec/已完成任务.md` | 测试数停在 31 文件 / 304 项 | 更新为 50 / 471（2026-10-24 19:57，B1/B2/B3 后） |
+| 三份 spec 的「下一步」 | 三个不同说法 | 统一到 `spec/未来规划.md` 的 C → B1 → B2 → B3 |
+| 多站点 | 一直列为「待拍板」 | 已声明为正式支持（README、项目说明书） |
+
+> `spec/项目承接已完成.md` 里出现的旧数字（如「31 个文件 / 304 项」）是**历史记录**，
+> 按项目规则不回改，只以当前文件为准。
+
+## 9. 下一步（2026-10-24 已定：产品化优先）
+
+用户决定「要给别人用」：先把产品做出来，再继续研究、迭代。
+
+| 顺序 | 任务 | 状态 | 门槛 |
+| --- | --- | --- | --- |
+| C | 交付卫生：文档口径、三份规划收敛、多站点正式声明 | **已完成** | 文档与代码逐条对齐 |
+| B1 | E1 可观测性：未执行原因 + 覆盖矩阵 | **已完成** | 每个 `not_run` / `failed` / `skipped` 都有原因；矩阵进 `report.md` 与 `coverage.tools[]` |
+| B2 | E2 成本语义：token → 金额、预算前置 | **已完成** | 金额标「估算」、带价目表出处；无表不按 0 计价；预扣后不超限 |
+| B3 | 交付形态（用户选 C 档：不做 HTTP） | **已完成** | `pip install .` 后 `mtsa run` 可用；从无关目录、无 PYTHONPATH 实测通过；Dockerfile 未构建验证 |
+| 之后 | A1/A2 检测器质量 | 挂起 | v2 F1 ≥0.55 且 22 项逐位不变 |
+
+研究线（A1 变化点判据 → A2 持续段/漂移 → 预测场景化）在产品可用后启动，
+详见 `spec/未来规划.md`。
+
+---
+
+## 10. 授权与使用
 
 本作品为课程/课题「课题 12 · AI for Science · S06」的提交物，**保留所有权利**（All rights reserved）。
-授权范围仅限该课程/课题的评审、演示与存档；复制、再分发、修改、商用均需事先书面许可。
-完整条款见 [`LICENSE`](LICENSE)；需要单独给合作方试用时，用 [`doc/评估授权函_模板.md`](doc/评估授权函_模板.md) 出具书面授权。
+授权范围仅限该课程/课题的评审、演示与存档；复制、再分发、修改、商用均需事先书面许可。完整条款见 [`LICENSE`](LICENSE)；
+需要给合作方单独试用时，用 [`doc/评估授权函_模板.md`](doc/评估授权函_模板.md) 出具书面授权。
 
-第三方材料的条款是独立的，不随本许可证变化：
+第三方材料的条款独立于本许可证，不随之变化：
 
 | 文件 | 管什么 |
 | --- | --- |
-| `DATA_SOURCES.md` | `fixtures/` 下 17 份外部数据的来源、许可证与**必须保留的署名文本** |
-| `THIRD_PARTY_NOTICES.md` | pandas / numpy / scipy / statsmodels / plotly 等依赖的许可证 |
+| [`DATA_SOURCES.md`](DATA_SOURCES.md) | `fixtures/` 下 17 份外部数据的来源、许可证与**必须保留的署名文本** |
+| [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) | pandas / numpy / scipy / statsmodels / plotly 等依赖的许可证 |
 
-> 说明：数据署名（CC BY 4.0）是数据提供方的要求，与代码是否开源无关；删掉署名即违反数据条款。
+> 数据署名（CC BY 4.0）是数据提供方的要求，与代码是否开源无关；删掉署名即违反数据条款。

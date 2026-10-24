@@ -1,5 +1,5 @@
 # test_packaging
-# status=PASS exit=0 duration=4.97s passed=7 failed=0 errors=0
-.......                                                                  [100%]
-7 passed in 3.67s
+# status=PASS exit=0 duration=4.71s passed=8 failed=0 errors=0
+........                                                                 [100%]
+8 passed in 3.43s
 

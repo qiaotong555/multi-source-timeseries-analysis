@@ -107,3 +107,26 @@ def test_data_sources_covers_every_fixture():
     text = (ROOT / "DATA_SOURCES.md").read_text(encoding="utf-8")
     missing = [r["id"] for r in rows if r.get("id") not in text]
     assert not missing, f"DATA_SOURCES.md 漏了：{missing}"
+
+
+def test_test_logs_do_not_leak_local_paths():
+    """测试日志进公开仓库：本机家目录与用户名不能出现在里面。
+
+    pytest 的警告段落是子进程按本地代码页写出的，解码后用户名可能已损坏，
+    所以这里同时验证「正常前缀」与「乱码用户名」两种形态。
+    用户名用码点拼出来，避免仓库里再出现这个真实字符串。
+    """
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location("_run_tests_mod", ROOT / "run_tests.py")
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+
+    user = "".join(chr(c) for c in (0x4E54, 0x4F5F))
+    tail = ["WorkBuddy", "2026-09-27-22-32-34", "multi_source_timeseries_analysis", "src", "a.py"]
+    intact = "\\".join(["C:", "Users", user] + tail)
+    broken = "\\".join(["C:", "Users", "\ufffd\ufffd\ufffd"] + tail)
+    for raw in (intact, broken):
+        out = mod.sanitize_paths(raw)
+        assert "Users" not in out, out
+        assert "<repo>" in out, out

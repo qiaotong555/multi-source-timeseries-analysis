@@ -67,6 +67,22 @@ def build_command(path: Path) -> list[str]:
             "--basetemp", str(BASETEMP / path.stem)]
 
 
+def sanitize_paths(text: str) -> str:
+    """把本机绝对路径换成占位符，日志要进公开仓库。
+
+    不能只做 `str(ROOT)` 字符串替换：pytest 的警告段落是子进程按本地代码页写出的，
+    解码后用户名可能已经变成替换字符，前缀匹配不上。这里按「目录结构」用正则兜底。
+    """
+    text = text.replace(str(ROOT), "<repo>")
+    text = re.sub(
+        r"C:[\\/]Users[\\/][^\\/\r\n]{1,64}[\\/]WorkBuddy[\\/][^\\/\r\n]*[\\/]"
+        r"multi_source_timeseries_analysis",
+        "<repo>", text,
+    )
+    text = re.sub(r"C:[\\/]Users[\\/][^\\/\r\n]{1,64}(?=[\\/])", "<home>", text)
+    return text
+
+
 def run_file(path: Path, timeout: float, logs: Path) -> dict[str, Any]:
     name = path.stem
     logs.mkdir(parents=True, exist_ok=True)
@@ -91,7 +107,7 @@ def run_file(path: Path, timeout: float, logs: Path) -> dict[str, Any]:
         code = None
         raw = (exc.stdout or b"") + b"\n" + (exc.stderr or b"")
     duration = round(time.perf_counter() - started, 2)
-    output = raw.decode("utf-8", errors="replace")
+    output = sanitize_paths(raw.decode("utf-8", errors="replace"))
 
     counts = parse_counts(output)
     status = "STALLED" if timed_out else ("PASS" if code == 0 else "FAIL")
