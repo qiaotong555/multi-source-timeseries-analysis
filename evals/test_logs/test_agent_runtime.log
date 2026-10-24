@@ -1,5 +1,15 @@
 # test_agent_runtime
-# status=PASS exit=0 duration=3.07s passed=26 failed=0 errors=0
+# status=PASS exit=0 duration=2.99s passed=26 failed=0 errors=0
 ..........................                                               [100%]
-26 passed in 1.82s
+============================== warnings summary ===============================
+tests/test_agent_runtime.py::test_trajectory_length_follows_decisions
+tests/test_agent_runtime.py::test_trajectory_length_follows_decisions
+tests/test_agent_runtime.py::test_trajectory_length_follows_decisions
+tests/test_agent_runtime.py::test_trajectory_length_follows_decisions
+tests/test_agent_runtime.py::test_trajectory_length_follows_decisions
+  <repo>\src\mtsa\stats_tests.py:141: InterpolationWarning: The test statistic is outside of the range of p-values available in the look-up table. The actual p-value is greater than the p-value returned.
+    kpss_res = kpss(vals, regression="c", nlags="auto", result_object=False)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+26 passed, 5 warnings in 1.81s
 

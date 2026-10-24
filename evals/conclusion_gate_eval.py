@@ -477,12 +477,27 @@ def render_md(doc: dict[str, Any]) -> str:
     return "\n".join(lines)
 
 
+def _output_paths(pipeline_only: bool, out: Optional[str],
+                  md: Optional[str]) -> tuple[str, str]:
+    """解析输出路径。
+
+    pipeline-only 只跑一种模式，检查项为空，不构成两模式门禁；
+    它的默认产物必须与正式 24 项结果分开，否则一次诊断运行会覆盖证据。
+    """
+    if pipeline_only:
+        return (out or os.path.join(ROOT, "evals",
+                                    "conclusion_gate_v2_pipeline_only.json"),
+                md or os.path.join(ROOT, "evals",
+                                   "conclusion_gate_v2_pipeline_only_report.md"))
+    return out or OUT_JSON, md or OUT_MD
+
+
 def main(argv: Optional[list[str]] = None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--pipeline-only", action="store_true")
     ap.add_argument("--max-tokens", type=int, default=8000)
-    ap.add_argument("--out", default=OUT_JSON)
-    ap.add_argument("--md", default=OUT_MD)
+    ap.add_argument("--out", default=None)
+    ap.add_argument("--md", default=None)
     args = ap.parse_args(argv)
 
     from mtsa.io_loaders import sha1_of_file
@@ -495,6 +510,8 @@ def main(argv: Optional[list[str]] = None) -> int:
         print("缺少 MTSA_LLM_BASE_URL / MTSA_LLM_API_KEY / MTSA_LLM_MODEL；"
               "如需离线运行请加 --pipeline-only", file=sys.stderr)
         return 2
+
+    out_json, out_md = _output_paths(args.pipeline_only, args.out, args.md)
 
     os.makedirs(OUT_ROOT, exist_ok=True)
     rows = []
@@ -569,17 +586,24 @@ def main(argv: Optional[list[str]] = None) -> int:
         "runs": run_rows,
         "checks": gate,
         "passed": bool(gate["passed"]),
+        "partial": not gate["checks"],
     }
-    with open(args.out, "w", encoding="utf-8") as f:
+    with open(out_json, "w", encoding="utf-8") as f:
         json.dump(doc, f, ensure_ascii=False, indent=2, default=str)
-    with open(args.md, "w", encoding="utf-8") as f:
+    with open(out_md, "w", encoding="utf-8") as f:
         f.write(render_md(doc))
     print()
+    if not gate["checks"]:
+        print("门禁：PARTIAL（%s）" % (gate.get("reason") or "检查项为空"))
+        print("结果：%s" % out_json)
+        print("报告：%s" % out_md)
+        print("提示：这是诊断产物，不构成门禁，也不会覆盖 conclusion_gate_v2_results.json。")
+        return 0
     print("门禁：%s（%d/%d 项检查通过）" % (
         "PASS" if doc["passed"] else "FAIL",
         sum(1 for c in gate["checks"] if c["ok"]), len(gate["checks"])))
-    print("结果：%s" % args.out)
-    print("报告：%s" % args.md)
+    print("结果：%s" % out_json)
+    print("报告：%s" % out_md)
     return 0 if doc["passed"] else 1
 
 

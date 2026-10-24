@@ -1,5 +1,5 @@
 # test_agent_budget
-# status=PASS exit=0 duration=4.23s passed=6 failed=0 errors=0
-......                                                                   [100%]
-6 passed in 1.61s
+# status=PASS exit=0 duration=2.81s passed=7 failed=0 errors=0
+.......                                                                  [100%]
+7 passed in 1.60s
 

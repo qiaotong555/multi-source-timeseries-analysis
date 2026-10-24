@@ -1,5 +1,23 @@
 # test_second_fixture
-# status=PASS exit=0 duration=10.66s passed=3 failed=0 errors=0
+# status=PASS exit=0 duration=10.99s passed=3 failed=0 errors=0
 ...                                                                      [100%]
-3 passed in 9.41s
+============================== warnings summary ===============================
+tests/test_second_fixture.py::test_short_pipeline_reproducible_and_warns
+tests/test_second_fixture.py::test_short_pipeline_reproducible_and_warns
+tests/test_second_fixture.py::test_short_pipeline_reproducible_and_warns
+tests/test_second_fixture.py::test_short_pipeline_reproducible_and_warns
+tests/test_second_fixture.py::test_short_pipeline_reproducible_and_warns
+tests/test_second_fixture.py::test_short_pipeline_reproducible_and_warns
+  <repo>\src\mtsa\stats_tests.py:141: InterpolationWarning: The test statistic is outside of the range of p-values available in the look-up table. The actual p-value is smaller than the p-value returned.
+    kpss_res = kpss(vals, regression="c", nlags="auto", result_object=False)
+
+tests/test_second_fixture.py::test_short_pipeline_reproducible_and_warns
+tests/test_second_fixture.py::test_short_pipeline_reproducible_and_warns
+tests/test_second_fixture.py::test_short_pipeline_reproducible_and_warns
+tests/test_second_fixture.py::test_short_pipeline_reproducible_and_warns
+  <repo>\src\mtsa\stats_tests.py:141: InterpolationWarning: The test statistic is outside of the range of p-values available in the look-up table. The actual p-value is greater than the p-value returned.
+    kpss_res = kpss(vals, regression="c", nlags="auto", result_object=False)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+3 passed, 10 warnings in 9.50s
 

@@ -1,5 +1,11 @@
 # test_extremes
-# status=PASS exit=0 duration=10.28s passed=6 failed=0 errors=0
+# status=PASS exit=0 duration=9.94s passed=6 failed=0 errors=0
 ......                                                                   [100%]
-6 passed in 8.89s
+============================== warnings summary ===============================
+tests/test_extremes.py: 10 warnings
+  <repo>\src\mtsa\stats_tests.py:141: InterpolationWarning: The test statistic is outside of the range of p-values available in the look-up table. The actual p-value is greater than the p-value returned.
+    kpss_res = kpss(vals, regression="c", nlags="auto", result_object=False)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+6 passed, 10 warnings in 8.58s
 

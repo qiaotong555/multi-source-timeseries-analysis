@@ -1,5 +1,29 @@
 # test_unit_inference
-# status=PASS exit=0 duration=21.69s passed=7 failed=0 errors=0
+# status=PASS exit=0 duration=23.07s passed=7 failed=0 errors=0
 .......                                                                  [100%]
-7 passed in 20.35s
+============================== warnings summary ===============================
+tests\test_unit_inference.py:120
+  <repo>\tests\test_unit_inference.py:120: PytestUnknownMarkWarning: Unknown pytest.mark.slow - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.slow
+
+tests/test_unit_inference.py::test_r08_end_to_end_has_no_conversion
+tests/test_unit_inference.py::test_r08_end_to_end_has_no_conversion
+tests/test_unit_inference.py::test_demo_sta_a_still_converts
+tests/test_unit_inference.py::test_demo_sta_a_still_converts
+tests/test_unit_inference.py::test_demo_sta_a_still_converts
+tests/test_unit_inference.py::test_demo_sta_a_still_converts
+tests/test_unit_inference.py::test_demo_sta_a_still_converts
+tests/test_unit_inference.py::test_demo_sta_a_still_converts
+  <repo>\src\mtsa\stats_tests.py:141: InterpolationWarning: The test statistic is outside of the range of p-values available in the look-up table. The actual p-value is smaller than the p-value returned.
+    kpss_res = kpss(vals, regression="c", nlags="auto", result_object=False)
+
+tests/test_unit_inference.py::test_demo_sta_a_still_converts
+tests/test_unit_inference.py::test_demo_sta_a_still_converts
+tests/test_unit_inference.py::test_demo_sta_a_still_converts
+tests/test_unit_inference.py::test_demo_sta_a_still_converts
+  <repo>\src\mtsa\stats_tests.py:141: InterpolationWarning: The test statistic is outside of the range of p-values available in the look-up table. The actual p-value is greater than the p-value returned.
+    kpss_res = kpss(vals, regression="c", nlags="auto", result_object=False)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+7 passed, 13 warnings in 21.68s
 

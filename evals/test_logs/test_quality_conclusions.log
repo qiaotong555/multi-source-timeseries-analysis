@@ -1,5 +1,16 @@
 # test_quality_conclusions
-# status=PASS exit=0 duration=17.63s passed=4 failed=0 errors=0
+# status=PASS exit=0 duration=15.94s passed=4 failed=0 errors=0
 ....                                                                     [100%]
-4 passed in 16.32s
+============================== warnings summary ===============================
+tests/test_quality_conclusions.py::test_quality_issues_become_conclusions
+tests/test_quality_conclusions.py::test_quality_issues_become_conclusions
+tests/test_quality_conclusions.py::test_clean_data_gets_explicit_no_quality_issue_conclusion
+tests/test_quality_conclusions.py::test_clean_data_gets_explicit_no_quality_issue_conclusion
+tests/test_quality_conclusions.py::test_zero_detection_is_stated_in_pipeline
+tests/test_quality_conclusions.py::test_zero_detection_is_stated_in_pipeline
+  <repo>\src\mtsa\stats_tests.py:141: InterpolationWarning: The test statistic is outside of the range of p-values available in the look-up table. The actual p-value is greater than the p-value returned.
+    kpss_res = kpss(vals, regression="c", nlags="auto", result_object=False)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+4 passed, 6 warnings in 14.48s
 

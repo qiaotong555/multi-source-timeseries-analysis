@@ -1,5 +1,11 @@
 # test_forecast
-# status=PASS exit=0 duration=23.92s passed=8 failed=0 errors=0
+# status=PASS exit=0 duration=17.47s passed=8 failed=0 errors=0
 ........                                                                 [100%]
-8 passed in 22.48s
+============================== warnings summary ===============================
+tests/test_forecast.py: 20 warnings
+  <repo>\src\mtsa\stats_tests.py:141: InterpolationWarning: The test statistic is outside of the range of p-values available in the look-up table. The actual p-value is greater than the p-value returned.
+    kpss_res = kpss(vals, regression="c", nlags="auto", result_object=False)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+8 passed, 20 warnings in 15.93s
 

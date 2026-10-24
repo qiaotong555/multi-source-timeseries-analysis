@@ -1,5 +1,15 @@
 # test_split_eval
-# status=PASS exit=0 duration=6.6s passed=31 failed=0 errors=0
+# status=PASS exit=0 duration=6.62s passed=31 failed=0 errors=0
 ...............................                                          [100%]
-31 passed in 5.30s
+============================== warnings summary ===============================
+tests/test_split_eval.py::test_param_override_applied
+tests/test_split_eval.py::test_param_override_applied
+tests/test_split_eval.py::test_param_override_applied
+tests/test_split_eval.py::test_param_override_applied
+tests/test_split_eval.py::test_param_override_applied
+  <repo>\src\mtsa\stats_tests.py:141: InterpolationWarning: The test statistic is outside of the range of p-values available in the look-up table. The actual p-value is greater than the p-value returned.
+    kpss_res = kpss(vals, regression="c", nlags="auto", result_object=False)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+31 passed, 5 warnings in 5.29s
 

@@ -157,3 +157,22 @@ def test_v2_fixture_shape_and_labels():
     truth = G.load_truth(G.TRUTH)
     assert truth["seed"] == 20261024
     assert "pressure@STA_A" in truth["note"]
+
+def test_pipeline_only_defaults_do_not_touch_official_outputs():
+    """诊断运行不得覆盖正式 24 项证据文件。"""
+    out_json, out_md = G._output_paths(True, None, None)
+    assert out_json != G.OUT_JSON
+    assert out_md != G.OUT_MD
+    assert "pipeline_only" in out_json
+    assert "pipeline_only" in out_md
+
+
+def test_full_gate_defaults_still_write_official_outputs():
+    out_json, out_md = G._output_paths(False, None, None)
+    assert out_json == G.OUT_JSON
+    assert out_md == G.OUT_MD
+
+
+def test_explicit_paths_win_in_both_modes():
+    for flag in (True, False):
+        assert G._output_paths(flag, "x.json", "x.md") == ("x.json", "x.md")

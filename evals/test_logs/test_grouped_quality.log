@@ -1,5 +1,17 @@
 # test_grouped_quality
-# status=PASS exit=0 duration=14.78s passed=6 failed=0 errors=0
+# status=PASS exit=0 duration=15.71s passed=6 failed=0 errors=0
 ......                                                                   [100%]
-6 passed in 13.42s
+============================== warnings summary ===============================
+tests/test_grouped_quality.py: 10 warnings
+  <repo>\src\mtsa\stats_tests.py:141: InterpolationWarning: The test statistic is outside of the range of p-values available in the look-up table. The actual p-value is smaller than the p-value returned.
+    kpss_res = kpss(vals, regression="c", nlags="auto", result_object=False)
+
+tests/test_grouped_quality.py::test_r05_end_to_end_reports_no_duplicates
+tests/test_grouped_quality.py::test_r05_end_to_end_reports_no_duplicates
+tests/test_grouped_quality.py::test_r05_end_to_end_reports_no_duplicates
+  <repo>\src\mtsa\stats_tests.py:141: InterpolationWarning: The test statistic is outside of the range of p-values available in the look-up table. The actual p-value is greater than the p-value returned.
+    kpss_res = kpss(vals, regression="c", nlags="auto", result_object=False)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+6 passed, 13 warnings in 14.21s
 

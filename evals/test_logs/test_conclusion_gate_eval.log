@@ -1,5 +1,5 @@
 # test_conclusion_gate_eval
-# status=PASS exit=0 duration=3.11s passed=8 failed=0 errors=0
-........                                                                 [100%]
-8 passed in 1.80s
+# status=PASS exit=0 duration=2.73s passed=11 failed=0 errors=0
+...........                                                              [100%]
+11 passed in 1.35s
 

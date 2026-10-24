@@ -1,0 +1,610 @@
+{
+  "generated_at": "2026-10-24T18:00:48",
+  "dataset": "fixtures/weather_eval_v2.csv",
+  "dataset_sha1": "2ee8077e5ddc8f446a793e04729ad50dd85c1eac",
+  "labels": "fixtures/labels_weather_eval_v2.csv",
+  "labels_sha1": "3afbe2a3ee7a1cc9e3d11ee7465c090fc92da460",
+  "truth": "fixtures/truth_weather_eval_v2.json",
+  "truth_sha1": "5ffb2e5eb29df3889fa2bf0c4a6887db19439d92",
+  "dataset_spec": {
+    "rows": 17520,
+    "columns": [
+      "temperature",
+      "humidity",
+      "pressure",
+      "wind_speed",
+      "rainfall"
+    ],
+    "stations": [
+      "STA_A",
+      "STA_B"
+    ],
+    "start": "2024-01-01 00:00:00",
+    "end": "2024-12-30 23:00:00",
+    "label_kinds": {
+      "level_shift_start": 2,
+      "anomaly": 100,
+      "missing_gap_start": 1
+    },
+    "anomaly_events": 30
+  },
+  "truth_events": 30,
+  "model": null,
+  "modes": [
+    "pipeline"
+  ],
+  "thresholds": {
+    "anomaly_event_recall": 0.8,
+    "anomaly_event_f1": 0.4,
+    "changepoint_f1": 0.5,
+    "trend_accuracy": 0.8,
+    "seasonal_accuracy": 0.8,
+    "need_coverage": 0.9,
+    "evidence_coverage": 1.0,
+    "success_rate": 0.9
+  },
+  "agent_margin": 0.1,
+  "summary": {
+    "by_mode": {
+      "pipeline": {
+        "runs": 4,
+        "succeeded": 4,
+        "anomaly": {
+          "scored_runs": 4,
+          "not_run_runs": 0,
+          "truth_per_run": 100,
+          "not_run_truth_instances": 0,
+          "point": {
+            "tp": 336,
+            "fp": 0,
+            "fn": 64,
+            "detected": 336,
+            "truth": 400,
+            "precision": 1.0,
+            "recall": 0.84,
+            "f1": 0.913
+          },
+          "event": {
+            "truth_per_run": 30,
+            "scored_runs": 4,
+            "not_run_runs": 0,
+            "not_run_truth_instances": 0,
+            "tp": 116,
+            "fp": 0,
+            "fn": 4,
+            "precision": 1.0,
+            "recall": 0.9667,
+            "f1": 0.9831,
+            "per_run": [
+              {
+                "case": "v2_full_1",
+                "detected": 29,
+                "tp": 29,
+                "fp": 0,
+                "fn": 1,
+                "precision": 1.0,
+                "recall": 0.9667,
+                "f1": 0.9831
+              },
+              {
+                "case": "v2_full_2",
+                "detected": 29,
+                "tp": 29,
+                "fp": 0,
+                "fn": 1,
+                "precision": 1.0,
+                "recall": 0.9667,
+                "f1": 0.9831
+              },
+              {
+                "case": "v2_full_3",
+                "detected": 29,
+                "tp": 29,
+                "fp": 0,
+                "fn": 1,
+                "precision": 1.0,
+                "recall": 0.9667,
+                "f1": 0.9831
+              },
+              {
+                "case": "v2_full_4",
+                "detected": 29,
+                "tp": 29,
+                "fp": 0,
+                "fn": 1,
+                "precision": 1.0,
+                "recall": 0.9667,
+                "f1": 0.9831
+              }
+            ]
+          },
+          "mean_precision": 1.0,
+          "mean_recall": 0.84,
+          "event_recall_adjusted": 0.9667,
+          "event_f1_adjusted": 0.9831,
+          "event_ci": {
+            "precision": {
+              "k": 116,
+              "n": 116,
+              "value": 1.0,
+              "lo": 0.9679,
+              "hi": 1.0
+            },
+            "recall": {
+              "k": 116,
+              "n": 120,
+              "value": 0.9667,
+              "lo": 0.9174,
+              "hi": 0.987
+            }
+          }
+        },
+        "changepoint": {
+          "scored_runs": 4,
+          "not_run_runs": 0,
+          "truth_per_run": 2,
+          "not_run_truth_instances": 0,
+          "point": {
+            "tp": 8,
+            "fp": 16,
+            "fn": 0,
+            "detected": 24,
+            "truth": 8,
+            "precision": 0.3333,
+            "recall": 1.0,
+            "f1": 0.5
+          },
+          "mean_precision": 0.3333,
+          "mean_recall": 1.0,
+          "recall_adjusted": 1.0,
+          "f1_adjusted": 0.5,
+          "ci": {
+            "precision": {
+              "k": 8,
+              "n": 24,
+              "value": 0.3333,
+              "lo": 0.1797,
+              "hi": 0.5329
+            },
+            "recall": {
+              "k": 8,
+              "n": 8,
+              "value": 1.0,
+              "lo": 0.6756,
+              "hi": 1.0
+            }
+          }
+        },
+        "trend": {
+          "states": {
+            "scored": 8
+          },
+          "scored": 8,
+          "correct": 8,
+          "incorrect": 0,
+          "accuracy": 1.0,
+          "unlabeled_series": [
+            "humidity@STA_A",
+            "humidity@STA_B",
+            "pressure@STA_A",
+            "pressure@STA_B",
+            "rainfall@STA_A",
+            "rainfall@STA_B",
+            "wind_speed@STA_A",
+            "wind_speed@STA_B"
+          ],
+          "scored_rate": 1.0,
+          "accuracy_ci": {
+            "k": 8,
+            "n": 8,
+            "value": 1.0,
+            "lo": 0.6756,
+            "hi": 1.0
+          }
+        },
+        "seasonal": {
+          "states": {
+            "scored": 8
+          },
+          "scored": 8,
+          "correct": 8,
+          "incorrect": 0,
+          "accuracy": 1.0,
+          "unlabeled_series": [
+            "humidity@STA_A",
+            "humidity@STA_B",
+            "pressure@STA_A",
+            "pressure@STA_B",
+            "rainfall@STA_A",
+            "rainfall@STA_B",
+            "wind_speed@STA_A",
+            "wind_speed@STA_B"
+          ],
+          "scored_rate": 1.0,
+          "accuracy_ci": {
+            "k": 8,
+            "n": 8,
+            "value": 1.0,
+            "lo": 0.6756,
+            "hi": 1.0
+          }
+        },
+        "conclusion_need": {
+          "runs_with_expect": 4,
+          "runs_with_mapped_need": 4,
+          "mapped": 15,
+          "covered": 15,
+          "missing": 0,
+          "unlabeled": 0,
+          "coverage": 1.0,
+          "all_covered_rate": 1.0,
+          "coverage_ci": {
+            "k": 15,
+            "n": 15,
+            "value": 1.0,
+            "lo": 0.7961,
+            "hi": 1.0
+          }
+        },
+        "quality": {
+          "reported_unlocalized": 4
+        },
+        "evidence_coverage": 1.0,
+        "success_rate": 1.0,
+        "success_rate_ci": {
+          "k": 4,
+          "n": 4,
+          "value": 1.0,
+          "lo": 0.5101,
+          "hi": 1.0
+        }
+      },
+      "agent": {
+        "runs": 0,
+        "succeeded": 0,
+        "anomaly": {
+          "scored_runs": 0,
+          "not_run_runs": 0,
+          "truth_per_run": 100,
+          "not_run_truth_instances": 0,
+          "point": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "detected": 0,
+            "truth": 0,
+            "precision": null,
+            "recall": null,
+            "f1": null
+          },
+          "event": {
+            "truth_per_run": 30,
+            "scored_runs": 0,
+            "not_run_runs": 0,
+            "not_run_truth_instances": 0,
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "precision": null,
+            "recall": null,
+            "f1": null,
+            "per_run": []
+          },
+          "mean_precision": null,
+          "mean_recall": null,
+          "event_recall_adjusted": null,
+          "event_f1_adjusted": null,
+          "event_ci": {
+            "precision": null,
+            "recall": null
+          }
+        },
+        "changepoint": {
+          "scored_runs": 0,
+          "not_run_runs": 0,
+          "truth_per_run": 2,
+          "not_run_truth_instances": 0,
+          "point": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "detected": 0,
+            "truth": 0,
+            "precision": null,
+            "recall": null,
+            "f1": null
+          },
+          "mean_precision": null,
+          "mean_recall": null,
+          "recall_adjusted": null,
+          "f1_adjusted": null,
+          "ci": {
+            "precision": null,
+            "recall": null
+          }
+        },
+        "trend": {
+          "states": {},
+          "scored": 0,
+          "correct": 0,
+          "incorrect": 0,
+          "accuracy": null,
+          "unlabeled_series": [],
+          "scored_rate": null,
+          "accuracy_ci": null
+        },
+        "seasonal": {
+          "states": {},
+          "scored": 0,
+          "correct": 0,
+          "incorrect": 0,
+          "accuracy": null,
+          "unlabeled_series": [],
+          "scored_rate": null,
+          "accuracy_ci": null
+        },
+        "conclusion_need": {
+          "runs_with_expect": 0,
+          "runs_with_mapped_need": 0,
+          "mapped": 0,
+          "covered": 0,
+          "missing": 0,
+          "unlabeled": 0,
+          "coverage": null,
+          "all_covered_rate": null,
+          "coverage_ci": null
+        },
+        "quality": {}
+      }
+    },
+    "distinct": {
+      "pipeline": {
+        "anomaly_point": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 100,
+          "detected": 0,
+          "truth": 100,
+          "precision": null,
+          "recall": 0.0,
+          "f1": null
+        },
+        "changepoint_point": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 2,
+          "detected": 0,
+          "truth": 2,
+          "precision": null,
+          "recall": 0.0,
+          "f1": null
+        },
+        "anomaly_hit": 0,
+        "changepoint_hit": 0,
+        "trend_by_series": {
+          "temperature@STA_A": "correct",
+          "temperature@STA_B": "correct"
+        },
+        "seasonal_by_series": {
+          "temperature@STA_A": "correct",
+          "temperature@STA_B": "correct"
+        }
+      },
+      "agent": {
+        "anomaly_point": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 100,
+          "detected": 0,
+          "truth": 100,
+          "precision": null,
+          "recall": 0.0,
+          "f1": null
+        },
+        "changepoint_point": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 2,
+          "detected": 0,
+          "truth": 2,
+          "precision": null,
+          "recall": 0.0,
+          "f1": null
+        },
+        "anomaly_hit": 0,
+        "changepoint_hit": 0,
+        "trend_by_series": {},
+        "seasonal_by_series": {}
+      }
+    },
+    "agent_vs_pipeline": {
+      "available": false,
+      "reason": "缺少一种模式的结果，无法做两模式对照"
+    }
+  },
+  "evidence_coverage": {
+    "pipeline": 1.0
+  },
+  "evidence_coverage_ci": {
+    "pipeline": {
+      "k": 4,
+      "n": 4,
+      "value": 1.0,
+      "lo": 0.5101,
+      "hi": 1.0
+    }
+  },
+  "runs": [
+    {
+      "case": "v2_full_1",
+      "mode": "pipeline",
+      "status": "succeeded",
+      "steps": null,
+      "terminate_reason": null,
+      "conclusion_count": 50,
+      "evidence_coverage": 1.0,
+      "need_coverage": 1.0,
+      "anomaly_point": {
+        "tp": 84,
+        "fp": 0,
+        "fn": 16,
+        "detected": 84,
+        "truth": 100,
+        "precision": 1.0,
+        "recall": 0.84,
+        "f1": 0.913
+      },
+      "changepoint_point": {
+        "tp": 2,
+        "fp": 4,
+        "fn": 0,
+        "detected": 6,
+        "truth": 2,
+        "precision": 0.3333,
+        "recall": 1.0,
+        "f1": 0.5
+      },
+      "missing_tools": null,
+      "anomaly_event": {
+        "case": "v2_full_1",
+        "detected": 29,
+        "tp": 29,
+        "fp": 0,
+        "fn": 1,
+        "precision": 1.0,
+        "recall": 0.9667,
+        "f1": 0.9831
+      }
+    },
+    {
+      "case": "v2_full_2",
+      "mode": "pipeline",
+      "status": "succeeded",
+      "steps": null,
+      "terminate_reason": null,
+      "conclusion_count": 50,
+      "evidence_coverage": 1.0,
+      "need_coverage": 1.0,
+      "anomaly_point": {
+        "tp": 84,
+        "fp": 0,
+        "fn": 16,
+        "detected": 84,
+        "truth": 100,
+        "precision": 1.0,
+        "recall": 0.84,
+        "f1": 0.913
+      },
+      "changepoint_point": {
+        "tp": 2,
+        "fp": 4,
+        "fn": 0,
+        "detected": 6,
+        "truth": 2,
+        "precision": 0.3333,
+        "recall": 1.0,
+        "f1": 0.5
+      },
+      "missing_tools": null,
+      "anomaly_event": {
+        "case": "v2_full_2",
+        "detected": 29,
+        "tp": 29,
+        "fp": 0,
+        "fn": 1,
+        "precision": 1.0,
+        "recall": 0.9667,
+        "f1": 0.9831
+      }
+    },
+    {
+      "case": "v2_full_3",
+      "mode": "pipeline",
+      "status": "succeeded",
+      "steps": null,
+      "terminate_reason": null,
+      "conclusion_count": 50,
+      "evidence_coverage": 1.0,
+      "need_coverage": 1.0,
+      "anomaly_point": {
+        "tp": 84,
+        "fp": 0,
+        "fn": 16,
+        "detected": 84,
+        "truth": 100,
+        "precision": 1.0,
+        "recall": 0.84,
+        "f1": 0.913
+      },
+      "changepoint_point": {
+        "tp": 2,
+        "fp": 4,
+        "fn": 0,
+        "detected": 6,
+        "truth": 2,
+        "precision": 0.3333,
+        "recall": 1.0,
+        "f1": 0.5
+      },
+      "missing_tools": null,
+      "anomaly_event": {
+        "case": "v2_full_3",
+        "detected": 29,
+        "tp": 29,
+        "fp": 0,
+        "fn": 1,
+        "precision": 1.0,
+        "recall": 0.9667,
+        "f1": 0.9831
+      }
+    },
+    {
+      "case": "v2_full_4",
+      "mode": "pipeline",
+      "status": "succeeded",
+      "steps": null,
+      "terminate_reason": null,
+      "conclusion_count": 50,
+      "evidence_coverage": 1.0,
+      "need_coverage": 1.0,
+      "anomaly_point": {
+        "tp": 84,
+        "fp": 0,
+        "fn": 16,
+        "detected": 84,
+        "truth": 100,
+        "precision": 1.0,
+        "recall": 0.84,
+        "f1": 0.913
+      },
+      "changepoint_point": {
+        "tp": 2,
+        "fp": 4,
+        "fn": 0,
+        "detected": 6,
+        "truth": 2,
+        "precision": 0.3333,
+        "recall": 1.0,
+        "f1": 0.5
+      },
+      "missing_tools": null,
+      "anomaly_event": {
+        "case": "v2_full_4",
+        "detected": 29,
+        "tp": 29,
+        "fp": 0,
+        "fn": 1,
+        "precision": 1.0,
+        "recall": 0.9667,
+        "f1": 0.9831
+      }
+    }
+  ],
+  "checks": {
+    "checks": [],
+    "passed": false,
+    "reason": "pipeline-only 模式不构成两模式门禁"
+  },
+  "passed": false,
+  "partial": true
+}

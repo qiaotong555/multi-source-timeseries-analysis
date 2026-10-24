@@ -1,5 +1,21 @@
 # test_lookahead
-# status=PASS exit=0 duration=11.58s passed=5 failed=0 errors=0
+# status=PASS exit=0 duration=10.02s passed=5 failed=0 errors=0
 .....                                                                    [100%]
-5 passed in 10.17s
+============================== warnings summary ===============================
+tests/test_lookahead.py::test_engine_fails_on_leak_dataset
+tests/test_lookahead.py::test_engine_fails_on_leak_dataset
+tests/test_lookahead.py::test_engine_succeeds_on_clean_stock
+tests/test_lookahead.py::test_engine_succeeds_on_clean_stock
+tests/test_lookahead.py::test_walk_forward_folds_do_not_overlap
+tests/test_lookahead.py::test_walk_forward_folds_do_not_overlap
+  <repo>\src\mtsa\stats_tests.py:141: InterpolationWarning: The test statistic is outside of the range of p-values available in the look-up table. The actual p-value is smaller than the p-value returned.
+    kpss_res = kpss(vals, regression="c", nlags="auto", result_object=False)
+
+tests/test_lookahead.py::test_engine_succeeds_on_clean_stock
+tests/test_lookahead.py::test_walk_forward_folds_do_not_overlap
+  <repo>\src\mtsa\stats_tests.py:141: InterpolationWarning: The test statistic is outside of the range of p-values available in the look-up table. The actual p-value is greater than the p-value returned.
+    kpss_res = kpss(vals, regression="c", nlags="auto", result_object=False)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+5 passed, 8 warnings in 8.60s
 
