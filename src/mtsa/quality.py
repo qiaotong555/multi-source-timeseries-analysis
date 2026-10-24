@@ -199,20 +199,46 @@ def check_quality(
 
     # 3) 时间轴问题
     dup = out_of_order = 0
+    dup_by_group: dict[str, int] = {}
     if profile.time_axis is not None:
         ta = profile.time_axis
-        if ta.duplicated_count:
-            dup = ta.duplicated_count
-            issues.append(QualityIssue(
-                code="DUPLICATE_TIMESTAMPS", severity="warn", column=ta.column,
-                count=dup, detail="存在重复时间戳，清洗阶段将按聚合规则合并",
-            ))
-        if ta.out_of_order_count:
-            out_of_order = ta.out_of_order_count
-            issues.append(QualityIssue(
-                code="OUT_OF_ORDER", severity="warn", column=ta.column,
-                count=out_of_order, detail="时间戳非单调递增，清洗阶段将排序",
-            ))
+        group_col = next((c for c in (profile.group_columns or []) if c in frame.columns), None)
+        if group_col and parsed_time is not None:
+            # 多实体共享时间轴：必须按 (实体, 时间) 判重，否则会把不同实体的
+            # 同一时刻算成重复（R05 曾因此误报 17,568 条）。
+            ts_all = pd.Series(parsed_time, index=frame.index)
+            for gval, sub in frame.groupby(group_col, dropna=False):
+                v = ts_all.loc[sub.index].dropna()
+                d = int(v.duplicated().sum())
+                if d:
+                    dup_by_group[str(gval)] = d
+                    issues.append(QualityIssue(
+                        code="DUPLICATE_TIMESTAMPS", severity="warn", column=ta.column,
+                        group=str(gval), count=d,
+                        detail=f"分组 {gval} 内重复 {d} 行，清洗阶段按 (时间, 分组) 聚合",
+                    ))
+                o = int((v.diff().dt.total_seconds() < 0).sum()) if len(v) > 1 else 0
+                if o:
+                    issues.append(QualityIssue(
+                        code="OUT_OF_ORDER", severity="warn", column=ta.column,
+                        group=str(gval), count=o,
+                        detail=f"分组 {gval} 内时间戳下降 {o} 次，清洗阶段将排序",
+                    ))
+                dup += d
+                out_of_order += o
+        else:
+            if ta.duplicated_count:
+                dup = ta.duplicated_count
+                issues.append(QualityIssue(
+                    code="DUPLICATE_TIMESTAMPS", severity="warn", column=ta.column,
+                    count=dup, detail="存在重复时间戳，清洗阶段将按聚合规则合并",
+                ))
+            if ta.out_of_order_count:
+                out_of_order = ta.out_of_order_count
+                issues.append(QualityIssue(
+                    code="OUT_OF_ORDER", severity="warn", column=ta.column,
+                    count=out_of_order, detail="时间戳非单调递增，清洗阶段将排序",
+                ))
         if ta.parse_ratio < 1.0:
             issues.append(QualityIssue(
                 code="TIME_PARSE_PARTIAL", severity="warn" if ta.parse_ratio >= 0.8 else "error",
@@ -289,6 +315,7 @@ def check_quality(
         issues=issues,
         missing_ratio=missing_ratio,
         duplicate_timestamps=dup,
+        duplicate_by_group=dup_by_group,
         out_of_order=out_of_order,
         gap_count=gap_count,
         anomaly_candidate_count=candidate,

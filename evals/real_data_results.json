@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-24T11:44:46",
+  "generated_at": "2026-10-24T11:55:23",
   "model": "deepseek-chat",
   "modes": [
     "pipeline",
@@ -483,7 +483,7 @@
         "recall_ci": null,
         "rows": []
       },
-      "duplicate_timestamp_false_positive": true,
+      "duplicate_timestamp_false_positive": false,
       "by_mode": {
         "pipeline": {
           "runs": 4,
@@ -508,7 +508,7 @@
           "anomalies": 156.0,
           "change_points": 1.5,
           "tool_coverage": 0.65,
-          "tokens": 4776.0,
+          "tokens": 4734.25,
           "terminate_reasons": {
             "budget_exhausted": 3,
             "model_finished": 1
@@ -1438,9 +1438,9 @@
         "expect": "三项齐全"
       },
       {
-        "name": "R10 分析代码改动仅限 C1 允许清单",
+        "name": "R10 分析代码改动仅限 C1/C2 允许清单",
         "ok": true,
-        "actual": "变更 3 项，清单外 0 项（src/mtsa/engine.py,src/mtsa/quality.py,src/mtsa/scenarios/weather.py）",
+        "actual": "变更 6 项，清单外 0 项（src/mtsa/engine.py,src/mtsa/models.py,src/mtsa/profiler.py,src/mtsa/quality.py,src/mtsa/report.py,src/mtsa/scenarios/weather.py）",
         "expect": "清单外 0 项"
       }
     ],
@@ -1448,14 +1448,6 @@
   },
   "passed": true,
   "findings": [
-    {
-      "title": "F2 R05：多站点长表被误报重复时间戳",
-      "short": "多站点重复时间戳误报",
-      "body": "该文件是 3 个站点共享同一时间轴的长表。质量层按整表 `timestamp` 判重，把「同一时刻的不同站点」算成重复；按 `(station, timestamp)` 判重实际为 0 条。清洗阶段本身正确：`group_columns=['station']`，透视后为 8,784 行 × 15 列，三个站点分别出结论。缺陷只在质量报告的计数口径。",
-      "evidence": [
-        "fixtures/real_weather/three_cities_hourly_2024/data.csv"
-      ]
-    },
     {
       "title": "F3 质量问题只进报告第 2 节，不进结论",
       "short": "质量问题不进结论",
@@ -1497,7 +1489,7 @@
       "short": "零检出不出结论"
     }
   ],
-  "headline": "80 次运行 80 成功、0 失败；pipeline 证据覆盖率 1.000，agent 1.000；L1 质量事件 Recall 1.000（可定位 0.500），需求覆盖 0.800。主要问题不是「跑不动」，而是口径与推断缺陷：多站点重复时间戳误报；质量问题不进结论；质量事件不可定位。",
+  "headline": "80 次运行 80 成功、0 失败；pipeline 证据覆盖率 1.000，agent 1.000；L1 质量事件 Recall 1.000（可定位 0.500），需求覆盖 0.800。主要问题不是「跑不动」，而是口径与推断缺陷：质量问题不进结论；质量事件不可定位；L2 为空、异常不计分。",
   "runs": [
     {
       "dataset": "R01",
@@ -3997,25 +3989,13 @@
       },
       "evidence_coverage": 1.0,
       "need_coverage": 1.0,
-      "quality_issues": 9,
+      "quality_issues": 8,
       "quality_codes": [
-        "DUPLICATE_TIMESTAMPS",
         "LEVEL_SHIFT",
         "OUTLIER_CANDIDATE",
         "POSSIBLE_UNIT_CHANGE"
       ],
       "quality_issue_rows": [
-        {
-          "code": "DUPLICATE_TIMESTAMPS",
-          "severity": "warn",
-          "column": "timestamp",
-          "group": null,
-          "row_label": null,
-          "start": null,
-          "end": null,
-          "count": 17568,
-          "detail": "存在重复时间戳，清洗阶段将按聚合规则合并"
-        },
         {
           "code": "OUTLIER_CANDIDATE",
           "severity": "info",
@@ -4143,25 +4123,13 @@
       },
       "evidence_coverage": 1.0,
       "need_coverage": 1.0,
-      "quality_issues": 9,
+      "quality_issues": 8,
       "quality_codes": [
-        "DUPLICATE_TIMESTAMPS",
         "LEVEL_SHIFT",
         "OUTLIER_CANDIDATE",
         "POSSIBLE_UNIT_CHANGE"
       ],
       "quality_issue_rows": [
-        {
-          "code": "DUPLICATE_TIMESTAMPS",
-          "severity": "warn",
-          "column": "timestamp",
-          "group": null,
-          "row_label": null,
-          "start": null,
-          "end": null,
-          "count": 17568,
-          "detail": "存在重复时间戳，清洗阶段将按聚合规则合并"
-        },
         {
           "code": "OUTLIER_CANDIDATE",
           "severity": "info",
@@ -4262,7 +4230,7 @@
       ],
       "steps": 4,
       "terminate_reason": "budget_exhausted",
-      "tokens": 5721,
+      "tokens": 5697,
       "missing_tools": [
         "run_stat_tests"
       ],
@@ -4290,25 +4258,13 @@
       },
       "evidence_coverage": 1.0,
       "need_coverage": null,
-      "quality_issues": 9,
+      "quality_issues": 8,
       "quality_codes": [
-        "DUPLICATE_TIMESTAMPS",
         "LEVEL_SHIFT",
         "OUTLIER_CANDIDATE",
         "POSSIBLE_UNIT_CHANGE"
       ],
       "quality_issue_rows": [
-        {
-          "code": "DUPLICATE_TIMESTAMPS",
-          "severity": "warn",
-          "column": "timestamp",
-          "group": null,
-          "row_label": null,
-          "start": null,
-          "end": null,
-          "count": 17568,
-          "detail": "存在重复时间戳，清洗阶段将按聚合规则合并"
-        },
         {
           "code": "OUTLIER_CANDIDATE",
           "severity": "info",
@@ -4434,25 +4390,13 @@
       },
       "evidence_coverage": 1.0,
       "need_coverage": null,
-      "quality_issues": 9,
+      "quality_issues": 8,
       "quality_codes": [
-        "DUPLICATE_TIMESTAMPS",
         "LEVEL_SHIFT",
         "OUTLIER_CANDIDATE",
         "POSSIBLE_UNIT_CHANGE"
       ],
       "quality_issue_rows": [
-        {
-          "code": "DUPLICATE_TIMESTAMPS",
-          "severity": "warn",
-          "column": "timestamp",
-          "group": null,
-          "row_label": null,
-          "start": null,
-          "end": null,
-          "count": 17568,
-          "detail": "存在重复时间戳，清洗阶段将按聚合规则合并"
-        },
         {
           "code": "OUTLIER_CANDIDATE",
           "severity": "info",
@@ -4551,7 +4495,7 @@
       ],
       "steps": 2,
       "terminate_reason": "budget_exhausted",
-      "tokens": 3205,
+      "tokens": 3176,
       "missing_tools": [
         "analyze_spectrum",
         "run_stat_tests",
@@ -4581,25 +4525,13 @@
       },
       "evidence_coverage": 1.0,
       "need_coverage": 1.0,
-      "quality_issues": 9,
+      "quality_issues": 8,
       "quality_codes": [
-        "DUPLICATE_TIMESTAMPS",
         "LEVEL_SHIFT",
         "OUTLIER_CANDIDATE",
         "POSSIBLE_UNIT_CHANGE"
       ],
       "quality_issue_rows": [
-        {
-          "code": "DUPLICATE_TIMESTAMPS",
-          "severity": "warn",
-          "column": "timestamp",
-          "group": null,
-          "row_label": null,
-          "start": null,
-          "end": null,
-          "count": 17568,
-          "detail": "存在重复时间戳，清洗阶段将按聚合规则合并"
-        },
         {
           "code": "OUTLIER_CANDIDATE",
           "severity": "info",
@@ -4726,25 +4658,13 @@
       },
       "evidence_coverage": 1.0,
       "need_coverage": 1.0,
-      "quality_issues": 9,
+      "quality_issues": 8,
       "quality_codes": [
-        "DUPLICATE_TIMESTAMPS",
         "LEVEL_SHIFT",
         "OUTLIER_CANDIDATE",
         "POSSIBLE_UNIT_CHANGE"
       ],
       "quality_issue_rows": [
-        {
-          "code": "DUPLICATE_TIMESTAMPS",
-          "severity": "warn",
-          "column": "timestamp",
-          "group": null,
-          "row_label": null,
-          "start": null,
-          "end": null,
-          "count": 17568,
-          "detail": "存在重复时间戳，清洗阶段将按聚合规则合并"
-        },
         {
           "code": "OUTLIER_CANDIDATE",
           "severity": "info",
@@ -4844,7 +4764,7 @@
       ],
       "steps": 3,
       "terminate_reason": "model_finished",
-      "tokens": 4442,
+      "tokens": 4363,
       "missing_tools": [
         "analyze_spectrum",
         "run_stat_tests"
@@ -4873,25 +4793,13 @@
       },
       "evidence_coverage": 1.0,
       "need_coverage": 1.0,
-      "quality_issues": 9,
+      "quality_issues": 8,
       "quality_codes": [
-        "DUPLICATE_TIMESTAMPS",
         "LEVEL_SHIFT",
         "OUTLIER_CANDIDATE",
         "POSSIBLE_UNIT_CHANGE"
       ],
       "quality_issue_rows": [
-        {
-          "code": "DUPLICATE_TIMESTAMPS",
-          "severity": "warn",
-          "column": "timestamp",
-          "group": null,
-          "row_label": null,
-          "start": null,
-          "end": null,
-          "count": 17568,
-          "detail": "存在重复时间戳，清洗阶段将按聚合规则合并"
-        },
         {
           "code": "OUTLIER_CANDIDATE",
           "severity": "info",
@@ -5019,25 +4927,13 @@
       },
       "evidence_coverage": 1.0,
       "need_coverage": 1.0,
-      "quality_issues": 9,
+      "quality_issues": 8,
       "quality_codes": [
-        "DUPLICATE_TIMESTAMPS",
         "LEVEL_SHIFT",
         "OUTLIER_CANDIDATE",
         "POSSIBLE_UNIT_CHANGE"
       ],
       "quality_issue_rows": [
-        {
-          "code": "DUPLICATE_TIMESTAMPS",
-          "severity": "warn",
-          "column": "timestamp",
-          "group": null,
-          "row_label": null,
-          "start": null,
-          "end": null,
-          "count": 17568,
-          "detail": "存在重复时间戳，清洗阶段将按聚合规则合并"
-        },
         {
           "code": "OUTLIER_CANDIDATE",
           "severity": "info",
@@ -5138,7 +5034,7 @@
       ],
       "steps": 4,
       "terminate_reason": "budget_exhausted",
-      "tokens": 5736,
+      "tokens": 5701,
       "missing_tools": [
         "run_stat_tests"
       ],

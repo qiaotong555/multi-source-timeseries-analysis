@@ -204,6 +204,19 @@ def profile_dataset(raw: RawDataset) -> tuple[DatasetProfile, Optional[pd.Series
         sampling.gap_count = gap_count
         sampling.gaps = gaps
 
+    # 多实体共享同一时间轴时，整表判重会把「不同实体的同一时刻」算成重复。
+    # 有分组列时改用 (实体, 时间) 口径，与清洗阶段的去重键保持一致。
+    if time_info is not None and parsed is not None and group_cols:
+        group_col = group_cols[0]
+        dup, out_of_order = 0, 0
+        for _, sub in frame.groupby(group_col, dropna=False):
+            v = parsed.loc[sub.index].dropna()
+            dup += int(v.duplicated().sum())
+            if len(v) > 1:
+                out_of_order += int((v.diff().dt.total_seconds() < 0).sum())
+        time_info.duplicated_count = dup
+        time_info.out_of_order_count = out_of_order
+
     profile = DatasetProfile(
         time_axis=time_info,
         numeric_columns=numeric,

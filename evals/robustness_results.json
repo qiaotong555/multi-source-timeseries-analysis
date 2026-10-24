@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-24T11:35:34",
+  "generated_at": "2026-10-24T12:02:50",
   "planner": "rule",
   "model_calls": 0,
   "summary": {
@@ -96,7 +96,7 @@
       "no_evidence": [],
       "forecast_claims": [],
       "leaks": [],
-      "elapsed_ms": 0.8,
+      "elapsed_ms": 0.7,
       "crash": null,
       "id": "load_empty",
       "group": "导入",
@@ -124,7 +124,7 @@
       "no_evidence": [],
       "forecast_claims": [],
       "leaks": [],
-      "elapsed_ms": 13.0,
+      "elapsed_ms": 7.8,
       "crash": null,
       "id": "load_header_only",
       "group": "导入",
@@ -152,7 +152,7 @@
       "no_evidence": [],
       "forecast_claims": [],
       "leaks": [],
-      "elapsed_ms": 6.2,
+      "elapsed_ms": 1.5,
       "crash": null,
       "id": "load_malformed",
       "group": "导入",
@@ -180,7 +180,7 @@
       "no_evidence": [],
       "forecast_claims": [],
       "leaks": [],
-      "elapsed_ms": 0.8,
+      "elapsed_ms": 0.7,
       "crash": null,
       "id": "load_unsupported",
       "group": "导入",
@@ -236,7 +236,7 @@
       "no_evidence": [],
       "forecast_claims": [],
       "leaks": [],
-      "elapsed_ms": 5.7,
+      "elapsed_ms": 5.6,
       "crash": null,
       "id": "load_json_as_csv",
       "group": "导入",
@@ -272,7 +272,7 @@
       "no_evidence": [],
       "forecast_claims": [],
       "leaks": [],
-      "elapsed_ms": 18.1,
+      "elapsed_ms": 17.7,
       "crash": null,
       "id": "time_missing",
       "group": "时间轴",
@@ -309,7 +309,7 @@
       "no_evidence": [],
       "forecast_claims": [],
       "leaks": [],
-      "elapsed_ms": 38.3,
+      "elapsed_ms": 37.3,
       "crash": null,
       "id": "time_unparseable",
       "group": "时间轴",
@@ -346,7 +346,7 @@
       "no_evidence": [],
       "forecast_claims": [],
       "leaks": [],
-      "elapsed_ms": 23.0,
+      "elapsed_ms": 21.9,
       "crash": null,
       "id": "time_mixed_tz",
       "group": "时间轴",
@@ -358,7 +358,7 @@
     {
       "result_exists": true,
       "report_exists": true,
-      "report_chars": 10486,
+      "report_chars": 10511,
       "parse_error": null,
       "nonfinite": false,
       "status": "succeeded",
@@ -380,7 +380,7 @@
       "no_evidence": [],
       "forecast_claims": [],
       "leaks": [],
-      "elapsed_ms": 3314.2,
+      "elapsed_ms": 3857.6,
       "crash": null,
       "id": "time_all_same",
       "group": "时间轴",
@@ -392,7 +392,7 @@
     {
       "result_exists": true,
       "report_exists": true,
-      "report_chars": 28339,
+      "report_chars": 28364,
       "parse_error": null,
       "nonfinite": false,
       "status": "succeeded",
@@ -412,7 +412,7 @@
       "no_evidence": [],
       "forecast_claims": [],
       "leaks": [],
-      "elapsed_ms": 3039.9,
+      "elapsed_ms": 3233.6,
       "crash": null,
       "id": "time_out_of_order",
       "group": "时间轴",
@@ -424,7 +424,7 @@
     {
       "result_exists": true,
       "report_exists": true,
-      "report_chars": 28520,
+      "report_chars": 28551,
       "parse_error": null,
       "nonfinite": false,
       "status": "succeeded",
@@ -445,7 +445,7 @@
       "no_evidence": [],
       "forecast_claims": [],
       "leaks": [],
-      "elapsed_ms": 3635.8,
+      "elapsed_ms": 2986.4,
       "crash": null,
       "id": "time_duplicates",
       "group": "时间轴",
@@ -457,7 +457,7 @@
     {
       "result_exists": true,
       "report_exists": true,
-      "report_chars": 27846,
+      "report_chars": 27871,
       "parse_error": null,
       "nonfinite": false,
       "status": "succeeded",
@@ -477,7 +477,7 @@
       "no_evidence": [],
       "forecast_claims": [],
       "leaks": [],
-      "elapsed_ms": 3376.2,
+      "elapsed_ms": 2943.2,
       "crash": null,
       "id": "time_gap",
       "group": "时间轴",
@@ -508,7 +508,7 @@
       "no_evidence": [],
       "forecast_claims": [],
       "leaks": [],
-      "elapsed_ms": 28.3,
+      "elapsed_ms": 31.8,
       "crash": null,
       "id": "num_none",
       "group": "数值",
@@ -520,7 +520,7 @@
     {
       "result_exists": true,
       "report_exists": true,
-      "report_chars": 34363,
+      "report_chars": 34176,
       "parse_error": null,
       "nonfinite": false,
       "status": "succeeded",
@@ -532,8 +532,6 @@
         "时间跨度仅 10.0 天（<60 天），无法可靠估计年周期/季节性；季节性结论应视为未验证。"
       ],
       "quality_codes": [
-        "DUPLICATE_TIMESTAMPS",
-        "OUT_OF_ORDER",
         "OUTLIER_CANDIDATE"
       ],
       "conclusions": 20,
@@ -541,7 +539,7 @@
       "no_evidence": [],
       "forecast_claims": [],
       "leaks": [],
-      "elapsed_ms": 3356.0,
+      "elapsed_ms": 3432.6,
       "crash": null,
       "id": "num_all_nan",
       "group": "数值",
@@ -553,7 +551,7 @@
     {
       "result_exists": true,
       "report_exists": true,
-      "report_chars": 33995,
+      "report_chars": 33808,
       "parse_error": null,
       "nonfinite": false,
       "status": "succeeded",
@@ -566,8 +564,6 @@
         "常数列（方差为 0）不参与统计检验：['temperature@STA_0', 'temperature@STA_1']"
       ],
       "quality_codes": [
-        "DUPLICATE_TIMESTAMPS",
-        "OUT_OF_ORDER",
         "OUTLIER_CANDIDATE"
       ],
       "conclusions": 18,
@@ -575,7 +571,7 @@
       "no_evidence": [],
       "forecast_claims": [],
       "leaks": [],
-      "elapsed_ms": 3511.9,
+      "elapsed_ms": 3493.6,
       "crash": null,
       "id": "num_constant",
       "group": "数值",
@@ -587,7 +583,7 @@
     {
       "result_exists": true,
       "report_exists": true,
-      "report_chars": 39171,
+      "report_chars": 38990,
       "parse_error": null,
       "nonfinite": false,
       "status": "succeeded",
@@ -600,8 +596,6 @@
         "检测到 inf/-inf 等非有限数值，已按缺失处理并插值；相关结论需谨慎。"
       ],
       "quality_codes": [
-        "DUPLICATE_TIMESTAMPS",
-        "OUT_OF_ORDER",
         "OUTLIER_CANDIDATE",
         "OUTLIER_CANDIDATE"
       ],
@@ -610,7 +604,7 @@
       "no_evidence": [],
       "forecast_claims": [],
       "leaks": [],
-      "elapsed_ms": 3588.7,
+      "elapsed_ms": 3525.6,
       "crash": null,
       "id": "num_inf",
       "group": "数值",
@@ -622,7 +616,7 @@
     {
       "result_exists": true,
       "report_exists": true,
-      "report_chars": 39112,
+      "report_chars": 38925,
       "parse_error": null,
       "nonfinite": false,
       "status": "succeeded",
@@ -634,8 +628,6 @@
         "时间跨度仅 10.0 天（<60 天），无法可靠估计年周期/季节性；季节性结论应视为未验证。"
       ],
       "quality_codes": [
-        "DUPLICATE_TIMESTAMPS",
-        "OUT_OF_ORDER",
         "OUTLIER_CANDIDATE"
       ],
       "conclusions": 26,
@@ -643,7 +635,7 @@
       "no_evidence": [],
       "forecast_claims": [],
       "leaks": [],
-      "elapsed_ms": 3661.1,
+      "elapsed_ms": 3619.2,
       "crash": null,
       "id": "num_huge",
       "group": "数值",
@@ -655,7 +647,7 @@
     {
       "result_exists": true,
       "report_exists": true,
-      "report_chars": 38932,
+      "report_chars": 38745,
       "parse_error": null,
       "nonfinite": false,
       "status": "succeeded",
@@ -667,8 +659,6 @@
         "时间跨度仅 10.0 天（<60 天），无法可靠估计年周期/季节性；季节性结论应视为未验证。"
       ],
       "quality_codes": [
-        "DUPLICATE_TIMESTAMPS",
-        "OUT_OF_ORDER",
         "OUTLIER_CANDIDATE"
       ],
       "conclusions": 26,
@@ -676,7 +666,7 @@
       "no_evidence": [],
       "forecast_claims": [],
       "leaks": [],
-      "elapsed_ms": 3603.1,
+      "elapsed_ms": 3518.7,
       "crash": null,
       "id": "num_negative_rain",
       "group": "数值",
@@ -688,7 +678,7 @@
     {
       "result_exists": true,
       "report_exists": true,
-      "report_chars": 38717,
+      "report_chars": 38536,
       "parse_error": null,
       "nonfinite": false,
       "status": "succeeded",
@@ -702,8 +692,6 @@
       ],
       "quality_codes": [
         "MISSING_VALUES",
-        "DUPLICATE_TIMESTAMPS",
-        "OUT_OF_ORDER",
         "OUTLIER_CANDIDATE"
       ],
       "conclusions": 25,
@@ -711,7 +699,7 @@
       "no_evidence": [],
       "forecast_claims": [],
       "leaks": [],
-      "elapsed_ms": 3584.1,
+      "elapsed_ms": 3532.2,
       "crash": null,
       "id": "num_missing_50",
       "group": "数值",
@@ -742,7 +730,7 @@
       "no_evidence": [],
       "forecast_claims": [],
       "leaks": [],
-      "elapsed_ms": 2820.2,
+      "elapsed_ms": 2882.1,
       "crash": null,
       "id": "num_one_row",
       "group": "数值",
@@ -773,7 +761,7 @@
       "no_evidence": [],
       "forecast_claims": [],
       "leaks": [],
-      "elapsed_ms": 2833.7,
+      "elapsed_ms": 2958.8,
       "crash": null,
       "id": "num_ten_rows",
       "group": "数值",
@@ -785,7 +773,7 @@
     {
       "result_exists": true,
       "report_exists": true,
-      "report_chars": 27703,
+      "report_chars": 27722,
       "parse_error": null,
       "nonfinite": false,
       "status": "succeeded",
@@ -804,7 +792,7 @@
       "no_evidence": [],
       "forecast_claims": [],
       "leaks": [],
-      "elapsed_ms": 2912.4,
+      "elapsed_ms": 3042.2,
       "crash": null,
       "id": "enc_gbk",
       "group": "编码",
@@ -816,7 +804,7 @@
     {
       "result_exists": true,
       "report_exists": true,
-      "report_chars": 38898,
+      "report_chars": 38711,
       "parse_error": null,
       "nonfinite": false,
       "status": "succeeded",
@@ -828,8 +816,6 @@
         "时间跨度仅 10.0 天（<60 天），无法可靠估计年周期/季节性；季节性结论应视为未验证。"
       ],
       "quality_codes": [
-        "DUPLICATE_TIMESTAMPS",
-        "OUT_OF_ORDER",
         "OUTLIER_CANDIDATE"
       ],
       "conclusions": 26,
@@ -837,7 +823,7 @@
       "no_evidence": [],
       "forecast_claims": [],
       "leaks": [],
-      "elapsed_ms": 3896.9,
+      "elapsed_ms": 3555.7,
       "crash": null,
       "id": "enc_bom",
       "group": "编码",
@@ -849,7 +835,7 @@
     {
       "result_exists": true,
       "report_exists": true,
-      "report_chars": 38942,
+      "report_chars": 38755,
       "parse_error": null,
       "nonfinite": false,
       "status": "succeeded",
@@ -861,8 +847,6 @@
         "时间跨度仅 10.0 天（<60 天），无法可靠估计年周期/季节性；季节性结论应视为未验证。"
       ],
       "quality_codes": [
-        "DUPLICATE_TIMESTAMPS",
-        "OUT_OF_ORDER",
         "OUTLIER_CANDIDATE"
       ],
       "conclusions": 26,
@@ -870,7 +854,7 @@
       "no_evidence": [],
       "forecast_claims": [],
       "leaks": [],
-      "elapsed_ms": 3589.4,
+      "elapsed_ms": 3654.0,
       "crash": null,
       "id": "schema_duplicate_columns",
       "group": "编码",
@@ -882,7 +866,7 @@
     {
       "result_exists": true,
       "report_exists": true,
-      "report_chars": 43403,
+      "report_chars": 43216,
       "parse_error": null,
       "nonfinite": false,
       "status": "succeeded",
@@ -894,8 +878,6 @@
         "时间跨度仅 10.0 天（<60 天），无法可靠估计年周期/季节性；季节性结论应视为未验证。"
       ],
       "quality_codes": [
-        "DUPLICATE_TIMESTAMPS",
-        "OUT_OF_ORDER",
         "OUTLIER_CANDIDATE"
       ],
       "conclusions": 26,
@@ -926,7 +908,7 @@
         "",
         ""
       ],
-      "elapsed_ms": 4237.6,
+      "elapsed_ms": 3900.4,
       "crash": null,
       "id": "schema_weird_names",
       "group": "编码",
@@ -957,7 +939,7 @@
       "no_evidence": [],
       "forecast_claims": [],
       "leaks": [],
-      "elapsed_ms": 34.4,
+      "elapsed_ms": 36.9,
       "crash": null,
       "id": "schema_no_target",
       "group": "编码",
@@ -992,7 +974,7 @@
       "no_evidence": [],
       "forecast_claims": [],
       "leaks": [],
-      "elapsed_ms": 12.5,
+      "elapsed_ms": 11.2,
       "crash": null,
       "id": "scale_over_limit",
       "group": "规模",
@@ -1004,7 +986,7 @@
     {
       "result_exists": true,
       "report_exists": true,
-      "report_chars": 32514,
+      "report_chars": 32328,
       "parse_error": null,
       "nonfinite": false,
       "status": "succeeded",
@@ -1017,8 +999,6 @@
         "频域分析未产出结果：采样率无法识别或样本长度不足"
       ],
       "quality_codes": [
-        "DUPLICATE_TIMESTAMPS",
-        "OUT_OF_ORDER",
         "OUTLIER_CANDIDATE"
       ],
       "conclusions": 13,
@@ -1026,7 +1006,7 @@
       "no_evidence": [],
       "forecast_claims": [],
       "leaks": [],
-      "elapsed_ms": 3222.6,
+      "elapsed_ms": 3517.1,
       "crash": null,
       "id": "scale_at_limit",
       "group": "规模",
@@ -1067,7 +1047,7 @@
     {
       "result_exists": true,
       "report_exists": true,
-      "report_chars": 42013,
+      "report_chars": 42032,
       "parse_error": null,
       "nonfinite": false,
       "status": "succeeded",
@@ -1086,7 +1066,7 @@
       "no_evidence": [],
       "forecast_claims": [],
       "leaks": [],
-      "elapsed_ms": 3022.0,
+      "elapsed_ms": 3124.3,
       "crash": null,
       "id": "q_long",
       "group": "问题",
@@ -1098,7 +1078,7 @@
     {
       "result_exists": true,
       "report_exists": true,
-      "report_chars": 27687,
+      "report_chars": 27706,
       "parse_error": null,
       "nonfinite": false,
       "status": "succeeded",
@@ -1117,7 +1097,7 @@
       "no_evidence": [],
       "forecast_claims": [],
       "leaks": [],
-      "elapsed_ms": 3464.8,
+      "elapsed_ms": 2943.0,
       "crash": null,
       "id": "q_forecast",
       "group": "问题",
@@ -1129,7 +1109,7 @@
     {
       "result_exists": true,
       "report_exists": true,
-      "report_chars": 27731,
+      "report_chars": 27750,
       "parse_error": null,
       "nonfinite": false,
       "status": "succeeded",
@@ -1148,7 +1128,7 @@
       "no_evidence": [],
       "forecast_claims": [],
       "leaks": [],
-      "elapsed_ms": 2997.5,
+      "elapsed_ms": 3735.1,
       "crash": null,
       "id": "q_injection",
       "group": "问题",
@@ -1182,7 +1162,7 @@
       "no_evidence": [],
       "forecast_claims": [],
       "leaks": [],
-      "elapsed_ms": 100.6,
+      "elapsed_ms": 98.1,
       "crash": null,
       "id": "agent_stock",
       "group": "Agent",
@@ -1218,7 +1198,7 @@
       "no_evidence": [],
       "forecast_claims": [],
       "leaks": [],
-      "elapsed_ms": 304.9,
+      "elapsed_ms": 303.3,
       "crash": null,
       "id": "agent_no_model",
       "group": "Agent",
@@ -1249,7 +1229,7 @@
       "no_evidence": [],
       "forecast_claims": [],
       "leaks": [],
-      "elapsed_ms": 29.2,
+      "elapsed_ms": 29.5,
       "crash": null,
       "id": "agent_bad_input",
       "group": "Agent",

@@ -405,6 +405,7 @@ def build_checks(per_dataset, runs, registry, by_id) -> dict[str, Any]:
     explainable = sum(1 for d in per_dataset
                       if d["labels"] or d["facts"]["dropped_all_null_columns"]
                       or d["duplicate_timestamp_false_positive"]
+                      or len(d["facts"]["stations"]) > 1
                       or any(v > 0 for v in d["facts"]["missing_ratio"].values()))
     add("R7 >=5 份数据有可解释的质量事实", explainable >= 5, "%d/10" % explainable, ">=5")
 
@@ -419,7 +420,9 @@ def build_checks(per_dataset, runs, registry, by_id) -> dict[str, Any]:
     # B 首轮的契约是「src/mtsa 零改动」。C1 修复后复跑时，只允许 C1 声明的
     # 三个文件出现在 diff 中；其余任何分析代码改动都应让本项失败。
     c1_files = {"src/mtsa/quality.py", "src/mtsa/scenarios/weather.py",
-                "src/mtsa/engine.py"}
+                "src/mtsa/engine.py",
+                # C2：质量报告按实体判重
+                "src/mtsa/models.py", "src/mtsa/profiler.py", "src/mtsa/report.py"}
     # 以「B 的首轮提交」为基线，而不是工作区：这样报告在提交前后都可复现。
     b_baseline = "3404b43"
     dirty = []
@@ -437,7 +440,7 @@ def build_checks(per_dataset, runs, registry, by_id) -> dict[str, Any]:
         except (OSError, subprocess.SubprocessError):
             dirty = ["<git unavailable>"]
     unexpected = [x for x in dirty if x not in c1_files]
-    add("R10 分析代码改动仅限 C1 允许清单", not unexpected,
+    add("R10 分析代码改动仅限 C1/C2 允许清单", not unexpected,
         "变更 %d 项，清单外 %d 项（%s）" % (
             len(dirty), len(unexpected), ",".join(sorted(dirty)) or "无"),
         "清单外 0 项")
@@ -658,7 +661,11 @@ def render_md(doc) -> str:
           "> **C1 修复后复跑说明**：首轮暴露的 F1（R08 季节性升温被误判为华氏度段，"
           "5,977 行被改写）已在 C1 中修复，本次复跑不再复现（R08 单位换算 0 次，"
           "峰值月恢复为 8 月）。修复前的原始数据与证据见 "
-          "`spec/项目承接已完成.md` 33.6 与提交 `3404b43`。", ""]
+          "`spec/项目承接已完成.md` 33.6 与提交 `3404b43`。",
+          "",
+          "> **C2 修复后复跑说明**：首轮暴露的 F2（R05 三站点共享时间轴被报 17,568 条重复）"
+          "已在 C2 中修复，本次复跑不再复现（duplicate_timestamps=0，清洗仍为 "
+          "8,784 行 × 15 列）。见 `spec/项目承接已完成.md` 第 35 章。", ""]
     for f in doc["findings"]:
         L += ["### %s" % f["title"], "", f["body"], ""]
         if f.get("evidence"):

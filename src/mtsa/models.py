@@ -153,6 +153,8 @@ class QualityReport(MtsaModel):
     issues: list[QualityIssue] = Field(default_factory=list)
     missing_ratio: dict[str, float] = Field(default_factory=dict)
     duplicate_timestamps: int = 0
+    # 多实体数据按 (实体, 时间) 判重后的分组计数；空表示无重复或无分组
+    duplicate_by_group: dict[str, int] = Field(default_factory=dict)
     out_of_order: int = 0
     gap_count: int = 0
     anomaly_candidate_count: int = 0

@@ -96,8 +96,10 @@ def render_report(
     lines.append("")
     issues = getattr(quality, "issues", [])
     if issues:
-        rows = [[i.code, i.severity, i.column or "—", str(i.count), i.detail] for i in issues]
-        lines.append(_md_table(["问题代码", "级别", "列", "数量", "说明"], rows[:MAX_TABLE_ROWS]))
+        rows = [[i.code, i.severity, i.column or "—", i.group or "—",
+                 str(i.count), i.detail] for i in issues]
+        lines.append(_md_table(["问题代码", "级别", "列", "分组", "数量", "说明"],
+                               rows[:MAX_TABLE_ROWS]))
         if len(rows) > MAX_TABLE_ROWS:
             lines.append("")
             lines.append(f"> 仅列出前 {MAX_TABLE_ROWS} 条，完整清单见 `result.json`。")
