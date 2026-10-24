@@ -1,0 +1,27 @@
+{
+  "id": "R08",
+  "name": "berlin_tegel_hourly_2024",
+  "source": "DWD Open Data",
+  "note": "德语列名、zip 内文本、-999 缺测",
+  "retrieved_at": "2026-10-24T10:39:57",
+  "rows": 8780,
+  "stations": [
+    "BER_TEGEL"
+  ],
+  "start": "2024-01-01 00:00:00",
+  "end": "2024-12-31 23:00:00",
+  "frequency": "hourly",
+  "columns": [
+    "temperature",
+    "humidity"
+  ],
+  "data_sha1": "63cc04330c6f5a8284e4665ee097c9f56086d1ad",
+  "raw": [
+    {
+      "url": "https://opendata.dwd.de/climate_environment/CDC/observations_germany/climate/hourly/air_temperature/historical/stundenwerte_TU_00433_19510101_20251231_hist.zip",
+      "bytes": 3091672,
+      "sha1": "7e56e0672ffbc61b84cc08a25768cf1230de7c15"
+    }
+  ],
+  "data_path": "fixtures/real_weather/r08_berlin_tegel_hourly_2024/data.csv"
+}

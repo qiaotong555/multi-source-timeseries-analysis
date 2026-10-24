@@ -1,0 +1,28 @@
+{
+  "id": "R06",
+  "name": "nyc_central_park_daily_2018_2024",
+  "source": "NOAA GHCN-Daily",
+  "note": "官方 CSV、日值、缺测哨兵",
+  "retrieved_at": "2026-10-24T10:39:43",
+  "rows": 2557,
+  "stations": [
+    "NYC"
+  ],
+  "start": "2018-01-01 00:00:00",
+  "end": "2024-12-31 00:00:00",
+  "frequency": "daily",
+  "columns": [
+    "temperature",
+    "rainfall",
+    "wind_speed"
+  ],
+  "data_sha1": "34975eb0b0a5eda85b7f9d6f4733e98ac6958d43",
+  "raw": [
+    {
+      "url": "https://www.ncei.noaa.gov/data/global-historical-climatology-network-daily/access/USW00094728.csv",
+      "bytes": 17839007,
+      "sha1": "c00267dd52282fb4a89fdfecc6991e45794f3268"
+    }
+  ],
+  "data_path": "fixtures/real_weather/r06_nyc_central_park_daily_2018_2024/data.csv"
+}

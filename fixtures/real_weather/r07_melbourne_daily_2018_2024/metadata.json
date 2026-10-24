@@ -1,0 +1,30 @@
+{
+  "id": "R07",
+  "name": "melbourne_daily_2018_2024",
+  "source": "NOAA GHCN-Daily",
+  "note": "南半球（澳大利亚）、官方 CSV、日值",
+  "retrieved_at": "2026-10-24T10:43:42",
+  "rows": 2557,
+  "stations": [
+    "MEL"
+  ],
+  "start": "2018-01-01 00:00:00",
+  "end": "2024-12-31 00:00:00",
+  "frequency": "daily",
+  "columns": [
+    "temperature",
+    "rainfall"
+  ],
+  "dropped_all_null_columns": [
+    "wind_speed"
+  ],
+  "data_sha1": "98cd06ae02113ec7377f939d2ea614946bf17030",
+  "raw": [
+    {
+      "url": "https://www.ncei.noaa.gov/data/global-historical-climatology-network-daily/access/ASN00086282.csv",
+      "bytes": 2980695,
+      "sha1": "2e06316070e6204c2d66fe88f78261ed398ab9c4"
+    }
+  ],
+  "data_path": "fixtures/real_weather/r07_melbourne_daily_2018_2024/data.csv"
+}

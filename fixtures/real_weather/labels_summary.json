@@ -1,0 +1,247 @@
+{
+  "generated_at": "2026-10-24T10:45:53",
+  "rules": {
+    "missing_gap": "同一 (station, column) 连续缺失 >= 3 个采样点",
+    "sampling_gap": "同一 station 时间轴缺口 expected_missing >= 3",
+    "duplicate_timestamp": "同一 (station, timestamp) 出现 > 1 次",
+    "out_of_order": "同一 station 内 timestamp 下降",
+    "constant_run": "连续 >= 24 个相同非空值，排除湿度 >= 99.9 与降雨 = 0 的物理饱和",
+    "sentinel": "残留缺测哨兵值 -999 / -9999",
+    "unit_change": "仅人工写入，脚本不生成",
+    "verified_anomaly": "L2 外部清单，脚本只搬运"
+  },
+  "datasets": [
+    {
+      "id": "R01",
+      "name": "berlin_hourly_2024",
+      "labels": 0,
+      "data_sha1": "3e86d93195d1dbb20518be8645ea31252ae50da8",
+      "labels_sha1": "6decc503ce3fc46e22489812f52268db721daee0",
+      "counts": {},
+      "detail": {
+        "rows": 8784,
+        "columns": [
+          "temperature",
+          "humidity",
+          "pressure",
+          "wind_speed",
+          "rainfall"
+        ],
+        "stations": [
+          "BER"
+        ],
+        "counts": {}
+      },
+      "path": "fixtures/real_weather/r01_berlin_hourly_2024/labels.csv"
+    },
+    {
+      "id": "R02",
+      "name": "singapore_hourly_2024",
+      "labels": 0,
+      "data_sha1": "141432787e07cefb1b66a7106cd2e9baa94f5123",
+      "labels_sha1": "6decc503ce3fc46e22489812f52268db721daee0",
+      "counts": {},
+      "detail": {
+        "rows": 8784,
+        "columns": [
+          "temperature",
+          "humidity",
+          "pressure",
+          "wind_speed",
+          "rainfall"
+        ],
+        "stations": [
+          "SIN"
+        ],
+        "counts": {}
+      },
+      "path": "fixtures/real_weather/r02_singapore_hourly_2024/labels.csv"
+    },
+    {
+      "id": "R03",
+      "name": "phoenix_daily_2015_2024",
+      "labels": 0,
+      "data_sha1": "2bb0ce9f0fece13f6094a360f944d68b57874bc6",
+      "labels_sha1": "6decc503ce3fc46e22489812f52268db721daee0",
+      "counts": {},
+      "detail": {
+        "rows": 3653,
+        "columns": [
+          "temperature",
+          "humidity",
+          "pressure",
+          "wind_speed",
+          "rainfall"
+        ],
+        "stations": [
+          "PHX"
+        ],
+        "counts": {}
+      },
+      "path": "fixtures/real_weather/r03_phoenix_daily_2015_2024/labels.csv"
+    },
+    {
+      "id": "R04",
+      "name": "reykjavik_hourly_2024",
+      "labels": 0,
+      "data_sha1": "523a9e01d58ebb818e2c99f87896f2310597ee3b",
+      "labels_sha1": "6decc503ce3fc46e22489812f52268db721daee0",
+      "counts": {},
+      "detail": {
+        "rows": 8784,
+        "columns": [
+          "temperature",
+          "humidity",
+          "pressure",
+          "wind_speed",
+          "rainfall"
+        ],
+        "stations": [
+          "REK"
+        ],
+        "counts": {}
+      },
+      "path": "fixtures/real_weather/r04_reykjavik_hourly_2024/labels.csv"
+    },
+    {
+      "id": "R05",
+      "name": "three_cities_hourly_2024",
+      "labels": 0,
+      "data_sha1": "5857e557b948b72ee6234a6359a29eddfeb0bbde",
+      "labels_sha1": "6decc503ce3fc46e22489812f52268db721daee0",
+      "counts": {},
+      "detail": {
+        "rows": 26352,
+        "columns": [
+          "temperature",
+          "humidity",
+          "pressure",
+          "wind_speed",
+          "rainfall"
+        ],
+        "stations": [
+          "SIN",
+          "SYD",
+          "TYO"
+        ],
+        "counts": {}
+      },
+      "path": "fixtures/real_weather/r05_three_cities_hourly_2024/labels.csv"
+    },
+    {
+      "id": "R06",
+      "name": "nyc_central_park_daily_2018_2024",
+      "labels": 6,
+      "data_sha1": "34975eb0b0a5eda85b7f9d6f4733e98ac6958d43",
+      "labels_sha1": "4dbc7bd00c913798429c5093d5563ac4f4862e4d",
+      "counts": {
+        "missing_gap": 6
+      },
+      "detail": {
+        "rows": 2557,
+        "columns": [
+          "temperature",
+          "rainfall",
+          "wind_speed"
+        ],
+        "stations": [
+          "NYC"
+        ],
+        "counts": {
+          "missing_gap": 6
+        }
+      },
+      "path": "fixtures/real_weather/r06_nyc_central_park_daily_2018_2024/labels.csv"
+    },
+    {
+      "id": "R07",
+      "name": "melbourne_daily_2018_2024",
+      "labels": 0,
+      "data_sha1": "98cd06ae02113ec7377f939d2ea614946bf17030",
+      "labels_sha1": "6decc503ce3fc46e22489812f52268db721daee0",
+      "counts": {},
+      "detail": {
+        "rows": 2557,
+        "columns": [
+          "temperature",
+          "rainfall"
+        ],
+        "stations": [
+          "MEL"
+        ],
+        "counts": {}
+      },
+      "path": "fixtures/real_weather/r07_melbourne_daily_2018_2024/labels.csv"
+    },
+    {
+      "id": "R08",
+      "name": "berlin_tegel_hourly_2024",
+      "labels": 1,
+      "data_sha1": "63cc04330c6f5a8284e4665ee097c9f56086d1ad",
+      "labels_sha1": "13dc7163880bcb93dc7cf2256ef83b0632850d49",
+      "counts": {
+        "sampling_gap": 1
+      },
+      "detail": {
+        "rows": 8780,
+        "columns": [
+          "temperature",
+          "humidity"
+        ],
+        "stations": [
+          "BER_TEGEL"
+        ],
+        "counts": {
+          "sampling_gap": 1
+        }
+      },
+      "path": "fixtures/real_weather/r08_berlin_tegel_hourly_2024/labels.csv"
+    },
+    {
+      "id": "R09",
+      "name": "munich_hourly_2024",
+      "labels": 0,
+      "data_sha1": "881a003ce9906934e20216833a66fa05e484327d",
+      "labels_sha1": "6decc503ce3fc46e22489812f52268db721daee0",
+      "counts": {},
+      "detail": {
+        "rows": 8784,
+        "columns": [
+          "temperature",
+          "humidity"
+        ],
+        "stations": [
+          "MUC"
+        ],
+        "counts": {}
+      },
+      "path": "fixtures/real_weather/r09_munich_hourly_2024/labels.csv"
+    },
+    {
+      "id": "R10",
+      "name": "toronto_hourly_2024",
+      "labels": 0,
+      "data_sha1": "25a3c08e07765ad6a6f0aa5406bf8ab343454cbc",
+      "labels_sha1": "6decc503ce3fc46e22489812f52268db721daee0",
+      "counts": {},
+      "detail": {
+        "rows": 8783,
+        "columns": [
+          "temperature",
+          "humidity",
+          "pressure",
+          "wind_speed"
+        ],
+        "stations": [
+          "YYZ"
+        ],
+        "counts": {}
+      },
+      "path": "fixtures/real_weather/r10_toronto_hourly_2024/labels.csv"
+    }
+  ],
+  "totals": {
+    "missing_gap": 6,
+    "sampling_gap": 1
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "id": "R01",
+  "name": "berlin_hourly_2024",
+  "source": "Open-Meteo Archive API",
+  "note": "温带、完整五要素、小时级",
+  "retrieved_at": "2026-10-24T10:33:04",
+  "rows": 8784,
+  "stations": [
+    "BER"
+  ],
+  "start": "2024-01-01 00:00:00",
+  "end": "2024-12-31 23:00:00",
+  "frequency": "hourly",
+  "columns": [
+    "temperature",
+    "humidity",
+    "pressure",
+    "wind_speed",
+    "rainfall"
+  ],
+  "data_sha1": "3e86d93195d1dbb20518be8645ea31252ae50da8",
+  "raw": [
+    {
+      "url": "https://archive-api.open-meteo.com/v1/archive?latitude=52.52&longitude=13.41&start_date=2024-01-01&end_date=2024-12-31&hourly=temperature_2m,relative_humidity_2m,surface_pressure,wind_speed_10m,precipitation&timezone=UTC",
+      "bytes": 379603,
+      "sha1": "62210fc96ad41623e79d5c1203a36106466e3448"
+    }
+  ],
+  "data_path": "fixtures/real_weather/r01_berlin_hourly_2024/data.csv"
+}

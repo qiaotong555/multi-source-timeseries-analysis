@@ -1,0 +1,7 @@
+﻿kind,column,station,start,end,count,source,note
+missing_gap,wind_speed,NYC,2018-09-13 00:00:00,2018-09-16 00:00:00,4,fixtures/real_weather/r06_nyc_central_park_daily_2018_2024/data.csv,连续缺失 4 个采样点
+missing_gap,wind_speed,NYC,2018-10-13 00:00:00,2019-03-10 00:00:00,149,fixtures/real_weather/r06_nyc_central_park_daily_2018_2024/data.csv,连续缺失 149 个采样点
+missing_gap,wind_speed,NYC,2020-01-22 00:00:00,2020-01-26 00:00:00,5,fixtures/real_weather/r06_nyc_central_park_daily_2018_2024/data.csv,连续缺失 5 个采样点
+missing_gap,wind_speed,NYC,2020-05-18 00:00:00,2020-06-18 00:00:00,32,fixtures/real_weather/r06_nyc_central_park_daily_2018_2024/data.csv,连续缺失 32 个采样点
+missing_gap,wind_speed,NYC,2021-09-15 00:00:00,2021-09-22 00:00:00,8,fixtures/real_weather/r06_nyc_central_park_daily_2018_2024/data.csv,连续缺失 8 个采样点
+missing_gap,wind_speed,NYC,2021-09-27 00:00:00,2021-10-04 00:00:00,8,fixtures/real_weather/r06_nyc_central_park_daily_2018_2024/data.csv,连续缺失 8 个采样点

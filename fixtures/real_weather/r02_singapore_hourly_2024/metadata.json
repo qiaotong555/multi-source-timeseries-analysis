@@ -1,0 +1,30 @@
+{
+  "id": "R02",
+  "name": "singapore_hourly_2024",
+  "source": "Open-Meteo Archive API",
+  "note": "热带、高温高湿、年振幅小",
+  "retrieved_at": "2026-10-24T10:33:18",
+  "rows": 8784,
+  "stations": [
+    "SIN"
+  ],
+  "start": "2024-01-01 00:00:00",
+  "end": "2024-12-31 23:00:00",
+  "frequency": "hourly",
+  "columns": [
+    "temperature",
+    "humidity",
+    "pressure",
+    "wind_speed",
+    "rainfall"
+  ],
+  "data_sha1": "141432787e07cefb1b66a7106cd2e9baa94f5123",
+  "raw": [
+    {
+      "url": "https://archive-api.open-meteo.com/v1/archive?latitude=1.35&longitude=103.82&start_date=2024-01-01&end_date=2024-12-31&hourly=temperature_2m,relative_humidity_2m,surface_pressure,wind_speed_10m,precipitation&timezone=UTC",
+      "bytes": 381316,
+      "sha1": "37dc98d32bad3d25db9ad39cd0a98ea672c9197a"
+    }
+  ],
+  "data_path": "fixtures/real_weather/r02_singapore_hourly_2024/data.csv"
+}

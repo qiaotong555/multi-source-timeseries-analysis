@@ -1,0 +1,87 @@
+{
+  "id": "R10",
+  "name": "toronto_hourly_2024",
+  "source": "ECCC Bulk Data",
+  "note": "月度 CSV 拼接、BOM、空白缺测",
+  "retrieved_at": "2026-10-24T10:44:04",
+  "rows": 8783,
+  "stations": [
+    "YYZ"
+  ],
+  "start": "2024-01-01 00:00:00",
+  "end": "2024-12-31 23:00:00",
+  "frequency": "hourly",
+  "columns": [
+    "temperature",
+    "humidity",
+    "pressure",
+    "wind_speed"
+  ],
+  "dropped_all_null_columns": [
+    "rainfall"
+  ],
+  "data_sha1": "25a3c08e07765ad6a6f0aa5406bf8ab343454cbc",
+  "raw": [
+    {
+      "url": "https://climate.weather.gc.ca/climate_data/bulk_data_e.html?format=csv&stationID=51459&Year=2024&Month=1&Day=1&timeframe=1&submit=Download+Data",
+      "bytes": 136906,
+      "sha1": "b6282d1f591bf9052f65b54120537572b1dd66bd"
+    },
+    {
+      "url": "https://climate.weather.gc.ca/climate_data/bulk_data_e.html?format=csv&stationID=51459&Year=2024&Month=2&Day=1&timeframe=1&submit=Download+Data",
+      "bytes": 128170,
+      "sha1": "0144d0a3c771b7e5a16b54bb3d96ef56c65036ff"
+    },
+    {
+      "url": "https://climate.weather.gc.ca/climate_data/bulk_data_e.html?format=csv&stationID=51459&Year=2024&Month=3&Day=1&timeframe=1&submit=Download+Data",
+      "bytes": 136047,
+      "sha1": "6c5c60fb87e3f9b18fbcb09031bf430db614e541"
+    },
+    {
+      "url": "https://climate.weather.gc.ca/climate_data/bulk_data_e.html?format=csv&stationID=51459&Year=2024&Month=4&Day=1&timeframe=1&submit=Download+Data",
+      "bytes": 131084,
+      "sha1": "beae29eab5e39424b0cbcf9e2541ccd094aefe79"
+    },
+    {
+      "url": "https://climate.weather.gc.ca/climate_data/bulk_data_e.html?format=csv&stationID=51459&Year=2024&Month=5&Day=1&timeframe=1&submit=Download+Data",
+      "bytes": 136035,
+      "sha1": "a6f0f2767c974f7f99fa0b7c0afc75f2220483c4"
+    },
+    {
+      "url": "https://climate.weather.gc.ca/climate_data/bulk_data_e.html?format=csv&stationID=51459&Year=2024&Month=6&Day=1&timeframe=1&submit=Download+Data",
+      "bytes": 132721,
+      "sha1": "1c41b18423cd72508f3e4e71078379e39bbdf41d"
+    },
+    {
+      "url": "https://climate.weather.gc.ca/climate_data/bulk_data_e.html?format=csv&stationID=51459&Year=2024&Month=7&Day=1&timeframe=1&submit=Download+Data",
+      "bytes": 137444,
+      "sha1": "3a66adda2fcaca108b6ba1899a3ab5701bfee3bf"
+    },
+    {
+      "url": "https://climate.weather.gc.ca/climate_data/bulk_data_e.html?format=csv&stationID=51459&Year=2024&Month=8&Day=1&timeframe=1&submit=Download+Data",
+      "bytes": 137295,
+      "sha1": "4e62174cbd7bc8a71969ed1e172a785b40ce2629"
+    },
+    {
+      "url": "https://climate.weather.gc.ca/climate_data/bulk_data_e.html?format=csv&stationID=51459&Year=2024&Month=9&Day=1&timeframe=1&submit=Download+Data",
+      "bytes": 132058,
+      "sha1": "22bdb4a17a69c0f363536c730621a01e428c5e4e"
+    },
+    {
+      "url": "https://climate.weather.gc.ca/climate_data/bulk_data_e.html?format=csv&stationID=51459&Year=2024&Month=10&Day=1&timeframe=1&submit=Download+Data",
+      "bytes": 135600,
+      "sha1": "9c1e52247024ede9a1553f5253b08c3532dfdce8"
+    },
+    {
+      "url": "https://climate.weather.gc.ca/climate_data/bulk_data_e.html?format=csv&stationID=51459&Year=2024&Month=11&Day=1&timeframe=1&submit=Download+Data",
+      "bytes": 131277,
+      "sha1": "66f3f2da566a310f8b689c0d2a2b3b4c15e30927"
+    },
+    {
+      "url": "https://climate.weather.gc.ca/climate_data/bulk_data_e.html?format=csv&stationID=51459&Year=2024&Month=12&Day=1&timeframe=1&submit=Download+Data",
+      "bytes": 136874,
+      "sha1": "69539ba9ad2f0c133a11a5f42cc5eb9230722c8f"
+    }
+  ],
+  "data_path": "fixtures/real_weather/r10_toronto_hourly_2024/data.csv"
+}

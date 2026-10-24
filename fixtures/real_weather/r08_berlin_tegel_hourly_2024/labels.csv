@@ -1,0 +1,2 @@
+﻿kind,column,station,start,end,count,source,note
+sampling_gap,timestamp,BER_TEGEL,2024-04-23 06:00:00,2024-04-23 11:00:00,4,fixtures/real_weather/r08_berlin_tegel_hourly_2024/data.csv,预计缺失 4 个采样点（间隔 3600 秒）

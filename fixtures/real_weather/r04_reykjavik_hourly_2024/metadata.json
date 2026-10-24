@@ -1,0 +1,30 @@
+{
+  "id": "R04",
+  "name": "reykjavik_hourly_2024",
+  "source": "Open-Meteo Archive API",
+  "note": "寒带、风大、温度低",
+  "retrieved_at": "2026-10-24T10:33:25",
+  "rows": 8784,
+  "stations": [
+    "REK"
+  ],
+  "start": "2024-01-01 00:00:00",
+  "end": "2024-12-31 23:00:00",
+  "frequency": "hourly",
+  "columns": [
+    "temperature",
+    "humidity",
+    "pressure",
+    "wind_speed",
+    "rainfall"
+  ],
+  "data_sha1": "523a9e01d58ebb818e2c99f87896f2310597ee3b",
+  "raw": [
+    {
+      "url": "https://archive-api.open-meteo.com/v1/archive?latitude=64.15&longitude=-21.94&start_date=2024-01-01&end_date=2024-12-31&hourly=temperature_2m,relative_humidity_2m,surface_pressure,wind_speed_10m,precipitation&timezone=UTC",
+      "bytes": 376198,
+      "sha1": "22f4237b648a67c5e14a6e13b244087e411035fa"
+    }
+  ],
+  "data_path": "fixtures/real_weather/r04_reykjavik_hourly_2024/data.csv"
+}

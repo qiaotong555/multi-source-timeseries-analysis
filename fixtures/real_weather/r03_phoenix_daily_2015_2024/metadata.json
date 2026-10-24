@@ -1,0 +1,30 @@
+{
+  "id": "R03",
+  "name": "phoenix_daily_2015_2024",
+  "source": "Open-Meteo Archive API",
+  "note": "干旱、极端高温、日级、10 年",
+  "retrieved_at": "2026-10-24T10:33:22",
+  "rows": 3653,
+  "stations": [
+    "PHX"
+  ],
+  "start": "2015-01-01 00:00:00",
+  "end": "2024-12-31 00:00:00",
+  "frequency": "daily",
+  "columns": [
+    "temperature",
+    "humidity",
+    "pressure",
+    "wind_speed",
+    "rainfall"
+  ],
+  "data_sha1": "2bb0ce9f0fece13f6094a360f944d68b57874bc6",
+  "raw": [
+    {
+      "url": "https://archive-api.open-meteo.com/v1/archive?latitude=33.45&longitude=-112.07&start_date=2015-01-01&end_date=2024-12-31&daily=temperature_2m_max,temperature_2m_min,temperature_2m_mean,relative_humidity_2m_mean,surface_pressure_mean,wind_speed_10m_max,precipitation_sum&timezone=UTC",
+      "bytes": 170700,
+      "sha1": "d134662a4cc5e73c7312924b7d76b49cacc8cbc9"
+    }
+  ],
+  "data_path": "fixtures/real_weather/r03_phoenix_daily_2015_2024/data.csv"
+}

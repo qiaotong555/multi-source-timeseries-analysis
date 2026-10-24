@@ -1,0 +1,366 @@
+{
+  "generated_at": "2026-10-24T10:44:04",
+  "datasets": [
+    {
+      "id": "R01",
+      "name": "berlin_hourly_2024",
+      "source": "Open-Meteo Archive API",
+      "note": "温带、完整五要素、小时级",
+      "retrieved_at": "2026-10-24T10:33:04",
+      "rows": 8784,
+      "stations": [
+        "BER"
+      ],
+      "start": "2024-01-01 00:00:00",
+      "end": "2024-12-31 23:00:00",
+      "frequency": "hourly",
+      "columns": [
+        "temperature",
+        "humidity",
+        "pressure",
+        "wind_speed",
+        "rainfall"
+      ],
+      "data_sha1": "3e86d93195d1dbb20518be8645ea31252ae50da8",
+      "raw": [
+        {
+          "url": "https://archive-api.open-meteo.com/v1/archive?latitude=52.52&longitude=13.41&start_date=2024-01-01&end_date=2024-12-31&hourly=temperature_2m,relative_humidity_2m,surface_pressure,wind_speed_10m,precipitation&timezone=UTC",
+          "bytes": 379603,
+          "sha1": "62210fc96ad41623e79d5c1203a36106466e3448"
+        }
+      ],
+      "data_path": "fixtures/real_weather/r01_berlin_hourly_2024/data.csv"
+    },
+    {
+      "id": "R02",
+      "name": "singapore_hourly_2024",
+      "source": "Open-Meteo Archive API",
+      "note": "热带、高温高湿、年振幅小",
+      "retrieved_at": "2026-10-24T10:33:18",
+      "rows": 8784,
+      "stations": [
+        "SIN"
+      ],
+      "start": "2024-01-01 00:00:00",
+      "end": "2024-12-31 23:00:00",
+      "frequency": "hourly",
+      "columns": [
+        "temperature",
+        "humidity",
+        "pressure",
+        "wind_speed",
+        "rainfall"
+      ],
+      "data_sha1": "141432787e07cefb1b66a7106cd2e9baa94f5123",
+      "raw": [
+        {
+          "url": "https://archive-api.open-meteo.com/v1/archive?latitude=1.35&longitude=103.82&start_date=2024-01-01&end_date=2024-12-31&hourly=temperature_2m,relative_humidity_2m,surface_pressure,wind_speed_10m,precipitation&timezone=UTC",
+          "bytes": 381316,
+          "sha1": "37dc98d32bad3d25db9ad39cd0a98ea672c9197a"
+        }
+      ],
+      "data_path": "fixtures/real_weather/r02_singapore_hourly_2024/data.csv"
+    },
+    {
+      "id": "R03",
+      "name": "phoenix_daily_2015_2024",
+      "source": "Open-Meteo Archive API",
+      "note": "干旱、极端高温、日级、10 年",
+      "retrieved_at": "2026-10-24T10:33:22",
+      "rows": 3653,
+      "stations": [
+        "PHX"
+      ],
+      "start": "2015-01-01 00:00:00",
+      "end": "2024-12-31 00:00:00",
+      "frequency": "daily",
+      "columns": [
+        "temperature",
+        "humidity",
+        "pressure",
+        "wind_speed",
+        "rainfall"
+      ],
+      "data_sha1": "2bb0ce9f0fece13f6094a360f944d68b57874bc6",
+      "raw": [
+        {
+          "url": "https://archive-api.open-meteo.com/v1/archive?latitude=33.45&longitude=-112.07&start_date=2015-01-01&end_date=2024-12-31&daily=temperature_2m_max,temperature_2m_min,temperature_2m_mean,relative_humidity_2m_mean,surface_pressure_mean,wind_speed_10m_max,precipitation_sum&timezone=UTC",
+          "bytes": 170700,
+          "sha1": "d134662a4cc5e73c7312924b7d76b49cacc8cbc9"
+        }
+      ],
+      "data_path": "fixtures/real_weather/r03_phoenix_daily_2015_2024/data.csv"
+    },
+    {
+      "id": "R04",
+      "name": "reykjavik_hourly_2024",
+      "source": "Open-Meteo Archive API",
+      "note": "寒带、风大、温度低",
+      "retrieved_at": "2026-10-24T10:33:25",
+      "rows": 8784,
+      "stations": [
+        "REK"
+      ],
+      "start": "2024-01-01 00:00:00",
+      "end": "2024-12-31 23:00:00",
+      "frequency": "hourly",
+      "columns": [
+        "temperature",
+        "humidity",
+        "pressure",
+        "wind_speed",
+        "rainfall"
+      ],
+      "data_sha1": "523a9e01d58ebb818e2c99f87896f2310597ee3b",
+      "raw": [
+        {
+          "url": "https://archive-api.open-meteo.com/v1/archive?latitude=64.15&longitude=-21.94&start_date=2024-01-01&end_date=2024-12-31&hourly=temperature_2m,relative_humidity_2m,surface_pressure,wind_speed_10m,precipitation&timezone=UTC",
+          "bytes": 376198,
+          "sha1": "22f4237b648a67c5e14a6e13b244087e411035fa"
+        }
+      ],
+      "data_path": "fixtures/real_weather/r04_reykjavik_hourly_2024/data.csv"
+    },
+    {
+      "id": "R05",
+      "name": "three_cities_hourly_2024",
+      "source": "Open-Meteo Archive API",
+      "note": "多站点长表、跨气候带",
+      "retrieved_at": "2026-10-24T10:39:29",
+      "rows": 26352,
+      "stations": [
+        "SIN",
+        "SYD",
+        "TYO"
+      ],
+      "start": "2024-01-01 00:00:00",
+      "end": "2024-12-31 23:00:00",
+      "frequency": "hourly",
+      "columns": [
+        "temperature",
+        "humidity",
+        "pressure",
+        "wind_speed",
+        "rainfall"
+      ],
+      "data_sha1": "5857e557b948b72ee6234a6359a29eddfeb0bbde",
+      "raw": [
+        {
+          "url": "https://archive-api.open-meteo.com/v1/archive?latitude=-33.87&longitude=151.21&start_date=2024-01-01&end_date=2024-12-31&hourly=temperature_2m,relative_humidity_2m,surface_pressure,wind_speed_10m,precipitation&timezone=UTC",
+          "bytes": 382077,
+          "sha1": "ae8d7441c2f56b40e6f538d648ee281258085642"
+        },
+        {
+          "url": "https://archive-api.open-meteo.com/v1/archive?latitude=35.68&longitude=139.69&start_date=2024-01-01&end_date=2024-12-31&hourly=temperature_2m,relative_humidity_2m,surface_pressure,wind_speed_10m,precipitation&timezone=UTC",
+          "bytes": 380583,
+          "sha1": "4d895a16eaec685b28496b2fb701d3c99e7be3d2"
+        },
+        {
+          "url": "https://archive-api.open-meteo.com/v1/archive?latitude=1.35&longitude=103.82&start_date=2024-01-01&end_date=2024-12-31&hourly=temperature_2m,relative_humidity_2m,surface_pressure,wind_speed_10m,precipitation&timezone=UTC",
+          "bytes": 381316,
+          "sha1": "083aab48bda2b0fcd42c537aac18f594240071ac"
+        }
+      ],
+      "data_path": "fixtures/real_weather/r05_three_cities_hourly_2024/data.csv"
+    },
+    {
+      "id": "R06",
+      "name": "nyc_central_park_daily_2018_2024",
+      "source": "NOAA GHCN-Daily",
+      "note": "官方 CSV、日值、缺测哨兵",
+      "retrieved_at": "2026-10-24T10:39:43",
+      "rows": 2557,
+      "stations": [
+        "NYC"
+      ],
+      "start": "2018-01-01 00:00:00",
+      "end": "2024-12-31 00:00:00",
+      "frequency": "daily",
+      "columns": [
+        "temperature",
+        "rainfall",
+        "wind_speed"
+      ],
+      "data_sha1": "34975eb0b0a5eda85b7f9d6f4733e98ac6958d43",
+      "raw": [
+        {
+          "url": "https://www.ncei.noaa.gov/data/global-historical-climatology-network-daily/access/USW00094728.csv",
+          "bytes": 17839007,
+          "sha1": "c00267dd52282fb4a89fdfecc6991e45794f3268"
+        }
+      ],
+      "data_path": "fixtures/real_weather/r06_nyc_central_park_daily_2018_2024/data.csv"
+    },
+    {
+      "id": "R07",
+      "name": "melbourne_daily_2018_2024",
+      "source": "NOAA GHCN-Daily",
+      "note": "南半球（澳大利亚）、官方 CSV、日值",
+      "retrieved_at": "2026-10-24T10:43:42",
+      "rows": 2557,
+      "stations": [
+        "MEL"
+      ],
+      "start": "2018-01-01 00:00:00",
+      "end": "2024-12-31 00:00:00",
+      "frequency": "daily",
+      "columns": [
+        "temperature",
+        "rainfall"
+      ],
+      "dropped_all_null_columns": [
+        "wind_speed"
+      ],
+      "data_sha1": "98cd06ae02113ec7377f939d2ea614946bf17030",
+      "raw": [
+        {
+          "url": "https://www.ncei.noaa.gov/data/global-historical-climatology-network-daily/access/ASN00086282.csv",
+          "bytes": 2980695,
+          "sha1": "2e06316070e6204c2d66fe88f78261ed398ab9c4"
+        }
+      ],
+      "data_path": "fixtures/real_weather/r07_melbourne_daily_2018_2024/data.csv"
+    },
+    {
+      "id": "R08",
+      "name": "berlin_tegel_hourly_2024",
+      "source": "DWD Open Data",
+      "note": "德语列名、zip 内文本、-999 缺测",
+      "retrieved_at": "2026-10-24T10:39:57",
+      "rows": 8780,
+      "stations": [
+        "BER_TEGEL"
+      ],
+      "start": "2024-01-01 00:00:00",
+      "end": "2024-12-31 23:00:00",
+      "frequency": "hourly",
+      "columns": [
+        "temperature",
+        "humidity"
+      ],
+      "data_sha1": "63cc04330c6f5a8284e4665ee097c9f56086d1ad",
+      "raw": [
+        {
+          "url": "https://opendata.dwd.de/climate_environment/CDC/observations_germany/climate/hourly/air_temperature/historical/stundenwerte_TU_00433_19510101_20251231_hist.zip",
+          "bytes": 3091672,
+          "sha1": "7e56e0672ffbc61b84cc08a25768cf1230de7c15"
+        }
+      ],
+      "data_path": "fixtures/real_weather/r08_berlin_tegel_hourly_2024/data.csv"
+    },
+    {
+      "id": "R09",
+      "name": "munich_hourly_2024",
+      "source": "DWD Open Data",
+      "note": "同源不同站",
+      "retrieved_at": "2026-10-24T10:40:01",
+      "rows": 8784,
+      "stations": [
+        "MUC"
+      ],
+      "start": "2024-01-01 00:00:00",
+      "end": "2024-12-31 23:00:00",
+      "frequency": "hourly",
+      "columns": [
+        "temperature",
+        "humidity"
+      ],
+      "data_sha1": "881a003ce9906934e20216833a66fa05e484327d",
+      "raw": [
+        {
+          "url": "https://opendata.dwd.de/climate_environment/CDC/observations_germany/climate/hourly/air_temperature/historical/stundenwerte_TU_01270_19510101_20251231_hist.zip",
+          "bytes": 3520335,
+          "sha1": "e772fe31ec53a9a8db604e1a3b4af5a72968e505"
+        }
+      ],
+      "data_path": "fixtures/real_weather/r09_munich_hourly_2024/data.csv"
+    },
+    {
+      "id": "R10",
+      "name": "toronto_hourly_2024",
+      "source": "ECCC Bulk Data",
+      "note": "月度 CSV 拼接、BOM、空白缺测",
+      "retrieved_at": "2026-10-24T10:44:04",
+      "rows": 8783,
+      "stations": [
+        "YYZ"
+      ],
+      "start": "2024-01-01 00:00:00",
+      "end": "2024-12-31 23:00:00",
+      "frequency": "hourly",
+      "columns": [
+        "temperature",
+        "humidity",
+        "pressure",
+        "wind_speed"
+      ],
+      "dropped_all_null_columns": [
+        "rainfall"
+      ],
+      "data_sha1": "25a3c08e07765ad6a6f0aa5406bf8ab343454cbc",
+      "raw": [
+        {
+          "url": "https://climate.weather.gc.ca/climate_data/bulk_data_e.html?format=csv&stationID=51459&Year=2024&Month=1&Day=1&timeframe=1&submit=Download+Data",
+          "bytes": 136906,
+          "sha1": "b6282d1f591bf9052f65b54120537572b1dd66bd"
+        },
+        {
+          "url": "https://climate.weather.gc.ca/climate_data/bulk_data_e.html?format=csv&stationID=51459&Year=2024&Month=2&Day=1&timeframe=1&submit=Download+Data",
+          "bytes": 128170,
+          "sha1": "0144d0a3c771b7e5a16b54bb3d96ef56c65036ff"
+        },
+        {
+          "url": "https://climate.weather.gc.ca/climate_data/bulk_data_e.html?format=csv&stationID=51459&Year=2024&Month=3&Day=1&timeframe=1&submit=Download+Data",
+          "bytes": 136047,
+          "sha1": "6c5c60fb87e3f9b18fbcb09031bf430db614e541"
+        },
+        {
+          "url": "https://climate.weather.gc.ca/climate_data/bulk_data_e.html?format=csv&stationID=51459&Year=2024&Month=4&Day=1&timeframe=1&submit=Download+Data",
+          "bytes": 131084,
+          "sha1": "beae29eab5e39424b0cbcf9e2541ccd094aefe79"
+        },
+        {
+          "url": "https://climate.weather.gc.ca/climate_data/bulk_data_e.html?format=csv&stationID=51459&Year=2024&Month=5&Day=1&timeframe=1&submit=Download+Data",
+          "bytes": 136035,
+          "sha1": "a6f0f2767c974f7f99fa0b7c0afc75f2220483c4"
+        },
+        {
+          "url": "https://climate.weather.gc.ca/climate_data/bulk_data_e.html?format=csv&stationID=51459&Year=2024&Month=6&Day=1&timeframe=1&submit=Download+Data",
+          "bytes": 132721,
+          "sha1": "1c41b18423cd72508f3e4e71078379e39bbdf41d"
+        },
+        {
+          "url": "https://climate.weather.gc.ca/climate_data/bulk_data_e.html?format=csv&stationID=51459&Year=2024&Month=7&Day=1&timeframe=1&submit=Download+Data",
+          "bytes": 137444,
+          "sha1": "3a66adda2fcaca108b6ba1899a3ab5701bfee3bf"
+        },
+        {
+          "url": "https://climate.weather.gc.ca/climate_data/bulk_data_e.html?format=csv&stationID=51459&Year=2024&Month=8&Day=1&timeframe=1&submit=Download+Data",
+          "bytes": 137295,
+          "sha1": "4e62174cbd7bc8a71969ed1e172a785b40ce2629"
+        },
+        {
+          "url": "https://climate.weather.gc.ca/climate_data/bulk_data_e.html?format=csv&stationID=51459&Year=2024&Month=9&Day=1&timeframe=1&submit=Download+Data",
+          "bytes": 132058,
+          "sha1": "22bdb4a17a69c0f363536c730621a01e428c5e4e"
+        },
+        {
+          "url": "https://climate.weather.gc.ca/climate_data/bulk_data_e.html?format=csv&stationID=51459&Year=2024&Month=10&Day=1&timeframe=1&submit=Download+Data",
+          "bytes": 135600,
+          "sha1": "9c1e52247024ede9a1553f5253b08c3532dfdce8"
+        },
+        {
+          "url": "https://climate.weather.gc.ca/climate_data/bulk_data_e.html?format=csv&stationID=51459&Year=2024&Month=11&Day=1&timeframe=1&submit=Download+Data",
+          "bytes": 131277,
+          "sha1": "66f3f2da566a310f8b689c0d2a2b3b4c15e30927"
+        },
+        {
+          "url": "https://climate.weather.gc.ca/climate_data/bulk_data_e.html?format=csv&stationID=51459&Year=2024&Month=12&Day=1&timeframe=1&submit=Download+Data",
+          "bytes": 136874,
+          "sha1": "69539ba9ad2f0c133a11a5f42cc5eb9230722c8f"
+        }
+      ],
+      "data_path": "fixtures/real_weather/r10_toronto_hourly_2024/data.csv"
+    }
+  ]
+}

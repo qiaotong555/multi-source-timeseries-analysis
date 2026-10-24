@@ -88,6 +88,14 @@ python -m evals.conclusion_gate_eval --pipeline-only
 # 重建 v2 数据（确定性，数据 SHA1 应为 2ee8077e…）
 PYTHONPATH=. python fixtures/gen_weather_eval_v2.py
 
+# B 十份真实天气数据：10 数据集 × 4 问题 × pipeline/agent = 80 次
+# 首次需联网下载（约 30 MB）并生成 L1 标签；标签由数据确定性生成
+python scripts/fetch_real_weather.py
+python scripts/build_real_labels.py
+python -m evals.real_data_eval --pipeline-only   # 40 次，离线
+python -m evals.real_data_eval                   # 80 次，agent 需 MTSA_LLM_*
+python scripts/real_cross_check.py               # 跨来源一致性核对
+
 # D 探针与重复：6 个开放/风险/对比问题；free 5 次/用例，guided 1 次/用例
 python -m evals.probe_eval --dry
 MTSA_PLANNER=rule python -m evals.probe_eval --plan free:5,guided:1 --max-tokens 6000 --out evals/probe_eval_results.json --out-root artifacts/d_probe_eval
@@ -126,6 +134,11 @@ CLI 默认在**子进程**中执行分析：Python 无法中断正在执行的 C
 决策边界（锁定参数/未知参数/重复调用/步数上限）、失败重试与三态记录、
 轨迹哈希与离线重放、`pipeline / agent / auto` 三模式、关键词范围下限（`guided`）、
 13 用例评估与两模式对照。
+
+**真实数据验证（B，2026-10-24）**：10 份公开天气数据（4 来源、2 频率、87,818 行）
+× 4 问题 × pipeline/agent = 80 次，80/80 成功、证据覆盖 1.000、L1 质量事件 Recall 1.000
+（可定位 0.500）。真实数据暴露了 R08 单位误判（5,977 行被改写）、R05 多站点重复时间戳误报
+（17,568 条）等问题，详见 `evals/real_data_report.md`。
 
 **明确未实现**：股票场景的 Agent（请求 `mode=agent` 返回 `AGENT_SCENE_UNSUPPORTED`）；
 多模型对比；按金额计费换算（只限 token，不换算货币）；`free` 模式下的范围稳定性。

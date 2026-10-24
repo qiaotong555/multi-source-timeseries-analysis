@@ -22,3 +22,4 @@ venv/
 *.swp
 .DS_Store
 Thumbs.db
+fixtures/real_weather/*/raw/
