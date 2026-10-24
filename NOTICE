@@ -1,0 +1,10 @@
+多源时序数据量化分析与可视化 Agent
+Copyright 2026 qiaotong555 (https://github.com/qiaotong555)
+
+本产品采用 Apache License 2.0（见 LICENSE）。
+
+本产品包含第三方数据与第三方依赖，其来源与许可证见：
+  - DATA_SOURCES.md      （17 份外部数据的来源、许可证与署名要求）
+  - THIRD_PARTY_NOTICES.md（pandas / numpy / scipy / statsmodels / plotly 等）
+
+这些第三方材料的条款独立于本产品的许可证，不随本产品授权变化。

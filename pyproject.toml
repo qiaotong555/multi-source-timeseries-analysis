@@ -1,15 +1,15 @@
 [build-system]
-requires = ["setuptools>=68"]
+requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "mtsa"
-version = "0.1.0"
+version = "0.2.0"
 description = "多源时序数据量化分析与可视化 Agent（课题 12 / S06）"
 readme = "README.md"
-# 许可证见根目录 LICENSE（课程提交物，保留所有权利）。
-# 不在此声明 license 字段：PEP 639 的 SPDX 写法要求 setuptools>=77，
-# 而本项目承诺 setuptools>=68 可构建，声明了反而会让老环境装不上。
+# 许可证：Apache-2.0（PEP 639 的 SPDX 写法要求 setuptools>=77，已在 build-system 声明）
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
 requires-python = ">=3.11"
 # 下界是 2026-10-24 实际跑通全量测试的版本；更低的版本未验证，不承诺兼容。
 dependencies = [

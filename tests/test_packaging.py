@@ -79,17 +79,22 @@ def test_installed_command_works_or_is_skipped():
     assert "weather" in out.stdout and "stock" in out.stdout
 
 def test_license_and_third_party_files_exist():
-    """课程提交物必须带授权文件；缺了就等于默认「保留所有权利」却没有任何告知。"""
+    """对外发布的仓库必须有明确的开源许可证与归属声明。
+
+    没有 LICENSE 时默认就是「保留所有权利」——既没说开源，别人也不能合法使用；
+    NOTICE 则交代归属与第三方材料的边界。
+    """
     lic = ROOT / "LICENSE"
     assert lic.is_file(), "缺少 LICENSE"
     text = lic.read_text(encoding="utf-8")
-    assert "保留所有权利" in text
-    assert "All rights reserved" in text
-    assert "课程" in text
-    # 交付前不能留占位符：证书主体必须是真人/账号，否则授权对象不明
-    assert "待填写" not in text
+    assert "Apache License" in text
+    assert "Version 2.0" in text
     assert "qiaotong555" in text
-    assert (ROOT / "doc" / "评估授权函_模板.md").is_file(), "缺少第三方评估授权函模板"
+    assert "待填写" not in text
+
+    notice = ROOT / "NOTICE"
+    assert notice.is_file(), "缺少 NOTICE"
+    assert "qiaotong555" in notice.read_text(encoding="utf-8")
 
     for name in ("DATA_SOURCES.md", "THIRD_PARTY_NOTICES.md"):
         assert (ROOT / name).is_file(), f"缺少 {name}"
