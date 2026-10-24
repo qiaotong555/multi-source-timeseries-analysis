@@ -1,0 +1,10 @@
+# 禁止空白 issue：每条反馈都应该带上「命令 / 产物 / 期望」中的至少一部分
+blank_issues_enabled: false
+
+contact_links:
+  - name: 使用手册（安装、全部命令、运行保护、能力边界）
+    url: https://github.com/qiaotong555/multi-source-timeseries-analysis/blob/main/doc/使用手册.md
+    about: 大部分「怎么跑」的问题在这里有答案
+  - name: 诚实清单：还没做到什么
+    url: https://github.com/qiaotong555/multi-source-timeseries-analysis/blob/main/README.md
+    about: 提需求前先确认它不在这份「已知做不到」的清单里

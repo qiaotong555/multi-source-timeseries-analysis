@@ -1,0 +1,55 @@
+name: 结论可疑
+description: 某条结论与数据或常识不符。必须带命令与 result.json 原文，否则无法复现。
+title: "[结论] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        这个模板只问四件事：**你跑了什么、系统说了什么、你认为该是什么、凭什么**。
+
+        只写「分析不准」的反馈处理不了——分不清是数据问题、用法问题还是算法问题。
+        提之前建议先看一遍 [README](https://github.com/qiaotong555/multi-source-timeseries-analysis) 第 4 节「还没做到」，
+        有些「不对」其实是已经写明的能力边界。
+  - type: input
+    id: command
+    attributes:
+      label: 你跑的命令
+      description: 完整一行，含 --input 与 --question。贴之前去掉 key 与本机绝对路径。
+      placeholder: mtsa run --scene weather --input my_data.csv --question "分析温度的趋势和异常点" --output out/
+    validations:
+      required: true
+  - type: textarea
+    id: conclusion
+    attributes:
+      label: 系统给出的那条结论（result.json 原文）
+      description: 从 conclusions[] 里整条复制，带 evidence_ids。不要转述成一句话。
+      render: json
+      placeholder: |
+        {
+          "category": "异常检测",
+          "text": "temperature：检出 124 个异常点",
+          "evidence_ids": ["e07", "e08"]
+        }
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: 你期望的结果与依据
+      description: 依据可以是原始数据、另一份工具（Excel / R / statsmodels 手算）的输出、领域常识或文献。写清判断标准，别只写「感觉不对」。
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: 版本与数据
+      description: mtsa --version 的输出；数据是自带 fixture 还是你自己的（自备的请说明行列规模与时间跨度）。
+      placeholder: mtsa 0.3.0 ｜ 自备数据 8,784 行 × 5 列，小时级，跨度 1 年
+    validations:
+      required: true
+  - type: textarea
+    id: status
+    attributes:
+      label: result.json 的 status / warnings / error（建议）
+      description: 若 status 不是 succeeded，或 warnings 非空，请一并贴——它们经常直接解释「为什么结论长这样」（比如某项分析 not_run）。
+      render: json

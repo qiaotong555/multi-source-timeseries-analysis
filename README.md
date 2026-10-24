@@ -243,7 +243,21 @@ C 阶段（交付卫生）修完以下不一致，记录在此防止回退：
 
 ---
 
-## 10. 授权与使用
+## 10. 反馈与贡献
+
+这个项目最需要的外部输入是「**你算错了**」，不是「做得不错」。
+
+- **结论可疑** → [开一个结论可疑的 issue](https://github.com/qiaotong555/multi-source-timeseries-analysis/issues/new?template=conclusion-wrong.yml)。模板会追问三件事：跑的命令、`result.json` 里那条结论的原文、你期望的结果与依据。
+- **跑不起来** → [运行问题](https://github.com/qiaotong555/multi-source-timeseries-analysis/issues/new?template=run-error.yml)。先跑 `mtsa demo --out mtsa-check`：它能跑通说明环境没坏，问题在输入或参数。
+- **想知道能信到什么程度** → 先看第 4 节「还没做到」与 `doc/使用手册.md` 的能力边界。
+
+改代码前请读 [`CONTRIBUTING.md`](CONTRIBUTING.md)。三条硬规矩：**可复现、带证据、不为好看改评估口径。**
+
+> 这不是客套：真实事件召回只有 1/14，缓慢漂移与持续偏移检不出——这些短板已经写在上面的清单里。指出它们不会冒犯作者，回避它们才会让项目停在演示阶段。
+
+---
+
+## 11. 授权与使用
 
 代码采用 **Apache License 2.0**：可自由使用、修改、分发，包括商业用途，条件是保留版权与许可声明。
 完整条款见 [`LICENSE`](LICENSE)，版权归属见 [`NOTICE`](NOTICE)。

@@ -1,0 +1,25 @@
+name: 使用问题
+description: 能不能做某件事、结果怎么读、参数怎么选。先看能力边界再提问。
+title: "[使用] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        问之前先花两分钟看这两处，很多问题那里已有明确答案：
+
+        - README 第 4 节「还没做到 / 没达标的（诚实清单）」——明确不做的事也在里面（股票 Agent、业务预测、因果推断）
+        - `doc/使用手册.md` 的「能力边界」
+
+        如果问题其实是「结果看着不对」，请改用 **结论可疑** 模板——那个模板会要求带 `result.json` 原文，处理得快得多。
+  - type: textarea
+    id: question
+    attributes:
+      label: 你的问题
+      description: 说清你想得到的结论是什么，而不只是「这个参数怎么用」。
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: 你的数据与场景（建议）
+      description: 多少行、几列、时间跨度、业务上想回答什么。数据敏感就不必贴原文，说形态即可。

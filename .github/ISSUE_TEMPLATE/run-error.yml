@@ -1,0 +1,60 @@
+name: 运行问题
+description: 安装、导入、CLI 或 Docker 报错。附完整报错，以及「mtsa demo 是否也复现」。
+title: "[运行] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        先做一次基线自检，能省掉一半来回：
+
+        ```
+        mtsa demo --out mtsa-check
+        ```
+
+        这个命令不联网、不需要模型、不需要你的数据。**它能跑通** → 环境没问题，问题在输入或参数；
+        **它同样报错** → 安装/环境问题，把它的完整输出贴上来。
+  - type: input
+    id: command
+    attributes:
+      label: 失败的命令
+      description: 完整一行（去掉 key）。
+      placeholder: mtsa run --scene weather --input my_data.csv --question "..."
+    validations:
+      required: true
+  - type: textarea
+    id: error
+    attributes:
+      label: 完整报错
+      description: 从 Traceback 第一行到最后一行。只贴最后一句通常定位不到。
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: baseline
+    attributes:
+      label: mtsa demo 的结果
+      description: 跑通了，还是同样报错（贴输出）。
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: 环境
+      description: 操作系统、Python 版本、安装方式（pip / pip install -e / Docker / 源码 + PYTHONPATH）、mtsa --version。
+      placeholder: Windows 11 ｜ Python 3.13.2 ｜ pip install mtsa-agent ｜ mtsa 0.3.0
+    validations:
+      required: true
+  - type: textarea
+    id: data
+    attributes:
+      label: 输入数据形态（建议）
+      description: 表头 + 前 3 行，脱敏后贴。不要贴含个人信息的原始数据。
+      render: csv
+  - type: checkboxes
+    id: tried
+    attributes:
+      label: 已经试过
+      options:
+        - label: 在干净的虚拟环境里装过（venv / conda）
+        - label: 换自带 fixture（fixtures/weather_v1.csv）也报错
+        - label: 用 Docker 跑也报错
