@@ -64,7 +64,7 @@ def _version() -> str:
     """装了包就报包版本；直接用源码跑（未安装）时如实写 uninstalled。"""
     try:
         from importlib.metadata import version
-        return version("mtsa")
+        return version("mtsa-agent")
     except Exception:                            # noqa: BLE001  未安装时 metadata 不存在
         return "uninstalled"
 

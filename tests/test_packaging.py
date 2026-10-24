@@ -26,7 +26,7 @@ def _project() -> dict:
 
 def test_project_metadata_is_complete():
     doc = _project()
-    assert doc["name"] == "mtsa"
+    assert doc["name"] == "mtsa-agent"
     assert doc["version"]
     assert doc["requires-python"].startswith(">=3.12")
     assert doc["readme"] == "README.md"

@@ -3,7 +3,7 @@ requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "mtsa"
+name = "mtsa-agent"
 version = "0.3.0"
 description = "多源时序数据量化分析与可视化 Agent（课题 12 / S06）"
 readme = "README.md"

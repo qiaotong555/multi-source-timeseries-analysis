@@ -6,7 +6,8 @@
 ## 五分钟跑通
 
 ```bash
-pip install .        # 在仓库根目录；或 pip install <Release 下载的 wheel 文件>
+pip install mtsa-agent   # 从 PyPI 安装（发行名与命令名不同：装的是 mtsa-agent，用的是 mtsa）
+# 或在仓库根目录：pip install .
 mtsa demo            # 生成一份合成天气数据，跑完整链路，出报告
 ```
 
