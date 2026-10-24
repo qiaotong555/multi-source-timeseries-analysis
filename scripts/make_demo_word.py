@@ -388,7 +388,7 @@ def build_document() -> Path:
         ["输入数据", summary["input"]],
         ["分析问题", summary["question"]],
         ["模型", summary.get("model") or "未调用"],
-        ["项目根目录", str(ROOT)],
+        ["项目根目录", "仓库克隆位置（本机路径因人而异）"],
     ]
     add_table(doc, ["项目项", "内容"], cover_rows, widths=[1.25, 5.65], header_fill=BLUE, font_size=10)
     add_callout(doc, "先看结论", "这是一个可运行的 Demo，不是静态截图。文档中的数字来自 2026 年 10 月 24 日实际运行生成的 result.json、report.md 和 demo_summary.json。", fill=PALE_GREEN, title_color="548235")
