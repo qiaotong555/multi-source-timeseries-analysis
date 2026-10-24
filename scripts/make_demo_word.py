@@ -20,6 +20,8 @@ from docx.shared import Inches, Pt, RGBColor
 
 ROOT = Path(__file__).resolve().parents[1]
 SUMMARY_PATH = ROOT / "artifacts" / "demo" / "demo_summary.json"
+CASE_SUMMARY_PATH = ROOT / "artifacts" / "demo_case_unit_change_rule" / "demo_summary.json"
+CASE_RESULT_PATH = ROOT / "artifacts" / "demo_case_unit_change_rule" / "pipeline" / "result.json"
 OUT_PATH = ROOT / "doc" / "Agent一键Demo说明_2026-10-24.docx"
 
 NAVY = "17365D"
@@ -289,8 +291,22 @@ def get_mode(summary: dict[str, Any], mode: str) -> dict[str, Any]:
 def build_document() -> Path:
     with SUMMARY_PATH.open(encoding="utf-8") as f:
         summary = json.load(f)
+    if not CASE_SUMMARY_PATH.exists() or not CASE_RESULT_PATH.exists():
+        raise FileNotFoundError(
+            "缺少案例产物。请先运行：MTSA_PLANNER=rule python scripts/demo.py "
+            "--mode pipeline --input fixtures/weather_v1.csv "
+            "--question \"请重点检查 STA_A 温度数据是否发生单位变化，并分析温度趋势和异常点，给出处理建议\" "
+            "--out artifacts/demo_case_unit_change_rule"
+        )
+    with CASE_SUMMARY_PATH.open(encoding="utf-8") as f:
+        case_summary = json.load(f)
+    with CASE_RESULT_PATH.open(encoding="utf-8") as f:
+        case_doc = json.load(f)
     pipeline = get_mode(summary, "pipeline")
     agent = get_mode(summary, "agent")
+    case = get_mode(case_summary, "pipeline")
+    case_quality = (case_doc.get("data") or {}).get("quality") or {}
+    case_clean = (case_doc.get("data") or {}).get("clean") or {}
 
     doc = Document()
     section = doc.sections[0]
@@ -601,6 +617,72 @@ def build_document() -> Path:
         ["P3", "REST/异步服务", "有外部调用需求时再启动"],
     ], widths=[0.8, 2.5, 3.4])
     add_callout(doc, "明确暂不做", "多模型对比（已取消）、股票 Agent（暂缓）、预测分析、CSI/彩票场景。", fill=PALE_ORANGE, title_color="C65911")
+
+    # Case study
+    add_heading(doc, "9. 案例演示：气象站温度单位变化与异常诊断", 1)
+    add_para(doc, "前面的 Demo 展示了系统整体怎么跑；下面用一个更接近实际使用的问题，演示用户如何根据报告发现数据问题、理解清洗动作，并决定后续人工核查重点。这个案例只运行确定性 pipeline，不依赖模型，便于复现。", first_line=0.3)
+    add_heading(doc, "9.1 案例背景与问题", 2)
+    add_table(doc, ["项目", "内容"], [
+        ["案例名称", "STA_A 温度单位变化与异常诊断"],
+        ["输入", "fixtures/weather_v1.csv"],
+        ["用户问题", "请重点检查 STA_A 温度数据是否发生单位变化，并分析温度趋势和异常点，给出处理建议"],
+        ["运行模式", "pipeline；MTSA_PLANNER=rule"],
+        ["为什么选这个案例", "它同时包含数据质量问题、自动清洗、趋势分析和异常检测，能体现系统不只是“算指标”，还会先检查数据是否可信。"],
+    ], widths=[1.45, 5.25])
+    add_callout(doc, "案例核心", "如果温度数据中间有一段从摄氏度变成华氏度，直接计算趋势和异常会把单位跳变误认为天气变化。系统必须先发现并处理这个问题，再继续分析。", fill=PALE_ORANGE, title_color="C65911")
+
+    add_heading(doc, "9.2 案例执行过程", 2)
+    add_table(doc, ["步骤", "系统动作", "案例中的实际结果"], [
+        ["1. 识别问题", "读取时间列、站点列和天气字段，识别为 weather 场景。", "场景置信度 1.00；目标包括 STA_A/STA_B 温度以及其他天气变量。"],
+        ["2. 发现单位异常", "比较同一站点温度在相邻区间的稳健统计量。", "STA_A 在 2024-05-05 和 2024-06-04 出现两条 POSSIBLE_UNIT_CHANGE 警告。"],
+        ["3. 执行清洗", "把识别出的华氏度区间转换为摄氏度。", "2024-05-05 至 2024-06-04，共转换 713 行；中位数约 76.94 → 24.97。"],
+        ["4. 处理结构问题", "聚合重复时间戳、排序、插值缺失。", "聚合重复记录 25 行；插补 1,531 个单元格；清洗后 17,530 行。"],
+        ["5. 分析趋势与异常", "在清洗后的数据上执行趋势、周期、异常、变化点等分析。", "生成 39 条结论、39 条证据、139 个异常点、6 个变化点。"],
+        ["6. 形成报告", "把质量问题、清洗操作、结论和证据写入结果文件。", "result.json 和 report.md 均成功落盘。"],
+    ], widths=[1.0, 2.9, 2.8])
+
+    add_heading(doc, "9.3 案例实际结果", 2)
+    add_table(doc, ["指标", "结果", "如何理解"], [
+        ["状态", case["status"], "案例运行成功"],
+        ["质量问题记录", case["quality_issues"], "包含缺失、重复、乱序、采样缺口、单位变化等"],
+        ["单位变化警告", (case["quality_codes"].get("POSSIBLE_UNIT_CHANGE") or 0), "STA_A 温度区间前后各有一次边界警告"],
+        ["清洗后行数", "17,530", "重复时间戳聚合和透视后的有效时间序列规模"],
+        ["单位转换行数", "713", "STA_A 温度从华氏度转换为摄氏度"],
+        ["结论数 / 证据数", f"{case['conclusions']} / {case['evidence']}", "每条结论均有证据"],
+        ["证据覆盖率", f"{case['evidence_coverage']:.2f}", "没有无证据结论"],
+        ["异常点", case["anomalies"], "覆盖 6 个系列；包括温度、风速和降雨序列"],
+        ["变化点", case["change_points"], "主要落在 pressure@STA_A / pressure@STA_B"],
+    ], widths=[1.65, 1.25, 3.8])
+
+    unit_issues = [x for x in case_quality.get("issues", []) if x.get("code") == "POSSIBLE_UNIT_CHANGE"]
+    unit_rows = []
+    for issue in unit_issues:
+        unit_rows.append([
+            issue.get("group"), issue.get("start"), issue.get("detail"),
+        ])
+    add_heading(doc, "9.4 最关键的证据：单位变化与自动修复", 2)
+    if unit_rows:
+        add_table(doc, ["站点", "边界时间", "质量层证据"], unit_rows, widths=[1.1, 1.5, 4.1])
+    conversions = case_clean.get("unit_conversions") or []
+    if conversions:
+        c = conversions[0]
+        add_table(doc, ["清洗字段", "转换区间", "转换行数", "转换前中位数", "转换后中位数", "转换"], [[
+            c.get("column"), f"{c.get('start_time')} → {c.get('end_time')}", c.get("rows"),
+            c.get("median_before"), c.get("median_after"), f"{c.get('unit_from')} → {c.get('unit_to')}"
+        ]], widths=[1.1, 2.0, 0.75, 1.0, 1.0, 1.0], font_size=8.6)
+    add_para(doc, "这里的关键不是“系统替用户做了一个不可逆决定”，而是：系统先发现疑似单位变化，依据已有场景规则执行受控转换，并把转换区间、行数、前后统计量写入 clean.operations。用户仍然可以在 result.json 中复核这一动作。", first_line=0.3)
+
+    add_heading(doc, "9.5 案例结论与人工建议", 2)
+    add_bullet(doc, "数据层面：STA_A 温度在 2024-05-05 至 2024-06-04 出现单位异常，系统将 713 行统一转换为摄氏度。")
+    add_bullet(doc, "分析层面：清洗后仍能得到 STA_A 上升趋势、STA_B 下降趋势，以及两个温度序列的季节性和异常结果。")
+    add_bullet(doc, "异常层面：STA_A 检出 7 个温度异常点，STA_B 检出 11 个温度异常点；其他天气变量也可能产生异常，需要结合业务上下文确认。")
+    add_bullet(doc, "人工核查建议：确认原始设备在 2024-05-05 前后是否更换了单位配置；保留原始数据和转换记录；对高稳健 Z 值点核对传感器日志。")
+    add_bullet(doc, "不能直接得出的结论：系统不能仅凭统计结果证明设备一定故障，也不能把所有异常点都当成真实天气事件。")
+    add_callout(doc, "这个案例说明了什么", "Agent/分析系统的价值不仅是输出一个数字，还包括先识别数据是否可信、记录做过哪些清洗、再在清洗后的数据上给出有证据的结论。", fill=PALE_GREEN, title_color="548235")
+
+    add_heading(doc, "9.6 案例复现", 2)
+    add_code_block(doc, "cd <repo>\n$env:MTSA_PLANNER='rule'\npython scripts/demo.py --mode pipeline --input fixtures/weather_v1.csv --question \"请重点检查 STA_A 温度数据是否发生单位变化，并分析温度趋势和异常点，给出处理建议\" --out artifacts/demo_case_unit_change_rule\n\n# 根据案例产物重新生成包含案例章节的 Word 文档\npython scripts/make_demo_word.py")
+    add_para(doc, "案例证据：artifacts/demo_case_unit_change_rule/pipeline/result.json、artifacts/demo_case_unit_change_rule/pipeline/report.md、artifacts/demo_case_unit_change_rule/demo_summary.json。", style="Small Note")
 
     # Appendix
     add_heading(doc, "附录：关键文件清单", 1)
