@@ -9,7 +9,7 @@
 数据：artifacts/docdemo/{pipeline,agent,forecast}/result.json
 图：artifacts/docdemo/figs/*.png（本脚本按「一列一张图、单尺度」重画。
     流水线自带的 5 列共轴图在气压 ~1000 的量级下会把温度压成一条直线，不适合演示。）
-输出：doc/全链路Demo_柏林2024_2026-10-24.docx
+输出：doc/全链路Demo_柏林2024.docx
 
 文档里的每个数字都在生成时从 result.json / clean_data.csv 读取，不手写。
 """
@@ -22,6 +22,7 @@ import subprocess
 import sys
 import time
 from collections import Counter
+from datetime import datetime, timezone
 from pathlib import Path
 
 import pandas as pd
@@ -39,6 +40,7 @@ FIGS = DEMO / "figs"
 OUT = ROOT / "doc" / "全链路Demo_柏林2024.docx"
 INPUT = ROOT / "fixtures" / "real_weather" / "r01_berlin_hourly_2024" / "data.csv"
 QUESTION = "分析温度的趋势、季节性和异常点，并检测变化点"
+AUTHOR = "qiaotong555"
 
 BODY = "等线"
 HEAD = "微软雅黑"
@@ -594,6 +596,19 @@ def build(rerun: bool = False) -> Path:
               "每一步给的都是这份数据上的真实结果，不是示意。")
     body(doc, "第 3、4 页回答三个具体问题：温度怎么变、有没有周期、有没有异常和突变。"
               "第 5 页是最终拿到的东西，以及这些结论能信到什么程度。", after=12)
+
+    # 覆盖模板默认的 core properties（否则作者显示 python-docx、创建时间 2013 年）
+    stamp = datetime.now(timezone.utc).replace(microsecond=0)
+    props = doc.core_properties
+    props.title = "一条数据，走完整条链路"
+    props.subject = f"柏林 2024 年逐小时天气：{clean['rows']:,} 行 CSV 走完六步"
+    props.author = AUTHOR
+    props.last_modified_by = AUTHOR
+    props.keywords = "时序分析, 天气, 全链路, 证据, 复现"
+    props.comments = ""
+    props.category = ""
+    props.created = stamp
+    props.modified = stamp
 
     h2(doc, "这份数据", space_before=4)
     add_table(doc, ["项目", "取值"], [

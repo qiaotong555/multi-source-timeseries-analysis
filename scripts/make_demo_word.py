@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 import os
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -23,6 +23,7 @@ SUMMARY_PATH = ROOT / "artifacts" / "demo" / "demo_summary.json"
 CASE_SUMMARY_PATH = ROOT / "artifacts" / "demo_case_unit_change_rule" / "demo_summary.json"
 CASE_RESULT_PATH = ROOT / "artifacts" / "demo_case_unit_change_rule" / "pipeline" / "result.json"
 OUT_PATH = ROOT / "doc" / "Agent一键Demo说明_2026-10-24.docx"
+AUTHOR = "qiaotong555"
 
 NAVY = "17365D"
 BLUE = "2F75B5"
@@ -705,12 +706,19 @@ def build_document() -> Path:
     p.alignment = WD_ALIGN_PARAGRAPH.RIGHT
     p.add_run("文档由项目真实 Demo 产物自动整理生成；未包含 API Key 或其他敏感凭据。")
 
-    # Add core properties
-    doc.core_properties.title = "多源时序数据量化分析与可视化 Agent 一键 Demo 全流程说明"
-    doc.core_properties.subject = "天气场景 pipeline / agent 双模式演示"
-    doc.core_properties.author = "OpenAI Codex"
-    doc.core_properties.keywords = "时序分析, Agent, pipeline, weather, demo, 证据, 复现"
-    doc.core_properties.comments = "Based on actual run artifacts under artifacts/demo."
+    # Add core properties（作者与时间写真实值：模板默认的 python-docx / 2013 年
+    # 会在「文件 → 信息」里暴露生成工具，交付前必须覆盖）
+    stamp = datetime.now(timezone.utc).replace(microsecond=0)
+    props = doc.core_properties
+    props.title = "多源时序数据量化分析与可视化 Agent 一键 Demo 全流程说明"
+    props.subject = "天气场景 pipeline / agent 双模式演示"
+    props.author = AUTHOR
+    props.last_modified_by = AUTHOR
+    props.keywords = "时序分析, Agent, pipeline, weather, demo, 证据, 复现"
+    props.comments = ""
+    props.category = ""
+    props.created = stamp
+    props.modified = stamp
 
     OUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     doc.save(OUT_PATH)
