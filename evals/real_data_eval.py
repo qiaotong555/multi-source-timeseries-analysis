@@ -72,7 +72,8 @@ EXPECTED_CODE = {
     "sentinel": None,
 }
 
-THRESHOLDS = {"quality_event_recall": 0.80, "evidence_coverage": 1.00}
+THRESHOLDS = {"quality_event_recall": 0.80, "evidence_coverage": 1.00,
+               "anomaly_event_recall": 0.50}
 AGENT_MAX_TOKENS = 8000
 
 
@@ -92,6 +93,33 @@ def load_registry() -> list[dict[str, Any]]:
     with open(os.path.join(BASE, "registry.json"), encoding="utf-8") as f:
         reg = json.load(f)
     return [m for m in reg["datasets"] if "error" not in m]
+
+
+L2_CSV = os.path.join(ROOT, "fixtures", "real_weather", "l2_verified_events.csv")
+L2_SOURCE_CSV = os.path.join(ROOT, "fixtures", "real_weather", "l2_sources",
+                             "noaa_stormevents_selected.csv")
+
+
+def load_l2_events() -> list[dict[str, Any]]:
+    """L2 = 可离线复核的官方极端事件；空表表示该轮没有 L2。"""
+    if not os.path.exists(L2_CSV):
+        return []
+    with open(L2_CSV, encoding="utf-8-sig", newline="") as f:
+        rows = list(csv.DictReader(f))
+    return [r for r in rows if (r.get("kind") or "") == "verified_anomaly"]
+
+
+def l2_source_status() -> tuple[int, int]:
+    """返回 (事件引用的 EVENT_ID 数, 能在落盘原始 CSV 里找到的数量)。"""
+    ids = []
+    for r in load_l2_events():
+        tail = (r.get("source") or "").split("EVENT_ID=")[-1]
+        ids.extend(x.strip() for x in tail.split("|") if x.strip().isdigit())
+    have = set()
+    if os.path.exists(L2_SOURCE_CSV):
+        with open(L2_SOURCE_CSV, encoding="utf-8-sig", newline="") as f:
+            have = {x.get("EVENT_ID") for x in csv.DictReader(f)}
+    return len(ids), sum(1 for i in ids if i in have)
 
 
 def load_labels(data_path: str) -> list[dict[str, Any]]:
@@ -225,6 +253,76 @@ def jaccard(a: set, b: set) -> float:
     return round(len(a & b) / len(a | b), 4)
 
 
+def _day(value: Any):
+    try:
+        return pd.Timestamp(str(value)).normalize()
+    except (ValueError, TypeError):
+        return None
+
+
+def _anomaly_episodes(points: list[tuple]) -> list[tuple[str, Any, Any]]:
+    """同列异常点按天聚类：相邻天算同一 episode，间隔 >1 天即新 episode。"""
+    by: dict[str, set] = {}
+    for day, col in points:
+        by.setdefault(str(col), set()).add(day)
+    out = []
+    for col, days in by.items():
+        cur = []
+        for d in sorted(days):
+            if cur and (d - cur[-1]).days <= 1:
+                cur.append(d)
+            else:
+                if cur:
+                    out.append((col, cur[0], cur[-1]))
+                cur = [d]
+        if cur:
+            out.append((col, cur[0], cur[-1]))
+    return out
+
+
+def score_anomaly_events(events: list[dict[str, Any]], anomaly_rows: list[dict[str, Any]],
+                         executed: bool = True) -> dict[str, Any]:
+    """事件级异常评分。
+
+    Recall：事件窗口内（同列）至少有一个异常点即命中；
+    Precision：落在任一事件窗口内的 episode / 全部 episode；
+    未执行异常检测时返回 tool_not_run，不当成 0 分。
+    """
+    total = len(events)
+    base = {"total": total, "recall": None, "precision": None, "f1": None}
+    if not total:
+        return {**base, "status": "no_l2"}
+    if not executed:
+        return {**base, "status": "tool_not_run"}
+    points = []
+    for a in anomaly_rows or []:
+        d = _day(a.get("timestamp"))
+        if d is not None and a.get("column"):
+            points.append((d, a["column"]))
+    wins = []
+    for e in events:
+        a, b = _day(e.get("start")), _day(e.get("end"))
+        if a is not None and b is not None:
+            wins.append((a, b, e.get("column"), e))
+    matched_rows = []
+    for a, b, col, e in wins:
+        hit = any(c == col and a <= d <= b for d, c in points)
+        matched_rows.append({**{k: e.get(k) for k in ("dataset", "column", "start", "end",
+                                                       "event_types", "station")},
+                             "matched": hit})
+    matched = sum(1 for r in matched_rows if r["matched"])
+    eps = _anomaly_episodes(points)
+    hit_eps = sum(1 for c, a, b in eps
+                  if any(cc == c and not (b < s or a > t) for s, t, cc, _ in wins))
+    rec = ratio(matched, len(wins))
+    prec = (ratio(hit_eps, len(eps)) if eps else 0.0)
+    f1 = (2 * rec * prec / (rec + prec)) if (rec and prec) else 0.0
+    ci = wilson(matched, len(wins))
+    return {"status": "scored", "total": total, "matched": matched, "recall": rec,
+            "recall_ci": ci, "episodes": len(eps), "hit_episodes": hit_eps,
+            "precision": prec, "f1": round(f1, 4), "rows": matched_rows}
+
+
 def run_one(meta: dict[str, Any], q: dict[str, Any], mode: str, force: bool) -> dict[str, Any]:
     out = os.path.join(OUT_ROOT, meta["id"], "%s_%s" % (q["id"], mode))
     os.makedirs(out, exist_ok=True)
@@ -276,6 +374,7 @@ def collect_run(meta: dict[str, Any], q: dict[str, Any], mode: str,
         "quality_codes": sorted({i.get("code") for i in (quality.get("issues") or [])}),
         "quality_issue_rows": quality.get("issues") or [],
         "anomalies": len(data.get("anomalies") or []),
+        "_anomaly_rows": data.get("anomalies") or [],
         "change_points": len(data.get("change_points") or []),
         "anomaly_candidate_count": quality.get("anomaly_candidate_count"),
         "executed_tools": executed_tools(doc, mode) if doc else [],
@@ -291,12 +390,32 @@ def collect_run(meta: dict[str, Any], q: dict[str, Any], mode: str,
     }
 
 
-def summarize_dataset(meta, runs, labels, facts) -> dict[str, Any]:
+def summarize_dataset(meta, runs, labels, facts, l2_events=None) -> dict[str, Any]:
+    l2_events = l2_events or []
     out = {"id": meta["id"], "name": meta["name"], "source": meta["source"],
            "note": meta.get("note", ""), "facts": facts, "labels": len(labels)}
     first_ok = next((r for r in runs if r["result_exists"] and r["quality_issue_rows"]), None)
     issues = first_ok["quality_issue_rows"] if first_ok else []
     out["quality_match"] = match_quality(labels, issues)
+
+    ev_modes = {}
+    for mode in ("pipeline", "agent"):
+        r = next((x for x in runs if x["question"] == "q1" and x["mode"] == mode
+                  and x["status"] == "succeeded"), None)
+        if r is None:
+            ev_modes[mode] = {"status": "no_run", "total": len(l2_events),
+                              "recall": None, "precision": None, "f1": None}
+        else:
+            ran = "detect_anomalies" in (r.get("executed_tools") or [])
+            ev_modes[mode] = score_anomaly_events(
+                l2_events, r.get("_anomaly_rows") or [], ran)
+    out["anomaly_events"] = {
+        "total": len(l2_events),
+        "columns": sorted({x.get("column") for x in l2_events if x.get("column")}),
+        "types": sorted({t for x in l2_events
+                         for t in (x.get("event_types") or "").split(";") if t}),
+        "modes": ev_modes,
+    }
 
     dup = next((i for i in issues if i.get("code") == "DUPLICATE_TIMESTAMPS"), None)
     out["duplicate_timestamp_false_positive"] = bool(
@@ -407,8 +526,9 @@ def build_checks(per_dataset, runs, registry, by_id) -> dict[str, Any]:
     add("R5 L1 质量事件 Recall >= 0.80",
         mr is not None and mr >= THRESHOLDS["quality_event_recall"], mr, ">= 0.80")
 
-    add("R6 未标注事件不计入 FP/FN", True,
-        "L3 只报数量；无 L2 标签的异常/变化点指标标 N/A", "口径检查")
+    add("R6 未标注事件不计入 FN", True,
+        "L2 事件只用于 Recall/Precision；未标注异常不作为 FN，只影响 Precision",
+        "口径检查")
 
     explainable = sum(1 for d in per_dataset
                       if d["labels"] or d["facts"]["dropped_all_null_columns"]
@@ -454,6 +574,23 @@ def build_checks(per_dataset, runs, registry, by_id) -> dict[str, Any]:
         "变更 %d 项，清单外 %d 项（%s）" % (
             len(dirty), len(unexpected), ",".join(sorted(dirty)) or "无"),
         "清单外 0 项")
+
+    ae_total = sum(d["anomaly_events"]["total"] for d in per_dataset)
+    ae_ds = sum(1 for d in per_dataset if d["anomaly_events"]["total"])
+    ae_cols = {c for d in per_dataset for c in d["anomaly_events"]["columns"]}
+    ae_types = {t for d in per_dataset for t in d["anomaly_events"]["types"]}
+    add("R11 L2 事件清单可离线复核", ae_total >= 12 and ae_ds >= 2
+        and len(ae_cols) >= 3 and len(ae_types) >= 3,
+        "%d 条 / %d 数据集 / %d 列 / %d 类型" % (ae_total, ae_ds, len(ae_cols), len(ae_types)),
+        ">=12 / >=2 / >=3 / >=3")
+    n_ids, n_found = l2_source_status()
+    add("R12 每条 L2 事件都能在落盘原始行中找到", n_ids > 0 and n_ids == n_found,
+        "%d/%d EVENT_ID 命中" % (n_found, n_ids), "全部命中")
+    ev_rec = [d["anomaly_events"]["modes"]["pipeline"]["recall"] for d in per_dataset
+              if d["anomaly_events"]["modes"]["pipeline"]["recall"] is not None]
+    mrec = mean(ev_rec)
+    add("R13 事件级 Recall >= 0.50（pipeline q1）",
+        mrec is not None and mrec >= THRESHOLDS["anomaly_event_recall"], mrec, ">= 0.50")
     return {"checks": checks, "passed": all(c["ok"] for c in checks)}
 
 
@@ -541,13 +678,39 @@ def build_findings(per_dataset, runs) -> list[dict]:
                      "所以 Recall 高不代表可追溯，可定位 Recall 才是更严格的读法。"),
             "evidence": ["fixtures/real_weather/*/labels.csv", "src/mtsa/quality.py"],
         })
-    out.append({
-        "title": "F5 L2 为空：异常 P/R/F1 本轮不计分",
-                "short": "L2 为空、异常不计分",
-        "body": ("没有取得可离线复核的官方极端事件清单，`l2_verified_events.csv` 只有表头。"
-                 "异常与变化点只报数量（L3），不把无标签候选当成误报，也不当成命中。"),
-        "evidence": ["fixtures/real_weather/l2_verified_events.csv"],
-    })
+    l2_total = sum(d["anomaly_events"]["total"] for d in per_dataset)
+    if l2_total == 0:
+        out.append({
+            "title": "F5 L2 为空：异常 P/R/F1 本轮不计分",
+                    "short": "L2 为空、异常不计分",
+            "body": ("没有取得可离线复核的官方极端事件清单，`l2_verified_events.csv` 只有表头。"
+                     "异常与变化点只报数量（L3），不把无标签候选当成误报，也不当成命中。"),
+            "evidence": ["fixtures/real_weather/l2_verified_events.csv"],
+        })
+    else:
+        recs = [d["anomaly_events"]["modes"]["pipeline"]["recall"] for d in per_dataset
+                if d["anomaly_events"]["modes"]["pipeline"]["recall"] is not None]
+        precs = [d["anomaly_events"]["modes"]["pipeline"]["precision"] for d in per_dataset
+                 if d["anomaly_events"]["modes"]["pipeline"]["precision"] is not None]
+        mrec, mprec = mean(recs), mean(precs)
+        if mrec is not None and mrec < THRESHOLDS["anomaly_event_recall"]:
+            out.append({
+                "title": "F5 事件级 Recall %.2f：官方事件仍有漏检" % mrec,
+                "short": "L2 事件漏检",
+                "body": ("按 NOAA StormEvents 的 %d 条官方事件计分，pipeline q1 的事件级 Recall "
+                         "为 %.3f（阈值 %.2f）。漏检事件见报告 4b.1 的「命中=否」行。" % (
+                             l2_total, mrec, THRESHOLDS["anomaly_event_recall"])),
+                "evidence": ["fixtures/real_weather/l2_verified_events.csv"],
+            })
+        elif mprec is not None and mprec < 0.50:
+            out.append({
+                "title": "F5 事件级 Precision %.2f：窗口外仍有较多异常 episode" % mprec,
+                "short": "异常 episode 在事件窗口外偏多",
+                "body": ("事件命中不差（Recall %.3f），但全部异常 episode 中只有 %.1f%% 落在官方"
+                         "事件窗口内。这说明检测器会把非极端日的波动也标成异常；precision 只按"
+                         "「窗口内外」划分，未标注异常没有当作 FN。" % (mrec or 0, mprec * 100)),
+                "evidence": ["fixtures/real_weather/l2_verified_events.csv"],
+            })
     silent = [r for r in runs if r["status"] == "succeeded" and r["anomalies"] == 0
               and "detect_anomalies" in (r["executed_tools"] or [])
               and not (r["conclusion_categories"] or {}).get("异常检测")]
@@ -639,6 +802,10 @@ def render_md(doc) -> str:
         ("by_mode.agent.need_coverage", "需求覆盖率 agent"),
         ("quality_match.recall", "L1 质量事件 Recall"),
         ("quality_match.localized_recall", "L1 可定位 Recall"),
+        ("anomaly_events.modes.pipeline.recall", "事件 Recall（pipeline q1）"),
+        ("anomaly_events.modes.pipeline.precision", "事件 Precision（pipeline q1）"),
+        ("anomaly_events.modes.pipeline.f1", "事件 F1（pipeline q1）"),
+        ("anomaly_events.modes.agent.recall", "事件 Recall（agent q1）"),
         ("anomaly_jaccard", "两模式异常 Jaccard"),
         ("changepoint_jaccard", "两模式变化点 Jaccard"),
     ):
@@ -669,6 +836,37 @@ def render_md(doc) -> str:
                 (r.get("reason") or "").replace("|", "/")))
     L += ["", "> `reported_unlocalized` = 只报「这一列有缺失」，给不出缺口起止；"
           "`detected_localized` = 能对到具体区间。两者分开统计。", ""]
+
+    L += ["## 4b. L2 事件级异常评分（NOAA StormEvents）", "",
+          "> 事件窗口内（同列）有任一异常点即命中；episode = 同列相邻天异常聚类；",
+          "> Precision = 落在事件窗口内的 episode / 全部 episode。",
+          "> Agent 未执行 `detect_anomalies` 时标 N/A，不当成 0。", "",
+          "| 数据集 | 模式 | 事件数 | 命中 | Recall | Recall 95% CI | episode | 命中 episode | Precision | F1 | 状态 |",
+          "| --- | --- | ---: | ---: | ---: | --- | ---: | ---: | ---: | ---: | --- |"]
+    for d in ds:
+        ae = d.get("anomaly_events") or {}
+        if not ae.get("total"):
+            continue
+        for mode in ("pipeline", "agent"):
+            m = ae["modes"][mode]
+            ci = m.get("recall_ci") or {}
+            ci_txt = "[%s, %s]" % (_f(ci.get("lo")), _f(ci.get("hi"))) if ci else "—"
+            L.append("| %s | %s | %d | %s | %s | %s | %s | %s | %s | %s | %s |" % (
+                d["id"], mode, ae["total"], m.get("matched", 0), _f(m.get("recall")), ci_txt,
+                m.get("episodes", "—"), m.get("hit_episodes", "—"), _f(m.get("precision")),
+                _f(m.get("f1")), m.get("status")))
+    L += ["", "### 4b.1 事件明细（pipeline q1）", "",
+          "| 数据集 | 列 | 事件窗口 | 官方类型 | 命中 |", "| --- | --- | --- | --- | --- |"]
+    for d in ds:
+        ae = d.get("anomaly_events") or {}
+        if not ae.get("total"):
+            continue
+        for r in (ae["modes"]["pipeline"].get("rows") or []):
+            L.append("| %s | %s | %s ~ %s | %s | %s |" % (
+                d["id"], r.get("column"), str(r.get("start"))[:10], str(r.get("end"))[:10],
+                (r.get("event_types") or "").replace(";", "/"), "是" if r["matched"] else "否"))
+    L += ["", "> L2 只覆盖 R03（Phoenix）与 R06（NYC）；其余 8 份数据没有可离线复核的官方事件，"
+          "异常指标对这些数据保持 N/A。来源与选样规则见 `fixtures/real_weather/l2_sources/sources.json`。", ""]
 
     L += ["## 5. 关键发现", "",
           "> **C1 修复后复跑说明**：首轮暴露的 F1（R08 季节性升温被误判为华氏度段，"
@@ -750,12 +948,16 @@ def main(argv=None) -> int:
                     row["status"], row["conclusion_count"], row["anomalies"],
                     row["change_points"]), flush=True)
 
+    l2_by_ds: dict[str, list[dict]] = {}
+    for ev in load_l2_events():
+        l2_by_ds.setdefault(ev.get("dataset"), []).append(ev)
     per_dataset = []
     for meta in registry:
         labels = load_labels(meta["data_path"])
         facts = data_facts(meta, labels)
         per_dataset.append(summarize_dataset(
-            meta, [r for r in runs if r["dataset"] == meta["id"]], labels, facts))
+            meta, [r for r in runs if r["dataset"] == meta["id"]], labels, facts,
+            l2_by_ds.get(meta["id"], [])))
 
     by_id = {d["id"]: d for d in per_dataset}
     macro_map, worst_map = {}, {}
@@ -765,6 +967,10 @@ def main(argv=None) -> int:
         ["by_mode", "pipeline", "need_coverage"], ["by_mode", "agent", "need_coverage"],
         ["by_mode", "agent", "tool_coverage"],
         ["quality_match", "recall"], ["quality_match", "localized_recall"],
+        ["anomaly_events", "modes", "pipeline", "recall"],
+        ["anomaly_events", "modes", "pipeline", "precision"],
+        ["anomaly_events", "modes", "pipeline", "f1"],
+        ["anomaly_events", "modes", "agent", "recall"],
         ["anomaly_jaccard"], ["changepoint_jaccard"],
     ):
         key = ".".join(path)
@@ -786,6 +992,10 @@ def main(argv=None) -> int:
                     _f(macro_map.get("quality_match.localized_recall")),
                     _f(macro_map.get("by_mode.pipeline.need_coverage")),
                     "；".join(f.get("short") or f["title"] for f in findings[:3])))
+    if macro_map.get("anomaly_events.modes.pipeline.recall") is not None:
+        headline = headline.rstrip("。") + "；L2 事件 Recall %s / Precision %s（pipeline q1）。" % (
+            _f(macro_map.get("anomaly_events.modes.pipeline.recall")),
+            _f(macro_map.get("anomaly_events.modes.pipeline.precision")))
 
     doc = {"generated_at": datetime.now().isoformat(timespec="seconds"),
            "model": os.environ.get("MTSA_LLM_MODEL") if "agent" in modes else None,

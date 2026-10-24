@@ -1,1 +1,15 @@
-dataset,kind,column,station,start,end,count,source,note
+dataset,kind,column,station,start,end,count,event_types,source,note
+R03,verified_anomaly,temperature,PHX,2018-08-19 00:00:00,2018-08-31 00:00:00,13,Excessive Heat;Heat,NOAA StormEvents EVENT_ID=863310|867271|867356|867358|867360,Excessive Heat(CENTRAL PHOENIX); Heat(CENTRAL PHOENIX)；同列相邻≤1天的官方条目合并为一个事件窗口
+R03,verified_anomaly,temperature,PHX,2019-07-22 00:00:00,2019-07-31 00:00:00,10,Excessive Heat;Heat,NOAA StormEvents EVENT_ID=929030|929032|929034|929066|929068|929042|929059|929061|929063,Excessive Heat(CENTRAL PHOENIX); Heat(CENTRAL PHOENIX)；同列相邻≤1天的官方条目合并为一个事件窗口
+R03,verified_anomaly,temperature,PHX,2020-07-03 00:00:00,2020-07-22 00:00:00,20,Excessive Heat;Heat,NOAA StormEvents EVENT_ID=991997|991998|991999|992000|992001|992002|992005|992003|992004|992006|992007|992008|992009|992010|992011|992012|992013,Excessive Heat(CENTRAL PHOENIX); Heat(CENTRAL PHOENIX)；同列相邻≤1天的官方条目合并为一个事件窗口
+R03,verified_anomaly,temperature,PHX,2021-06-29 00:00:00,2021-07-11 00:00:00,13,Excessive Heat;Heat,NOAA StormEvents EVENT_ID=1061116|1061119|1066907|1066908|1066909|1066910|1066911|1066913|1066914|1066915|1066920,Excessive Heat(CENTRAL PHOENIX); Heat(CENTRAL PHOENIX)；同列相邻≤1天的官方条目合并为一个事件窗口
+R03,verified_anomaly,temperature,PHX,2022-07-08 00:00:00,2022-07-23 00:00:00,16,Excessive Heat;Heat,NOAA StormEvents EVENT_ID=1147593|1147595|1147684|1147600|1147687|1147691|1147694|1147696|1147698|1147701|1147704|1147706|1147709|1147884|1147888,Excessive Heat(CENTRAL PHOENIX); Heat(CENTRAL PHOENIX)；同列相邻≤1天的官方条目合并为一个事件窗口
+R03,verified_anomaly,temperature,PHX,2023-07-01 00:00:00,2023-07-29 00:00:00,29,Excessive Heat,NOAA StormEvents EVENT_ID=1210443|1210470|1210858|1211015,Excessive Heat(CENTRAL PHOENIX)；同列相邻≤1天的官方条目合并为一个事件窗口
+R03,verified_anomaly,temperature,PHX,2024-06-09 00:00:00,2024-06-16 00:00:00,8,Excessive Heat;Heat,NOAA StormEvents EVENT_ID=1297504|1297506|1297508,Excessive Heat(CENTRAL PHOENIX); Heat(CENTRAL PHOENIX)；同列相邻≤1天的官方条目合并为一个事件窗口
+R06,verified_anomaly,wind_speed,NYC,2018-03-02 00:00:00,2018-03-02 00:00:00,1,High Wind,NOAA StormEvents EVENT_ID=739455,High Wind(NEW YORK (MANHATTAN))；同列相邻≤1天的官方条目合并为一个事件窗口
+R06,verified_anomaly,temperature,NYC,2019-07-19 00:00:00,2019-07-21 00:00:00,3,Excessive Heat;Heat,NOAA StormEvents EVENT_ID=853371|852172|851760,Excessive Heat(NEW YORK (MANHATTAN)); Heat(NEW YORK (MANHATTAN))；同列相邻≤1天的官方条目合并为一个事件窗口
+R06,verified_anomaly,wind_speed,NYC,2020-04-13 00:00:00,2020-04-13 00:00:00,1,High Wind,NOAA StormEvents EVENT_ID=880196,High Wind(NEW YORK (MANHATTAN))；同列相邻≤1天的官方条目合并为一个事件窗口
+R06,verified_anomaly,rainfall,NYC,2021-09-01 00:00:00,2021-09-02 00:00:00,2,Flash Flood,NOAA StormEvents EVENT_ID=987551|987533|994927|987540|987571,Flash Flood(NEW YORK)；同列相邻≤1天的官方条目合并为一个事件窗口
+R06,verified_anomaly,rainfall,NYC,2022-07-18 00:00:00,2022-07-18 00:00:00,1,Flash Flood,NOAA StormEvents EVENT_ID=1048806,Flash Flood(NEW YORK)；同列相邻≤1天的官方条目合并为一个事件窗口
+R06,verified_anomaly,wind_speed,NYC,2023-08-13 00:00:00,2023-08-13 00:00:00,1,Thunderstorm Wind,NOAA StormEvents EVENT_ID=1130792,Thunderstorm Wind(NEW YORK)；同列相邻≤1天的官方条目合并为一个事件窗口
+R06,verified_anomaly,wind_speed,NYC,2024-03-11 00:00:00,2024-03-11 00:00:00,1,High Wind,NOAA StormEvents EVENT_ID=1161213,High Wind(NEW YORK (MANHATTAN))；同列相邻≤1天的官方条目合并为一个事件窗口

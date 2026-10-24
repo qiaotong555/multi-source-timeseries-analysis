@@ -1,0 +1,75 @@
+{
+ "retrieved_at": "2026-10-24T13:29:15",
+ "provider": "NOAA NCEI Storm Events Database",
+ "index_url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/",
+ "files": {
+  "2018": {
+   "name": "StormEvents_details-ftp_v1.0_d2018_c20260323.csv.gz",
+   "url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d2018_c20260323.csv.gz",
+   "bytes": 9585982,
+   "sha1": "7d3652998cffc1d6d891528e2ba19ffed3b004e1"
+  },
+  "2019": {
+   "name": "StormEvents_details-ftp_v1.0_d2019_c20260323.csv.gz",
+   "url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d2019_c20260323.csv.gz",
+   "bytes": 11602648,
+   "sha1": "fb0c6b047ffa72412c525ddaa6b302a5aa219793"
+  },
+  "2020": {
+   "name": "StormEvents_details-ftp_v1.0_d2020_c20260323.csv.gz",
+   "url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d2020_c20260323.csv.gz",
+   "bytes": 10444606,
+   "sha1": "d52d51d471cf44cfd8d4beffc92409be3cb8a7f6"
+  },
+  "2021": {
+   "name": "StormEvents_details-ftp_v1.0_d2021_c20260323.csv.gz",
+   "url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d2021_c20260323.csv.gz",
+   "bytes": 10563953,
+   "sha1": "b40b145ecb8e6b7b774c305426c9ec7a6229983f"
+  },
+  "2022": {
+   "name": "StormEvents_details-ftp_v1.0_d2022_c20260625.csv.gz",
+   "url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d2022_c20260625.csv.gz",
+   "bytes": 11817849,
+   "sha1": "bb9266a7dce3f1b4a2ca37519eb845efbdbb60ee"
+  },
+  "2023": {
+   "name": "StormEvents_details-ftp_v1.0_d2023_c20260323.csv.gz",
+   "url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d2023_c20260323.csv.gz",
+   "bytes": 12888092,
+   "sha1": "c3b6ec152614ccd3830d7b65b48332e57866fb7b"
+  },
+  "2024": {
+   "name": "StormEvents_details-ftp_v1.0_d2024_c20260728.csv.gz",
+   "url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d2024_c20260728.csv.gz",
+   "bytes": 12693243,
+   "sha1": "c79ca6e43dd5f64b8be168af9ef48045562e45c8"
+  }
+ },
+ "selection_rule": "同一数据集/同一列内，把相邻≤1天的官方条目合并为一个事件窗口；每个数据集/列/年份取最长的窗口（并列取最早）。仅使用官方 EVENT_TYPE 可映射到数据列的条目（Heat/Cold→temperature、Flood/Rain→rainfall、Wind→wind_speed）。",
+ "event_type_map": {
+  "Heat": "temperature",
+  "Excessive Heat": "temperature",
+  "Cold/Wind Chill": "temperature",
+  "Extreme Cold/Wind Chill": "temperature",
+  "Flash Flood": "rainfall",
+  "Flood": "rainfall",
+  "Heavy Rain": "rainfall",
+  "Thunderstorm Wind": "wind_speed",
+  "Strong Wind": "wind_speed",
+  "High Wind": "wind_speed"
+ },
+ "selected_csv": "fixtures/real_weather/l2_sources/noaa_stormevents_selected.csv",
+ "selected_csv_sha1": "bd9538c9517ecdf4d7bcdeab65eee6a9227e3c71",
+ "event_count": 14,
+ "datasets": {
+  "R03": {
+   "county_or_zone": "CENTRAL PHOENIX (AZ)",
+   "station": "PHX"
+  },
+  "R06": {
+   "county_or_zone": "NEW YORK / NEW YORK (MANHATTAN) (NY)",
+   "station": "NYC"
+  }
+ }
+}
