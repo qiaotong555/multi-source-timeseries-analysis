@@ -5,6 +5,7 @@
 与股票（扩展场景）两个适配器，用同一工作流验证可迁移性。
 
 完整说明（能力边界、评估结果、限制、复现）见 `doc/项目说明书.md`。
+Demo Word 说明文档见 `doc/Agent一键Demo说明_2026-10-24.docx`；可用 `python scripts/make_demo_word.py` 按真实 `artifacts/demo/` 产物重新生成。
 
 ```bash
 # 一键演示（推荐先跑；同数据同问题跑 pipeline + agent，缺模型自动跳过 agent）
