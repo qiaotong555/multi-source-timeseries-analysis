@@ -28,7 +28,7 @@ def test_project_metadata_is_complete():
     doc = _project()
     assert doc["name"] == "mtsa"
     assert doc["version"]
-    assert doc["requires-python"].startswith(">=3.1")
+    assert doc["requires-python"].startswith(">=3.12")
     assert doc["readme"] == "README.md"
     assert doc["description"]
 

@@ -10,7 +10,8 @@ readme = "README.md"
 # 许可证：Apache-2.0（PEP 639 的 SPDX 写法要求 setuptools>=77，已在 build-system 声明）
 license = "Apache-2.0"
 license-files = ["LICENSE", "NOTICE"]
-requires-python = ">=3.11"
+requires-python = ">=3.12"
+# 3.11 不可用：numpy>=2.5 与 scipy>=1.18 都要求 Python >=3.12（CI 实测 3.11 装不上）。
 # 下界是 2026-10-24 实际跑通全量测试的版本；更低的版本未验证，不承诺兼容。
 dependencies = [
     "pandas>=3.0,<4",

@@ -100,7 +100,7 @@
 ### 运行
 
 ```bash
-# 安装：pip install .（Python >= 3.11）；开发用 pip install -e .
+# 安装：pip install .（Python >= 3.12）；开发用 pip install -e .
 # 未安装时也可用 PYTHONPATH=src
 python -m mtsa.cli run --scene weather \
   --input fixtures/weather_v1.csv \
