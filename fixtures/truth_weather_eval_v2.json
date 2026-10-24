@@ -1,0 +1,49 @@
+{
+  "dataset": "weather_eval_v2",
+  "generator": "fixtures/gen_weather_eval_v2.py",
+  "seed": 20261024,
+  "start": "2024-01-01 00:00:00",
+  "hours": 8760,
+  "stations": [
+    "STA_A",
+    "STA_B"
+  ],
+  "tolerances": {
+    "trend_direction": "sign",
+    "seasonal_amplitude_abs": 3.0,
+    "seasonal_month_tolerance": 1,
+    "changepoint_samples": 2
+  },
+  "series": {
+    "temperature@STA_A": {
+      "trend_per_year": 0.8,
+      "trend_direction": "up",
+      "annual_amplitude": 10.0,
+      "annual_amplitude_peak_to_trough": 20.0,
+      "peak_month": 7,
+      "trough_month": 1,
+      "diurnal_amplitude": 6.0,
+      "diurnal_period_hours": 24.0
+    },
+    "temperature@STA_B": {
+      "trend_per_year": 0.8,
+      "trend_direction": "up",
+      "annual_amplitude": 10.0,
+      "annual_amplitude_peak_to_trough": 20.0,
+      "peak_month": 7,
+      "trough_month": 1,
+      "diurnal_amplitude": 6.0,
+      "diurnal_period_hours": 24.0
+    }
+  },
+  "not_covered": [
+    "humidity",
+    "pressure",
+    "wind_speed",
+    "rainfall",
+    "period",
+    "correlation",
+    "lag"
+  ],
+  "note": "温度真值：年振幅 10°C（峰谷差 20）、峰月 7、谷月 1、日周期 6°C、线性趋势 +0.8°C/年。变化点：pressure@STA_A day 60 +60 hPa；pressure@STA_B day 200 +60 hPa。缺失缺口：temperature@STA_A day 200 起连续 12 小时。"
+}

@@ -73,6 +73,13 @@ python -m evals.robustness_eval
 # 只跑某一组
 python -m evals.robustness_eval --only 导入,时间轴,数值
 
+# 方案 2：独立数据上的结论门禁（weather_eval_v2；4 问题 × pipeline/agent）
+# 需要 MTSA_LLM_* 才能跑 agent；--pipeline-only 可离线只跑确定性流水线
+python -m evals.conclusion_gate_eval
+python -m evals.conclusion_gate_eval --pipeline-only
+# 重建 v2 数据（确定性，数据 SHA1 应为 2ee8077e…）
+PYTHONPATH=. python fixtures/gen_weather_eval_v2.py
+
 # D 探针与重复：6 个开放/风险/对比问题；free 5 次/用例，guided 1 次/用例
 python -m evals.probe_eval --dry
 MTSA_PLANNER=rule python -m evals.probe_eval --plan free:5,guided:1 --max-tokens 6000 --out evals/probe_eval_results.json --out-root artifacts/d_probe_eval
