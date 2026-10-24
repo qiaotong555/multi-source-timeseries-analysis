@@ -159,6 +159,7 @@ python -m mtsa.cli run --replay artifacts/<run_id>/result.json   # 离线重放�
 | `doc/全链路Demo_柏林2024.docx` | 5 页演示：一份数据走完六步 + 三张结果图 |
 | `doc/Agent一键Demo说明_2026-10-24.docx` | 一键 demo 的图文说明（含单位变化诊断案例） |
 | `doc/Agent全流程Demo_2026-10-23.docx` | 10-23 旧版演示（历史留档，评审看上面两份） |
+| `doc/articles/可审计性是一种产品能力.md` | 对外文章（约 2,400 字）：门禁 24/24 与真实事件 0.0714 并存的原因，讲证据绑定、阈值冻结与失败公开 |
 
 ---
 
