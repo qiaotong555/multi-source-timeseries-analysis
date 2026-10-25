@@ -1,0 +1,451 @@
+{
+  "generated_at": "2026-10-25T12:24:01+08:00",
+  "finished_at": "2026-10-25T12:25:39+08:00",
+  "manifest_frozen_at": "2026-10-25T12:22:49+08:00",
+  "manifest_sha1": "5cdfa055a16743b0c56b895ad63b696bb8971c5f",
+  "git_commit": "44eabcf8f5b47d8453d1290f3627283c5786ca07",
+  "python": "3.13.14",
+  "one_shot": {
+    "reruns": 0,
+    "previous": null,
+    "force_reason": null
+  },
+  "declaration": [
+    "这 3 份数据于 2026-10-25 首次抓取，抓取之前从未进入本仓库的任何分析、评估或调参流程。",
+    "冻结后不参与阈值选择、不参与参数调整；结果不好看只写进遗留限制，不回调任何参数。",
+    "只允许生成一次结果文件；重跑必须带 --force 与原因，且 reruns 计数会写在结果里。",
+    "本保留集无人工标签：它只能检验结构完整性与单位推断，不能替代带标签数据上的 P/R 验收。"
+  ],
+  "protocol": {
+    "mode": "pipeline",
+    "planner": "rule",
+    "seed": 20260927,
+    "scene_id": "weather",
+    "why_pipeline": "保留集要能被任何人复算：pipeline + rule 计划器不依赖外部模型，同一份数据同一份计划。agent 模式的波动已由 real_data_eval 单独度量，不在这里混入模型随机性。",
+    "why_no_threshold": "保留集只用于验收，不用于选择；本脚本不传 param_overrides。",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "分析温度的趋势、季节性和异常点，并检测变化点",
+        "expect": [
+          "trend",
+          "seasonal",
+          "anomaly",
+          "changepoint"
+        ]
+      },
+      {
+        "id": "q2",
+        "question": "请检查这份数据的缺失、重复、乱序、采样缺口和单位变化",
+        "expect": []
+      },
+      {
+        "id": "q3",
+        "question": "找出温度、湿度和气压的异常，并说明最显著的几个",
+        "expect": [
+          "anomaly"
+        ]
+      },
+      {
+        "id": "q4",
+        "question": "做一次完整分析：趋势、季节性、异常点、变化点",
+        "expect": [
+          "trend",
+          "seasonal",
+          "anomaly",
+          "changepoint"
+        ]
+      }
+    ]
+  },
+  "datasets": [
+    {
+      "id": "H01",
+      "name": "athens_hourly_2024",
+      "source": "Open-Meteo Archive API",
+      "climate": "地中海气候 Csa",
+      "note": "夏季极端高温、冬季温和多雨、年降水集中在冷半年",
+      "station": "ATH",
+      "data_path": "fixtures/holdout/h01_athens_hourly_2024/data.csv",
+      "data_sha1": "badf24b095fb3444215eb5b4720616cbc23a8c76",
+      "rows": 8784,
+      "start": "2024-01-01 00:00:00",
+      "end": "2024-12-31 23:00:00",
+      "columns": [
+        "temperature",
+        "humidity",
+        "pressure",
+        "wind_speed",
+        "rainfall"
+      ]
+    },
+    {
+      "id": "H02",
+      "name": "mumbai_hourly_2024",
+      "source": "Open-Meteo Archive API",
+      "climate": "热带季风气候 Am",
+      "note": "6–9 月季风暴雨、湿度近饱和、旱雨季振幅极大",
+      "station": "BOM",
+      "data_path": "fixtures/holdout/h02_mumbai_hourly_2024/data.csv",
+      "data_sha1": "334e28a9a7676563c34cd90dbfe60c522fde6079",
+      "rows": 8784,
+      "start": "2024-01-01 00:00:00",
+      "end": "2024-12-31 23:00:00",
+      "columns": [
+        "temperature",
+        "humidity",
+        "pressure",
+        "wind_speed",
+        "rainfall"
+      ]
+    },
+    {
+      "id": "H03",
+      "name": "longyearbyen_hourly_2024",
+      "source": "Open-Meteo Archive API",
+      "climate": "极地苔原气候 ET",
+      "note": "78°N、极昼极夜、温度长期贴近 0、风速高",
+      "station": "LYR",
+      "data_path": "fixtures/holdout/h03_longyearbyen_hourly_2024/data.csv",
+      "data_sha1": "a56b3b5f9b12508494e0d32e9ba4cbb2f1dabd9c",
+      "rows": 8784,
+      "start": "2024-01-01 00:00:00",
+      "end": "2024-12-31 23:00:00",
+      "columns": [
+        "temperature",
+        "humidity",
+        "pressure",
+        "wind_speed",
+        "rainfall"
+      ]
+    }
+  ],
+  "has_labels": false,
+  "threshold_touched": false,
+  "runs": [
+    {
+      "dataset": "H01",
+      "question": "q1",
+      "status": "succeeded",
+      "result_exists": true,
+      "report_exists": true,
+      "report_bytes": 40501,
+      "report_has_quality_section": true,
+      "conclusion_count": 29,
+      "evidence_coverage": 1.0,
+      "need_coverage": 1.0,
+      "quality_issues": 3,
+      "quality_codes": [
+        "OUTLIER_CANDIDATE",
+        "POSSIBLE_UNIT_CHANGE"
+      ],
+      "anomalies": 39,
+      "change_points": 3,
+      "extremes": 8,
+      "unit_conversions": [],
+      "error": {},
+      "duration_s": 7.8,
+      "dir": "artifacts/holdout/H01/q1"
+    },
+    {
+      "dataset": "H01",
+      "question": "q2",
+      "status": "succeeded",
+      "result_exists": true,
+      "report_exists": true,
+      "report_bytes": 40525,
+      "report_has_quality_section": true,
+      "conclusion_count": 29,
+      "evidence_coverage": 1.0,
+      "need_coverage": null,
+      "quality_issues": 3,
+      "quality_codes": [
+        "OUTLIER_CANDIDATE",
+        "POSSIBLE_UNIT_CHANGE"
+      ],
+      "anomalies": 39,
+      "change_points": 3,
+      "extremes": 8,
+      "unit_conversions": [],
+      "error": {},
+      "duration_s": 5.8,
+      "dir": "artifacts/holdout/H01/q2"
+    },
+    {
+      "dataset": "H01",
+      "question": "q3",
+      "status": "succeeded",
+      "result_exists": true,
+      "report_exists": true,
+      "report_bytes": 40507,
+      "report_has_quality_section": true,
+      "conclusion_count": 29,
+      "evidence_coverage": 1.0,
+      "need_coverage": 1.0,
+      "quality_issues": 3,
+      "quality_codes": [
+        "OUTLIER_CANDIDATE",
+        "POSSIBLE_UNIT_CHANGE"
+      ],
+      "anomalies": 39,
+      "change_points": 3,
+      "extremes": 8,
+      "unit_conversions": [],
+      "error": {},
+      "duration_s": 5.7,
+      "dir": "artifacts/holdout/H01/q3"
+    },
+    {
+      "dataset": "H01",
+      "question": "q4",
+      "status": "succeeded",
+      "result_exists": true,
+      "report_exists": true,
+      "report_bytes": 40501,
+      "report_has_quality_section": true,
+      "conclusion_count": 29,
+      "evidence_coverage": 1.0,
+      "need_coverage": 1.0,
+      "quality_issues": 3,
+      "quality_codes": [
+        "OUTLIER_CANDIDATE",
+        "POSSIBLE_UNIT_CHANGE"
+      ],
+      "anomalies": 39,
+      "change_points": 3,
+      "extremes": 8,
+      "unit_conversions": [],
+      "error": {},
+      "duration_s": 5.9,
+      "dir": "artifacts/holdout/H01/q4"
+    },
+    {
+      "dataset": "H02",
+      "question": "q1",
+      "status": "succeeded",
+      "result_exists": true,
+      "report_exists": true,
+      "report_bytes": 37310,
+      "report_has_quality_section": true,
+      "conclusion_count": 26,
+      "evidence_coverage": 1.0,
+      "need_coverage": 1.0,
+      "quality_issues": 2,
+      "quality_codes": [
+        "LEVEL_SHIFT",
+        "OUTLIER_CANDIDATE"
+      ],
+      "anomalies": 24,
+      "change_points": 3,
+      "extremes": 8,
+      "unit_conversions": [],
+      "error": {},
+      "duration_s": 6.5,
+      "dir": "artifacts/holdout/H02/q1"
+    },
+    {
+      "dataset": "H02",
+      "question": "q2",
+      "status": "succeeded",
+      "result_exists": true,
+      "report_exists": true,
+      "report_bytes": 37334,
+      "report_has_quality_section": true,
+      "conclusion_count": 26,
+      "evidence_coverage": 1.0,
+      "need_coverage": null,
+      "quality_issues": 2,
+      "quality_codes": [
+        "LEVEL_SHIFT",
+        "OUTLIER_CANDIDATE"
+      ],
+      "anomalies": 24,
+      "change_points": 3,
+      "extremes": 8,
+      "unit_conversions": [],
+      "error": {},
+      "duration_s": 6.4,
+      "dir": "artifacts/holdout/H02/q2"
+    },
+    {
+      "dataset": "H02",
+      "question": "q3",
+      "status": "succeeded",
+      "result_exists": true,
+      "report_exists": true,
+      "report_bytes": 37316,
+      "report_has_quality_section": true,
+      "conclusion_count": 26,
+      "evidence_coverage": 1.0,
+      "need_coverage": 1.0,
+      "quality_issues": 2,
+      "quality_codes": [
+        "LEVEL_SHIFT",
+        "OUTLIER_CANDIDATE"
+      ],
+      "anomalies": 24,
+      "change_points": 3,
+      "extremes": 8,
+      "unit_conversions": [],
+      "error": {},
+      "duration_s": 6.1,
+      "dir": "artifacts/holdout/H02/q3"
+    },
+    {
+      "dataset": "H02",
+      "question": "q4",
+      "status": "succeeded",
+      "result_exists": true,
+      "report_exists": true,
+      "report_bytes": 37310,
+      "report_has_quality_section": true,
+      "conclusion_count": 26,
+      "evidence_coverage": 1.0,
+      "need_coverage": 1.0,
+      "quality_issues": 2,
+      "quality_codes": [
+        "LEVEL_SHIFT",
+        "OUTLIER_CANDIDATE"
+      ],
+      "anomalies": 24,
+      "change_points": 3,
+      "extremes": 8,
+      "unit_conversions": [],
+      "error": {},
+      "duration_s": 7.8,
+      "dir": "artifacts/holdout/H02/q4"
+    },
+    {
+      "dataset": "H03",
+      "question": "q1",
+      "status": "succeeded",
+      "result_exists": true,
+      "report_exists": true,
+      "report_bytes": 52109,
+      "report_has_quality_section": true,
+      "conclusion_count": 31,
+      "evidence_coverage": 1.0,
+      "need_coverage": 1.0,
+      "quality_issues": 6,
+      "quality_codes": [
+        "LEVEL_SHIFT",
+        "OUTLIER_CANDIDATE"
+      ],
+      "anomalies": 191,
+      "change_points": 2,
+      "extremes": 8,
+      "unit_conversions": [],
+      "error": {},
+      "duration_s": 13.3,
+      "dir": "artifacts/holdout/H03/q1"
+    },
+    {
+      "dataset": "H03",
+      "question": "q2",
+      "status": "succeeded",
+      "result_exists": true,
+      "report_exists": true,
+      "report_bytes": 52133,
+      "report_has_quality_section": true,
+      "conclusion_count": 31,
+      "evidence_coverage": 1.0,
+      "need_coverage": null,
+      "quality_issues": 6,
+      "quality_codes": [
+        "LEVEL_SHIFT",
+        "OUTLIER_CANDIDATE"
+      ],
+      "anomalies": 191,
+      "change_points": 2,
+      "extremes": 8,
+      "unit_conversions": [],
+      "error": {},
+      "duration_s": 10.7,
+      "dir": "artifacts/holdout/H03/q2"
+    },
+    {
+      "dataset": "H03",
+      "question": "q3",
+      "status": "succeeded",
+      "result_exists": true,
+      "report_exists": true,
+      "report_bytes": 52115,
+      "report_has_quality_section": true,
+      "conclusion_count": 31,
+      "evidence_coverage": 1.0,
+      "need_coverage": 1.0,
+      "quality_issues": 6,
+      "quality_codes": [
+        "LEVEL_SHIFT",
+        "OUTLIER_CANDIDATE"
+      ],
+      "anomalies": 191,
+      "change_points": 2,
+      "extremes": 8,
+      "unit_conversions": [],
+      "error": {},
+      "duration_s": 10.6,
+      "dir": "artifacts/holdout/H03/q3"
+    },
+    {
+      "dataset": "H03",
+      "question": "q4",
+      "status": "succeeded",
+      "result_exists": true,
+      "report_exists": true,
+      "report_bytes": 52109,
+      "report_has_quality_section": true,
+      "conclusion_count": 31,
+      "evidence_coverage": 1.0,
+      "need_coverage": 1.0,
+      "quality_issues": 6,
+      "quality_codes": [
+        "LEVEL_SHIFT",
+        "OUTLIER_CANDIDATE"
+      ],
+      "anomalies": 191,
+      "change_points": 2,
+      "extremes": 8,
+      "unit_conversions": [],
+      "error": {},
+      "duration_s": 11.1,
+      "dir": "artifacts/holdout/H03/q4"
+    }
+  ],
+  "summary": {
+    "runs": 12,
+    "succeeded": 12,
+    "failed": [],
+    "conclusions_total": 344,
+    "anomalies_total": 1016,
+    "change_points_total": 32,
+    "extremes_total": 96,
+    "quality_issues_total": 44,
+    "duration_s": 97.7,
+    "checks": {
+      "success_rate": {
+        "value": 1.0,
+        "expect": 1.0,
+        "ok": true
+      },
+      "evidence_coverage": {
+        "value": 1.0,
+        "expect": 1.0,
+        "rule": "取最小值：任何一次运行掉证据都不算过",
+        "ok": true
+      },
+      "need_coverage": {
+        "value": 1.0,
+        "expect": 1.0,
+        "rule": "取最小值；q2 无期望类别，不参与",
+        "ok": true
+      },
+      "spurious_unit_conversions": {
+        "value": 0,
+        "expect": 0,
+        "detail": [],
+        "ok": true
+      }
+    }
+  }
+}

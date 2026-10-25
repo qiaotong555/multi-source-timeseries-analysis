@@ -167,6 +167,46 @@ def next_run_meta(existing: dict | None, force: bool, reason: str) -> dict:
                          "reason": existing.get("rerun_reason")}}
 
 
+def observations(datasets: list[dict], runs: list[dict]) -> list[dict]:
+    """客观计数，不做判定：异常密度、质量问题代码、单位变化标记、换算行数。
+
+    保留集上没有真值，所以这里只回答「看见了多少」，不回答「对了几条」。
+    """
+    rows = {d["id"]: d for d in datasets}
+    out = []
+    for d in datasets:
+        rs = [r for r in runs if r["dataset"] == d["id"] and r["status"] == "succeeded"]
+        if not rs:
+            out.append({"id": d["id"], "status": "no_run"})
+            continue
+        # 同一份数据 4 个问题跑出同样的分析结果（rule 计划），取第一次即可，
+        # 但质量问题按出现次数汇总，避免把同一份报告重复计数。
+        first = rs[0]
+        codes: dict[str, int] = {}
+        for r in rs:
+            for c in r["quality_codes"]:
+                codes[c] = codes.get(c, 0) + 1
+        n_cells = d["rows"] * max(1, len(d["columns"]))
+        out.append({
+            "id": d["id"], "climate": d["climate"], "rows": d["rows"],
+            "columns": len(d["columns"]),
+            "anomaly_points": first["anomalies"],
+            "anomaly_share": round(first["anomalies"] / n_cells, 5),
+            "change_points": first["change_points"],
+            "quality_codes": dict(sorted(codes.items())),
+            "quality_issues": first["quality_issues"],
+            "unit_change_columns": sorted({i.get("column") for r in rs
+                                           for i in (r.get("unit_change_issues") or [])
+                                           if i.get("column")}),
+            # 早于本字段的结果文件里没有列名，只能记「报过」；两者都保留，
+            # 免得把「没记录」说成「没发生」。
+            "unit_change_reported": any(
+                "POSSIBLE_UNIT_CHANGE" in (r.get("quality_codes") or []) for r in rs),
+            "unit_conversion_events": len(first["unit_conversions"]),
+        })
+    return out
+
+
 def _git_commit() -> str | None:
     for exe in ("git", r"C:\Program Files\Git\cmd\git.exe"):
         try:
@@ -214,6 +254,8 @@ def run_question(meta: dict, q: dict, out_dir: Path) -> dict:
         "change_points": len(data.get("change_points") or []),
         "extremes": len(data.get("extremes") or []),
         "unit_conversions": (data.get("clean") or {}).get("unit_conversions") or [],
+        "unit_change_issues": [i for i in (quality.get("issues") or [])
+                               if i.get("code") == "POSSIBLE_UNIT_CHANGE"],
         "error": doc.get("error") or {},
         "duration_s": round(time.time() - started, 1),
         "dir": str(out_dir.relative_to(ROOT)).replace(os.sep, "/"),
@@ -297,6 +339,7 @@ def run_all(manifest: dict, force: bool = False, reason: str = "") -> dict:
         "threshold_touched": False,
         "runs": runs,
         "summary": agg,
+        "observations": observations(manifest["datasets"], runs),
     }
     OUT_JSON.write_text(json.dumps(doc, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     OUT_MD.write_text(render_md(doc), encoding="utf-8", newline="\n")
@@ -311,8 +354,51 @@ def _f(v, nd=2):
     return str(v)
 
 
+HARD_CODES = {"MISSING_VALUES", "DUPLICATE_TIMESTAMPS", "OUT_OF_ORDER",
+              "SAMPLING_GAP", "SENTINEL", "CONSTANT_RUN"}
+
+
+def _obs_bullets(obs: list[dict]) -> list[str]:
+    """从观察里挑出需要人看一眼的地方，措辞只陈述事实。"""
+    live = [o for o in obs if o.get("status") != "no_run"]
+    if not live:
+        return []
+    out = []
+    flagged = [(o["id"], c) for o in live for c in o.get("unit_change_columns") or []]
+    reported = [o["id"] for o in live
+                if o.get("unit_change_reported") or o.get("unit_change_columns")]
+    conv = sum(o["unit_conversion_events"] for o in live)
+    if flagged:
+        out.append("单位变化标记：%s。换算事件 %d 次——按 C1 的「阶跃 + 换算后边界连续」"
+                   "判据只标记不换算，数据未被改写；标记是真是假需要真值才能判定。"
+                   % ("、".join("%s 的 %s" % (i, c) for i, c in flagged), conv))
+    elif reported:
+        out.append("单位变化标记：%s 报出过 POSSIBLE_UNIT_CHANGE（列名与比值见产物 "
+                   "`data.quality.issues`）。换算事件 %d 次——只标记不换算，数据未被改写。"
+                   % ("、".join(reported), conv))
+    else:
+        out.append("单位变化标记：0 处。")
+    shares = sorted(live, key=lambda o: o["anomaly_share"])
+    hi, lo = shares[-1], shares[0]
+    if hi["anomaly_share"] > 2 * max(lo["anomaly_share"], 1e-9):
+        out.append("统计异常密度：%s 最高 %.2f%%，%s 最低 %.2f%%，相差 %.1f 倍。"
+                   "没有真值，无法区分「该气候本身更极端」与「残差尺度估计偏小」。"
+                   % (hi["id"], hi["anomaly_share"] * 100, lo["id"],
+                      lo["anomaly_share"] * 100, hi["anomaly_share"] / max(lo["anomaly_share"], 1e-9)))
+    codes = {c for o in live for c in (o.get("quality_codes") or {})}
+    hard = sorted(codes & HARD_CODES)
+    soft = sorted(codes - HARD_CODES)
+    if hard:
+        out.append("检出硬缺陷代码：%s——干净数据上出现这类代码需要人工核对。" % "、".join(hard))
+    else:
+        out.append("硬缺陷代码（缺失/重复/乱序/采样缺口/哨兵/常数段）：0 类；"
+                   "出现的只有低危候选 %s。" % ("、".join(soft) if soft else "（无）"))
+    return out
+
+
 def render_md(doc: dict) -> str:
     s = doc["summary"]
+    obs = doc.get("observations") or observations(doc["datasets"], doc["runs"])
     lines = []
     add = lines.append
     add("# 最终保留集（C1）一次性评估")
@@ -357,7 +443,29 @@ def render_md(doc: dict) -> str:
             r["quality_issues"], r["anomalies"], r["change_points"], r["extremes"],
             _f(r["duration_s"], 1)))
     add("")
-    add("## 5. 能证明什么、不能证明什么")
+    add("## 5. 观察（只记录，不回调参数）")
+    add("")
+    add("| 数据 | 气候带 | 异常点 | 占总单元 | 变化点 | 质量问题 | 单位变化标记 | 换算事件 |")
+    add("| --- | --- | --- | --- | --- | --- | --- | --- |")
+    for o in obs:
+        if o.get("status") == "no_run":
+            add("| %s | — | 未运行 | — | — | — | — | — |" % o["id"])
+            continue
+        add("| %s | %s | %d | %.3f%% | %d | %s | %s | %d |" % (
+            o["id"], o["climate"], o["anomaly_points"], o["anomaly_share"] * 100,
+            o["change_points"],
+            "、".join(k for k in o["quality_codes"]) or "（无）",
+            ("、".join(o["unit_change_columns"]) or
+             ("报过（见产物）" if o.get("unit_change_reported") else "（无）")),
+            o["unit_conversion_events"]))
+    add("")
+    for b in _obs_bullets(obs):
+        add("- " + b)
+    add("")
+    add("> 这一节是计数，不是评分。保留集没有人工标签，任何「对/错」判断都需要真值；"
+        "本协议只登记现象，不因为现象回调参数。")
+    add("")
+    add("## 6. 能证明什么、不能证明什么")
     add("")
     add("能证明：")
     add("")
@@ -373,11 +481,12 @@ def render_md(doc: dict) -> str:
     add("- 结论的语义正确性：证据可追溯只说明「结论引用了某个数字」，不说明那个数字解释得对。")
     add("- agent 模式的表现：本协议固定 pipeline + rule 计划器，模型介入下的波动不在范围内。")
     add("")
-    add("## 6. 复算方式")
+    add("## 7. 复算方式")
     add("")
     add("```")
     add("python -m scripts.fetch_holdout --check     # 校验 3 份数据 SHA1 未变")
     add("python -m evals.holdout                    # 结果已存在时会拒绝重跑")
+    add("python -m evals.holdout --render-only      # 只按结果 JSON 重排本文，不重新分析")
     add("```")
     add("")
     add("产物：`evals/holdout_results.json`、本文件、`artifacts/holdout/<编号>/<问题>/`。")
@@ -389,9 +498,22 @@ def main(argv=None) -> int:
     ap.add_argument("--freeze", action="store_true", help="生成 evals/holdout_set.json（只做一次）")
     ap.add_argument("--force", action="store_true", help="覆盖已有结果（必须配 --reason）")
     ap.add_argument("--reason", default="", help="重跑原因，写进结果文件")
+    ap.add_argument("--render-only", action="store_true",
+                    help="只按已有结果 JSON 重排报告，不重新分析")
     args = ap.parse_args(argv)
 
     try:
+        if args.render_only:
+            if not OUT_JSON.exists():
+                raise HoldoutError("还没有结果文件：%s" % OUT_JSON)
+            doc = json.loads(OUT_JSON.read_text(encoding="utf-8"))
+            doc["observations"] = doc.get("observations") or observations(
+                doc["datasets"], doc["runs"])
+            OUT_MD.write_text(render_md(doc), encoding="utf-8", newline="\n")
+            print("已按 %s 重排 %s（未重新分析）"
+                  % (OUT_JSON.name, OUT_MD.relative_to(ROOT)))
+            return 0
+
         if args.freeze:
             m = freeze()
             print("冻结完成：%s" % MANIFEST.relative_to(ROOT))
