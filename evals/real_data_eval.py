@@ -579,9 +579,11 @@ def build_checks(per_dataset, runs, registry, by_id) -> dict[str, Any]:
     add("R7 >=5 份数据有可解释的质量事实", explainable >= 5, "%d/10" % explainable, ">=5")
 
     failed = [r for r in runs if r["status"] != "succeeded"]
+    # ErrorDetail 里没有 node：节点信息只在 events 里（最后一条即「停在哪」）。
+    # 原来查 error.node 会永远查不到，只是一直没有失败运行才没暴露。
     bad_fail = [r for r in failed
                 if not (r.get("error") or {}).get("code")
-                or not (r.get("error") or {}).get("node")]
+                or not ((r.get("events") or [{}])[-1].get("node"))]
     add("R8 失败用例有错误码与节点", not bad_fail,
         "%d 失败，%d 缺错误码/节点" % (len(failed), len(bad_fail)), "缺 0")
 

@@ -21,12 +21,19 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /app
 COPY pyproject.toml README.md ./
 COPY src ./src
-RUN pip install --no-cache-dir .
+# [api] 装 HTTP 薄壳（fastapi/uvicorn/python-multipart）。分析内核本身不需要它们，
+# 但镜像要同时能当 CLI 和服务用，所以一次装齐。
+RUN pip install --no-cache-dir ".[api]"
+
+# 同一镜像两种入口：`<img>` 走 mtsa CLI，`<img> api` 走 uvicorn。
+# 写成垫片而不是把 ENTRYPOINT 直接换成 uvicorn，是为了让原有 CLI 用法一行都不用改。
+COPY docker/entrypoint.sh /usr/local/bin/mtsa-entrypoint
+RUN chmod 0755 /usr/local/bin/mtsa-entrypoint
 
 RUN useradd --create-home --uid 1000 mtsa \
     && mkdir -p /data /out && chown -R mtsa /data /out
 USER mtsa
 WORKDIR /data
 
-ENTRYPOINT ["mtsa"]
+ENTRYPOINT ["/usr/local/bin/mtsa-entrypoint"]
 CMD ["list-scenes"]
