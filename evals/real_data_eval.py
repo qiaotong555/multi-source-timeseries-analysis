@@ -597,7 +597,10 @@ def build_checks(per_dataset, runs, registry, by_id) -> dict[str, Any]:
                 # D2：绝对极端通道（分位尾）
                 "src/mtsa/anomaly.py",
                 # F：预测（点预测/区间/walk-forward 回测），默认关闭
-                "src/mtsa/forecast.py", "src/mtsa/cli.py"}
+                "src/mtsa/forecast.py", "src/mtsa/cli.py",
+                # D3：日历热力图。只新增图类与一条 figure_spec，不改任何指标与判据；
+                # 它出现在 diff 里是预期内的，所以进清单而不是让 R10 变红。
+                "src/mtsa/viz.py"}
     # 以「B 的首轮提交」为基线，而不是工作区：这样报告在提交前后都可复现。
     b_baseline = "3404b43"
     dirty = []
@@ -946,21 +949,21 @@ def render_md(doc) -> str:
           "> **C1 修复后复跑说明**：首轮暴露的 F1（R08 季节性升温被误判为华氏度段，"
           "5,977 行被改写）已在 C1 中修复，本次复跑不再复现（R08 单位换算 0 次，"
           "峰值月恢复为 8 月）。修复前的原始数据与证据见 "
-          "`spec/项目承接已完成.md` 33.6 与提交 `3404b43`。",
+          "`spec/archive/项目承接已完成.md` 33.6 与提交 `3404b43`。",
           "",
           "> **C2 修复后复跑说明**：首轮暴露的 F2（R05 三站点共享时间轴被报 17,568 条重复）"
           "已在 C2 中修复，本次复跑不再复现（duplicate_timestamps=0，清洗仍为 "
-          "8,784 行 × 15 列）。见 `spec/项目承接已完成.md` 第 35 章。",
+          "8,784 行 × 15 列）。见 `spec/archive/项目承接已完成.md` 第 35 章。",
           "",
           "> **C3 修复后复跑说明**：首轮暴露的 F3（质量问题不进结论）与 F7（零检出无结论）"
           "已在 C3 中修复：Q2 的 20 次运行全部有 `数据口径` 结论（修复前 2/20），"
           "12 个零异常运行全部给出「未发现异常/变化点」（修复前 12 个静默），"
-          "需求覆盖 0.800 → 1.000。见 `spec/项目承接已完成.md` 第 36 章。",
+          "需求覆盖 0.800 → 1.000。见 `spec/archive/项目承接已完成.md` 第 36 章。",
           "",
           "> **C4 修复后复跑说明**：首轮暴露的 F4（7 条 L1 只有 1 条能定位到区间）已在 C4 中修复："
           "本次复跑 7/7 可定位（可定位 Recall 1.000，最差数据集 1.000）。`MISSING_VALUES` 现在"
           "带连续缺失段的起止与点数，完整清单见 `result.json` 的 `data.quality.issues[].runs`。"
-          "见 `spec/项目承接已完成.md` 第 37 章。", ""]
+          "见 `spec/archive/项目承接已完成.md` 第 37 章。", ""]
     for f in doc["findings"]:
         L += ["### %s" % f["title"], "", f["body"], ""]
         if f.get("evidence"):

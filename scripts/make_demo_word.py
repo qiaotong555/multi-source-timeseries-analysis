@@ -695,7 +695,7 @@ def build_document() -> Path:
         ("agent 原始结果", "artifacts/demo/agent/result.json"),
         ("项目说明书", "doc/项目说明书.md"),
         ("Demo 运行记录", "doc/reports/演示运行记录_2026-10-24.md"),
-        ("交付完成记录", "spec/项目承接已完成.md（第 30 章）"),
+        ("交付完成记录", "spec/archive/项目承接已完成.md（第 30 章）"),
         ("未来规划", "spec/未来规划.md"),
     ]
     add_table(doc, ["用途", "路径"], files, widths=[2.0, 4.7])
