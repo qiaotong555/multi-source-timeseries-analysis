@@ -332,6 +332,9 @@ def _preview_payload(request: AnalysisRequest, raw, profile, qrep, plan: Analysi
         "mode_requested": requested_mode,
         "plan": {
             "plan_source": plan.plan_source,
+            # 请求侧想要什么（None = 跟随服务端环境变量）；与 plan_source 对照着看，
+            # 才知道"要 rule 得到 rule"还是"要 llm 回退成了 rule"。
+            "planner_requested": request.planner or "env",
             "planner_version": plan.planner_version,
             "analyses": list(plan.analyses),
             "target_columns": list(plan.target_columns),
@@ -477,7 +480,7 @@ def _run_analysis_impl(request: AnalysisRequest, verbose: bool, run_id: str,
                         f"场景识别置信度不足（最高 {confidence:.3f} < {SCENE_CONFIDENCE_THRESHOLD}），"
                         f"请显式指定 --scene",
                         scores={k: round(v, 4) for k, v in scores.items()})
-        planner = build_planner(adapter)
+        planner = build_planner(adapter, mode=request.planner)
         plan, plan_source = planner.plan(request.question, profile, qrep, adapter, raw.frame)
         plan.scene_confidence = round(float(confidence), 4)
         plan.plan_source = plan_source

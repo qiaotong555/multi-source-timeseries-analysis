@@ -1,5 +1,5 @@
 # test_agent_runtime
-# status=PASS exit=0 duration=3.29s passed=26 failed=0 errors=0
+# status=PASS exit=0 duration=3.49s passed=26 failed=0 errors=0
 ..........................                                               [100%]
 ============================== warnings summary ===============================
 tests/test_agent_runtime.py::test_trajectory_length_follows_decisions
@@ -11,5 +11,5 @@ tests/test_agent_runtime.py::test_trajectory_length_follows_decisions
     kpss_res = kpss(vals, regression="c", nlags="auto", result_object=False)
 
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
-26 passed, 5 warnings in 1.87s
+26 passed, 5 warnings in 1.96s
 

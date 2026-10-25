@@ -94,8 +94,11 @@ def _build_parser() -> argparse.ArgumentParser:
                    help="运行模式：pipeline 固定流水线；agent 由模型选择工具（本轮仅天气）；"
                         "auto 有模型且场景支持时走 agent，否则回退 pipeline。"
                         "缺省读 MTSA_AGENT，再缺省 pipeline。"
-                         "注意：这与计划器不是同一个开关——分析哪些项由 MTSA_PLANNER 决定"
-                         "（默认 auto：配了模型就由模型出计划，没配模型用规则）")
+                         "注意：这与计划器不是同一个开关——分析哪些项由 --planner 决定")
+    r.add_argument("--planner", choices=("auto", "rule", "llm"), default=None,
+                   help="计划器（决定分析哪些项/哪些列）：rule 固定规则计划（12 项，"
+                        "与评估口径一致）；llm 强制模型（配置不全时回退规则并告警）；"
+                        "auto 按模型可用性选。缺省读 MTSA_PLANNER，再缺省 auto")
     r.add_argument("--dry-run", action="store_true",
                    help="只预演：打印字段摘要、场景、计划与将要执行的工具，然后退出；"
                         "不写产物、不运行检测器。用于确认分析目标是否正确")
@@ -249,6 +252,7 @@ def main(argv: list[str] | None = None) -> int:
         seed=args.seed,
         output_dir=args.output,
         mode=mode,
+        planner=args.planner,
         agent_max_steps=args.agent_max_steps,
         agent_scope=args.agent_scope,
         agent_max_extra_steps=args.agent_max_extra_steps,

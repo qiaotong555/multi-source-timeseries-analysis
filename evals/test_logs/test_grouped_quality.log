@@ -1,5 +1,5 @@
 # test_grouped_quality
-# status=PASS exit=0 duration=18.53s passed=6 failed=0 errors=0
+# status=PASS exit=0 duration=15.64s passed=6 failed=0 errors=0
 ......                                                                   [100%]
 ============================== warnings summary ===============================
 tests/test_grouped_quality.py: 10 warnings
@@ -13,5 +13,5 @@ tests/test_grouped_quality.py::test_r05_end_to_end_reports_no_duplicates
     kpss_res = kpss(vals, regression="c", nlags="auto", result_object=False)
 
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
-6 passed, 13 warnings in 16.83s
+6 passed, 13 warnings in 14.17s
 

@@ -289,14 +289,25 @@ def _llm_config_problem(env: dict[str, str], explicit: bool) -> Optional[str]:
             if explicit else "LLM 配置不完整，已回退规则计划，缺少环境变量：" + "、".join(missing))
 
 
-def build_planner(adapter, env: Optional[dict[str, str]] = None) -> Planner:
-    """按配置选择计划器。无配置即规则计划，保证零成本可用。"""
+def build_planner(adapter, env: Optional[dict[str, str]] = None,
+                  mode: Optional[str] = None) -> Planner:
+    """按配置选择计划器。无配置即规则计划，保证零成本可用。
+
+    `mode` 是**请求级**覆盖（`AnalysisRequest.planner`）：给了就以它为准，
+    没给才读环境变量 `MTSA_PLANNER`。这样调用方不必为了换个计划器去改服务端配置，
+    而既有调用（只设环境变量、不传该字段）行为完全不变。
+    """
     import os
 
     from .llm_client import client_from_env
 
     env = env if env is not None else os.environ
-    mode = env.get("MTSA_PLANNER", "auto").strip().lower() or "auto"
+    if mode is None:
+        mode = env.get("MTSA_PLANNER", "auto").strip().lower() or "auto"
+    else:
+        mode = str(mode).strip().lower()
+        if mode not in ("auto", "rule", "llm"):
+            mode = "auto"
 
     if mode == "rule":
         return RulePlanner()

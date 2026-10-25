@@ -1,5 +1,5 @@
 # test_changepoint_scan
-# status=PASS exit=0 duration=1.6s passed=7 failed=0 errors=0
+# status=PASS exit=0 duration=1.72s passed=7 failed=0 errors=0
 .......                                                                  [100%]
-7 passed in 0.43s
+7 passed in 0.45s
 

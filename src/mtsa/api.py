@@ -106,6 +106,9 @@ class AnalysisIn(BaseModel):
     value_columns: Optional[list[str]] = None
     group_column: Optional[str] = None
     mode: Mode = "pipeline"
+    # 请求级计划器；None = 跟随服务端 MTSA_PLANNER。见 models.AnalysisRequest.planner
+    planner: Optional[Literal["auto", "rule", "llm"]] = Field(
+        default=None, description="rule=固定 12 项规则计划；llm=强制模型；None=跟随服务端")
     seed: int = DEFAULT_SEED
     param_overrides: dict[str, float | int | str | bool] = Field(default_factory=dict)
     forecast: bool = False
@@ -288,6 +291,7 @@ def create_app(token: Optional[str] = None,
                               time_column=body.time_column,
                               value_columns=body.value_columns,
                               group_column=body.group_column, mode=body.mode,
+                              planner=body.planner,
                               seed=body.seed, param_overrides=body.param_overrides,
                               forecast=body.forecast,
                               forecast_horizon=body.forecast_horizon,

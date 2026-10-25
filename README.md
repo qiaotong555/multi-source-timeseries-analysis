@@ -85,16 +85,16 @@ mtsa-api --port 8000               # 提交 202 → 轮询状态 → 取 result.
 | `agent` | 天气场景下由模型在白名单 5 个工具里选下一步 | `AGENT_UNAVAILABLE` |
 | `auto` | 天气且有模型才升级，否则回退 | 回退 pipeline 并写 warning |
 
-**两个开关不要混**：`--mode` 决定「谁决定执行顺序」，`MTSA_PLANNER` 决定「分析哪些项」。
+**两个开关不要混**：`--mode` 决定「谁决定执行顺序」，`--planner`（或环境变量 `MTSA_PLANNER`）决定「分析哪些项」。
 
 | 开关 | 控制什么 | 默认 | 改变方式 |
 | --- | --- | --- | --- |
 | 运行模式 | 固定流水线 / 模型选工具 | `pipeline` | `--mode agent`、`--mode auto`，或 `MTSA_AGENT` |
-| 计划器 | 分析项清单由谁给出 | `auto`：配了模型就由模型出计划（命中缓存则直接复用），没配模型用规则计划 | `MTSA_PLANNER=rule` / `llm` / `auto` |
+| 计划器 | 分析项清单由谁给出 | `auto`：配了模型就由模型出计划（命中缓存则直接复用），没配模型用规则计划 | 按请求 `--planner rule` / `llm` / `auto`（HTTP 同理传 `planner`）；或按部署设 `MTSA_PLANNER`。请求优先于环境变量 |
 
-因此「pipeline 固定 12 项、结果确定」只在 `MTSA_PLANNER=rule` 时成立。2026-10-25 实测：
+因此「pipeline 固定 12 项、结果确定」只在计划器为 `rule` 时成立。2026-10-25 实测：
 同一份天气数据、同一问题，缺省参数下 `plan_source=llm`、只跑 **3 项**；
-加 `MTSA_PLANNER=rule` 才是 **12 项**。要逐位复现，请显式设置它。
+加 `--planner rule`（或 `MTSA_PLANNER=rule`）才是 **12 项**。要逐位复现，请显式指定。
 
 ---
 
@@ -117,7 +117,7 @@ mtsa-api --port 8000               # 提交 202 → 轮询状态 → 取 result.
 
 | 维度 | 结论 | 关键数字 | 证据 |
 | --- | --- | --- | --- |
-| 工程基线 | **通过** | 58 个测试文件 / 525 项 / 0 失败 / 516.00 s（2026-10-25 15:21） | `evals/test_logs/summary.json` |
+| 工程基线 | **通过** | 58 个测试文件 / 530 项 / 0 失败 / 516.95 s（2026-10-25 15:59） | `evals/test_logs/summary.json` |
 | 鲁棒性 | **通过** | 37 个坏输入与边界用例 37/37，0 崩溃；失败均带错误码与出错节点 | `evals/robustness_results.json` |
 | 结论级门禁（独立数据 v2） | **通过** | 24/24（10 pipeline + 10 agent + 4 非劣性）；事件级命中 R=0.9667、F1=0.9831；点级 P=1.000 / R=0.840 | `evals/conclusion_gate_v2_results.json` |
 | 真实数据验证（B） | **工程通过，正确性未证** | 10 份数据 × 4 问题 × 2 模式 = 80/80 成功，证据覆盖 1.000；14 项验收 13 项通过（此为 B 阶段口径；registry 已有 17 份，重跑会是 136 次，见 `doc/改进记录.md` 遗留问题汇总） | `evals/real_data_results.json` |
@@ -127,7 +127,7 @@ mtsa-api --port 8000               # 提交 202 → 轮询状态 → 取 result.
 | 规模与性能 | **有明确上限** | 20 万行上限（`MTSA_MAX_ROWS`）；1e5 行 37.1 s、2e5 行 123.9 s、5e5 行 736 s、1e6 未完成 | `doc/评估设计.md`、`doc/改进记录.md` #4/#6 |
 | 交付形态（E1） | **可用** | `mtsa-api` 薄壳 7 个路由；13 项接口测试；真实 uvicorn + curl 跑通（weather_v1：7.8 s、19 个产物、21 条结论） | `tests/test_api.py`、`doc/接口与字段.md` 第 7 节 |
 
-**规模数字**（2026-10-25 实测）：`src/mtsa` 34 个 py / 8,893 行；`tests` 目录 60 个 py（58 个测试文件，逐文件入口统计；用例数见 `evals/test_logs/summary.json`）；`evals` 22 个 py / 8,294 行；真实数据 registry 17 份（5 个来源：Open-Meteo / NOAA GHCN-Daily / DWD / ECCC / ASOS；2 种频率：hourly 14、daily 3）。
+**规模数字**（2026-10-25 实测）：`src/mtsa` 34 个 py / 8,922 行；`tests` 目录 60 个 py（58 个测试文件，逐文件入口统计；用例数见 `evals/test_logs/summary.json`）；`evals` 22 个 py / 8,294 行；真实数据 registry 17 份（5 个来源：Open-Meteo / NOAA GHCN-Daily / DWD / ECCC / ASOS；2 种频率：hourly 14、daily 3）。
 
 **评估指标**：29 项 = 22 项规则模式阈值指标 + 3 项 LLM 模式指标（合法率、回退率、覆盖率）+ 4 项 Agent 指标（后 7 项仅在对应评估缓存存在时纳入判定）。LLM 覆盖率只统计合法计划，回退时不计入平均——否则「模型全挂」会被算成高覆盖。
 
@@ -172,9 +172,10 @@ python -m mtsa.cli run --dry-run --scene weather --input fixtures/weather_v1.csv
 
 python -m mtsa.cli run --replay artifacts/<run_id>/result.json   # 离线重放，不调模型
 
-# 要逐位复现（规则计划 12 项、不调模型），先固定计划器：
-#   bash:       export MTSA_PLANNER=rule
-#   PowerShell: $env:MTSA_PLANNER='rule'
+# 要逐位复现（规则计划 12 项、不调模型），给这次运行指定计划器：
+python -m mtsa.cli run --scene weather --input fixtures/weather_v1.csv \
+  --question "分析温度的趋势" --planner rule
+# （也可以按部署设置：bash 用 export MTSA_PLANNER=rule，PowerShell 用 $env:MTSA_PLANNER='rule'）
 ```
 
 **判断成败看 `result.json` 的 `status`，不要以「产物目录非空」为准**——失败时也会落盘留档。

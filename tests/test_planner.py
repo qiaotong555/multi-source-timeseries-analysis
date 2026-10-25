@@ -264,3 +264,34 @@ def test_forced_analysis_survives_model_selection(ctx):
         base, frame)
     assert "scenario_metrics" in merged.analyses
     assert merged.analyses[0] == "trend"
+
+# ---------------- 请求级计划器覆盖（E1 后续，2026-10-25）---------------
+
+def test_request_mode_rule_beats_env_llm(ctx):
+    """请求要 rule，即使环境变量写着 llm 且模型已配，也必须给规则计划。
+
+    这条保护的是「API 调用方能不能复现文档里的 12 项口径」——
+    如果环境变量优先，服务端一配模型，调用方就再也拿不到规则计划。
+    """
+    env = {"MTSA_PLANNER": "llm",
+           "MTSA_LLM_BASE_URL": "http://example.invalid/v1",
+           "MTSA_LLM_API_KEY": "k"}
+    p = build_planner(ctx[3], env=env, mode="rule")
+    assert isinstance(p, RulePlanner)
+    assert p.last_error is None
+    plan, source = _plan(p, ctx)
+    assert source == "rule" and plan.plan_source == "rule"
+
+
+def test_request_mode_llm_beats_env_rule_and_reports_fallback(ctx):
+    """请求要 llm 但没配置模型：回退规则，并把原因留在 last_error（不静默）。"""
+    p = build_planner(ctx[3], env={"MTSA_PLANNER": "rule"}, mode="llm")
+    assert isinstance(p, RulePlanner)
+    assert p.last_error and "缺少环境变量" in p.last_error
+
+
+def test_request_mode_none_still_follows_env(ctx):
+    """不传 planner（None）时必须完全保持旧行为：只看环境变量。"""
+    assert isinstance(build_planner(ctx[3], env={"MTSA_PLANNER": "rule"}, mode=None),
+                      RulePlanner)
+    assert isinstance(build_planner(ctx[3], env={}, mode=None), RulePlanner)

@@ -181,3 +181,25 @@ def test_queue_limit_is_enforced():
         assert second.json()["detail"]["code"] == "QUEUE_FULL"
         assert second.headers.get("retry-after") == "30"
         _wait(c, first.json()["run_id"])
+
+def test_planner_can_be_chosen_per_request(client):
+    """服务端配了模型也要能按请求拿规则计划——API 输出要能与已验收口径对齐。"""
+    r = client.post("/api/v1/preview", headers=H, json={
+        "input_path": SHORT, "question": QUESTION, "planner": "rule"})
+    assert r.status_code == 200, r.text
+    plan = r.json()["plan"]
+    assert plan["plan_source"] == "rule"
+    assert plan["planner_requested"] == "rule"
+    assert len(plan["analyses"]) >= 10        # 规则计划 12 项，模型那种收窄不会出现
+
+
+def test_planner_llm_without_model_falls_back_and_says_so(client, monkeypatch):
+    monkeypatch.delenv("MTSA_LLM_BASE_URL", raising=False)
+    monkeypatch.delenv("MTSA_LLM_API_KEY", raising=False)
+    r = client.post("/api/v1/preview", headers=H, json={
+        "input_path": SHORT, "question": QUESTION, "planner": "llm"})
+    assert r.status_code == 200, r.text
+    body = r.json()
+    assert body["plan"]["plan_source"] == "rule"      # 回退
+    assert body["plan"]["planner_requested"] == "llm"  # 但请求意图要留痕
+    assert any("回退" in w for w in body["warnings"])  # 且必须说出来
