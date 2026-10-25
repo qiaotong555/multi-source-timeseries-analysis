@@ -113,7 +113,7 @@ mtsa run --scene weather --input 你的数据.csv --question "分析温度的趋
 | Agent 对照（13 用例） | **可用** | 13/13 成功；2.54 步；需求覆盖 1.00；结论 29.92 vs 39.00（−23.3%）；token 53,924；墙钟 12.77 s vs 12.09 s | `evals/mode_compare_results.json` |
 | 规模与性能 | **有明确上限** | 20 万行上限（`MTSA_MAX_ROWS`）；1e5 行 37.1 s、2e5 行 123.9 s、5e5 行 736 s、1e6 未完成 | `doc/评估设计.md`、`doc/改进记录.md` #4/#6 |
 
-**规模数字**：`src/mtsa` 31 个 py / 7,116 行；`tests` 目录 55 个 py（53 个测试文件 / 489 项，逐文件入口统计）；`evals` 20 个 py / 6,614 行；真实数据 registry 17 份（5 个来源：Open-Meteo / NOAA GHCN-Daily / DWD / ECCC / ASOS；2 种频率：hourly 14、daily 3）。
+**规模数字**：`src/mtsa` 31 个 py / 7,116 行；`tests` 目录 55 个 py（53 个测试文件，逐文件入口统计；用例数见 `evals/test_logs/summary.json`）；`evals` 20 个 py / 6,614 行；真实数据 registry 17 份（5 个来源：Open-Meteo / NOAA GHCN-Daily / DWD / ECCC / ASOS；2 种频率：hourly 14、daily 3）。
 
 **评估指标**：29 项 = 22 项规则模式阈值指标 + 3 项 LLM 模式指标（合法率、回退率、覆盖率）+ 4 项 Agent 指标（后 7 项仅在对应评估缓存存在时纳入判定）。LLM 覆盖率只统计合法计划，回退时不计入平均——否则「模型全挂」会被算成高覆盖。
 
@@ -242,7 +242,7 @@ C 阶段（交付卫生）修完以下不一致，记录在此防止回退：
 | `doc/项目说明书.md` | 「不做预测」与同文预测能力矛盾 | 改为「不做业务预测与因果推断；`--forecast` 只给点预测 + 经验区间」 |
 | `doc/项目说明书.md` | 输出结构写成子目录 | 改为 `fig_*.png` / `fig_*.html` 直接写在运行目录 |
 | `doc/项目说明书.md` 6.6 | 主表是 F 阶段 11 份 / 58 列 | 标注为「F 阶段口径」，并指向 6.8 的 17 份 / 94 列 |
-| `spec/已完成任务.md` | 测试数停在 31 文件 / 304 项 | 更新为 53 / 489（2026-10-25 19:31 实测） |
+| `spec/已完成任务.md` | 测试数停在 31 文件 / 304 项 | 改为指向 `evals/test_logs/summary.json`，不再写死条目数 |
 | 三份 spec 的「下一步」 | 三个不同说法 | 统一到 `spec/未来规划.md` 的 C → B1 → B2 → B3 |
 | 多站点 | 一直列为「待拍板」 | 已声明为正式支持（README、项目说明书） |
 
