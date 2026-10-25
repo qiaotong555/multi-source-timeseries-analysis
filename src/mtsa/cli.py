@@ -16,6 +16,7 @@ import os
 import sys
 from datetime import datetime
 
+from . import cost as cost_mod
 from .engine import run_analysis
 from .models import AnalysisRequest, DEFAULT_SEED
 from .timeout_guard import DEFAULT_TIMEOUT_S, run_with_timeout
@@ -112,6 +113,9 @@ def _build_parser() -> argparse.ArgumentParser:
     r.add_argument("--agent-max-tokens", type=int, default=0, metavar="N",
                    help="Agent 累计 token 上限，默认 0（不限制）；到限前一次调用会被拦下，"
                         "以 token_budget 结束")
+    r.add_argument("--max-cost", type=float, default=None, metavar="AMOUNT",
+                   help="金额预算上限，币种与价目表 currency 一致；超过只标记、不中止。"
+                        "缺省读 MTSA_MAX_COST。设了上限却没配价目表会直接失败")
     r.add_argument("--price-table", default=None, metavar="PATH",
                    help="价目表 JSON 路径，用于把 token 估算成金额；缺省读环境变量 "
                         "MTSA_PRICE_TABLE。都未配置时不做金额换算，也不按 0 计价；"
@@ -131,6 +135,19 @@ def _build_parser() -> argparse.ArgumentParser:
 
     sub.add_parser("list-scenes", help="列出已注册场景")
     return p
+
+
+def _resolve_max_cost(cli_value: float | None) -> float | None:
+    """金额上限：显式参数 > 环境变量；格式错误直接退出而不是悄悄忽略。"""
+    value = cli_value
+    if value is None:
+        try:
+            value = cost_mod.max_cost_from_env()
+        except cost_mod.CostError as exc:
+            raise SystemExit(f"[COST_CONFIG_INVALID] {exc}") from None
+    if value is not None and value <= 0:
+        raise SystemExit(f"[COST_CONFIG_INVALID] --max-cost 必须大于 0，实际为 {value}")
+    return value
 
 
 def _print_preview(p: dict) -> None:
@@ -234,6 +251,7 @@ def main(argv: list[str] | None = None) -> int:
         agent_max_extra_steps=args.agent_max_extra_steps,
         agent_max_tokens=args.agent_max_tokens,
         price_table=args.price_table,
+        max_cost=_resolve_max_cost(args.max_cost),
         replay_from=args.replay,
         forecast=args.forecast,
         forecast_horizon=args.forecast_horizon,

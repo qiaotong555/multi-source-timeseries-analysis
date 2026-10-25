@@ -59,8 +59,17 @@ def _cost_label(cost: dict) -> str:
     if total is None:
         return "—"
     tokens = cost.get("tokens") or {}
-    return (f"{cost.get('currency') or ''} {total:.6f}（估算；输入 {tokens.get('prompt', 0)} / "
+    price = cost.get("price") or {}
+    text = (f"{cost.get('currency') or ''} {total:.6f}（估算；输入 {tokens.get('prompt', 0)} / "
             f"缓存 {tokens.get('cached', 0)} / 输出 {tokens.get('completion', 0)} token）")
+    text += f"；价目表 {price.get('model') or '未标注模型'} / {price.get('tier') or '未标注档位'}"
+    if cost.get("model_match") is False:
+        text += "；注意：价目表模型与实际调用模型不一致，金额可能有偏差"
+    budget = cost.get("budget") or {}
+    if budget.get("exceeded"):
+        text += (f"；超出预算：上限 {budget.get('limit')} {cost.get('currency') or ''}，"
+                 f"超出 {budget.get('over_by')}（只标记，未中止）")
+    return text
 
 
 def _issue_range_cell(issue: object) -> str:

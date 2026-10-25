@@ -1,0 +1,12 @@
+{
+  "currency": "CNY",
+  "unit_tokens": 1000000,
+  "effective_date": "2026-10-25",
+  "source": "https://api-docs.deepseek.com/zh-cn/quick_start/pricing",
+  "model": "deepseek-v4-pro",
+  "tier": "off_peak",
+  "input": 4.5,
+  "cached_input": 0.15,
+  "output": 13.5,
+  "note": "空闲时段价（每百万 token）。高峰时段见 deepseek-v4-pro.peak.json"
+}

@@ -1,5 +1,5 @@
 # test_benchmark
-# status=PASS exit=0 duration=9.08s passed=6 failed=0 errors=0
+# status=PASS exit=0 duration=8.32s passed=6 failed=0 errors=0
 ......                                                                   [100%]
 ============================== warnings summary ===============================
 tests/test_benchmark.py::test_worker_timed_emits_valid_json
@@ -18,5 +18,5 @@ tests/test_benchmark.py: 10 warnings
     kpss_res = kpss(vals, regression="c", nlags="auto", result_object=False)
 
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
-6 passed, 18 warnings in 7.92s
+6 passed, 18 warnings in 7.07s
 

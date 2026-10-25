@@ -543,6 +543,8 @@ def _run_analysis_impl(request: AnalysisRequest, verbose: bool, run_id: str,
     # 重放不需要模型，因此 replay 始终按 agent 处理。
     requested_mode, effective_mode = _resolve_effective_mode(
         request, plan, replay_source, warnings)
+    if effective_mode != "agent" and request.max_cost:
+        warnings.append("pipeline 模式不调用模型，金额预算（--max-cost）不适用；本次未检查")
 
     # ---- 6-10. 分析层 ----
     # pipeline：固定顺序，行为与 T1.8 保持一致。
@@ -568,6 +570,14 @@ def _run_analysis_impl(request: AnalysisRequest, verbose: bool, run_id: str,
                 return fail(ERR_PRICE_TABLE, str(exc), path=price_path,
                             hint="金额是可选能力；不需要金额时去掉 --price-table / "
                                  f"{cost_mod.ENV_PRICE_TABLE}")
+        if request.max_cost and price_table is None:
+            # 设了上限却算不出金额，预算永远无法核对；这属于配置错误，跑之前就说清
+            return fail(
+                ERR_PRICE_TABLE,
+                "已设置金额预算（--max-cost），但没有配置价目表，预算无法核对",
+                hint=("同时提供 --price-table 或设置 "
+                      f"{cost_mod.ENV_PRICE_TABLE}；没有价格就不做金额换算，也不按 0 计价"),
+            )
         tool_ctx = ToolContext(clean=clean, plan=plan, adapter=adapter, quality=qrep)
         agent_started = datetime.now().isoformat(timespec="seconds")
         t_agent = time.perf_counter()
@@ -611,9 +621,30 @@ def _run_analysis_impl(request: AnalysisRequest, verbose: bool, run_id: str,
         if price_table is not None:
             if tokens:
                 try:
-                    agent_info["cost"] = cost_mod.estimate_cost(tokens, price_table)
+                    cost_info = cost_mod.estimate_cost(tokens, price_table)
                 except cost_mod.CostError as exc:
                     warnings.append(f"金额未计算：{exc}")
+                else:
+                    used_model = getattr(usage_client, "model", None)
+                    cost_info["model_match"] = cost_mod.model_matches(price_table, used_model)
+                    if cost_info["model_match"] is False:
+                        warnings.append(
+                            f"价目表标注的模型（{price_table.model}）与实际调用的模型"
+                            f"（{used_model}）不一致：金额可能偏差，请核对价目表")
+                    if request.max_cost:
+                        try:
+                            cost_info["budget"] = cost_mod.check_budget(
+                                cost_info, request.max_cost)
+                        except cost_mod.CostError as exc:
+                            warnings.append(f"金额预算未检查：{exc}")
+                        else:
+                            over = cost_info["budget"]
+                            if over.get("exceeded"):
+                                warnings.append(
+                                    f"金额超出预算：{cost_info['currency']} "
+                                    f"{cost_info['total']:.4f} > 上限 {over['limit']}，"
+                                    f"超出 {over['over_by']}。按配置只标记，未中止运行")
+                    agent_info["cost"] = cost_info
             else:
                 warnings.append(
                     "已配置价目表，但服务端未返回 usage：本次金额无法计算（不估算）")

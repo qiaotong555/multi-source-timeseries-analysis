@@ -89,6 +89,9 @@ class AnalysisRequest(MtsaModel):
     # E2 成本语义：价目表路径（也可用环境变量 MTSA_PRICE_TABLE）。
     # 未配置时不做金额换算；配置了但读不到会直接失败，不静默跳过。
     price_table: Optional[str] = None
+    # 金额预算上限，币种与价目表 currency 一致（本项目手填表为 CNY）。
+    # 语义是「跑完再标记」：超支不中止运行，只写进 warnings 与报告。
+    max_cost: Optional[float] = None
     agent_max_tokens: int = 0
     # 预测（F）：默认关闭，避免改变既有报告；开启后附带 walk-forward 回测。
     forecast: bool = False
