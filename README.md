@@ -37,6 +37,8 @@ mtsa run --scene weather --input 你的数据.csv --question "分析温度的趋
 pip install "mtsa-agent[api]"
 export MTSA_API_TOKEN=dev          # PowerShell: $env:MTSA_API_TOKEN='dev'
 mtsa-api --port 8000               # 提交 202 → 轮询状态 → 取 result.json / report.md
+# 若提示 mtsa-api 找不到：venv 的 Scripts 不在 PATH，改用
+#   python -m mtsa.api --port 8000
 ```
 
 路由、环境变量与边界见 [`doc/使用手册.md`](doc/使用手册.md) 的「HTTP 接口（薄壳）」，字段契约见
