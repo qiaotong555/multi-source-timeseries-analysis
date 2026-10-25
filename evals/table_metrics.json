@@ -1,0 +1,68 @@
+{
+  "generated_at": "2026-10-25T04:17:18+00:00",
+  "definitions": {
+    "structured_output_valid_rate": "有明确 status 的结果数 / 运行总数（解析失败不会有 status）",
+    "evidence_support_rate": "结论中 evidence_ids 非空且全部可解析的比例",
+    "cost_cny": "按 prices/ 价目表把 token 折算成 CNY 的估算，不是账单"
+  },
+  "structured_output_valid_rate": {
+    "valid": 119,
+    "runs": 119,
+    "rate": 1.0
+  },
+  "evidence_support_rate": {
+    "mode_compare_pooled": 1.0,
+    "real_data_by_mode": {
+      "pipeline": 1.0,
+      "agent": 1.0
+    }
+  },
+  "cost": {
+    "runs": 13,
+    "total_cny": 0.0582,
+    "mean_cny": 0.0045,
+    "price_table": "prices\\deepseek-flash.peak.json",
+    "tier": "peak",
+    "effective_date": "2026-10-25",
+    "estimated": true,
+    "caveat": "历史运行模型为 deepseek-chat，项目没有它的价目表；按 deepseek-flash 高峰价折算，仅作量级参考，不是账单"
+  },
+  "planner_json": {
+    "n_cases": 9,
+    "n_valid": 9,
+    "valid_rate": 1.0,
+    "fallback_rate": 0.0
+  },
+  "by_source": [
+    {
+      "source": "agent_eval",
+      "runs": 13,
+      "status": {
+        "succeeded": 13
+      },
+      "structured_valid": 13
+    },
+    {
+      "source": "mode_compare",
+      "runs": 26,
+      "status": {
+        "succeeded": 26
+      },
+      "structured_valid": 26,
+      "conclusions": 896,
+      "supported": 896
+    },
+    {
+      "source": "real_data",
+      "runs": 80,
+      "status": {
+        "succeeded": 80
+      },
+      "structured_valid": 80,
+      "evidence_coverage": {
+        "pipeline": 1.0,
+        "agent": 1.0
+      }
+    }
+  ]
+}
