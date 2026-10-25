@@ -297,6 +297,8 @@ class WeatherAdapter(ScenarioAdapter):
             {"id": "wx_spectrum", "kind": "spectrum", "title": "功率谱密度（Welch）", "columns": plan.target_columns},
             {"id": "wx_month", "kind": "bar", "title": "月度均值", "columns": plan.target_columns[:4],
              "groupby": "month"},
+            {"id": "wx_calendar", "kind": "calendar", "title": "日历热力图（日均值）",
+             "columns": plan.target_columns[:1], "agg": "mean"},
             {"id": "wx_box_month", "kind": "box", "title": "按月分布箱线图",
              "columns": plan.target_columns[:2], "groupby": "month"},
             {"id": "wx_anomaly", "kind": "anomaly", "title": "异常点与变化点", "columns": plan.target_columns[:3]},

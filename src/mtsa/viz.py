@@ -276,6 +276,67 @@ def _fig_fold(ctx: ScenarioContext, spec: dict) -> go.Figure:
     return fig
 
 
+def _fig_calendar(ctx: ScenarioContext, spec: dict) -> go.Figure:
+    """日历热力图：行=星期、列=ISO 周、色深=当日聚合值。
+
+    字段映射全部由 spec 决定，渲染不改数据：
+
+    - `columns[0]`：要画的那一列（多站点宽表 `列名@站点` 也先按日跨列汇总，
+      一张图只画一个变量，避免把两个站点叠在同一格子里）；
+    - `agg`：`mean`（默认）/ `sum` / `max` / `min`，按自然日聚合；
+    - `unit`：仅用于色标标题，不参与计算。
+
+    缺日和整周无观测的格子留空（NaN），不用 0 填充——0 与「没有数据」在热力图上
+    必须能分开看，否则降雨图的旱季会长出一条假的零值带。
+    """
+    frame = ctx.clean.frame
+    cols = [c for c in spec.get("columns", []) if c in frame.columns]
+    if not isinstance(frame.index, pd.DatetimeIndex):
+        raise ValueError("calendar 图需要时间索引，当前是 %s" % type(frame.index).__name__)
+    if not cols:
+        raise ValueError("calendar 图没有可用列：%s" % (spec.get("columns") or []))
+    how = str(spec.get("agg", "mean")).lower()
+    if how not in ("mean", "sum", "max", "min"):
+        raise ValueError("calendar 图的 agg 只支持 mean/sum/max/min，收到 %r" % how)
+
+    col = cols[0]
+    value = pd.to_numeric(frame[col], errors="coerce")
+    daily = value.groupby(frame.index.normalize()).agg(how).dropna()
+    if daily.empty:
+        raise ValueError("calendar 图没有可绘制的日聚合值：%s" % col)
+
+    iso = [(ts, ts.isocalendar()[0], ts.isocalendar()[1], ts.isocalendar()[2])
+           for ts in daily.index]
+    weeks: list[str] = []
+    for _, y, w, _ in iso:
+        label = "%d-W%02d" % (y, w)
+        if not weeks or weeks[-1] != label:
+            weeks.append(label)
+    pos = {label: i for i, label in enumerate(weeks)}
+
+    z = np.full((7, len(weeks)), np.nan, dtype=float)
+    text = [[""] * len(weeks) for _ in range(7)]
+    for ts, y, w, d in iso:
+        i, j = int(d) - 1, pos["%d-W%02d" % (y, w)]
+        val = float(daily.loc[ts])
+        z[i, j] = val
+        text[i][j] = "%s %s<br>%s %s = %.2f" % (
+            ts.strftime("%Y-%m-%d"), "周" + "一二三四五六日"[int(d) - 1],
+            col, how, val)
+
+    fig = go.Figure(data=go.Heatmap(
+        z=z, x=weeks, y=["周一", "周二", "周三", "周四", "周五", "周六", "周日"],
+        text=text, hovertemplate="%{text}<extra></extra>",
+        colorscale="RdYlBu_r", xgap=1, ygap=1,
+        colorbar=dict(title=str(spec.get("unit") or col)),
+    ))
+    fig.update_yaxes(autorange="reversed")          # 周一在最上面，符合日历阅读顺序
+    fig.update_layout(title=spec.get("title", "日历热力图"), height=FIG_HEIGHT, width=FIG_WIDTH,
+                      template="plotly_white", xaxis_title="ISO 周",
+                      margin=dict(l=70, r=30, t=50, b=70))
+    return fig
+
+
 _BUILDERS = {
     "series": lambda ctx, spec: _fig_series(ctx.clean.frame, spec),
     "heatmap": lambda ctx, spec: _fig_heatmap(ctx.clean.frame, spec),
@@ -283,6 +344,7 @@ _BUILDERS = {
     "bar": _fig_bar,
     "box": _fig_box,
     "anomaly": _fig_anomaly,
+    "calendar": _fig_calendar,
     "nav": _fig_nav,
     "rolling": _fig_rolling,
     "fold": _fig_fold,
