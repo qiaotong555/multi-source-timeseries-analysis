@@ -125,7 +125,7 @@ mtsa-api --port 8000               # 提交 202 → 轮询状态 → 取 result.
 | 预测（可选，仅天气） | **通过** | 17 份 / 94 列全部完成；90% 区间覆盖率 0.8722（33,376 点）；MASE≤1.0 占 68/94 = 0.723 | `evals/forecast_results.json` |
 | Agent 对照（13 用例） | **可用** | 13/13 成功；2.54 步；需求覆盖 1.00；结论 29.92 vs 39.00（−23.3%）；token 53,924；墙钟 12.77 s vs 12.09 s | `evals/mode_compare_results.json` |
 | 规模与性能 | **有明确上限** | 20 万行上限（`MTSA_MAX_ROWS`）；1e5 行 37.1 s、2e5 行 123.9 s、5e5 行 736 s、1e6 未完成 | `doc/评估设计.md`、`doc/改进记录.md` #4/#6 |
-| 交付形态（E1） | **可用** | `mtsa-api` 薄壳 7 个路由；13 项接口测试；真实 uvicorn + curl 跑通（weather_v1：7.8 s、19 个产物、21 条结论） | `tests/test_api.py`、`doc/接口与字段.md` 第 7 节 |
+| 交付形态（E1） | **可用** | `mtsa-api` 薄壳 7 个路由；13 项接口测试；真实 uvicorn + curl 跑通（weather_v1：7.8 s、19 个产物、21 条结论）；CI 的 docker job 会用镜像走一遍服务路径（鉴权 401 / 202 / 轮询 / result / report.md 下载） | `tests/test_api.py`、`doc/接口与字段.md` 第 7 节 |
 
 **规模数字**（2026-10-25 实测）：`src/mtsa` 34 个 py / 8,922 行；`tests` 目录 60 个 py（58 个测试文件，逐文件入口统计；用例数见 `evals/test_logs/summary.json`）；`evals` 22 个 py / 8,294 行；真实数据 registry 17 份（5 个来源：Open-Meteo / NOAA GHCN-Daily / DWD / ECCC / ASOS；2 种频率：hourly 14、daily 3）。
 
@@ -276,7 +276,7 @@ C 阶段（交付卫生）修完以下不一致，记录在此防止回退：
 | C | 交付卫生：文档口径、三份规划收敛、多站点正式声明 | **已完成** | 文档与代码逐条对齐 |
 | B1 | E1 可观测性：未执行原因 + 覆盖矩阵 | **已完成** | 每个 `not_run` / `failed` / `skipped` 都有原因；矩阵进 `report.md` 与 `coverage.tools[]` |
 | B2 | E2 成本语义：token → 金额、预算前置 | **已完成**（2026-10-25 补金额预算） | 金额标「估算」、带价目表出处；无表不按 0 计价；token 预算预扣硬停；金额预算 `--max-cost` **只标记不中止**；随包 `prices/` 两模型两档 |
-| B3 | 交付形态（当时选 C 档：只做 CLI） | **已完成** | `pip install .` 后 `mtsa run` 可用；从无关目录、无 PYTHONPATH 实测通过；Dockerfile 已由 CI 构建并跑通（`docker build` → `list-scenes` → 容器内一次真实分析）。HTTP 当时没做，2026-10-25 由 E1 补了薄壳（`mtsa-api`），异步仍不做 |
+| B3 | 交付形态（当时选 C 档：只做 CLI） | **已完成** | `pip install .` 后 `mtsa run` 可用；从无关目录、无 PYTHONPATH 实测通过；Dockerfile 已由 CI 构建并跑通（`docker build` → `list-scenes` → 容器内一次真实分析）。HTTP 当时没做，2026-10-25 由 E1 补了薄壳（`mtsa-api`）：提交即返回 202、轮询取结果；状态只在内存里，没有持久化队列与多副本 |
 | 之后 | A1/A2 检测器质量 | 挂起 | v2 F1 ≥0.55 且 22 项逐位不变 |
 
 研究线（A1 变化点判据 → A2 持续段/漂移 → 预测场景化）在产品可用后启动，

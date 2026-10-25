@@ -81,6 +81,66 @@ jobs:
           test -f out/run/report.md
           echo "容器内分析与报告生成通过"
 
+      # 镜像要能"当服务用"，不只是当命令行。这一步兜住三个容易漏的地方：
+      #   1. 镜像里到底装没装 [api] extra（fastapi / uvicorn / python-multipart）
+      #   2. entrypoint.sh 的 `api` 分支通不通
+      #   3. 容器内产物目录能不能写——fixtures 是只读挂在 /data 上的，
+      #      默认的 ./artifacts/api 会落到 /data 里直接写失败，所以显式给 MTSA_API_OUT。
+      - name: 镜像能当服务用（api 入口）
+        run: |
+          docker run -d --name mtsa-api \
+            -e MTSA_API_TOKEN=ci -e MTSA_API_OUT=/tmp/api-out \
+            -v "$PWD/fixtures:/data:ro" -p 8000:8000 mtsa:ci api
+
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:8000/healthz; then break; fi
+            sleep 1
+            if [ "$i" = "30" ]; then echo "api 30s 内未就绪"; docker logs mtsa-api; exit 1; fi
+          done
+
+          # 没带 token 必须被拒：默认无鉴权的服务等于没门
+          code=$(curl -s -o /dev/null -w '%{http_code}' \
+                 -H 'Content-Type: application/json' -d '{}' \
+                 http://127.0.0.1:8000/api/v1/analyses)
+          test "$code" = "401" || { echo "无 token 应为 401，实际 $code"; exit 1; }
+
+          # 一次真实分析：异步提交 202 → 轮询状态 → 取结果与产物
+          created=$(curl -fsS -H "X-API-Token: ci" -H 'Content-Type: application/json' \
+            -d '{"input_path":"/data/weather_short_v1.csv","question":"分析温度趋势与异常","planner":"rule"}' \
+            http://127.0.0.1:8000/api/v1/analyses)
+          echo "$created"
+          run_id=$(printf '%s' "$created" | python3 -c 'import json,sys; print(json.load(sys.stdin)["run_id"])')
+          test -n "$run_id"
+
+          status=""; n=0
+          for i in $(seq 1 120); do
+            body=$(curl -fsS -H "X-API-Token: ci" "http://127.0.0.1:8000/api/v1/analyses/$run_id")
+            status=$(printf '%s' "$body" | python3 -c 'import json,sys; print(json.load(sys.stdin)["status"])')
+            n=$(printf '%s' "$body" | python3 -c 'import json,sys; print(len(json.load(sys.stdin)["artifacts"]))')
+            echo "[$i] status=$status artifacts=$n"
+            case "$status" in succeeded|failed) break ;; esac
+            sleep 2
+          done
+          test "$status" = "succeeded" || { echo "分析未成功：$body"; docker logs mtsa-api; exit 1; }
+          test "$n" -ge 5 || { echo "产物只有 $n 个，太少"; exit 1; }
+
+          # 不用 curl | grep -q：grep 提前退出会让 curl 报 23，pipefail 下等于假失败
+          curl -fsS -H "X-API-Token: ci" -o /tmp/result.json \
+            "http://127.0.0.1:8000/api/v1/analyses/$run_id/result"
+          test -s /tmp/result.json
+          grep -q '"status": "succeeded"' /tmp/result.json
+          curl -fsS -H "X-API-Token: ci" -o /tmp/report.md \
+            "http://127.0.0.1:8000/api/v1/analyses/$run_id/artifacts/report.md"
+          test -s /tmp/report.md
+          docker exec mtsa-api test -f "/tmp/api-out/$run_id/result.json"
+          echo "api 服务路径通过：鉴权 / 异步提交 / 轮询 / result / 产物下载"
+
+      - name: api 容器收尾
+        if: always()
+        run: |
+          docker logs mtsa-api 2>&1 | tail -40 || true
+          docker rm -f mtsa-api || true
+
   package:
     name: build wheel & sdist
     runs-on: ubuntu-latest
