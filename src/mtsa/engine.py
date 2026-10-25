@@ -52,6 +52,7 @@ from .scenarios.base import ScenarioContext, detect_scene, get_adapter
 from .tools import ToolContext
 from . import cost as cost_mod
 from . import report as report_mod
+from . import verify as verify_mod
 from . import viz as viz_mod
 from .planner import TOOL_SPECS, build_planner
 
@@ -795,9 +796,39 @@ def _run_analysis_impl(request: AnalysisRequest, verbose: bool, run_id: str,
                           executed_tools=executed_tools, extremes=extremes,
                           forecast=forecast_res)
     specs = adapter.figure_specs(plan)
-    artifacts, fig_warnings = viz_mod.build_figures(ctx, specs, outdir)
+    artifacts, fig_warnings = [], []
+    fig_repairs: list[dict] = []
+    # 「依校验结果改参重跑」：图表引用了数据里不存在的列（或整张图没产出）时，
+    # 摘掉这些列再渲染一次。上限 MAX_RERUN，且修不动就停——不允许空转，
+    # 也不允许顺手改阈值或删结论（那属于评估口径变更）。
+    for _attempt in range(MAX_RERUN + 1):
+        artifacts, fig_warnings = viz_mod.build_figures(ctx, specs, outdir)
+        problems = verify_mod.figure_problems(specs, artifacts, clean.frame.columns)
+        if not problems:
+            break
+        repaired, fixes = verify_mod.repair_figure_specs(specs, clean.frame.columns)
+        if not fixes["changed"] or _attempt == MAX_RERUN:
+            break
+        specs = repaired
+        fig_repairs.append({"attempt": _attempt + 1, **fixes})
+        events.append(EventRecord(
+            node="rerun_figures", started_at=datetime.now().isoformat(timespec="seconds"),
+            elapsed_ms=0, status="succeeded",
+            summary={"reason": "verify: 图表引用了不存在的列，去掉后重渲染", **fixes},
+        ))
+    if fig_repairs:
+        dropped = {}
+        for item in fig_repairs:
+            dropped.update(item.get("dropped_columns") or {})
+        warnings.append(
+            "图表 spec 引用了数据中不存在的列，已自动摘除后重渲染："
+            + "；".join(f"{k} 去掉 {v}" for k, v in dropped.items())
+            + ("；整张图被删除：" + "、".join(
+                sid for item in fig_repairs for sid in (item.get("dropped_specs") or []))
+               if any(item.get("dropped_specs") for item in fig_repairs) else ""))
     warnings.extend(fig_warnings)
-    timer.run("build_figures", lambda: {"artifacts": len(artifacts), "warnings": len(fig_warnings)})
+    timer.run("build_figures", lambda: {"artifacts": len(artifacts),
+                                        "warnings": len(fig_warnings)})
 
     # ---- 12. 报告与结论 ----
     conclusions, evidences = adapter.conclusions(ctx)
@@ -826,11 +857,37 @@ def _run_analysis_impl(request: AnalysisRequest, verbose: bool, run_id: str,
     artifacts.extend([rep_art, script_art])
     timer.run("render_report", lambda: {"conclusions": len(conclusions), "evidence": len(evidences)})
 
-    # ---- 13. 校验：结论必须有证据 ----
-    no_evidence = [c.conclusion_id for c in conclusions if not c.evidence_ids]
-    if no_evidence:
-        warnings.append(f"存在未绑定证据的结论：{no_evidence}")
-    timer.run("verify", lambda: {"no_evidence_conclusions": len(no_evidence)})
+    # ---- 13. 校验：证据 / 图表字段 / 结论数值 ----
+    # 前两条是硬判定（error），第三条只做抽查线索（advisory）——结论里的派生值
+    # 在 result.json 里没有同名记录，按硬判定处理会把正常运行全部判死。
+    issues = (verify_mod.check_no_evidence(conclusions)
+              + verify_mod.figure_problems(specs, artifacts, clean.frame.columns))
+    if request.strict_verify:
+        # 只在显式开启时做：结论里的派生值（差值/占比/周期倒数）在 result.json
+        # 里没有同名记录，默认跑会把正常结果刷成一堆提示。
+        pool = verify_mod.numeric_pool(
+            [mtab, *spectra, *tests, *anomalies, *change_points, extremes, qrep])
+        issues += verify_mod.check_conclusion_numbers(conclusions, evidences, pool)
+    no_evidence = [i.payload.get("ids", []) for i in issues if i.kind == "no_evidence"]
+    errors = [i for i in issues if i.severity == "error"]
+    for issue in errors:
+        warnings.append(issue.detail)
+    summary = {"no_evidence_conclusions": len(no_evidence)}
+    if errors or fig_repairs:
+        summary.update({"errors": len(errors), "figure_reruns": len(fig_repairs)})
+    if request.strict_verify:
+        summary["advisory"] = len(issues) - len(errors)
+    timer.run("verify", lambda: summary)
+    verify_block = None
+    if issues or fig_repairs:
+        verify_block = {
+            "passed": not errors,
+            "errors": len(errors),
+            "advisory": len(issues) - len(errors),
+            "issues": [i.to_dict() for i in issues],
+            "reruns": fig_repairs,
+            "policy": "只允许调整图表 spec；不改阈值、不删结论",
+        }
 
     result.status = "succeeded"
     data = {
@@ -853,6 +910,7 @@ def _run_analysis_impl(request: AnalysisRequest, verbose: bool, run_id: str,
         "extremes": extremes,
         **({"forecast": forecast_res} if forecast_res is not None else {}),
         "lookahead": leak,
+        **({"verify": verify_block} if verify_block else {}),
     }
     if agent_info is not None and replay_source is not None:
         recorded = {k: v for k, v in replay_source["data"].items() if k != "agent"}

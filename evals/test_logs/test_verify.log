@@ -1,0 +1,11 @@
+# test_verify
+# status=PASS exit=0 duration=22.35s passed=8 failed=0 errors=0
+........                                                                 [100%]
+============================== warnings summary ===============================
+tests/test_verify.py: 25 warnings
+  <repo>\src\mtsa\stats_tests.py:141: InterpolationWarning: The test statistic is outside of the range of p-values available in the look-up table. The actual p-value is greater than the p-value returned.
+    kpss_res = kpss(vals, regression="c", nlags="auto", result_object=False)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+8 passed, 25 warnings in 20.83s
+

@@ -104,7 +104,7 @@ mtsa run --scene weather --input 你的数据.csv --question "分析温度的趋
 
 | 维度 | 结论 | 关键数字 | 证据 |
 | --- | --- | --- | --- |
-| 工程基线 | **通过** | 53 个测试文件 / 489 项 / 0 失败 / 456.78 s（2026-10-25 19:31） | `evals/test_logs/summary.json` |
+| 工程基线 | **通过** | 54 个测试文件 / 497 项 / 0 失败 / 572.03 s（2026-10-25 19:51） | `evals/test_logs/summary.json` |
 | 鲁棒性 | **通过** | 37 个坏输入与边界用例 37/37，0 崩溃；失败均带错误码与出错节点 | `evals/robustness_results.json` |
 | 结论级门禁（独立数据 v2） | **通过** | 24/24（10 pipeline + 10 agent + 4 非劣性）；事件级命中 R=0.9667、F1=0.9831；点级 P=1.000 / R=0.840 | `evals/conclusion_gate_v2_results.json` |
 | 真实数据验证（B） | **工程通过，正确性未证** | 10 份数据 × 4 问题 × 2 模式 = 80/80 成功，证据覆盖 1.000；14 项验收 13 项通过 | `evals/real_data_results.json` |

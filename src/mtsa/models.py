@@ -92,6 +92,9 @@ class AnalysisRequest(MtsaModel):
     # 金额预算上限，币种与价目表 currency 一致（本项目手填表为 CNY）。
     # 语义是「跑完再标记」：超支不中止运行，只写进 warnings 与报告。
     max_cost: Optional[float] = None
+    # 校验严格度：默认只报硬错误（缺证据、图表字段缺失）。
+    # 打开后额外做「结论数值 vs 已落盘指标」的抽查，结果进 data.verify.advisory。
+    strict_verify: bool = False
     agent_max_tokens: int = 0
     # 预测（F）：默认关闭，避免改变既有报告；开启后附带 walk-forward 回测。
     forecast: bool = False

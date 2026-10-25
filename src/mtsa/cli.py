@@ -113,6 +113,9 @@ def _build_parser() -> argparse.ArgumentParser:
     r.add_argument("--agent-max-tokens", type=int, default=0, metavar="N",
                    help="Agent 累计 token 上限，默认 0（不限制）；到限前一次调用会被拦下，"
                         "以 token_budget 结束")
+    r.add_argument("--strict-verify", action="store_true",
+                   help="校验时额外抽查「结论里的数值能否在指标里找到」；"
+                        "结果写进 data.verify.advisory，不改变成败")
     r.add_argument("--max-cost", type=float, default=None, metavar="AMOUNT",
                    help="金额预算上限，币种与价目表 currency 一致；超过只标记、不中止。"
                         "缺省读 MTSA_MAX_COST。设了上限却没配价目表会直接失败")
@@ -252,6 +255,7 @@ def main(argv: list[str] | None = None) -> int:
         agent_max_tokens=args.agent_max_tokens,
         price_table=args.price_table,
         max_cost=_resolve_max_cost(args.max_cost),
+        strict_verify=args.strict_verify,
         replay_from=args.replay,
         forecast=args.forecast,
         forecast_horizon=args.forecast_horizon,
