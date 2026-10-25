@@ -1,0 +1,102 @@
+{
+  "generated_at": "2026-10-25T12:21:25",
+  "note": "最终保留集（C1）。与 fixtures/real_weather/ 分开存放，不参与任何调参；SHA1 一经冻结不再变动。",
+  "datasets": [
+    {
+      "id": "H01",
+      "name": "athens_hourly_2024",
+      "source": "Open-Meteo Archive API",
+      "climate": "地中海气候 Csa",
+      "note": "夏季极端高温、冬季温和多雨、年降水集中在冷半年",
+      "lat": 37.98,
+      "lon": 23.73,
+      "station": "ATH",
+      "retrieved_at": "2026-10-25T12:20:57",
+      "rows": 8784,
+      "start": "2024-01-01 00:00:00",
+      "end": "2024-12-31 23:00:00",
+      "frequency": "hourly",
+      "columns": [
+        "temperature",
+        "humidity",
+        "pressure",
+        "wind_speed",
+        "rainfall"
+      ],
+      "data_sha1": "badf24b095fb3444215eb5b4720616cbc23a8c76",
+      "raw": [
+        {
+          "url": "https://archive-api.open-meteo.com/v1/archive?latitude=37.98&longitude=23.73&start_date=2024-01-01&end_date=2024-12-31&hourly=temperature_2m,relative_humidity_2m,surface_pressure,wind_speed_10m,precipitation&timezone=UTC",
+          "bytes": 377067,
+          "sha1": "3bf78e72c9e98d93e0b8690367df85095ae005b9",
+          "elevation": 99.0
+        }
+      ],
+      "data_path": "fixtures/holdout/h01_athens_hourly_2024/data.csv"
+    },
+    {
+      "id": "H02",
+      "name": "mumbai_hourly_2024",
+      "source": "Open-Meteo Archive API",
+      "climate": "热带季风气候 Am",
+      "note": "6–9 月季风暴雨、湿度近饱和、旱雨季振幅极大",
+      "lat": 19.08,
+      "lon": 72.88,
+      "station": "BOM",
+      "retrieved_at": "2026-10-25T12:21:08",
+      "rows": 8784,
+      "start": "2024-01-01 00:00:00",
+      "end": "2024-12-31 23:00:00",
+      "frequency": "hourly",
+      "columns": [
+        "temperature",
+        "humidity",
+        "pressure",
+        "wind_speed",
+        "rainfall"
+      ],
+      "data_sha1": "334e28a9a7676563c34cd90dbfe60c522fde6079",
+      "raw": [
+        {
+          "url": "https://archive-api.open-meteo.com/v1/archive?latitude=19.08&longitude=72.88&start_date=2024-01-01&end_date=2024-12-31&hourly=temperature_2m,relative_humidity_2m,surface_pressure,wind_speed_10m,precipitation&timezone=UTC",
+          "bytes": 382621,
+          "sha1": "d867d1811622041275c20024721b70d6d9d3149c",
+          "elevation": 9.0
+        }
+      ],
+      "data_path": "fixtures/holdout/h02_mumbai_hourly_2024/data.csv"
+    },
+    {
+      "id": "H03",
+      "name": "longyearbyen_hourly_2024",
+      "source": "Open-Meteo Archive API",
+      "climate": "极地苔原气候 ET",
+      "note": "78°N、极昼极夜、温度长期贴近 0、风速高",
+      "lat": 78.22,
+      "lon": 15.63,
+      "station": "LYR",
+      "retrieved_at": "2026-10-25T12:21:25",
+      "rows": 8784,
+      "start": "2024-01-01 00:00:00",
+      "end": "2024-12-31 23:00:00",
+      "frequency": "hourly",
+      "columns": [
+        "temperature",
+        "humidity",
+        "pressure",
+        "wind_speed",
+        "rainfall"
+      ],
+      "data_sha1": "a56b3b5f9b12508494e0d32e9ba4cbb2f1dabd9c",
+      "raw": [
+        {
+          "url": "https://archive-api.open-meteo.com/v1/archive?latitude=78.22&longitude=15.63&start_date=2024-01-01&end_date=2024-12-31&hourly=temperature_2m,relative_humidity_2m,surface_pressure,wind_speed_10m,precipitation&timezone=UTC",
+          "bytes": 378425,
+          "sha1": "ebb55e16e82caaa90b41d65eee2b3bb68b88df44",
+          "elevation": 18.0
+        }
+      ],
+      "data_path": "fixtures/holdout/h03_longyearbyen_hourly_2024/data.csv"
+    }
+  ]
+}

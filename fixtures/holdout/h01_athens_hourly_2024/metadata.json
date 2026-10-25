@@ -1,0 +1,32 @@
+{
+  "id": "H01",
+  "name": "athens_hourly_2024",
+  "source": "Open-Meteo Archive API",
+  "climate": "地中海气候 Csa",
+  "note": "夏季极端高温、冬季温和多雨、年降水集中在冷半年",
+  "lat": 37.98,
+  "lon": 23.73,
+  "station": "ATH",
+  "retrieved_at": "2026-10-25T12:20:57",
+  "rows": 8784,
+  "start": "2024-01-01 00:00:00",
+  "end": "2024-12-31 23:00:00",
+  "frequency": "hourly",
+  "columns": [
+    "temperature",
+    "humidity",
+    "pressure",
+    "wind_speed",
+    "rainfall"
+  ],
+  "data_sha1": "badf24b095fb3444215eb5b4720616cbc23a8c76",
+  "raw": [
+    {
+      "url": "https://archive-api.open-meteo.com/v1/archive?latitude=37.98&longitude=23.73&start_date=2024-01-01&end_date=2024-12-31&hourly=temperature_2m,relative_humidity_2m,surface_pressure,wind_speed_10m,precipitation&timezone=UTC",
+      "bytes": 377067,
+      "sha1": "3bf78e72c9e98d93e0b8690367df85095ae005b9",
+      "elevation": 99.0
+    }
+  ],
+  "data_path": "fixtures/holdout/h01_athens_hourly_2024/data.csv"
+}

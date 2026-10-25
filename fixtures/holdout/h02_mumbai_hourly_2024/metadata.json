@@ -1,0 +1,32 @@
+{
+  "id": "H02",
+  "name": "mumbai_hourly_2024",
+  "source": "Open-Meteo Archive API",
+  "climate": "热带季风气候 Am",
+  "note": "6–9 月季风暴雨、湿度近饱和、旱雨季振幅极大",
+  "lat": 19.08,
+  "lon": 72.88,
+  "station": "BOM",
+  "retrieved_at": "2026-10-25T12:21:08",
+  "rows": 8784,
+  "start": "2024-01-01 00:00:00",
+  "end": "2024-12-31 23:00:00",
+  "frequency": "hourly",
+  "columns": [
+    "temperature",
+    "humidity",
+    "pressure",
+    "wind_speed",
+    "rainfall"
+  ],
+  "data_sha1": "334e28a9a7676563c34cd90dbfe60c522fde6079",
+  "raw": [
+    {
+      "url": "https://archive-api.open-meteo.com/v1/archive?latitude=19.08&longitude=72.88&start_date=2024-01-01&end_date=2024-12-31&hourly=temperature_2m,relative_humidity_2m,surface_pressure,wind_speed_10m,precipitation&timezone=UTC",
+      "bytes": 382621,
+      "sha1": "d867d1811622041275c20024721b70d6d9d3149c",
+      "elevation": 9.0
+    }
+  ],
+  "data_path": "fixtures/holdout/h02_mumbai_hourly_2024/data.csv"
+}

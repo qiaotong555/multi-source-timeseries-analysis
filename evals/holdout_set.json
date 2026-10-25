@@ -1,0 +1,121 @@
+{
+  "version": 1,
+  "frozen_at": "2026-10-25T12:22:49+08:00",
+  "purpose": "C1 最终保留集：给「阈值/规则是否只在开发数据上成立」这个问题一个只跑一次、不可回调的答案。",
+  "declaration": [
+    "这 3 份数据于 2026-10-25 首次抓取，抓取之前从未进入本仓库的任何分析、评估或调参流程。",
+    "冻结后不参与阈值选择、不参与参数调整；结果不好看只写进遗留限制，不回调任何参数。",
+    "只允许生成一次结果文件；重跑必须带 --force 与原因，且 reruns 计数会写在结果里。",
+    "本保留集无人工标签：它只能检验结构完整性与单位推断，不能替代带标签数据上的 P/R 验收。"
+  ],
+  "protocol": {
+    "mode": "pipeline",
+    "planner": "rule",
+    "seed": 20260927,
+    "scene_id": "weather",
+    "why_pipeline": "保留集要能被任何人复算：pipeline + rule 计划器不依赖外部模型，同一份数据同一份计划。agent 模式的波动已由 real_data_eval 单独度量，不在这里混入模型随机性。",
+    "why_no_threshold": "保留集只用于验收，不用于选择；本脚本不传 param_overrides。",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "分析温度的趋势、季节性和异常点，并检测变化点",
+        "expect": [
+          "trend",
+          "seasonal",
+          "anomaly",
+          "changepoint"
+        ]
+      },
+      {
+        "id": "q2",
+        "question": "请检查这份数据的缺失、重复、乱序、采样缺口和单位变化",
+        "expect": []
+      },
+      {
+        "id": "q3",
+        "question": "找出温度、湿度和气压的异常，并说明最显著的几个",
+        "expect": [
+          "anomaly"
+        ]
+      },
+      {
+        "id": "q4",
+        "question": "做一次完整分析：趋势、季节性、异常点、变化点",
+        "expect": [
+          "trend",
+          "seasonal",
+          "anomaly",
+          "changepoint"
+        ]
+      }
+    ]
+  },
+  "expected_structural_checks": {
+    "success_rate": 1.0,
+    "evidence_coverage": 1.0,
+    "need_coverage": 1.0,
+    "spurious_unit_conversions": 0
+  },
+  "datasets": [
+    {
+      "id": "H01",
+      "name": "athens_hourly_2024",
+      "source": "Open-Meteo Archive API",
+      "climate": "地中海气候 Csa",
+      "note": "夏季极端高温、冬季温和多雨、年降水集中在冷半年",
+      "station": "ATH",
+      "data_path": "fixtures/holdout/h01_athens_hourly_2024/data.csv",
+      "data_sha1": "badf24b095fb3444215eb5b4720616cbc23a8c76",
+      "rows": 8784,
+      "start": "2024-01-01 00:00:00",
+      "end": "2024-12-31 23:00:00",
+      "columns": [
+        "temperature",
+        "humidity",
+        "pressure",
+        "wind_speed",
+        "rainfall"
+      ]
+    },
+    {
+      "id": "H02",
+      "name": "mumbai_hourly_2024",
+      "source": "Open-Meteo Archive API",
+      "climate": "热带季风气候 Am",
+      "note": "6–9 月季风暴雨、湿度近饱和、旱雨季振幅极大",
+      "station": "BOM",
+      "data_path": "fixtures/holdout/h02_mumbai_hourly_2024/data.csv",
+      "data_sha1": "334e28a9a7676563c34cd90dbfe60c522fde6079",
+      "rows": 8784,
+      "start": "2024-01-01 00:00:00",
+      "end": "2024-12-31 23:00:00",
+      "columns": [
+        "temperature",
+        "humidity",
+        "pressure",
+        "wind_speed",
+        "rainfall"
+      ]
+    },
+    {
+      "id": "H03",
+      "name": "longyearbyen_hourly_2024",
+      "source": "Open-Meteo Archive API",
+      "climate": "极地苔原气候 ET",
+      "note": "78°N、极昼极夜、温度长期贴近 0、风速高",
+      "station": "LYR",
+      "data_path": "fixtures/holdout/h03_longyearbyen_hourly_2024/data.csv",
+      "data_sha1": "a56b3b5f9b12508494e0d32e9ba4cbb2f1dabd9c",
+      "rows": 8784,
+      "start": "2024-01-01 00:00:00",
+      "end": "2024-12-31 23:00:00",
+      "columns": [
+        "temperature",
+        "humidity",
+        "pressure",
+        "wind_speed",
+        "rainfall"
+      ]
+    }
+  ]
+}
