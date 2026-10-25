@@ -92,7 +92,9 @@ def _build_parser() -> argparse.ArgumentParser:
     r.add_argument("--mode", choices=("pipeline", "agent", "auto"), default=None,
                    help="运行模式：pipeline 固定流水线；agent 由模型选择工具（本轮仅天气）；"
                         "auto 有模型且场景支持时走 agent，否则回退 pipeline。"
-                        "缺省读 MTSA_AGENT，再缺省 pipeline")
+                        "缺省读 MTSA_AGENT，再缺省 pipeline。"
+                         "注意：这与计划器不是同一个开关——分析哪些项由 MTSA_PLANNER 决定"
+                         "（默认 auto：配了模型就由模型出计划，没配模型用规则）")
     r.add_argument("--agent-max-steps", type=int, default=8, metavar="N",
                    help="Agent 模式最大决策步数，默认 8")
     r.add_argument("--forecast", action="store_true",

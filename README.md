@@ -11,6 +11,9 @@ pip install mtsa-agent   # 从 PyPI 安装（发行名与命令名不同：装�
 mtsa demo            # 生成一份合成天气数据，跑完整链路，出报告
 ```
 
+只读 CSV 就够用。要读 Excel / Parquet / HDF5，加可选依赖：
+`pip install "mtsa-agent[io]"`（仓库内：`pip install ".[io]"`）。
+
 `mtsa demo` **不需要模型、不需要联网、不需要准备数据**。跑完当前目录多出 `mtsa_demo/`：
 
 | 文件 | 是什么 |
@@ -64,9 +67,20 @@ mtsa run --scene weather --input 你的数据.csv --question "分析温度的趋
 
 | 模式 | 行为 | 无模型时 |
 | --- | --- | --- |
-| `pipeline`（默认） | 固定跑完 12 项计划，确定性 | 正常 |
+| `pipeline`（默认） | 固定流程、逐节点执行；分析哪些项由计划器决定（规则计划为 12 项） | 正常 |
 | `agent` | 天气场景下由模型在白名单 5 个工具里选下一步 | `AGENT_UNAVAILABLE` |
 | `auto` | 天气且有模型才升级，否则回退 | 回退 pipeline 并写 warning |
+
+**两个开关不要混**：`--mode` 决定「谁决定执行顺序」，`MTSA_PLANNER` 决定「分析哪些项」。
+
+| 开关 | 控制什么 | 默认 | 改变方式 |
+| --- | --- | --- | --- |
+| 运行模式 | 固定流水线 / 模型选工具 | `pipeline` | `--mode agent`、`--mode auto`，或 `MTSA_AGENT` |
+| 计划器 | 分析项清单由谁给出 | `auto`：配了模型就由模型出计划（命中缓存则直接复用），没配模型用规则计划 | `MTSA_PLANNER=rule` / `llm` / `auto` |
+
+因此「pipeline 固定 12 项、结果确定」只在 `MTSA_PLANNER=rule` 时成立。2026-10-25 实测：
+同一份天气数据、同一问题，缺省参数下 `plan_source=llm`、只跑 **3 项**；
+加 `MTSA_PLANNER=rule` 才是 **12 项**。要逐位复现，请显式设置它。
 
 ---
 
@@ -139,6 +153,10 @@ python -m mtsa.cli run --scene weather --input fixtures/weather_eval_v2.csv \
   --question "分析温度的趋势" --forecast --forecast-horizon 24
 
 python -m mtsa.cli run --replay artifacts/<run_id>/result.json   # 离线重放，不调模型
+
+# 要逐位复现（规则计划 12 项、不调模型），先固定计划器：
+#   bash:       export MTSA_PLANNER=rule
+#   PowerShell: $env:MTSA_PLANNER='rule'
 ```
 
 **判断成败看 `result.json` 的 `status`，不要以「产物目录非空」为准**——失败时也会落盘留档。
