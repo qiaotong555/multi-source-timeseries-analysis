@@ -273,7 +273,7 @@ C 阶段（交付卫生）修完以下不一致，记录在此防止回退：
 | C | 交付卫生：文档口径、三份规划收敛、多站点正式声明 | **已完成** | 文档与代码逐条对齐 |
 | B1 | E1 可观测性：未执行原因 + 覆盖矩阵 | **已完成** | 每个 `not_run` / `failed` / `skipped` 都有原因；矩阵进 `report.md` 与 `coverage.tools[]` |
 | B2 | E2 成本语义：token → 金额、预算前置 | **已完成**（2026-10-25 补金额预算） | 金额标「估算」、带价目表出处；无表不按 0 计价；token 预算预扣硬停；金额预算 `--max-cost` **只标记不中止**；随包 `prices/` 两模型两档 |
-| B3 | 交付形态（用户选 C 档：不做 HTTP） | **已完成** | `pip install .` 后 `mtsa run` 可用；从无关目录、无 PYTHONPATH 实测通过；Dockerfile 已由 CI 构建并跑通（`docker build` → `list-scenes` → 容器内一次真实分析） |
+| B3 | 交付形态（当时选 C 档：只做 CLI） | **已完成** | `pip install .` 后 `mtsa run` 可用；从无关目录、无 PYTHONPATH 实测通过；Dockerfile 已由 CI 构建并跑通（`docker build` → `list-scenes` → 容器内一次真实分析）。HTTP 当时没做，2026-10-25 由 E1 补了薄壳（`mtsa-api`），异步仍不做 |
 | 之后 | A1/A2 检测器质量 | 挂起 | v2 F1 ≥0.55 且 22 项逐位不变 |
 
 研究线（A1 变化点判据 → A2 持续段/漂移 → 预测场景化）在产品可用后启动，
