@@ -95,6 +95,9 @@ def _build_parser() -> argparse.ArgumentParser:
                         "缺省读 MTSA_AGENT，再缺省 pipeline。"
                          "注意：这与计划器不是同一个开关——分析哪些项由 MTSA_PLANNER 决定"
                          "（默认 auto：配了模型就由模型出计划，没配模型用规则）")
+    r.add_argument("--dry-run", action="store_true",
+                   help="只预演：打印字段摘要、场景、计划与将要执行的工具，然后退出；"
+                        "不写产物、不运行检测器。用于确认分析目标是否正确")
     r.add_argument("--agent-max-steps", type=int, default=8, metavar="N",
                    help="Agent 模式最大决策步数，默认 8")
     r.add_argument("--forecast", action="store_true",
@@ -130,6 +133,38 @@ def _build_parser() -> argparse.ArgumentParser:
     return p
 
 
+def _print_preview(p: dict) -> None:
+    """把 dry-run 的预览打印成人读的样子。"""
+    inp, q, sc, pl = p["input"], p["quality"], p["scene"], p["plan"]
+    print("[dry-run] 只做预演：没有写入任何文件，也没有运行检测器。\n")
+    print(f"数据   {inp['path']}（{inp['format']}）")
+    print(f"       {inp['rows']:,} 行 × {len(inp['columns'])} 列"
+          f" | 时间列 {inp['time_column']} {inp['time_start']} → {inp['time_end']}"
+          f" | 采样 {inp['interval']}"
+          f" | 分组 {inp['group_column'] or '无'}（{inp['groups']} 组）")
+    nums = inp["numeric_columns"]
+    shown = ", ".join(nums[:8]) + ("  …" if len(nums) > 8 else "")
+    print(f"       数值列 {len(nums)} 个：{shown}")
+    print(f"       质量问题 {q['issues']} 条：最大缺失率 {q['max_missing_ratio']:.2%}"
+          f" / 重复时间戳 {q['duplicates']}"
+          f" / 乱序 {q['out_of_order']}{'（多站长表按各组合计）' if inp['groups'] > 1 else ''}"
+          f" / 采样缺口 {q['gaps']} / 异常候选 {q['anomaly_candidates']}")
+    print(f"\n场景   {sc['scene_id']}（置信度 {sc['confidence']:.3f}，{sc['source']}）")
+    print(f"模式   {p['mode']}（请求 {p['mode_requested']}）")
+    period = pl["parameters"].get("seasonal_period")
+    print(f"计划   {pl['plan_source']}（{pl['planner_version']}）"
+          f" / {len(pl['analyses'])} 项分析 / 目标列 {len(pl['target_columns'])} 个"
+          f" / 周期 {period if period is not None else '—'}")
+    print("\n将要执行：")
+    for i, t in enumerate(p["tools"], 1):
+        print(f"  {i}. {t['name']:<20} {t['description']}")
+    if p["warnings"]:
+        print("\n先留意：")
+        for w in p["warnings"]:
+            print(f"  - {w}")
+    print(f"\n产物目录（本次不会创建）：{p['output_dir']}")
+
+
 def main(argv: list[str] | None = None) -> int:
     args = _build_parser().parse_args(argv)
 
@@ -157,6 +192,12 @@ def main(argv: list[str] | None = None) -> int:
         for k, ad in _REGISTRY.items():
             print(f"{k}\t{ad.name}")
         return 0
+
+    # 冲突先于 replay 解析判断：否则不存在的文件会先报 REPLAY_INVALID，掩盖真正原因
+    if getattr(args, "dry_run", False) and args.replay:
+        print("--dry-run 不能与 --replay 同时使用：重放的是已有轨迹，没有可确认的计划",
+              file=sys.stderr)
+        return 1
 
     if args.replay:
         from .replay import ReplayError, load_replay
@@ -197,6 +238,16 @@ def main(argv: list[str] | None = None) -> int:
         forecast=args.forecast,
         forecast_horizon=args.forecast_horizon,
     )
+    if args.dry_run:
+        # 不进子进程：预演不写任何文件，也不需要超时保护
+        result = run_analysis(req, verbose=False, dry_run=True)
+        if result.status != "succeeded":
+            code = result.error.code if result.error else "FAILED"
+            message = result.error.message if result.error else "预演失败"
+            print(f"[{code}] {message}", file=sys.stderr)
+            return 1
+        _print_preview(result.data["preview"])
+        return 0
     if args.timeout and args.timeout > 0:
         result = run_with_timeout(req, timeout_s=args.timeout, verbose=False)
     else:

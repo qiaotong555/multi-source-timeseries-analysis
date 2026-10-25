@@ -1568,7 +1568,7 @@
   "Agent越界拒绝总数": 0,
   "_conclusion_eval": {
     "available": true,
-    "path": "<repo>\\evals\\conclusion_eval_results.json",
+    "path": "C:\\Users\\乔佟\\WorkBuddy\\2026-09-27-22-32-34\\multi_source_timeseries_analysis\\evals\\conclusion_eval_results.json",
     "generated_at": "2026-10-23T23:02:35",
     "result_root": "artifacts\\t212_compare",
     "source": "existing_results",
@@ -1863,7 +1863,7 @@
   },
   "_conclusion_diff": {
     "available": true,
-    "path": "<repo>\\evals\\conclusion_diff_results.json",
+    "path": "C:\\Users\\乔佟\\WorkBuddy\\2026-09-27-22-32-34\\multi_source_timeseries_analysis\\evals\\conclusion_diff_results.json",
     "generated_at": "2026-10-23T22:53:04",
     "summary": {
       "pipeline_total": 507,
@@ -1970,7 +1970,7 @@
   },
   "_short_repro": {
     "available": true,
-    "path": "<repo>\\evals\\short_repro_results.json",
+    "path": "C:\\Users\\乔佟\\WorkBuddy\\2026-09-27-22-32-34\\multi_source_timeseries_analysis\\evals\\short_repro_results.json",
     "generated_at": "2026-10-23T22:57:14",
     "identical": true,
     "diffs": [],
@@ -1983,7 +1983,7 @@
     "available": true,
     "judged": true,
     "source": "real",
-    "path": "<repo>\\evals\\agent_eval_short_results.json",
+    "path": "C:\\Users\\乔佟\\WorkBuddy\\2026-09-27-22-32-34\\multi_source_timeseries_analysis\\evals\\agent_eval_short_results.json",
     "generated_at": "2026-10-23T22:59:50",
     "input_path": "fixtures\\weather_short_v1.csv",
     "model": "deepseek-chat",
@@ -2035,7 +2035,7 @@
   },
   "_short_conclusion": {
     "available": true,
-    "path": "<repo>\\evals\\conclusion_eval_short_agent_results.json",
+    "path": "C:\\Users\\乔佟\\WorkBuddy\\2026-09-27-22-32-34\\multi_source_timeseries_analysis\\evals\\conclusion_eval_short_agent_results.json",
     "generated_at": "2026-10-23T23:02:30",
     "result_root": "artifacts\\c_short_agent_eval",
     "source": "existing_results",

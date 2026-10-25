@@ -53,7 +53,7 @@ from .tools import ToolContext
 from . import cost as cost_mod
 from . import report as report_mod
 from . import viz as viz_mod
-from .planner import build_planner
+from .planner import TOOL_SPECS, build_planner
 
 # 规模上限。实测（10 列、含全部统计检验）：1e5 行 37 s、2e5 行 124 s、5e5 行 736 s，
 # 超线性来自 ADF 的自动滞后阶随样本量增长。上限取 2e5，最坏约 2 分钟。
@@ -215,20 +215,153 @@ def _unexpected_failure(request: AnalysisRequest, run_id: str, outdir: str,
     return result
 
 
-def run_analysis(request: AnalysisRequest, verbose: bool = True) -> AnalysisResult:
+def run_analysis(request: AnalysisRequest, verbose: bool = True,
+                 dry_run: bool = False) -> AnalysisResult:
+    """执行一次分析。
+
+    `dry_run=True` 只走到「计划已产出」为止：返回字段摘要、场景、计划与将要执行的
+    工具，不写任何文件、不运行检测器。供 `mtsa run --dry-run` 让用户先确认目标。
+    """
     run_id = _new_run_id()
     outdir = request.output_dir or os.path.join("artifacts", run_id)
     events: list[EventRecord] = []
     warnings: list[str] = []
     try:
-        return _run_analysis_impl(request, verbose, run_id, outdir, events, warnings)
+        return _run_analysis_impl(request, verbose, run_id, outdir, events, warnings,
+                                  dry_run=dry_run)
     except Exception as exc:                      # noqa: BLE001
+        if dry_run:
+            res = AnalysisResult(request_id=request.request_id, run_id=run_id,
+                                 status="failed")
+            res.error = ErrorDetail(
+                code=ERR_INTERNAL_ERROR,
+                message="预演阶段发生未分类异常（dry-run 不落盘）",
+                details={"exception": f"{type(exc).__name__}: {exc}"[:500]},
+            )
+            res.events = events
+            res.warnings = warnings
+            return res
         return _unexpected_failure(request, run_id, outdir, events, warnings, exc, verbose)
+
+
+# Agent 白名单工具的说明，仅用于 --dry-run 的展示。
+_AGENT_TOOL_DESC = {
+    "compute_metrics": "指标表：趋势、波动、分位等基础统计",
+    "analyze_spectrum": "频谱：主频与周期（Welch 功率谱）",
+    "run_stat_tests": "统计检验：平稳性 / 自相关 / 正态性 / 趋势",
+    "detect_anomalies": "异常点：离群与故障定位",
+    "detect_change_points": "变化点：均值或方差突变",
+}
+
+
+def _fmt_interval(sec) -> str:
+    if not sec:
+        return "未知"
+    if float(sec) % 3600 == 0:
+        return f"{int(float(sec) // 3600)}h"
+    if float(sec) % 60 == 0:
+        return f"{int(float(sec) // 60)}min"
+    return f"{float(sec):g}s"
+
+
+def _resolve_effective_mode(request: AnalysisRequest, plan: AnalysisPlan,
+                            replay_source, warnings: list[str]) -> tuple[str, str]:
+    """把请求里的模式解析成实际执行模式：auto 要看场景与模型可用性。"""
+    requested = request.mode
+    if replay_source is not None:
+        return requested, "agent"
+    if requested != "auto":
+        return requested, requested
+    from .llm_client import client_from_env
+    if plan.scene_id != "weather":
+        warnings.append("auto 模式：当前场景不是天气，Agent 尚未支持该场景，已回退 pipeline")
+        return requested, "pipeline"
+    if client_from_env() is None:
+        warnings.append("auto 模式：未配置可用的模型客户端，已回退 pipeline")
+        return requested, "pipeline"
+    return requested, "agent"
+
+
+def _preview_payload(request: AnalysisRequest, raw, profile, qrep, plan: AnalysisPlan,
+                     requested_mode: str, effective_mode: str, outdir: str,
+                     warnings: list[str]) -> dict[str, Any]:
+    """dry-run 的输出：只描述「接下来要做什么」，不含任何计算结果。"""
+    axis = profile.time_axis
+    group_col = plan.group_column
+    groups = 1
+    if group_col and group_col in raw.frame.columns:
+        groups = int(raw.frame[group_col].nunique(dropna=True))
+    if effective_mode == "agent":
+        tools = [{"name": n, "description": _AGENT_TOOL_DESC.get(n, "")}
+                 for n in WEATHER_AGENT_TOOLS]
+    else:
+        tools = [{"name": a, "description": TOOL_SPECS.get(a, "场景专属分析（不由模型裁剪）")}
+                 for a in plan.analyses]
+    missing = [v for v in (qrep.missing_ratio or {}).values() if v is not None]
+    return {
+        "dry_run": True,
+        "input": {
+            "path": request.input_path,
+            "format": raw.spec.format,
+            "rows": raw.row_count,
+            "columns": list(raw.frame.columns),
+            "time_column": axis.column if axis else None,
+            "time_start": axis.start if axis else None,
+            "time_end": axis.end if axis else None,
+            "interval": _fmt_interval(axis.median_interval_seconds if axis else None),
+            "interval_stable": bool(profile.sampling.interval_stable),
+            "group_column": group_col,
+            "groups": groups,
+            "numeric_columns": list(profile.numeric_columns),
+        },
+        "quality": {
+            "issues": len(qrep.issues),
+            "max_missing_ratio": max(missing) if missing else 0.0,
+            "duplicates": qrep.duplicate_timestamps,
+            "out_of_order": qrep.out_of_order,
+            "gaps": qrep.gap_count,
+            "anomaly_candidates": qrep.anomaly_candidate_count,
+        },
+        "scene": {
+            "scene_id": plan.scene_id,
+            "confidence": plan.scene_confidence,
+            "source": "显式指定 --scene" if request.scene_id else "自动识别",
+        },
+        "mode": effective_mode,
+        "mode_requested": requested_mode,
+        "plan": {
+            "plan_source": plan.plan_source,
+            "planner_version": plan.planner_version,
+            "analyses": list(plan.analyses),
+            "target_columns": list(plan.target_columns),
+            "resample_rule": plan.resample_rule,
+            "parameters": dict(plan.parameters or {}),
+        },
+        "tools": tools,
+        "warnings": list(warnings),
+        "output_dir": os.path.abspath(outdir),
+    }
+
+
+def _dry_run_result(request: AnalysisRequest, run_id: str, raw, profile, qrep,
+                    plan: AnalysisPlan, requested_mode: str, effective_mode: str,
+                    outdir: str, warnings: list[str],
+                    events: list[EventRecord]) -> AnalysisResult:
+    result = AnalysisResult(request_id=request.request_id, run_id=run_id,
+                            status="succeeded")
+    result.data = {"plan": plan.model_dump(),
+                   "preview": _preview_payload(request, raw, profile, qrep, plan,
+                                               requested_mode, effective_mode,
+                                               outdir, warnings)}
+    # 只保留只读节点的轨迹：清洗之后的节点在 dry-run 里根本没有执行
+    result.events = list(events)
+    result.warnings = warnings
+    return result
 
 
 def _run_analysis_impl(request: AnalysisRequest, verbose: bool, run_id: str,
                        outdir: str, events: list[EventRecord],
-                       warnings: list[str]) -> AnalysisResult:
+                       warnings: list[str], dry_run: bool = False) -> AnalysisResult:
     timer = _Timer(events)
     result = AnalysisResult(request_id=request.request_id, run_id=run_id, status="running")
 
@@ -239,12 +372,14 @@ def _run_analysis_impl(request: AnalysisRequest, verbose: bool, run_id: str,
         result.warnings = warnings
         # 失败也要落盘：既便于事后排查，也让进程隔离的调用方能区分
         # 「分析失败」与「子进程崩溃」——后者根本没有 result.json。
-        try:
-            os.makedirs(outdir, exist_ok=True)
-            with open(os.path.join(outdir, "result.json"), "w", encoding="utf-8") as f:
-                f.write(result.model_dump_json(indent=2))
-        except OSError:
-            pass                                  # 目录不可写不应掩盖原始错误
+        # 例外是 --dry-run：它对用户的承诺就是「什么都不写」，失败时同样不落盘。
+        if not dry_run:
+            try:
+                os.makedirs(outdir, exist_ok=True)
+                with open(os.path.join(outdir, "result.json"), "w", encoding="utf-8") as f:
+                    f.write(result.model_dump_json(indent=2))
+            except OSError:
+                pass                              # 目录不可写不应掩盖原始错误
         if verbose:
             print(f"[{code}] {message}")
         return result
@@ -375,6 +510,17 @@ def _run_analysis_impl(request: AnalysisRequest, verbose: bool, run_id: str,
                                 "overrides": len(request.param_overrides),
                                 "plan_source": plan.plan_source})
 
+    # ---- 4c. 预演（--dry-run）----
+    # 到此为止只做了只读操作：导入、摘要、质量检查、场景识别、出计划。
+    # 清洗（会改数据）、检测器、图表、报告都在后面，所以这里直接返回就能满足
+    # 「不写 artifacts、不调检测器」；计划与真跑同源，不存在两套逻辑。
+    if dry_run:
+        requested_mode, effective_mode = _resolve_effective_mode(
+            request, plan, replay_source, warnings)
+        return _dry_run_result(request, run_id, raw, profile, qrep, plan,
+                               requested_mode, effective_mode, outdir,
+                               warnings, events)
+
     # ---- 5. 清洗 ----
     clean = preprocess.clean_dataset(raw, profile, parsed_time, plan)
     timer.run("clean_dataset", lambda: {"rows": len(clean.frame),
@@ -395,20 +541,8 @@ def _run_analysis_impl(request: AnalysisRequest, verbose: bool, run_id: str,
     # ---- 5b. 运行模式解析 ----
     # auto：有模型且场景支持 → agent；否则回退 pipeline，并把原因写进 warnings。
     # 重放不需要模型，因此 replay 始终按 agent 处理。
-    requested_mode = request.mode
-    effective_mode = requested_mode
-    if replay_source is not None:
-        effective_mode = "agent"
-    elif requested_mode == "auto":
-        from .llm_client import client_from_env
-        if plan.scene_id != "weather":
-            effective_mode = "pipeline"
-            warnings.append("auto 模式：当前场景不是天气，Agent 尚未支持该场景，已回退 pipeline")
-        elif client_from_env() is None:
-            effective_mode = "pipeline"
-            warnings.append("auto 模式：未配置可用的模型客户端，已回退 pipeline")
-        else:
-            effective_mode = "agent"
+    requested_mode, effective_mode = _resolve_effective_mode(
+        request, plan, replay_source, warnings)
 
     # ---- 6-10. 分析层 ----
     # pipeline：固定顺序，行为与 T1.8 保持一致。

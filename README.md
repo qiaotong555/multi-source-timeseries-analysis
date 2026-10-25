@@ -13,6 +13,7 @@ mtsa demo            # 生成一份合成天气数据，跑完整链路，出报
 
 只读 CSV 就够用。要读 Excel / Parquet / HDF5，加可选依赖：
 `pip install "mtsa-agent[io]"`（仓库内：`pip install ".[io]"`）。
+要跑 `scripts/make_*.py` 生成 Word，另加 `pip install "mtsa-agent[docx]"`（仓库内 `".[docx]"`）。
 
 `mtsa demo` **不需要模型、不需要联网、不需要准备数据**。跑完当前目录多出 `mtsa_demo/`：
 
@@ -103,7 +104,7 @@ mtsa run --scene weather --input 你的数据.csv --question "分析温度的趋
 
 | 维度 | 结论 | 关键数字 | 证据 |
 | --- | --- | --- | --- |
-| 工程基线 | **通过** | 51 个测试文件 / 474 项 / 0 失败 / 387.63 s（2026-10-25 18:24） | `evals/test_logs/summary.json` |
+| 工程基线 | **通过** | 52 个测试文件 / 479 项 / 0 失败 / 400.03 s（2026-10-25 19:09） | `evals/test_logs/summary.json` |
 | 鲁棒性 | **通过** | 37 个坏输入与边界用例 37/37，0 崩溃；失败均带错误码与出错节点 | `evals/robustness_results.json` |
 | 结论级门禁（独立数据 v2） | **通过** | 24/24（10 pipeline + 10 agent + 4 非劣性）；事件级命中 R=0.9667、F1=0.9831；点级 P=1.000 / R=0.840 | `evals/conclusion_gate_v2_results.json` |
 | 真实数据验证（B） | **工程通过，正确性未证** | 10 份数据 × 4 问题 × 2 模式 = 80/80 成功，证据覆盖 1.000；14 项验收 13 项通过 | `evals/real_data_results.json` |
@@ -112,7 +113,7 @@ mtsa run --scene weather --input 你的数据.csv --question "分析温度的趋
 | Agent 对照（13 用例） | **可用** | 13/13 成功；2.54 步；需求覆盖 1.00；结论 29.92 vs 39.00（−23.3%）；token 53,924；墙钟 12.77 s vs 12.09 s | `evals/mode_compare_results.json` |
 | 规模与性能 | **有明确上限** | 20 万行上限（`MTSA_MAX_ROWS`）；1e5 行 37.1 s、2e5 行 123.9 s、5e5 行 736 s、1e6 未完成 | `doc/评估设计.md`、`doc/改进记录.md` #4/#6 |
 
-**规模数字**：`src/mtsa` 31 个 py / 6,818 行；`tests` 目录 53 个 py（51 个测试文件 / 474 项，逐文件入口统计）；`evals` 20 个 py / 6,614 行；真实数据 registry 17 份（5 个来源：Open-Meteo / NOAA GHCN-Daily / DWD / ECCC / ASOS；2 种频率：hourly 14、daily 3）。
+**规模数字**：`src/mtsa` 31 个 py / 6,990 行；`tests` 目录 54 个 py（52 个测试文件 / 479 项，逐文件入口统计）；`evals` 20 个 py / 6,614 行；真实数据 registry 17 份（5 个来源：Open-Meteo / NOAA GHCN-Daily / DWD / ECCC / ASOS；2 种频率：hourly 14、daily 3）。
 
 **评估指标**：29 项 = 22 项规则模式阈值指标 + 3 项 LLM 模式指标（合法率、回退率、覆盖率）+ 4 项 Agent 指标（后 7 项仅在对应评估缓存存在时纳入判定）。LLM 覆盖率只统计合法计划，回退时不计入平均——否则「模型全挂」会被算成高覆盖。
 
@@ -151,6 +152,9 @@ python -m mtsa.cli run --mode agent --scene weather \
 
 python -m mtsa.cli run --scene weather --input fixtures/weather_eval_v2.csv \
   --question "分析温度的趋势" --forecast --forecast-horizon 24
+
+python -m mtsa.cli run --dry-run --scene weather --input fixtures/weather_v1.csv \
+  --question "分析温度的趋势"      # 只预演：字段摘要 + 场景 + 计划 + 工具，不写盘
 
 python -m mtsa.cli run --replay artifacts/<run_id>/result.json   # 离线重放，不调模型
 
@@ -238,7 +242,7 @@ C 阶段（交付卫生）修完以下不一致，记录在此防止回退：
 | `doc/项目说明书.md` | 「不做预测」与同文预测能力矛盾 | 改为「不做业务预测与因果推断；`--forecast` 只给点预测 + 经验区间」 |
 | `doc/项目说明书.md` | 输出结构写成子目录 | 改为 `fig_*.png` / `fig_*.html` 直接写在运行目录 |
 | `doc/项目说明书.md` 6.6 | 主表是 F 阶段 11 份 / 58 列 | 标注为「F 阶段口径」，并指向 6.8 的 17 份 / 94 列 |
-| `spec/已完成任务.md` | 测试数停在 31 文件 / 304 项 | 更新为 51 / 474（2026-10-25 18:24 实测） |
+| `spec/已完成任务.md` | 测试数停在 31 文件 / 304 项 | 更新为 52 / 479（2026-10-25 19:09 实测） |
 | 三份 spec 的「下一步」 | 三个不同说法 | 统一到 `spec/未来规划.md` 的 C → B1 → B2 → B3 |
 | 多站点 | 一直列为「待拍板」 | 已声明为正式支持（README、项目说明书） |
 
