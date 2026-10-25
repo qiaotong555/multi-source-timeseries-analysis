@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 import os
+import subprocess
 
 import pytest
 
@@ -80,3 +81,35 @@ def test_analysis_failure_is_parsed_not_masked(tmp_path):
     res = run_with_timeout(req, timeout_s=300, verbose=False)
     assert res.status == "failed"
     assert res.error.code == "DATA_LOAD_FAILED"
+
+
+def test_child_stdio_is_forced_to_utf8(tmp_path, monkeypatch):
+    """回归：子进程输出必须按 UTF-8 解码，不能跟着 locale 走。
+
+    原实现 `subprocess.run(..., text=True)` 未指定 encoding，父进程用
+    `locale.getpreferredencoding()` 解码。中文 Windows 上是 GBK，而子进程
+    同样按 GBK 写 stderr——只要父进程处于 UTF-8 模式（`-X utf8` 或
+    `PYTHONUTF8=1`，CLI 常规用法就是这样），reader 线程就会抛
+    `UnicodeDecodeError: 'utf-8' codec can't decode byte 0xc7 ...`，
+    主流程虽然成功，stderr 里却留下半截 traceback。
+
+    触发物是 statsmodels 的 `InterpolationWarning`：告警文本带源码路径，
+    路径里有中文用户名（`C:\\Users\\乔佟\\...`）。
+    """
+    import mtsa.timeout_guard as guard
+
+    captured = {}
+
+    def fake_run(cmd, **kwargs):
+        captured.update(kwargs)
+        return subprocess.CompletedProcess(cmd, 1, "", "boom")
+
+    monkeypatch.setattr(guard.subprocess, "run", fake_run)
+    res = run_with_timeout(_req(tmp_path, rid="to_enc"), timeout_s=30, verbose=False)
+
+    assert captured["encoding"] == "utf-8"
+    assert captured["errors"] == "replace"          # 无法解码的字节降级，不抛异常
+    assert captured["env"]["PYTHONIOENCODING"] == "utf-8"
+    # 失败路径不受影响：stderr 仍以 str 进入 details
+    assert res.status == "failed"
+    assert res.error.details["stderr_tail"] == ["boom"]

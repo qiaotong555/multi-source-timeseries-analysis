@@ -17,6 +17,12 @@ Python 无法从外部中断正在执行的 C 扩展调用（numpy、statsmodels
 2. **用临时 JSON 文件传参**，不走 pickle，避免 Windows spawn 与跨版本序列化的坑。
 3. **不改产物格式。** 子进程照常把 `result.json` 写到输出目录，父进程读回即可；
    超时被终止时该文件可能不存在或残留半成品，因此在 `details` 里如实标注。
+4. **显式锁定子进程的 stdio 编码。** 父进程按 UTF-8 解码子进程输出，若子进程用
+   locale 编码（中文 Windows 为 GBK）写 stderr，解码就会在 reader 线程里抛
+   `UnicodeDecodeError`——崩溃的是读管道的那条线程，主流程看起来仍然成功，
+   只在 stderr 留下半截 traceback。statsmodels 的告警文本带源码路径（含中文
+   用户名）时就会触发。因此子进程强制 `PYTHONIOENCODING=utf-8`，父进程按
+   UTF-8 解码并对无法解码的字节用替换符兜底。
 """
 from __future__ import annotations
 
@@ -88,8 +94,13 @@ def run_with_timeout(request: AnalysisRequest,
     env = os.environ.copy()
     existing = env.get("PYTHONPATH", "")
     env["PYTHONPATH"] = pkg_parent + (os.pathsep + existing if existing else "")
+    # 子进程的输出由父进程按 UTF-8 解释，必须让它也按 UTF-8 写；
+    # 否则中文 Windows 上默认 GBK，含中文路径的告警会让父进程解码失败。
+    env["PYTHONIOENCODING"] = "utf-8"
     try:
-        proc = subprocess.run(cmd, capture_output=True, text=True, env=env,
+        proc = subprocess.run(cmd, capture_output=True, text=True,
+                              encoding="utf-8", errors="replace",
+                              env=env,
                               timeout=limit if limit > 0 else None)
     except subprocess.TimeoutExpired:
         # subprocess 已终止子进程；这里只需回收并如实报告

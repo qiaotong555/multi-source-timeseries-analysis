@@ -1,5 +1,5 @@
 # test_issue_runs
-# status=PASS exit=0 duration=2.85s passed=7 failed=0 errors=0
+# status=PASS exit=0 duration=2.6s passed=7 failed=0 errors=0
 .......                                                                  [100%]
-7 passed in 1.72s
+7 passed in 1.58s
 
