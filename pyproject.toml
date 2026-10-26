@@ -30,8 +30,10 @@ docx = ["python-docx>=1.2"]
 io = ["openpyxl>=3.1", "pyarrow>=25", "h5py>=3.16"]
 # 只在跑 HTTP 薄壳（`mtsa-api`）时需要；分析内核不依赖 Web 框架
 api = ["fastapi>=0.115", "uvicorn>=0.30", "python-multipart>=0.0.9"]
-# httpx 供 fastapi.testclient 用
-dev = ["pytest>=8", "httpx>=0.27"]
+# 跑全量测试所需：httpx 供 fastapi.testclient 用，fastapi / python-multipart
+# 供 test_api.py 直接 import——不写在这里，只装 dev 的 CI 会在收集阶段就报
+# ModuleNotFoundError（[api] 是运行时功能开关，不该同时兼任"测试依赖"）。
+dev = ["pytest>=8", "httpx>=0.27", "fastapi>=0.115", "python-multipart>=0.0.9"]
 
 [project.scripts]
 mtsa = "mtsa.cli:main"
