@@ -1,0 +1,6 @@
+# sdist 里除了包本体，还要带上"这份数据从哪来、授权是什么"的文件。
+# 少这些不影响 pip 安装，但分发时等于把出处和署名丢了。
+include CHANGELOG.md
+include DATA_SOURCES.md
+include THIRD_PARTY_NOTICES.md
+include CONTRIBUTING.md
