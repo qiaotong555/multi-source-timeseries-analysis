@@ -934,7 +934,7 @@ def _version() -> str:
         from importlib.metadata import version
         return version("mtsa-agent")
     except Exception:  # noqa: BLE001
-        return "0.3.0"
+        return "0.4.0"
 
 
 def find_soffice():

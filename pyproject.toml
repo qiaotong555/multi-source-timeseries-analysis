@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mtsa-agent"
-version = "0.3.0"
+version = "0.4.0"
 description = "多源时序数据量化分析与可视化 Agent（课题 12 / S06）"
 readme = "README.md"
 # 许可证：Apache-2.0（PEP 639 的 SPDX 写法要求 setuptools>=77，已在 build-system 声明）
