@@ -387,7 +387,9 @@ def render_report(
                 continue
             cov_txt = _fmt(c.get("interval_coverage"), 4)
             if c.get("zero_inflated"):
-                cov_txt = f"{cov_txt}（零膨胀，不判）"
+                cond = c.get("conditional") or {}
+                cond_txt = _fmt(cond.get("coverage"), 4) if cond.get("coverage") is not None else "—"
+                cov_txt = f"{cov_txt}（零膨胀；有雨时 {cond_txt}）"
             rows.append([c.get("column"), c.get("selected"),
                          _fmt(c.get("selected_mase"), 4), _fmt(c.get("baseline_mase"), 4),
                          "是" if c.get("beats_baseline") else "否",
@@ -415,6 +417,15 @@ def render_report(
                      "回测窗口内一致」；horizon 越长误差越大，90% 区间由历史回测误差标定，"
                      "覆盖率见上表。与第 8 节的异常、第 8b 节的绝对极端不是同一口径。")
         lines.append("")
+
+        if any((c.get("conditional") or {}).get("coverage") is not None for c in ok_cols):
+            lines.append("")
+            lines.append("> 零膨胀列（降水为主）不看整体区间覆盖率：79%%–99%% 的时刻观测为 0，"
+                         "整体值衡量的是「猜没下雨猜对了」。这类列看「有雨时」覆盖率，"
+                         "用只按非零观测标定的区间（标定窗口 %s 个 origin）。"
+                         "逐列的区间上下界见 `data.forecast.columns[].conditional`。"
+                         % (fc.get("cond_calib_window") or "—"))
+            lines.append("")
 
         # 8d) 事件概率预报（零膨胀列才有）
         ev = fc.get("events") or {}

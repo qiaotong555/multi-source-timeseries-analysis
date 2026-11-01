@@ -44,6 +44,8 @@ MASE_HIT_SHARE = 0.50
 WILSON_Z = 1.96
 # 事件点数低于该值时 BSS 不可解释（「基本不报」也能赢过基线），标为未运行而不是失败。
 MIN_EVENT_POINTS = prob_forecast.MIN_EVENTS_FOR_SKILL
+# 条件区间（零膨胀列「真下雨时」的覆盖率）同样要求足够的非零观测才判定
+MIN_NONZERO_POINTS = 100
 
 
 def _wilson(hits: int, n: int, z: float = WILSON_Z) -> tuple:
@@ -77,7 +79,11 @@ def _forecast_one(path: str, label: str) -> dict:
                                    "zero_share", "zero_inflated",
                                    "interval_coverage_nonzero",
                                    "interval_coverage_nonzero_points",
-                                   "origins_used", "points")}
+                                   "origins_used", "points")} |
+            {"conditional": (None if not c.get("conditional") else
+                              {k: c["conditional"].get(k) for k in ("level", "method",
+                               "calib_window", "calib_points", "coverage",
+                               "coverage_points")})}
             for c in res["columns"]
         ],
         "events": res.get("events", {}),
@@ -145,6 +151,13 @@ def _agg(runs: list[dict]) -> dict:
     ev_pass = None
     if ev_judged:
         ev_pass = all((ev.get("bss") is not None and ev["bss"] > 0) for _, ev in ev_judged)
+
+    # 条件区间：零膨胀列在「真下雨时」的覆盖率，非零观测够多才判
+    cond = [(i, c) for i, c in pairs
+            if c.get("conditional") and (c["conditional"].get("coverage_points") or 0) >= MIN_NONZERO_POINTS]
+    cond_pass = None
+    if cond:
+        cond_pass = all(COV_LO <= c["conditional"]["coverage"] <= COV_HI for _, c in cond)
     return {
         "columns_ok": len(cols),
         "columns_skipped": sum(1 for r in runs for c in r["columns"] if c["status"] != "ok"),
@@ -173,6 +186,16 @@ def _agg(runs: list[dict]) -> dict:
         "missing_reason": missing_reason,
         "selected_counts": {k: sum(1 for c in cols if c["selected"] == k)
                             for k in set(c["selected"] for c in cols)},
+        "conditional": {
+            "judged": len(cond),
+            "min_nonzero_points": MIN_NONZERO_POINTS,
+            "passed": cond_pass,
+            "rows": [{"dataset": i, "column": c["column"],
+                      "coverage": c["conditional"]["coverage"],
+                      "points": c["conditional"]["coverage_points"],
+                      "overall": c["interval_coverage_nonzero"]}
+                     for i, c in cond],
+        },
         "events": {
             "columns": len(ev_all),
             "evaluated": len(ev_ok),
@@ -214,6 +237,13 @@ def render_md(doc: dict) -> str:
         "| F4 未优于基线的列都有选型说明 | %s | 0 缺失 | %s |" % (
             "是" if not s["missing_reason"] else "否：%s" % s["missing_reason"],
             "PASS" if s["passed"]["F4_note"] else "FAIL"),
+        "| F6 零膨胀列条件区间覆盖率 ∈ [%.2f, %.2f]（非零点 ≥ %d） | %s | 每列在带内 | %s |" % (
+            COV_LO, COV_HI, s["conditional"]["min_nonzero_points"],
+            ("%d 列参与，%s" % (s["conditional"]["judged"],
+                               "全部在带内" if s["conditional"]["passed"] else "存在带外列"))
+            if s["conditional"]["passed"] is not None else "未运行（无非零点足够的列）",
+            "PASS" if s["conditional"]["passed"] else (
+                "FAIL" if s["conditional"]["passed"] is False else "未运行")),
         "| F5 零膨胀列事件概率预报 BSS > 0（事件点 ≥ %d） | %s | 每列 > 0 | %s |" % (
             s["events"]["min_event_points"],
             ("%d 列参与，全部为正" % s["events"]["judged"]) if s["events"]["passed"]
@@ -257,6 +287,21 @@ def render_md(doc: dict) -> str:
             s["beats_baseline"], s["columns_ok"], s["beats_baseline_share"]),
         "| 选中的方法 | %s |" % "、".join(
             "%s %d 列" % (k, v) for k, v in sorted(s["selected_counts"].items())),
+        "",
+        "## 条件区间（零膨胀列：真下雨时的覆盖率）",
+        "",
+        "整体覆盖率在这类列上不算判据，看「观测非零」时刻的覆盖率。"
+        "`overall` 是用整体区间统计的（必然偏窄），`conditional` 是用只按非零误差标定的区间。",
+        "",
+        "| 数据集 | 列 | 非零点 | 整体区间覆盖率 | 条件区间覆盖率 |",
+        "| --- | --- | --- | --- | --- |",
+    ]
+    for r in s["conditional"]["rows"]:
+        lines.append("| %s | %s | %s | %s | **%s** |" % (
+            r["dataset"], r["column"], r["points"], r["overall"], r["coverage"]))
+    if not s["conditional"]["rows"]:
+        lines.append("| — | — | — | — | 无符合条件的列 |")
+    lines += [
         "",
         "## 事件概率预报（零膨胀列）",
         "",
@@ -336,6 +381,7 @@ def main() -> int:
     f4 = (summary["mase_le_1_share"] is not None
           and summary["mase_le_1_share"] >= MASE_HIT_SHARE)
     f5 = summary["events"]["passed"]          # None = 未运行（没有事件点足够的列）
+    f6 = summary["conditional"]["passed"]     # None = 未运行（没有非零点够的列）
     doc = {
         "generated_at": datetime.now().isoformat(timespec="seconds"),
         "params": {"methods": list(forecast.METHODS),
@@ -351,10 +397,11 @@ def main() -> int:
                        "coverage_ci": "wilson95"},
         "runs": runs,
         "summary": summary,
-        "passed": f3 and f4 and not summary["missing_reason"] and (f5 is not False),
+        "passed": (f3 and f4 and not summary["missing_reason"]
+                   and (f5 is not False) and (f6 is not False)),
     }
     doc["summary"]["passed"] = {"F3": f3, "F4": f4, "F4_note": not summary["missing_reason"],
-                                "F5": f5}
+                                "F5": f5, "F6": f6}
     with open(OUT_JSON, "w", encoding="utf-8") as f:
         json.dump(doc, f, ensure_ascii=False, indent=2, default=str)
     with open(OUT_MD, "w", encoding="utf-8") as f:
@@ -367,6 +414,9 @@ def main() -> int:
     print("F5 event BSS = %s -> %s（参与 %d 列，事件点 ≥ %d）" % (
         "未运行" if f5 is None else f5, "PASS" if f5 else ("FAIL" if f5 is False else "未运行"),
         summary["events"]["judged"], MIN_EVENT_POINTS))
+    print("F6 条件区间 = %s -> %s（参与 %d 列，非零点 >= %d）" % (
+        "未运行" if f6 is None else f6, "PASS" if f6 else ("FAIL" if f6 is False else "未运行"),
+        summary["conditional"]["judged"], MIN_NONZERO_POINTS))
     print("覆盖率判定：带内 %d、带外 %d、零膨胀不适用 %d" % (
         summary["coverage_verdict_counts"]["in_band"],
         summary["coverage_verdict_counts"]["out_of_band"],

@@ -221,3 +221,36 @@ def test_forecast_horizon_override(tmp_path):
     doc = json.loads((out / "result.json").read_text(encoding="utf-8"))
     assert doc["data"]["forecast"]["horizon"] == 12
     assert all(len(c["forecast"]) == 12 for c in doc["data"]["forecast"]["columns"])
+
+
+def test_conditional_interval_only_for_zero_inflated():
+    """条件区间只给零膨胀列；普通列不该多出这个段。"""
+    out = forecast._fit_column(_series(2000, seed=3), 24, 24, forecast.DEFAULT_ORIGINS)
+    assert out["zero_inflated"] is False
+    assert out["conditional"] is None
+
+
+def test_conditional_interval_learns_from_nonzero_only():
+    """条件区间：只用「有观测」的误差标定，统计也只在这些点上。
+
+    两条硬性质：
+    - 参与点数必须显著少于整体覆盖率点数（否则说明掩码没生效）；
+    - 区间必须比整体区间宽——零膨胀列的整体区间被大量 0 误差压窄，
+      真下雨时必然覆盖不足（改前实测 0.50 ~ 0.78）。
+    """
+    rng = np.random.default_rng(4)
+    n = 3000
+    idx = pd.date_range("2024-01-01", periods=n, freq="h")
+    wet = rng.random(n) < 0.10
+    vals = np.where(wet, rng.gamma(3.0, 2.0, n), 0.0)
+    out = forecast._fit_column(pd.Series(vals, index=idx, name="rainfall"),
+                               24, 24, forecast.DEFAULT_ORIGINS)
+    assert out["zero_inflated"] is True
+    cond = out["conditional"]
+    assert cond is not None
+    assert cond["method"] == "nonzero_pooled_conformal"
+    assert cond["coverage"] is not None
+    assert cond["coverage_points"] < out["interval_coverage_points"]
+    width_cond = float(np.mean(np.array(cond["hi"]) - np.array(cond["lo"])))
+    width_all = float(np.mean(np.array([p["hi"] - p["lo"] for p in out["forecast"]])))
+    assert width_cond > width_all, (width_cond, width_all)

@@ -1,6 +1,6 @@
 # F：预测回测评估
 
-生成时间：2026-11-01T10:08:40
+生成时间：2026-11-01T10:25:27
 数据：18 份（v2 fixture + 17 份公开真实天气数据）
 方法：seasonal_naive（基线）/ moving_average（窗=周期）/ drift（末值+平均增量）；按 walk-forward MASE 选型，候选须相对基线下降 ≥5% 才允许替换
 区间：最近 12 个 origin 的误差按 horizon 归一、分 4 箱、取 conformal 有限样本修正分位
@@ -12,6 +12,7 @@
 | F3 汇总 90% 区间覆盖率 | 0.8799 | [0.80, 0.98] | PASS |
 | F4 MASE≤1.0 的列占比 | 0.7234（68/94） | ≥ 0.50 | PASS |
 | F4 未优于基线的列都有选型说明 | 是 | 0 缺失 | PASS |
+| F6 零膨胀列条件区间覆盖率 ∈ [0.80, 0.98]（非零点 ≥ 100） | 13 列参与，全部在带内 | 每列在带内 | PASS |
 | F5 零膨胀列事件概率预报 BSS > 0（事件点 ≥ 100） | 13 列参与，存在非正 BSS | 每列 > 0 | FAIL |
 
 **存在未通过项**
@@ -32,6 +33,26 @@
 | 选中方法 MASE≤1.0 | 68 / 94 = 0.7234 |
 | 选中方法优于基线 | 40 / 94 = 0.4255 |
 | 选中的方法 | drift 7 列、moving_average 33 列、seasonal_naive 54 列 |
+
+## 条件区间（零膨胀列：真下雨时的覆盖率）
+
+整体覆盖率在这类列上不算判据，看「观测非零」时刻的覆盖率。`overall` 是用整体区间统计的（必然偏窄），`conditional` 是用只按非零误差标定的区间。
+
+| 数据集 | 列 | 非零点 | 整体区间覆盖率 | 条件区间覆盖率 |
+| --- | --- | --- | --- | --- |
+| v2_fixture | rainfall@STA_A | 117 | 0.5043 | **0.9231** |
+| R01_berlin_hourly_2024 | rainfall | 262 | 0.7061 | **0.9122** |
+| R02_singapore_hourly_2024 | rainfall | 592 | 0.8125 | **0.9358** |
+| R04_reykjavik_hourly_2024 | rainfall | 435 | 0.7494 | **0.8943** |
+| R05_three_cities_hourly_2024 | rainfall@SIN | 592 | 0.8125 | **0.9358** |
+| R05_three_cities_hourly_2024 | rainfall@SYD | 230 | 0.5348 | **0.8913** |
+| R06_nyc_central_park_daily_2018_2024 | rainfall | 138 | 0.7536 | **0.913** |
+| R07_melbourne_daily_2018_2024 | rainfall | 146 | 0.8288 | **0.9178** |
+| R11_la_paz_hourly_2024 | rainfall | 314 | 0.7006 | **0.9172** |
+| R12_quito_hourly_2024 | rainfall | 682 | 0.7815 | **0.8783** |
+| R14_nairobi_hourly_2024 | rainfall | 494 | 0.8381 | **0.8401** |
+| R16_ushuaia_hourly_2024 | rainfall | 527 | 0.8046 | **0.8748** |
+| R17_nyc_asos_hourly_2018_2024 | rainfall | 207 | 0.6135 | **0.8454** |
 
 ## 事件概率预报（零膨胀列）
 

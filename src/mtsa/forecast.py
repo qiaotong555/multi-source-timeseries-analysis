@@ -37,6 +37,10 @@ METHODS = ("seasonal_naive", "moving_average", "drift")
 #   区间会更贴近近期误差尺度。实测整体偏差未变差。
 DEFAULT_ORIGINS = 150
 CALIB_WINDOW = 12
+# 条件区间（零膨胀列「真下雨时」的区间）单独用一个更长的标定窗口。
+# 零值占 79%–99% 时，12 个 origin 里非零样本只有个位数，分位估不准；
+# 实测 12 → 24 让 Sydney 0.600 → 0.891、NYC 0.681 → 0.845。
+COND_CALIB_WINDOW = 24
 # 标定时把 horizon 切成几箱。误差分布随 horizon 变形，跨箱池化会让长 horizon 偏窄。
 CALIB_BINS = 4
 # 零膨胀判定：清洗后零值占比达到该阈值的列，整体区间覆盖率不再作为质量判据
@@ -141,32 +145,64 @@ def _jnum(x):
     return round(v, 6) if np.isfinite(v) else None
 
 
-def _calibrate(errs: np.ndarray) -> dict:
+def _calibrate(errs: np.ndarray, mask: np.ndarray | None = None,
+               bins: int = CALIB_BINS, mask_scale: bool = False) -> dict:
     """把误差矩阵标定成 90% 区间偏移量。
 
     两个设计选择，都是被实测逼出来的（见 `doc/预测场景化.md`）：
 
-    1. **按 horizon 分 `CALIB_BINS` 箱，箱内取分位**，而不是跨 horizon 池化。
+    1. **按 horizon 分 `bins` 箱，箱内取分位**，而不是跨 horizon 池化。
        误差分布随 horizon 变形：horizon=1 又窄又集中，horizon=24 又宽又重尾。
        池化后取单一分位，等价于用短 horizon 的窄分布去约束长 horizon，
        实测表现为「逐段覆盖率随 horizon 单调下滑」（多伦多气温 0.85 → 0.79 → 0.76）。
-       分箱后每箱仍有 `CALIB_WINDOW × horizon / CALIB_BINS` 个点，够取分位。
+       分箱后每箱仍有 `CALIB_WINDOW × horizon / bins` 个点，够取分位。
 
     2. **分位取 conformal 的有限样本修正位次**，而不是 `np.quantile`。
        对 m 个残差，上界取第 ceil((m+1)·0.95) 小、下界取第 floor((m+1)·0.05) 小。
        样本有限时经验分位系统性偏窄（m=72 时 `np.quantile(0.95)` 落在第 67.45 个值上），
        这就是「名义 90%、实测 79%」的一部分来源。
 
-    归一化仍保留：先按 horizon 除以该 horizon 的平均绝对误差 `scale_h`，
-    得到无量纲残差 u，再取分位、最后乘回 `scale_h`。这样区间跟随误差尺度的季节漂移。
+    `mask` 给出时**只用 mask 为真的误差**（用于零膨胀列的条件区间：只学「真下雨时」的
+    误差分布）。`mask_scale=True` 连尺度也只按 mask 内的样本算——条件区间必须这样，
+    否则 79%–99% 的零误差会把尺度压小，区间在真下雨时必然不够宽。
+    条件标定默认 `bins=1`：非零样本本来就少，再分箱每箱只剩个位数。
+
+    归一化仍保留：先按 horizon 除以该箱的平均绝对误差 `scale`，
+    得到无量纲残差 u，再取分位、最后乘回 `scale`。
     """
     arr = np.asarray(errs, dtype=float)
     if arr.size == 0:
         return {"lo": None, "hi": None, "n": 0, "method": "none"}
     horizon = arr.shape[1]
+    if mask is None:
+        ok = np.isfinite(arr)
+        masked = False
+    else:
+        ok = np.asarray(mask, dtype=bool) & np.isfinite(arr)
+        masked = True
+
     absarr = np.abs(arr)
-    scale = np.nanmean(absarr, axis=0)
-    base = float(np.nanmean(absarr))
+    scale_all = np.nanmean(absarr, axis=0)
+    base_all = float(np.nanmean(absarr)) if np.isfinite(np.nanmean(absarr)) else 0.0
+    if masked and mask_scale:
+        # 条件区间用**标量**尺度：只取非零观测处误差的平均绝对值，不按 horizon 变形。
+        # 实测依据（`scripts/exp_conditional_interval.py` 的 alpha 扫描）：
+        # alpha=0（纯标量）到 alpha=1（逐 horizon 形状）覆盖率单调下降，四列分别是
+        # NYC 0.845 → 0.778、Quito 0.878 → 0.839、SYD 0.891 → 0.848、Berlin 0.912 → 0.847。
+        # 原因：全量误差里的 horizon 形状主要由「零 vs 非零」驱动（horizon 越长越容易遇到雨），
+        # 一旦只看有雨时刻，这个驱动就没了，再套形状等于用错的先验。
+        abs_use = np.where(ok, absarr, np.nan)
+        with np.errstate(invalid="ignore"):
+            level_use = float(np.nanmean(abs_use))
+        if np.isfinite(level_use) and level_use > 0:
+            scale = np.full(horizon, level_use)
+            base = level_use
+        else:
+            scale = scale_all
+            base = base_all
+    else:
+        scale = scale_all
+        base = base_all
     if not np.isfinite(base) or base <= 0:
         base = 1e-12
     scale = np.where(np.isfinite(scale) & (scale > 0.1 * base), scale, 0.1 * base)
@@ -176,25 +212,31 @@ def _calibrate(errs: np.ndarray) -> dict:
     hi = np.zeros(horizon)
     n_used = 0
     binned = 0
-    edges = np.linspace(0, horizon, min(CALIB_BINS, max(1, horizon)) + 1).astype(int)
+    n_bins = max(1, min(int(bins), max(1, horizon)))
+    edges = np.linspace(0, horizon, n_bins + 1).astype(int)
     tail = (1.0 - INTERVAL_LEVEL) / 2.0
     for a, b in zip(edges[:-1], edges[1:]):
         if b <= a:
             continue
-        pool = u[:, a:b].ravel()
+        pool = u[:, a:b][ok[:, a:b]]
         pool = pool[np.isfinite(pool)]
-        n_used += int(pool.size)
         if pool.size < MIN_CALIB_POINTS:
             # 样本太少时退回正态近似，而不是用几个点估分位
             lo[a:b], hi[a:b] = -1.645 * scale[a:b], 1.645 * scale[a:b]
             continue
+        n_used += int(pool.size)
         s = np.sort(pool)
         m = s.size
         k_hi = min(int(np.ceil((m + 1) * (1.0 - tail))) - 1, m - 1)
         k_lo = max(int(np.floor((m + 1) * tail)) - 1, 0)
         lo[a:b], hi[a:b] = s[k_lo] * scale[a:b], s[k_hi] * scale[a:b]
         binned += 1
-    method = "empirical_binned_conformal" if binned == len(edges) - 1 else "mixed_with_normal_approx"
+    if masked:
+        method = "nonzero_pooled_conformal"
+    elif binned == n_bins:
+        method = "empirical_binned_conformal"
+    else:
+        method = "mixed_with_normal_approx"
     return {"lo": lo, "hi": hi, "n": n_used, "method": method}
 
 
@@ -232,6 +274,33 @@ def _coverage(errs: np.ndarray, window: int,
     cov = float(hits) / total if total else None
     cov_nz = float(nz_hits) / nz_total if nz_total else None
     return cov, total, cov_nz, nz_total
+
+
+def _coverage_conditional(errs: np.ndarray, mask_nonzero: np.ndarray,
+                          window: int) -> tuple:
+    """零膨胀列的条件覆盖率：只在「观测非零」的时刻，用「只用非零误差标定」的区间统计。
+
+    与 `_coverage` 的区别有两处，缺一不可：
+    - 标定样本只取非零观测处的误差（否则 79%–99% 的零误差把区间压窄）；
+    - 统计也只在这些观测上（否则整体覆盖率会被「猜没下雨」抬到 0.99）。
+    """
+    k = len(errs)
+    if k < 4 or mask_nonzero is None:
+        return None, 0
+    start = max(1, int(np.floor(k * (1.0 - TEST_FRACTION))))
+    hits = total = 0
+    for i in range(start, k):
+        lo_i = max(0, i - window)
+        cal = _calibrate(errs[lo_i:i], mask_nonzero[lo_i:i], bins=1, mask_scale=True)
+        if cal["lo"] is None:
+            continue
+        row, mk = errs[i], mask_nonzero[i]
+        sel = mk & np.isfinite(row)
+        if not sel.any():
+            continue
+        hits += int(np.sum((row[sel] >= cal["lo"][sel]) & (row[sel] <= cal["hi"][sel])))
+        total += int(sel.sum())
+    return (float(hits) / total if total else None), total
 
 
 def _fit_column(s: pd.Series, period: int, horizon: int, origins_n: int) -> dict:
@@ -316,6 +385,28 @@ def _fit_column(s: pd.Series, period: int, horizon: int, origins_n: int) -> dict
     hi = final_cal["hi"] if final_cal["hi"] is not None else np.zeros(horizon)
     zero_share = float(np.mean(y == 0)) if n else 0.0
 
+    # 条件区间：零膨胀列在「真下雨时」用单独标定的区间，否则整体区间必然不够宽
+    cond = None
+    if zero_share >= ZERO_INFLATED_SHARE and mask_nz is not None and mask_nz.any():
+        cond_cov, cond_n = _coverage_conditional(errs, mask_nz, COND_CALIB_WINDOW)
+        cond_tail = errs[-COND_CALIB_WINDOW:] if len(errs) else errs
+        cond_mask = mask_nz[-COND_CALIB_WINDOW:] if len(errs) else mask_nz
+        cond_cal = _calibrate(cond_tail, cond_mask, bins=1, mask_scale=True)
+        cond = {
+            "level": INTERVAL_LEVEL,
+            "method": cond_cal["method"],
+            "calib_window": COND_CALIB_WINDOW,
+            "calib_points": int(cond_cal["n"]),
+            "coverage": round(cond_cov, 4) if cond_cov is not None else None,
+            "coverage_points": int(cond_n),
+            "lo": ([_jnum(x) for x in cond_cal["lo"]]
+                   if cond_cal["lo"] is not None else None),
+            "hi": ([_jnum(x) for x in cond_cal["hi"]]
+                   if cond_cal["hi"] is not None else None),
+            "note": ("只在观测非零的时刻统计，且只用这些时刻的误差标定；"
+                     "区间宽度仍以全部误差的尺度归一，避免峰值把宽度撑大"),
+        }
+
     point = _forecast_from(y, period, horizon, selected)
     step = None
     if isinstance(s.index, pd.DatetimeIndex) and len(s.index) > 1:
@@ -342,14 +433,16 @@ def _fit_column(s: pd.Series, period: int, horizon: int, origins_n: int) -> dict
         "zero_inflated": bool(zero_share >= ZERO_INFLATED_SHARE),
         "interval_coverage_nonzero": round(coverage_nz, 4) if coverage_nz is not None else None,
         "interval_coverage_nonzero_points": int(coverage_nz_n),
+        "conditional": cond,
         "interval_note": ("最近 %d 个 origin 的误差按 horizon 归一、按 horizon 分 %d 箱、"
                           "取 conformal 有限样本修正分位；覆盖率只用最后 %d%% 的 origin "
                           "且逐个只向前取误差"
                           % (CALIB_WINDOW, CALIB_BINS, int(TEST_FRACTION * 100))),
         "coverage_note": (
             "零膨胀列（零值占比 %.0f%%）：整体覆盖率衡量的是「预测没下雨、实际也没下雨」，"
-            "不作为区间质量判据；请改用 interval_coverage_nonzero 与事件概率预报的 Brier"
-            % (zero_share * 100)) if zero_share >= ZERO_INFLATED_SHARE else (
+            "不作为区间质量判据；看 `conditional.coverage`（真下雨时的覆盖率）"
+            "与事件概率预报的 Brier" % (zero_share * 100))
+        if zero_share >= ZERO_INFLATED_SHARE else (
             "整体覆盖率可作为区间质量判据；非零观测覆盖率与它几乎相同，仅作对照"
             if coverage_nz is not None else "非零观测不存在，无法给出非零覆盖率"),
         "forecast": [
@@ -404,7 +497,7 @@ def build_forecast(clean: CleanDataset, plan: AnalysisPlan,
         "interval_level": INTERVAL_LEVEL,
         "methods": list(METHODS), "baseline": "seasonal_naive",
         "origins": DEFAULT_ORIGINS, "calib_window": CALIB_WINDOW,
-        "calib_bins": CALIB_BINS,
+        "calib_bins": CALIB_BINS, "cond_calib_window": COND_CALIB_WINDOW,
         "columns": cols,
         "events": events_doc,
         "disclaimer": "预测是回测口径下的条件推断，不是事实；horizon 越长误差越大。",
