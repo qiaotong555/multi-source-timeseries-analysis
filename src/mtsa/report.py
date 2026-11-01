@@ -369,7 +369,8 @@ def render_report(
              ["季节周期", f"{fc.get('period')}"],
              ["区间水平", f"{float(fc.get('interval_level') or 0):.0%}"],
              ["回测设置", f"最后 30% 内等距 {fc.get('origins')} 个 origin；"
-                         f"区间标定取最近 {fc.get('calib_window')} 个"],
+                         f"区间标定取最近 {fc.get('calib_window')} 个，"
+                         f"按 horizon 分 {fc.get('calib_bins') or '—'} 箱取 conformal 分位"],
              ["基线方法", "seasonal_naive（候选须把 MASE 压低 ≥5% 才替换）"],
              ["选中方法分布", "、".join(f"{k} {v} 列" for k, v in sorted(used.items())) or "—"],
              ["优于基线的列", f"{len(beats)}/{len(ok_cols)}" if ok_cols else "—"],
@@ -384,10 +385,13 @@ def render_report(
                 rows.append([c.get("column"), "未预测", "—", "—", "—", "—",
                              c.get("note") or "样本不足"])
                 continue
+            cov_txt = _fmt(c.get("interval_coverage"), 4)
+            if c.get("zero_inflated"):
+                cov_txt = f"{cov_txt}（零膨胀，不判）"
             rows.append([c.get("column"), c.get("selected"),
                          _fmt(c.get("selected_mase"), 4), _fmt(c.get("baseline_mase"), 4),
                          "是" if c.get("beats_baseline") else "否",
-                         _fmt(c.get("interval_coverage"), 4), c.get("selected_reason") or "—"])
+                         cov_txt, c.get("selected_reason") or "—"])
         if rows:
             lines.append(_md_table(
                 ["列", "选中方法", "MASE", "基线 MASE", "优于基线", "区间覆盖率", "选型说明"],
@@ -410,6 +414,37 @@ def render_report(
         lines.append("> 预测是回测口径下的条件推断，**不是事实**。假设是「未来 p 阶季节形态与"
                      "回测窗口内一致」；horizon 越长误差越大，90% 区间由历史回测误差标定，"
                      "覆盖率见上表。与第 8 节的异常、第 8b 节的绝对极端不是同一口径。")
+        lines.append("")
+
+        # 8d) 事件概率预报（零膨胀列才有）
+        ev = fc.get("events") or {}
+        if ev.get("applicable") and ev.get("columns"):
+            lines.append("## 8d. 事件概率预报（零膨胀列）")
+            lines.append("")
+            rows = []
+            skill_txt = {"insufficient_events": "样本不足（不评级）", "none": "无技能",
+                         "very_weak": "极弱", "weak": "弱", "moderate": "中等",
+                         "unknown": "—"}
+            for e in ev["columns"]:
+                if e.get("status") != "ok":
+                    rows.append([e.get("column"), "未评估", "—", "—", "—",
+                                 e.get("note") or "—"])
+                    continue
+                rows.append([e.get("column"), str(e.get("event_points")),
+                             _fmt(e.get("observed_rate"), 4), _fmt(e.get("bss"), 4),
+                             skill_txt.get(e.get("skill"), e.get("skill") or "—"),
+                             "ECE " + _fmt(e.get("ece"), 4)])
+            lines.append(_md_table(
+                ["列", "事件点数", "实测发生率", "BSS", "技能等级", "可靠性"],
+                rows[:MAX_TABLE_ROWS]))
+            lines.append("")
+            lines.append("> 阈值 %.3g（超过即算一次事件）；主模型是 climatology 与 "
+                         "persistence_short 的等权平均，BSS 相对 climatology。"
+                         "**事件点数太少时 BSS 不可解释**——测试期几乎没发生事件时，"
+                         "「基本不报」就能赢过基线。这类列整体区间覆盖率也不判："
+                         "零值占多数时它衡量的是「猜没下雨猜对了吗」。"
+                         % float(ev.get("threshold") or 0))
+            lines.append("")
         lines.append("")
 
     # 9) 结论

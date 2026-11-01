@@ -22,6 +22,7 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
+from . import prob_forecast
 from .models import AnalysisPlan, CleanDataset
 
 METHODS = ("seasonal_naive", "moving_average", "drift")
@@ -29,6 +30,11 @@ METHODS = ("seasonal_naive", "moving_average", "drift")
 # 标定窗口 12 个仍覆盖约半年，够用且不至于把一年前的误差尺度带进来。
 DEFAULT_ORIGINS = 40
 CALIB_WINDOW = 12
+# 标定时把 horizon 切成几箱。误差分布随 horizon 变形，跨箱池化会让长 horizon 偏窄。
+CALIB_BINS = 4
+# 零膨胀判定：清洗后零值占比达到该阈值的列，整体区间覆盖率不再作为质量判据
+# （大量 0 误差会把覆盖率抬到 0.99，而真正非零的时刻可能一个都没覆盖到）。
+ZERO_INFLATED_SHARE = 0.5
 TEST_FRACTION = 0.4
 MAX_HORIZON = 168
 INTERVAL_LEVEL = 0.90
@@ -131,35 +137,74 @@ def _jnum(x):
 def _calibrate(errs: np.ndarray) -> dict:
     """把误差矩阵标定成 90% 区间偏移量。
 
-    先按 horizon 归一成尺度无关的残差 `u = e / mean|e_h|`，再取 u 的 5%/95% 分位。
-    分位池跨 horizon 汇总（窗口 12 × horizon 24 = 288 个值），比逐 horizon 取分位稳。
+    两个设计选择，都是被实测逼出来的（见 `doc/预测场景化.md`）：
+
+    1. **按 horizon 分 `CALIB_BINS` 箱，箱内取分位**，而不是跨 horizon 池化。
+       误差分布随 horizon 变形：horizon=1 又窄又集中，horizon=24 又宽又重尾。
+       池化后取单一分位，等价于用短 horizon 的窄分布去约束长 horizon，
+       实测表现为「逐段覆盖率随 horizon 单调下滑」（多伦多气温 0.85 → 0.79 → 0.76）。
+       分箱后每箱仍有 `CALIB_WINDOW × horizon / CALIB_BINS` 个点，够取分位。
+
+    2. **分位取 conformal 的有限样本修正位次**，而不是 `np.quantile`。
+       对 m 个残差，上界取第 ceil((m+1)·0.95) 小、下界取第 floor((m+1)·0.05) 小。
+       样本有限时经验分位系统性偏窄（m=72 时 `np.quantile(0.95)` 落在第 67.45 个值上），
+       这就是「名义 90%、实测 79%」的一部分来源。
+
+    归一化仍保留：先按 horizon 除以该 horizon 的平均绝对误差 `scale_h`，
+    得到无量纲残差 u，再取分位、最后乘回 `scale_h`。这样区间跟随误差尺度的季节漂移。
     """
     arr = np.asarray(errs, dtype=float)
     if arr.size == 0:
         return {"lo": None, "hi": None, "n": 0, "method": "none"}
+    horizon = arr.shape[1]
     absarr = np.abs(arr)
     scale = np.nanmean(absarr, axis=0)
     base = float(np.nanmean(absarr))
     if not np.isfinite(base) or base <= 0:
         base = 1e-12
     scale = np.where(np.isfinite(scale) & (scale > 0.1 * base), scale, 0.1 * base)
-    u = (arr / scale).ravel()
-    u = u[np.isfinite(u)]
-    if u.size < MIN_CALIB_POINTS:
-        # 样本太少时退回正态近似，而不是用 3 个点估分位
-        return {"lo": -1.645 * scale, "hi": 1.645 * scale, "n": int(u.size),
-                "method": "normal_approx"}
-    qlo, qhi = np.quantile(u, (1.0 - INTERVAL_LEVEL) / 2.0), np.quantile(u, (1.0 + INTERVAL_LEVEL) / 2.0)
-    return {"lo": qlo * scale, "hi": qhi * scale, "n": int(u.size), "method": "empirical_pooled"}
+    u = arr / scale[None, :]
+
+    lo = np.zeros(horizon)
+    hi = np.zeros(horizon)
+    n_used = 0
+    binned = 0
+    edges = np.linspace(0, horizon, min(CALIB_BINS, max(1, horizon)) + 1).astype(int)
+    tail = (1.0 - INTERVAL_LEVEL) / 2.0
+    for a, b in zip(edges[:-1], edges[1:]):
+        if b <= a:
+            continue
+        pool = u[:, a:b].ravel()
+        pool = pool[np.isfinite(pool)]
+        n_used += int(pool.size)
+        if pool.size < MIN_CALIB_POINTS:
+            # 样本太少时退回正态近似，而不是用几个点估分位
+            lo[a:b], hi[a:b] = -1.645 * scale[a:b], 1.645 * scale[a:b]
+            continue
+        s = np.sort(pool)
+        m = s.size
+        k_hi = min(int(np.ceil((m + 1) * (1.0 - tail))) - 1, m - 1)
+        k_lo = max(int(np.floor((m + 1) * tail)) - 1, 0)
+        lo[a:b], hi[a:b] = s[k_lo] * scale[a:b], s[k_hi] * scale[a:b]
+        binned += 1
+    method = "empirical_binned_conformal" if binned == len(edges) - 1 else "mixed_with_normal_approx"
+    return {"lo": lo, "hi": hi, "n": n_used, "method": method}
 
 
-def _coverage(errs: np.ndarray, window: int) -> tuple[float | None, int]:
-    """滚动覆盖率：最后 40% 的 origin，每个只用它之前的误差标定区间。"""
+def _coverage(errs: np.ndarray, window: int,
+              mask_nonzero: np.ndarray | None = None) -> tuple:
+    """滚动覆盖率：最后 40% 的 origin，每个只用它之前的误差标定区间。
+
+    `mask_nonzero` 给出与 `errs` 同形的「观测非零」掩码。零膨胀列（降水）上，
+    整体覆盖率衡量的是「猜没下雨猜对了吗」；非零覆盖率衡量的是「真下雨时区间兜住了吗」。
+    两者必须分开报，混在一起会让 0.99 的整体覆盖率掩盖「真下雨时基本不覆盖」。
+    """
     k = len(errs)
     if k < 4:
-        return None, 0
+        return None, 0, None, 0
     start = max(1, int(np.floor(k * (1.0 - TEST_FRACTION))))
     hits = total = 0
+    nz_hits = nz_total = 0
     for i in range(start, k):
         cal = _calibrate(errs[max(0, i - window):i])
         if cal["lo"] is None:
@@ -168,9 +213,18 @@ def _coverage(errs: np.ndarray, window: int) -> tuple[float | None, int]:
         ok = np.isfinite(row)
         if not ok.any():
             continue
-        hits += int(np.sum((row[ok] >= cal["lo"][ok]) & (row[ok] <= cal["hi"][ok])))
+        inside = (row[ok] >= cal["lo"][ok]) & (row[ok] <= cal["hi"][ok])
+        hits += int(np.sum(inside))
         total += int(ok.sum())
-    return (float(hits) / total if total else None), total
+        if mask_nonzero is not None:
+            m = ok & mask_nonzero[i]
+            if m.any():
+                ins2 = (row[m] >= cal["lo"][m]) & (row[m] <= cal["hi"][m])
+                nz_hits += int(np.sum(ins2))
+                nz_total += int(m.sum())
+    cov = float(hits) / total if total else None
+    cov_nz = float(nz_hits) / nz_total if nz_total else None
+    return cov, total, cov_nz, nz_total
 
 
 def _fit_column(s: pd.Series, period: int, horizon: int, origins_n: int) -> dict:
@@ -192,6 +246,7 @@ def _fit_column(s: pd.Series, period: int, horizon: int, origins_n: int) -> dict
     min_valid = max(3, int(np.ceil(horizon * MIN_ORIGIN_VALID)))
     per_method: dict[str, dict] = {}
     errors_by_h: dict[str, np.ndarray] = {}
+    used_origins: list[int] = []
     for m in METHODS:
         abs_err: list[float] = []
         sq_err: list[float] = []
@@ -210,6 +265,9 @@ def _fit_column(s: pd.Series, period: int, horizon: int, origins_n: int) -> dict
             if mase is not None:
                 mases.append(mase)
             rows.append(e)
+            # 三种方法的 ok 掩码相同（pred 恒有限），所以 origin 列表只记一遍
+            if m == METHODS[0]:
+                used_origins.append(int(t))
         errors_by_h[m] = np.array(rows, dtype=float) if rows else np.empty((0, horizon))
         per_method[m] = {
             "method": m,
@@ -239,11 +297,17 @@ def _fit_column(s: pd.Series, period: int, horizon: int, origins_n: int) -> dict
     errs = errors_by_h.get(selected)
     if errs is None or len(errs) == 0:
         errs = np.empty((0, horizon))
-    coverage, coverage_n = _coverage(errs, CALIB_WINDOW)
+    mask_nz = None
+    if used_origins and len(used_origins) == len(errs):
+        mask_nz = np.array(
+            [[abs(y[t + j]) > 0 if np.isfinite(y[t + j]) else False for j in range(horizon)]
+             for t in used_origins], dtype=bool)
+    coverage, coverage_n, coverage_nz, coverage_nz_n = _coverage(errs, CALIB_WINDOW, mask_nz)
     tail = errs[-CALIB_WINDOW:] if len(errs) else errs
     final_cal = _calibrate(tail)
     lo = final_cal["lo"] if final_cal["lo"] is not None else np.zeros(horizon)
     hi = final_cal["hi"] if final_cal["hi"] is not None else np.zeros(horizon)
+    zero_share = float(np.mean(y == 0)) if n else 0.0
 
     point = _forecast_from(y, period, horizon, selected)
     step = None
@@ -267,9 +331,20 @@ def _fit_column(s: pd.Series, period: int, horizon: int, origins_n: int) -> dict
         "interval_calib_points": final_cal["n"],
         "interval_coverage": round(coverage, 4) if coverage is not None else None,
         "interval_coverage_points": coverage_n,
-        "interval_note": ("最近 %d 个 origin 的误差按 horizon 归一后取 5%%/95%% 分位；"
-                          "覆盖率只用最后 %d%% 的 origin 且逐个只向前取误差"
-                          % (CALIB_WINDOW, int(TEST_FRACTION * 100))),
+        "zero_share": round(zero_share, 4),
+        "zero_inflated": bool(zero_share >= ZERO_INFLATED_SHARE),
+        "interval_coverage_nonzero": round(coverage_nz, 4) if coverage_nz is not None else None,
+        "interval_coverage_nonzero_points": int(coverage_nz_n),
+        "interval_note": ("最近 %d 个 origin 的误差按 horizon 归一、按 horizon 分 %d 箱、"
+                          "取 conformal 有限样本修正分位；覆盖率只用最后 %d%% 的 origin "
+                          "且逐个只向前取误差"
+                          % (CALIB_WINDOW, CALIB_BINS, int(TEST_FRACTION * 100))),
+        "coverage_note": (
+            "零膨胀列（零值占比 %.0f%%）：整体覆盖率衡量的是「预测没下雨、实际也没下雨」，"
+            "不作为区间质量判据；请改用 interval_coverage_nonzero 与事件概率预报的 Brier"
+            % (zero_share * 100)) if zero_share >= ZERO_INFLATED_SHARE else (
+            "整体覆盖率可作为区间质量判据；非零观测覆盖率与它几乎相同，仅作对照"
+            if coverage_nz is not None else "非零观测不存在，无法给出非零覆盖率"),
         "forecast": [
             {"timestamp": str(idx[i]) if idx else None,
              "value": _jnum(point[i]),
@@ -288,6 +363,7 @@ def build_forecast(clean: CleanDataset, plan: AnalysisPlan,
     h = int(horizon or plan.parameters.get("forecast_horizon") or period or 24)
     h = max(1, min(h, MAX_HORIZON))
     cols = []
+    events = []
     for col in plan.target_columns:
         if col not in frame.columns:
             continue
@@ -300,12 +376,29 @@ def build_forecast(clean: CleanDataset, plan: AnalysisPlan,
             continue
         s = s.astype(float)
         s.name = col
-        cols.append(_fit_column(s, period, h, DEFAULT_ORIGINS))
+        fit = _fit_column(s, period, h, DEFAULT_ORIGINS)
+        cols.append(fit)
+        # 零膨胀列（降水为主）：区间覆盖率不适用，改用事件概率预报回答「会不会发生」
+        if fit.get("status") == "ok" and fit.get("zero_inflated"):
+            ev = prob_forecast.evaluate_events(s.to_numpy(dtype=float), s.index, period, h)
+            ev["column"] = col
+            events.append(ev)
+    events_doc = {
+        "threshold": prob_forecast.EVENT_THRESHOLD,
+        "applicable": bool(events),
+        "columns": events,
+        "note": ("只对零膨胀列（零值占比 ≥ %.0f%%）做事件概率预报。BSS 相对气候基线；"
+                 "事件点数太小时 BSS 不可解释，需看 event_points。"
+                 % (ZERO_INFLATED_SHARE * 100)) if events else
+                "没有零膨胀列，事件概率预报不适用",
+    }
     return {
         "enabled": True, "period": period, "horizon": h,
         "interval_level": INTERVAL_LEVEL,
         "methods": list(METHODS), "baseline": "seasonal_naive",
         "origins": DEFAULT_ORIGINS, "calib_window": CALIB_WINDOW,
+        "calib_bins": CALIB_BINS,
         "columns": cols,
+        "events": events_doc,
         "disclaimer": "预测是回测口径下的条件推断，不是事实；horizon 越长误差越大。",
     }

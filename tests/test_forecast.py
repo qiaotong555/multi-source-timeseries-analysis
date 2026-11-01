@@ -12,6 +12,7 @@ import json
 
 import numpy as np
 import pandas as pd
+import pytest
 
 from mtsa import forecast
 from mtsa.engine import run_analysis
@@ -82,11 +83,62 @@ def test_interval_coverage_is_near_nominal():
     cov = out["interval_coverage"]
     assert cov is not None and 0.80 <= cov <= 0.98, cov
     assert out["interval_coverage_points"] > 100
-    assert out["interval_method"] == "empirical_pooled"
+    assert out["interval_method"] == "empirical_binned_conformal"
+    assert out["zero_inflated"] is False
+    # 非零观测覆盖率必须一起报：只有整体覆盖率时，看不出「哪一段在漏」
+    assert out["interval_coverage_nonzero"] is not None
+    assert out["interval_coverage_nonzero_points"] == out["interval_coverage_points"]
     pts = out["forecast"]
     assert len(pts) == 24
     for p in pts:
         assert p["lo"] <= p["value"] <= p["hi"]
+
+
+def test_calibrate_bins_width_by_horizon():
+    """分箱标定：误差随 horizon 变大时，区间宽度必须跟着分段变大。
+
+    池化版（把 24 个 horizon 混成一个残差池、取单一分位）会把这个梯度抹平，
+    实测后果是「逐段覆盖率随 horizon 单调下滑」。这个测试锁住梯度不被抹平。
+    """
+    rng = np.random.default_rng(0)
+    horizon = 24
+    errs = np.zeros((12, horizon))
+    for k, sd in enumerate((1.0, 2.0, 4.0, 8.0)):
+        errs[:, k * 6:(k + 1) * 6] = rng.normal(0, sd, (12, 6))
+    cal = forecast._calibrate(errs)
+    width = cal["hi"] - cal["lo"]
+    seg = [float(np.mean(width[k * 6:(k + 1) * 6])) for k in range(4)]
+    assert seg[0] < seg[1] < seg[2] < seg[3], seg
+    assert cal["method"] == "empirical_binned_conformal"
+
+
+def test_calibrate_uses_conformal_rank_not_np_quantile():
+    """上/下界取 conformal 位次，而不是 np.quantile。
+
+    40 个互异残差时，上界取第 ceil(41*0.95)=39 小（即 39.0），
+    而 np.quantile(0.95) 落在第 37.05 个插值上（38.05），系统性偏窄。
+    """
+    vals = np.arange(1.0, 41.0).reshape(-1, 1)
+    cal = forecast._calibrate(vals)
+    # 归一化后再乘回 scale，所以界就是原始残差的位次值
+    assert cal["hi"][0] == pytest.approx(39.0)
+    assert cal["lo"][0] == pytest.approx(2.0)
+    assert float(np.quantile(vals.ravel(), 0.95)) < float(cal["hi"][0])
+
+
+def test_zero_inflated_column_marks_coverage_inapplicable():
+    """零膨胀列：整体覆盖率接近 1 不代表区间好，必须同时给非零观测覆盖率。"""
+    rng = np.random.default_rng(3)
+    idx = pd.date_range("2024-01-01", periods=3000, freq="h")
+    vals = np.where(rng.random(3000) < 0.92, 0.0, rng.gamma(2.0, 1.0, 3000))
+    out = forecast._fit_column(pd.Series(vals, index=idx, name="rainfall"), 24, 24, 40)
+    assert out["status"] == "ok"
+    assert out["zero_inflated"] is True
+    assert out["zero_share"] > 0.85
+    assert out["interval_coverage"] is not None
+    # 非零观测点数必须显著少于总点数，否则说明掩码没生效
+    assert out["interval_coverage_nonzero_points"] < out["interval_coverage_points"]
+    assert "零膨胀" in out["coverage_note"]
 
 
 def test_forecast_off_by_default(tmp_path):
