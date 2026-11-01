@@ -195,7 +195,7 @@ def render_md(doc: dict) -> str:
         "# F：预测回测评估",
         "",
         "生成时间：%s" % doc["generated_at"],
-        "数据：%d 份（v2 fixture + 10 份公开真实天气数据）" % len(doc["runs"]),
+        "数据：%d 份（v2 fixture + %d 份公开真实天气数据）" % (len(doc["runs"]), len(doc["runs"]) - 1),
         "方法：seasonal_naive（基线）/ moving_average（窗=周期）/ drift（末值+平均增量）；"
         "按 walk-forward MASE 选型，候选须相对基线下降 ≥5% 才允许替换",
         "区间：最近 %d 个 origin 的误差按 horizon 归一、分 %d 箱、取 conformal 有限样本修正分位"
@@ -243,10 +243,14 @@ def render_md(doc: dict) -> str:
                 d["column"], d["coverage"], d["ci"][0], d["ci"][1])
                 for d in s["coverage_out_of_band_detail"]) or "无"),
         "| 零膨胀不判区间覆盖率的列 | %s |" % (
-            "；".join("%s/%s（覆盖率 %.4f，零值 %.0f%%，非零点 %s）" % (
-                d["dataset"], d["column"], d["coverage"],
-                (d["zero_share"] or 0) * 100, d["nonzero_points"])
-                for d in s["coverage_not_applicable"]) or "无"),
+            ("%d 列（全部为降水类）；整体覆盖率 %.3f ~ %.3f，非零点 %d ~ %d；逐列明细见 "
+             "`coverage_not_applicable`" % (
+                 len(s["coverage_not_applicable"]),
+                 min(d["coverage"] for d in s["coverage_not_applicable"]),
+                 max(d["coverage"] for d in s["coverage_not_applicable"]),
+                 min(d["nonzero_points"] for d in s["coverage_not_applicable"]),
+                 max(d["nonzero_points"] for d in s["coverage_not_applicable"])))
+            if s["coverage_not_applicable"] else "无"),
         "| 选中方法 MASE≤1.0 | %d / %d = %s |" % (
             s["mase_le_1"], s["columns_ok"], s["mase_le_1_share"]),
         "| 选中方法优于基线 | %d / %d = %s |" % (

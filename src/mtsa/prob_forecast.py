@@ -40,7 +40,10 @@ MIN_STATE_POINTS = 20
 # 短状态窗口（点数）。降水的时间相关以小时计，用一整个周期（24h）做状态在多数站点
 # 上几乎恒为「湿」，判别力很弱；3 个点才分得开「刚下过」与「一直干」。
 SHORT_STATE = 3
-DEFAULT_ORIGINS = 40
+# 与 `forecast.DEFAULT_ORIGINS` 保持一致：事件点数随 origin 数线性增长，
+# 40 个 origin 时 R17 rainfall 只有 25 个事件点、R13 rainfall 只有 1 个，
+# BSS 完全不可解释；150 个 origin 下前者到 126，才够判「技能是否为正」。
+DEFAULT_ORIGINS = 150
 TEST_FRACTION = 0.4
 
 
@@ -177,7 +180,8 @@ def _reliability(p: np.ndarray, o: np.ndarray, bins: int = RELIABILITY_BINS) -> 
 
 def evaluate_events(y, index, period: int, horizon: int,
                     threshold: float = EVENT_THRESHOLD,
-                    test_fraction: float = TEST_FRACTION) -> dict:
+                    test_fraction: float = TEST_FRACTION,
+                    origins_n: int = DEFAULT_ORIGINS) -> dict:
     """对单列做事件概率预报的 walk-forward 评估。
 
     事件定义：`y[t+h] > threshold`。测试段与区间覆盖率同口径（最后 40% 的 origin）。
@@ -198,7 +202,7 @@ def evaluate_events(y, index, period: int, horizon: int,
                 "note": "事件率 %.2f%% 过高，阈值 %.3g 不是罕见事件，改用连续量评估更合适"
                         % (event_rate * 100, threshold)}
 
-    origins = _origins(n, horizon)
+    origins = _origins(n, horizon, origins_n)
     if len(origins) < 4:
         return {**base, "status": "insufficient_data",
                 "note": "序列太短，最后 30%% 内放不下 4 个 %d 步回测窗口" % horizon}

@@ -1,5 +1,5 @@
 # test_lookahead
-# status=PASS exit=0 duration=11.93s passed=5 failed=0 errors=0
+# status=PASS exit=0 duration=11.94s passed=5 failed=0 errors=0
 .....                                                                    [100%]
 ============================== warnings summary ===============================
 tests/test_lookahead.py::test_engine_fails_on_leak_dataset

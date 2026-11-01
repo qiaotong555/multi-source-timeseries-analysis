@@ -26,9 +26,16 @@ from . import prob_forecast
 from .models import AnalysisPlan, CleanDataset
 
 METHODS = ("seasonal_naive", "moving_average", "drift")
-# origin 数量决定回测的稳定性。v2 一年小时数据下 40 个 origin 相隔约 18 天，
-# 标定窗口 12 个仍覆盖约半年，够用且不至于把一年前的误差尺度带进来。
-DEFAULT_ORIGINS = 40
+# origin 数量决定回测统计的精度。2026-11-01 从 40 提到 150：
+#   40 个 origin → 测试段 16 个起点 × horizon 24 = 384 点，
+#   覆盖率点估计相对「200 origins 的参考值」平均差 2.4 个百分点（最大 4.9），
+#   降水事件点只有个位数（R17 rainfall 25 点、R13 rainfall 1 点）。
+#   150 个 origin → 1440 点，平均差降到 1.1 个百分点，R17 rainfall 事件点 25 → 126。
+#   代价：每列回测 0.01s → 0.04s（7 列总计 0.09s → 0.26s），可忽略。
+# 副作用：origin 间隔从 18 天缩到约 0.7 天，`CALIB_WINDOW` 个 origin 覆盖的真实时间
+#   从约半年缩到约 9 天。标定用的残差**点数**不变（12 × 24 = 288），但时间跨度变短，
+#   区间会更贴近近期误差尺度。实测整体偏差未变差。
+DEFAULT_ORIGINS = 150
 CALIB_WINDOW = 12
 # 标定时把 horizon 切成几箱。误差分布随 horizon 变形，跨箱池化会让长 horizon 偏窄。
 CALIB_BINS = 4

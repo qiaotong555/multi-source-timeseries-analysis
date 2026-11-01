@@ -106,9 +106,13 @@ def test_wet_markov_evaluation_is_well_formed():
 
 
 def test_sparse_events_get_no_skill_grade():
-    """事件点不足时不给等级——稀疏事件下的 BSS 会被「基本不报」抬高。"""
+    """事件点不足时不给等级——稀疏事件下的 BSS 会被「基本不报」抬高。
+
+    这里显式用 40 个 origin（每列 384 个测试点）来触发「事件点不足」：
+    这正是 2026-11-01 之前的默认值，也是当时 R13 只有 1 个事件点的原因。
+    """
     y = _shower_series(3000, seed=1)
-    r = pf.evaluate_events(y, _idx(3000), 24, 24)
+    r = pf.evaluate_events(y, _idx(3000), 24, 24, origins_n=40)
     assert r["status"] == "ok"
     assert r["event_points"] < pf.MIN_EVENTS_FOR_SKILL
     assert r["skill"] == "insufficient_events"
