@@ -23,6 +23,14 @@
   窗口 `COND_CALIB_WINDOW=24`，尺度用标量。13 列「有雨时」覆盖率从 0.37–0.84 提到
   **0.840–0.936**，新增 F6 门禁（非零点 ≥100 的列每列在 [0.80, 0.98]）。
 - **口径变更提示**：覆盖率与 MASE 全部重算，与 0.4.0 的历史数字不可直接对比。
+
+**接口：任务仓储（E3）**
+
+- 新增 `mtsa/storage.py`：运行记录落 SQLite（`MTSA_API_DB`，默认 `$MTSA_API_OUT/state.sqlite3`），
+  `mtsa-api` 重启后 `GET /analyses/{id}` 仍返回 200，`artifacts` 与 `duration_s` 保持不变。
+- 重启前处于 `queued` / `running` 的任务标为 `failed` + `error.code=INTERRUPTED`，
+  `details.previous_status` 记录中断前状态。
+- `MTSA_API_DB=off` 退回 E3 之前的「重启即丢」语义；仓储不可用时服务照常启动（内存模式）。
 - 局限：降水概率预报没有稳定技能，这件事没有靠调门禁掩盖，详见 `doc/预测场景化.md`。
 
 ## 0.4.0 — 2026-10-26
