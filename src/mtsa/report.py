@@ -326,6 +326,10 @@ def render_report(
             [[c.timestamp, str(c.index), c.column, c.kind, _fmt(c.statistic),
               _fmt(c.before), _fmt(c.after), c.confidence] for c in ctx.change_points],
         ))
+        lines.append("")
+        lines.append("> 变化点的接受判据是「**局部水平差 / 局部去季节散布 ≥ 3**」："
+                     "统计量即这个信噪比，前/后中位数取切点两侧紧邻窗口（不是整段前后缀）。"
+                     "`未检出` 表示没有超过噪声的突变，**不等于**没有缓慢漂移。")
     else:
         lines.append("变化点：未检出。")
     lines.append("")

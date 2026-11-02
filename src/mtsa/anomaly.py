@@ -13,6 +13,13 @@ from .models import AnalysisPlan, AnomalyPoint, ChangePoint, CleanDataset
 from .quality import robust_sigma
 
 MIN_SEGMENT = 12
+# 变化点的接受门槛：局部水平跳变 / 局部（去季节）散布。
+# 3.0 与原先「statistic > 3 记 high confidence」用的是同一条线。
+# 实测（v2 合成集）伪报 1.1σ、真跳变 24–28σ、18 hPa 网格注入 6–9σ，
+# 门槛落在 2–4 之间结果完全相同，不是掐着数据选出来的。
+MIN_SNR = 3.0
+# 水平与尺度都在切点两侧的窗口里估；窗口至少覆盖这么多周期，否则中位数估不准水平
+SNR_WINDOW_PERIODS = 3
 
 
 def _seasonal_phase(index: pd.Index, period: int) -> np.ndarray:
@@ -116,32 +123,90 @@ def _best_split(y: np.ndarray, min_len: int) -> tuple[int | None, float]:
     return best_k, best_sse
 
 
-def _segment(y: np.ndarray, min_len: int, max_depth: int, sse_full: float,
-             ratio: float = 0.7) -> list[int]:
-    """递归二分分割，只在残差平方和显著下降时继续。
+def _segment(y: np.ndarray, min_len: int, max_depth: int,
+             ratio: float = 0.7) -> list[tuple[int, int, int]]:
+    """递归二分分割，只在残差平方和显著下降时继续；返回 [(k, 父段左, 父段右)]。
 
-    ratio 为接受判据：分割后残差平方和须降到全段的比例以下。默认 0.7 即要求
+    ratio 为**候选**判据：分割后残差平方和须降到全段的比例以下。默认 0.7 即要求
     下降超过 30%。暴露为参数是为了能做灵敏度分析——固定常量无法回答
     「判据放宽多少会多检出、多误报多少」。
+
+    它只负责产生候选，不负责决定「这是不是真的水平突变」：单看方差下降会把
+    段内缓慢漂移的中点当成变化点（实测 v2 压力在 7300 点里漂 13 hPa，
+    漂移中点能被判成解释 63% 方差的「变化点」，实际只跳了 2.4 hPa）。
+    真实与否由 `_local_snr` 那一道门槛判。
+
+    父段边界必须一并返回：后续的水平与尺度都要在**该点所属的段**内估计，
+    用全序列的前后缀中位数会把别处的台阶算到这个点头上。
     """
-    if max_depth <= 0:
-        return []
-    k, sse = _best_split(y, min_len)
-    if k is None or not np.isfinite(sse) or sse_full <= 0:
-        return []
-    if sse > ratio * sse_full:
-        return []
-    left = _segment(y[:k], min_len, max_depth - 1,
-                    float(np.sum((y[:k] - y[:k].mean()) ** 2)), ratio)
-    right = _segment(y[k:], min_len, max_depth - 1,
-                     float(np.sum((y[k:] - y[k:].mean()) ** 2)), ratio)
-    return sorted(left + [k] + [k + r for r in right])
+    out: list[tuple[int, int, int]] = []
+
+    def rec(lo: int, hi: int, depth: int) -> None:
+        if depth <= 0 or hi - lo < 2 * min_len:
+            return
+        k_rel, sse = _best_split(y[lo:hi], min_len)
+        if k_rel is None or not np.isfinite(sse):
+            return
+        sse_parent = float(np.sum((y[lo:hi] - y[lo:hi].mean()) ** 2))
+        if sse_parent <= 0 or sse > ratio * sse_parent:
+            return
+        k = lo + k_rel
+        out.append((k, lo, hi))
+        rec(lo, k, depth - 1)
+        rec(k, hi, depth - 1)
+
+    rec(0, len(y), max_depth)
+    return sorted(out)
+
+
+def _deseason_dev(seg: np.ndarray, phase: np.ndarray | None, period: int) -> np.ndarray:
+    """去掉水平与季节项后的偏差，用来估局部散布。
+
+    为什么必须去季节：温度的日周期振幅可以有 6 °C，直接取散布会把「日变化」
+    当成噪声，一个 6 °C 的真实台阶只算出 0.97σ（实测），判据就永远不认。
+    周期项是可预测的结构，不是噪声。
+    """
+    dev = seg - float(np.median(seg))
+    if period >= 2 and phase is not None and len(seg) >= 2 * period:
+        out = dev.copy()
+        for p in range(period):
+            m = phase == p
+            if int(m.sum()) >= 3:
+                out[m] = out[m] - float(np.median(dev[m]))
+        return out
+    return dev
+
+
+def _local_snr(y: np.ndarray, phase: np.ndarray | None, period: int,
+               k: int, lo: int, hi: int, h: int) -> dict | None:
+    """切点两侧的水平差 / 局部去季节散布。
+
+    三个量都在**紧邻切点的窗口**里算，不用前缀/后缀：
+    前缀/后缀中位数会被段内漂移稀释（18 hPa 的台阶只量出 9.97），
+    也会把同列其它台阶的影响算进来。
+    """
+    a, b = max(lo, k - h), min(hi, k + h)
+    left, right = y[a:k], y[k:b]
+    if len(left) < 4 or len(right) < 4:
+        return None
+    before = float(np.median(left))
+    after = float(np.median(right))
+    jump = abs(after - before)
+    dev = np.concatenate([_deseason_dev(left, None if phase is None else phase[a:k], period),
+                          _deseason_dev(right, None if phase is None else phase[k:b], period)])
+    scale = 1.4826 * float(np.median(np.abs(dev)))
+    if not np.isfinite(scale) or scale <= 0:
+        snr = float("inf") if jump > 0 else 0.0
+    else:
+        snr = jump / scale
+    return {"before": before, "after": after, "jump": jump, "scale": scale, "snr": snr}
 
 
 def detect_change_points(clean: CleanDataset, plan: AnalysisPlan) -> list[ChangePoint]:
     frame = clean.frame
     max_depth = int(plan.parameters.get("change_point_depth", 2))
     ratio = float(plan.parameters.get("change_point_sse_ratio", 0.7))
+    period = int(plan.parameters.get("seasonal_period") or 0)
     min_len = max(MIN_SEGMENT, len(frame) // 40)
     out: list[ChangePoint] = []
 
@@ -153,18 +218,22 @@ def detect_change_points(clean: CleanDataset, plan: AnalysisPlan) -> list[Change
             continue
         s = s.interpolate(limit_direction="both")
         y = s.to_numpy(dtype=float)
-        sse_full = float(np.sum((y - y.mean()) ** 2))
-        for k in _segment(y, min_len, max_depth, sse_full, ratio):
-            before = float(np.median(y[:k]))
-            after = float(np.median(y[k:]))
-            scale = robust_sigma(s)
-            stat = abs(after - before) / scale if scale > 0 else float("nan")
-            idx = frame.index[k]
+        # 相位按真实时间算（有整段缺失时行位置与周期会错位）
+        phase = _seasonal_phase(frame.index, period) if period >= 2 else None
+        h = min(max(2 * min_len, SNR_WINDOW_PERIODS * max(period, 1), 24),
+                max(8, len(y) // 4))
+        for k, lo, hi in _segment(y, min_len, max_depth, ratio):
+            loc = _local_snr(y, phase, period, k, lo, hi, h)
+            if loc is None:
+                continue
+            # 候选只是「方差解释得动」；这里问的是「跳变是否大于局部噪声」
+            if not (loc["snr"] >= MIN_SNR):
+                continue
             out.append(ChangePoint(
-                timestamp=str(idx), index=int(k), column=col, kind="mean",
-                statistic=round(float(stat), 4),
-                before=round(before, 6), after=round(after, 6),
-                confidence="high" if (np.isfinite(stat) and stat > 3) else "medium",
+                timestamp=str(frame.index[k]), index=int(k), column=col, kind="mean",
+                statistic=round(float(loc["snr"]), 4),
+                before=round(loc["before"], 6), after=round(loc["after"], 6),
+                confidence="high" if loc["snr"] >= 2 * MIN_SNR else "medium",
             ))
         # 方差突变：滚动标准差的跳跃
         w = max(12, len(y) // 40)
@@ -182,6 +251,7 @@ def detect_change_points(clean: CleanDataset, plan: AnalysisPlan) -> list[Change
                     confidence="medium",
                 ))
     return out
+
 
 EXTREME_QUANTILE = 0.99
 EXTREME_MIN_POINTS = 100

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-24T18:00:48",
+  "generated_at": "2026-11-02T22:45:21",
   "dataset": "fixtures/weather_eval_v2.csv",
   "dataset_sha1": "2ee8077e5ddc8f446a793e04729ad50dd85c1eac",
   "labels": "fixtures/labels_weather_eval_v2.csv",
@@ -146,25 +146,25 @@
           "not_run_truth_instances": 0,
           "point": {
             "tp": 8,
-            "fp": 16,
+            "fp": 8,
             "fn": 0,
-            "detected": 24,
+            "detected": 16,
             "truth": 8,
-            "precision": 0.3333,
+            "precision": 0.5,
             "recall": 1.0,
-            "f1": 0.5
+            "f1": 0.6667
           },
-          "mean_precision": 0.3333,
+          "mean_precision": 0.5,
           "mean_recall": 1.0,
           "recall_adjusted": 1.0,
-          "f1_adjusted": 0.5,
+          "f1_adjusted": 0.6667,
           "ci": {
             "precision": {
               "k": 8,
-              "n": 24,
-              "value": 0.3333,
-              "lo": 0.1797,
-              "hi": 0.5329
+              "n": 16,
+              "value": 0.5,
+              "lo": 0.28,
+              "hi": 0.72
             },
             "recall": {
               "k": 8,
@@ -456,13 +456,13 @@
       },
       "changepoint_point": {
         "tp": 2,
-        "fp": 4,
+        "fp": 2,
         "fn": 0,
-        "detected": 6,
+        "detected": 4,
         "truth": 2,
-        "precision": 0.3333,
+        "precision": 0.5,
         "recall": 1.0,
-        "f1": 0.5
+        "f1": 0.6667
       },
       "missing_tools": null,
       "anomaly_event": {
@@ -497,13 +497,13 @@
       },
       "changepoint_point": {
         "tp": 2,
-        "fp": 4,
+        "fp": 2,
         "fn": 0,
-        "detected": 6,
+        "detected": 4,
         "truth": 2,
-        "precision": 0.3333,
+        "precision": 0.5,
         "recall": 1.0,
-        "f1": 0.5
+        "f1": 0.6667
       },
       "missing_tools": null,
       "anomaly_event": {
@@ -538,13 +538,13 @@
       },
       "changepoint_point": {
         "tp": 2,
-        "fp": 4,
+        "fp": 2,
         "fn": 0,
-        "detected": 6,
+        "detected": 4,
         "truth": 2,
-        "precision": 0.3333,
+        "precision": 0.5,
         "recall": 1.0,
-        "f1": 0.5
+        "f1": 0.6667
       },
       "missing_tools": null,
       "anomaly_event": {
@@ -579,13 +579,13 @@
       },
       "changepoint_point": {
         "tp": 2,
-        "fp": 4,
+        "fp": 2,
         "fn": 0,
-        "detected": 6,
+        "detected": 4,
         "truth": 2,
-        "precision": 0.3333,
+        "precision": 0.5,
         "recall": 1.0,
-        "f1": 0.5
+        "f1": 0.6667
       },
       "missing_tools": null,
       "anomaly_event": {

@@ -52,9 +52,32 @@ def test_localisation_error_within_tolerance(series):
     assert res["error_stats"]["p90"] <= CP.POSITION_TOLERANCE
 
 
-def test_relaxing_sse_ratio_detects_weaker_shift(series):
-    """放松判据应能检出更小的跳变——这是灵敏度分析的基础。"""
+def test_relaxing_sse_ratio_cannot_push_noise_through(series):
+    """放宽 SSE 比例**不能**把噪声报成变化点（2026-11-02 起的新契约）。
+
+    该夹具压力列的局部散布 σ≈0.72，1.0 单位的台阶只有 1.45σ。旧实现下
+    sse_ratio=0.98 会把它报出来，并被当成「灵敏度」写进本条测试；
+    量过之后才发现那是伪报——同一套判据在 v2 上把 1.1σ 的漂移中点
+    报成 high confidence，精确率只有 0.33。
+    """
     clean, plan, col = series
+    for ratio in (0.7, 0.98):
+        res = CP.scan_change_points(clean, plan, column=col,
+                                    positions=[0.5], deltas=[1.0], sse_ratio=ratio)
+        assert res["cells"][0]["detected"] is False, ratio
+
+
+def test_sse_ratio_is_still_wired_below_the_gate(series, monkeypatch):
+    """门槛之下，SSE 比例仍然决定候选——证明旋钮没被拆掉，只是不再能越过显著性。
+
+    把 MIN_SNR 调到 1.0 后，1.45σ 的跳变重新成了候选：严格 0.7 不给、
+    宽松 0.98 给。这说明 gate 是叠加在候选生成之上的独立一层，
+    而不是把 sse_ratio 悄悄换掉。
+    """
+    from mtsa import anomaly
+
+    clean, plan, col = series
+    monkeypatch.setattr(anomaly, "MIN_SNR", 1.0)
     strict = CP.scan_change_points(clean, plan, column=col,
                                    positions=[0.5], deltas=[1.0], sse_ratio=0.7)
     loose = CP.scan_change_points(clean, plan, column=col,
