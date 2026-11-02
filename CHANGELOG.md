@@ -31,6 +31,10 @@
 - 重启前处于 `queued` / `running` 的任务标为 `failed` + `error.code=INTERRUPTED`，
   `details.previous_status` 记录中断前状态。
 - `MTSA_API_DB=off` 退回 E3 之前的「重启即丢」语义；仓储不可用时服务照常启动（内存模式）。
+- 新增 `GET /api/v1/analyses`（分页列表，支持 `status` 过滤）与 `GET /metrics`
+  （计数 / 状态分布 / 耗时分位 / 队列水位 / 运行时长）。
+- 新增 `MTSA_API_RETENTION_DAYS`（默认 0 = 不清理）：启动时删掉更早的运行**记录**，
+  **不删产物目录**——删文件不可逆，磁盘回收请手工处理。
 - 局限：降水概率预报没有稳定技能，这件事没有靠调门禁掩盖，详见 `doc/预测场景化.md`。
 
 ## 0.4.0 — 2026-10-26
