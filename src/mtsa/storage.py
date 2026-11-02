@@ -185,13 +185,114 @@ class RunStore:
             conn.close()
         return changed
 
-    def count(self) -> int:
+    def count(self, status: Optional[str] = None) -> int:
         if not self.enabled:
             return 0
         conn = self._connect()
         if conn is None:
             return 0
         try:
+            if status:
+                return int(conn.execute("SELECT COUNT(*) FROM runs WHERE status = ?",
+                                        (status,)).fetchone()[0])
             return int(conn.execute("SELECT COUNT(*) FROM runs").fetchone()[0])
         finally:
             conn.close()
+
+    # ------------------------------------------------------------ 列表 / 清理 / 统计
+    def list_runs(self, status: Optional[str] = None, limit: int = 50,
+                  offset: int = 0,
+                  newest_first: bool = True) -> list[dict[str, Any]]:
+        """按提交时间列出记录。`status` 为 None 时不过滤。
+
+        只读 payload，不在 SQL 层裁剪字段——记录本身小，裁剪逻辑放在 API 层，
+        免得「接口要什么字段」和「库怎么存」耦合在一起。
+        """
+        if not self.enabled:
+            return []
+        conn = self._connect()
+        if conn is None:
+            return []
+        order = "DESC" if newest_first else "ASC"
+        try:
+            if status:
+                rows = conn.execute(
+                    "SELECT payload FROM runs WHERE status = ? "
+                    "ORDER BY submitted_at %s LIMIT ? OFFSET ?" % order,
+                    (status, max(1, limit), max(0, offset))).fetchall()
+            else:
+                rows = conn.execute(
+                    "SELECT payload FROM runs ORDER BY submitted_at %s LIMIT ? OFFSET ?"
+                    % order,
+                    (max(1, limit), max(0, offset))).fetchall()
+        finally:
+            conn.close()
+        out = []
+        for (payload,) in rows:
+            try:
+                out.append(json.loads(payload))
+            except json.JSONDecodeError:                 # pragma: no cover  库被手改
+                continue
+        return out
+
+    def purge_before(self, cutoff: str) -> list[str]:
+        """删掉 `submitted_at` 早于 cutoff 的记录，返回被删的 run_id。
+
+        只删记录，**不动产物目录**——删文件不可逆，交给调用方显式决定。
+        """
+        if not self.enabled:
+            return []
+        conn = self._connect()
+        if conn is None:
+            return []
+        try:
+            rows = conn.execute(
+                "SELECT run_id FROM runs WHERE submitted_at IS NOT NULL "
+                "AND submitted_at < ?", (cutoff,)).fetchall()
+            ids = [r[0] for r in rows]
+            if ids:
+                with self._lock:
+                    conn.executemany("DELETE FROM runs WHERE run_id = ?",
+                                     [(i,) for i in ids])
+                    conn.commit()
+            return ids
+        except (sqlite3.Error, OSError):                # pragma: no cover  环境相关
+            return []
+        finally:
+            conn.close()
+
+    def stats(self) -> dict[str, Any]:
+        """任务计数、状态分布、耗时分位。耗时只统计有 `duration_s` 的记录。"""
+        if not self.enabled:
+            return {"enabled": False}
+        conn = self._connect()
+        if conn is None:
+            return {"enabled": False}
+        try:
+            by_status = {row[0]: int(row[1]) for row in conn.execute(
+                "SELECT status, COUNT(*) FROM runs GROUP BY status")}
+            total = sum(by_status.values())
+            row = conn.execute("SELECT MIN(submitted_at), MAX(submitted_at) FROM runs").fetchone()
+            durations = [json.loads(p).get("duration_s")
+                         for (p,) in conn.execute("SELECT payload FROM runs").fetchall()]
+        finally:
+            conn.close()
+        vals = sorted(float(d) for d in durations if isinstance(d, (int, float)))
+        def _q(p: float) -> Optional[float]:
+            if not vals:
+                return None
+            k = min(len(vals) - 1, max(0, int(round((len(vals) - 1) * p))))
+            return round(vals[k], 2)
+        return {
+            "enabled": True,
+            "path": self.path,
+            "total": total,
+            "by_status": dict(sorted(by_status.items())),
+            "oldest_submitted_at": row[0] if row else None,
+            "newest_submitted_at": row[1] if row else None,
+            "duration_s": {
+                "count": len(vals),
+                "p50": _q(0.5), "p90": _q(0.9), "max": (round(vals[-1], 2) if vals else None),
+            },
+            "init_error": self.init_error,
+        }

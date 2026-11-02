@@ -9,6 +9,8 @@
   重启前处于 `queued` / `running` 的任务会被标成 `failed` + `INTERRUPTED`——
   进程已经死了，不假装它还在跑。`MTSA_API_DB=off` 退回「重启即丢」的内存行为；
 - **不做取消、不做流式、不做多租户、不做用户体系**；
+- **运维面只有三个**：`GET /analyses`（分页列表）、`GET /metrics`（计数/状态分布/耗时分位）、
+  启动时的保留期清理。都走鉴权。不做 Prometheus 导出、不做日志聚合；
 - **鉴权只有单 token**（`X-API-Token`）；未配置 `MTSA_API_TOKEN` 时**拒绝启动**——
   默认无鉴权的服务等于没门；
 - **每个请求都走 `run_with_timeout`**：子进程隔离 + 硬超时，跑飞的分析杀得掉，
@@ -45,6 +47,8 @@ API 句柄是 `run_id`（形如 `api_1a2b3c4d`，本层生成，用来查状态�
 | `MTSA_API_RUN_TIMEOUT` | 300 | 单次分析的硬超时秒数 |
 | `MTSA_API_MAX_UPLOAD_MB` | 50 | 上传文件大小上限 |
 | `MTSA_API_OUT` | `./artifacts/api` | 产物根目录（相对当前工作目录） |
+| `MTSA_API_DB` | `$MTSA_API_OUT/state.sqlite3` | 任务仓储；`off` 退回「重启即丢」 |
+| `MTSA_API_RETENTION_DAYS` | 0 | 0=不清理；>0 时启动清掉更早的**记录**（产物目录不动） |
 """
 from __future__ import annotations
 
@@ -57,7 +61,7 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import asynccontextmanager
 from dataclasses import asdict, dataclass, field, fields
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Any, Literal, Optional
 
 from fastapi import (Depends, FastAPI, File, Form, Header, HTTPException, Request,
@@ -252,7 +256,8 @@ def create_app(token: Optional[str] = None,
                queue_limit: Optional[int] = None,
                run_timeout: Optional[float] = None,
                max_upload_mb: Optional[int] = None,
-               db_path: Optional[str] = None) -> FastAPI:
+               db_path: Optional[str] = None,
+               retention_days: Optional[float] = None) -> FastAPI:
     token = token if token is not None else os.environ.get("MTSA_API_TOKEN", "")
     workers = workers if workers is not None else int(os.environ.get("MTSA_API_WORKERS", "2"))
     queue_limit = (queue_limit if queue_limit is not None
@@ -262,6 +267,8 @@ def create_app(token: Optional[str] = None,
     max_upload_mb = (max_upload_mb if max_upload_mb is not None
                      else int(os.environ.get("MTSA_API_MAX_UPLOAD_MB", "50")))
     db_path = db_path if db_path is not None else os.environ.get("MTSA_API_DB", DEFAULT_DB)
+    retention_days = (retention_days if retention_days is not None
+                      else float(os.environ.get("MTSA_API_RETENTION_DAYS", "0")))
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
@@ -276,6 +283,14 @@ def create_app(token: Optional[str] = None,
             if left:
                 print("[mtsa-api] 上次进程遗留 %d 个未完成任务，已标记为 INTERRUPTED" % left,
                       file=sys.stderr)
+            if app.state.retention_days > 0:
+                cutoff = (datetime.now().astimezone()
+                          - timedelta(days=app.state.retention_days)
+                          ).isoformat(timespec="seconds")
+                removed = app.state.store.purge_before(cutoff)
+                if removed:
+                    print("[mtsa-api] 清理 %d 条超过 %.0f 天的运行记录（产物目录未动）"
+                          % (len(removed), app.state.retention_days), file=sys.stderr)
         try:
             yield
         finally:
@@ -287,6 +302,9 @@ def create_app(token: Optional[str] = None,
                                         thread_name_prefix="mtsa-api")
     app.state.records: dict[str, RunRecord] = {}
     app.state.store = RunStore(db_path)
+    app.state.retention_days = max(0.0, retention_days)
+    app.state.started_at = time.time()
+    app.state.max_workers = max(1, workers)
     app.state.lock = threading.Lock()
     app.state.queue_limit = max(1, queue_limit)
     app.state.run_timeout = run_timeout
@@ -400,6 +418,59 @@ def create_app(token: Optional[str] = None,
             raise HTTPException(404, {"code": "RUN_NOT_FOUND",
                                       "message": "没有这个 run_id：%s" % run_id})
         return rec
+
+    @app.get("/api/v1/analyses", dependencies=guard)
+    def list_analyses(status: Optional[str] = None, limit: int = 50,
+                      offset: int = 0) -> dict[str, Any]:
+        """列出运行记录（分页 + 可选状态过滤）。
+
+        返回的是「摘要」不是完整信封：`question` 截断到 80 字、`artifacts` 只给数量。
+        要看完整字段用 `GET /api/v1/analyses/{run_id}`。
+        """
+        allowed = set(ACTIVE) | {"succeeded", "failed"}
+        if status is not None and status not in allowed:
+            raise HTTPException(400, {"code": "BAD_STATUS_FILTER",
+                                      "message": "status 只能是 %s" % sorted(allowed)})
+        limit = max(1, min(int(limit), 200))
+        offset = max(0, int(offset))
+        recs = app.state.store.list_runs(status=status, limit=limit, offset=offset)
+        items = [{
+            "run_id": r.get("run_id"), "status": r.get("status"), "mode": r.get("mode"),
+            "question": (r.get("question") or "")[:80],
+            "submitted_at": r.get("submitted_at"), "finished_at": r.get("finished_at"),
+            "duration_s": r.get("duration_s"),
+            "artifacts": len(r.get("artifacts") or []),
+            "error_code": (r.get("error") or {}).get("code"),
+            "result_available": os.path.exists(os.path.join(r.get("out_dir") or "", "result.json")),
+        } for r in recs]
+        return {
+            "items": items, "limit": limit, "offset": offset,
+            "total": app.state.store.count(status),
+            "filters": {"status": status},
+            "store_enabled": app.state.store.enabled,
+        }
+
+    @app.get("/metrics", dependencies=guard)
+    def metrics() -> dict[str, Any]:
+        """运行计数、状态分布、耗时分位与队列水位。
+
+        不接 Prometheus 客户端：这是单进程薄壳，`/metrics` 给运维看，
+        不是给时序数据库抓的。要接抓取器的话，这里就是那个转换点。
+        """
+        st = app.state.store.stats()
+        return {
+            "runs": st,
+            "queue": {
+                "active": sum(1 for r in app.state.records.values() if r.status in ACTIVE),
+                "limit": app.state.queue_limit,
+                "workers": app.state.max_workers,
+            },
+            "process": {
+                "version": _version(),
+                "uptime_s": round(time.time() - app.state.started_at, 1),
+                "retention_days": app.state.retention_days,
+            },
+        }
 
     @app.get("/api/v1/analyses/{run_id}", dependencies=guard)
     def get_status(run_id: str) -> dict[str, Any]:
