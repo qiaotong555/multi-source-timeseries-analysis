@@ -32,7 +32,8 @@ def _wait(client: TestClient, run_id: str, limit_s: float = 180) -> dict:
 
 @pytest.fixture(scope="module")
 def client():
-    app = create_app(TOKEN, workers=2, run_timeout=180)
+    # db_path="off"：这些用例测的是路由与并发，不测持久化；关掉库避免写真实 artifacts/api
+    app = create_app(TOKEN, workers=2, run_timeout=180, db_path="off")
     with TestClient(app) as c:
         yield c
 
@@ -62,7 +63,7 @@ def test_missing_or_wrong_token_is_401(client):
 
 def test_missing_token_refuses_to_start():
     """未配置 token 时不能"先跑起来再说"——startup 必须失败。"""
-    app = create_app("")
+    app = create_app("", db_path="off")
     with pytest.raises(RuntimeError, match="MTSA_API_TOKEN"):
         with TestClient(app):
             pass
@@ -170,7 +171,7 @@ def test_upload_rejects_bad_filename(client):
 
 def test_queue_limit_is_enforced():
     """排队上限不是"建议"：满了就 429，不无限收。"""
-    app = create_app(TOKEN, workers=1, queue_limit=1, run_timeout=180)
+    app = create_app(TOKEN, workers=1, queue_limit=1, run_timeout=180, db_path="off")
     with TestClient(app) as c:
         first = c.post("/api/v1/analyses", headers=H, json={
             "input_path": SHORT, "question": QUESTION, "mode": "pipeline"})

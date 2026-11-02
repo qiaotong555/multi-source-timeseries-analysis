@@ -21,5 +21,5 @@ tests/test_modes.py::test_auto_without_model_falls_back_to_pipeline
     kpss_res = kpss(vals, regression="c", nlags="auto", result_object=False)
 
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
-4 passed, 12 warnings in 27.88s
+4 passed, 12 warnings in 28.22s
 

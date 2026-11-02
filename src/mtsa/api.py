@@ -4,8 +4,10 @@
 设计边界写死在这里，避免以后被"顺手加个功能"撑成第二个内核：
 
 - **不判场景、不映射参数、不改 `result.json` 契约**：请求 → `AnalysisRequest` → 现有引擎；
-- **不做持久化**：运行状态在进程内 dict，重启即丢（产物仍落在 `artifacts/api/<run_id>/`，
-  重启后手工取）；重启后 `GET` 会返回 404，这是设计不是 bug；
+- **状态持久化在 SQLite**（E3，2026-11-02）：`MTSA_API_DB` 默认 `artifacts/api/state.sqlite3`，
+  按 `run_id` 落一条记录；重启后 `GET` 仍能查到状态与产物清单。
+  重启前处于 `queued` / `running` 的任务会被标成 `failed` + `INTERRUPTED`——
+  进程已经死了，不假装它还在跑。`MTSA_API_DB=off` 退回「重启即丢」的内存行为；
 - **不做取消、不做流式、不做多租户、不做用户体系**；
 - **鉴权只有单 token**（`X-API-Token`）；未配置 `MTSA_API_TOKEN` 时**拒绝启动**——
   默认无鉴权的服务等于没门；
@@ -54,7 +56,7 @@ import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import asynccontextmanager
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass, field, fields
 from datetime import datetime
 from typing import Any, Literal, Optional
 
@@ -67,6 +69,7 @@ from .engine import run_analysis
 from .models import DEFAULT_SEED, AnalysisRequest
 from .scenarios import stock as _stock        # noqa: F401  注册适配器
 from .scenarios import weather as _weather    # noqa: F401
+from .storage import RunStore
 from .timeout_guard import run_with_timeout
 
 # 产物目录按**当前工作目录**解析，与 CLI 的 `artifacts/<run_id>` 同一规则。
@@ -80,6 +83,7 @@ SceneId = Literal["weather", "stock"]
 ScopeMode = Literal["guided", "free"]
 
 ACTIVE = ("queued", "running")
+DEFAULT_DB = os.path.join(OUT_ROOT, "state.sqlite3")
 
 
 def _version() -> str:
@@ -138,12 +142,27 @@ class RunRecord:
     artifacts: list[dict[str, Any]] = field(default_factory=list)
 
 
+_RECORD_FIELDS = {f.name for f in fields(RunRecord)}
+
+
+def _persist(app: FastAPI, rec: RunRecord) -> None:
+    """状态变了就落一次库。仓储不可用时静默跳过——服务不该因为存不了状态而挂。"""
+    store = getattr(app.state, "store", None)
+    if store is not None:
+        store.save(asdict(rec))
+
+
+def _record_from_dict(d: dict[str, Any]) -> RunRecord:
+    return RunRecord(**{k: v for k, v in d.items() if k in _RECORD_FIELDS})
+
+
 # ---------------------------------------------------------------- 执行
 
 def _execute(app: FastAPI, run_id: str) -> None:
     rec: RunRecord = app.state.records[run_id]
     rec.status = "running"
     rec.started_at = _now()
+    _persist(app, rec)
     t0 = time.time()
     try:
         req = AnalysisRequest(request_id=run_id, input_path=rec.input_path,
@@ -172,11 +191,13 @@ def _execute(app: FastAPI, run_id: str) -> None:
     finally:
         rec.finished_at = _now()
         rec.duration_s = round(time.time() - t0, 1)
+        _persist(app, rec)
 
 
 def _submit(app: FastAPI, rec: RunRecord) -> None:
     app.state.records[rec.run_id] = rec
     os.makedirs(rec.out_dir, exist_ok=True)
+    _persist(app, rec)
     app.state.pool.submit(_execute, app, rec.run_id)
 
 
@@ -230,7 +251,8 @@ def create_app(token: Optional[str] = None,
                *, workers: Optional[int] = None,
                queue_limit: Optional[int] = None,
                run_timeout: Optional[float] = None,
-               max_upload_mb: Optional[int] = None) -> FastAPI:
+               max_upload_mb: Optional[int] = None,
+               db_path: Optional[str] = None) -> FastAPI:
     token = token if token is not None else os.environ.get("MTSA_API_TOKEN", "")
     workers = workers if workers is not None else int(os.environ.get("MTSA_API_WORKERS", "2"))
     queue_limit = (queue_limit if queue_limit is not None
@@ -239,6 +261,7 @@ def create_app(token: Optional[str] = None,
                    else float(os.environ.get("MTSA_API_RUN_TIMEOUT", "300")))
     max_upload_mb = (max_upload_mb if max_upload_mb is not None
                      else int(os.environ.get("MTSA_API_MAX_UPLOAD_MB", "50")))
+    db_path = db_path if db_path is not None else os.environ.get("MTSA_API_DB", DEFAULT_DB)
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
@@ -247,6 +270,12 @@ def create_app(token: Optional[str] = None,
                 "未配置 MTSA_API_TOKEN。这是有意为之：默认无鉴权的服务等于没门。\n"
                 "本地试跑：MTSA_API_TOKEN=dev mtsa-api --port 8000")
         os.makedirs(OUT_ROOT, exist_ok=True)
+        app.state.store.init()
+        if app.state.store.enabled:
+            left = app.state.store.mark_interrupted()
+            if left:
+                print("[mtsa-api] 上次进程遗留 %d 个未完成任务，已标记为 INTERRUPTED" % left,
+                      file=sys.stderr)
         try:
             yield
         finally:
@@ -257,6 +286,7 @@ def create_app(token: Optional[str] = None,
     app.state.pool = ThreadPoolExecutor(max_workers=max(1, workers),
                                         thread_name_prefix="mtsa-api")
     app.state.records: dict[str, RunRecord] = {}
+    app.state.store = RunStore(db_path)
     app.state.lock = threading.Lock()
     app.state.queue_limit = max(1, queue_limit)
     app.state.run_timeout = run_timeout
@@ -362,8 +392,13 @@ def create_app(token: Optional[str] = None,
     def _record(run_id: str) -> RunRecord:
         rec = app.state.records.get(run_id)
         if rec is None:
+            saved = app.state.store.get(run_id)
+            if saved is not None:
+                rec = _record_from_dict(saved)
+                app.state.records[run_id] = rec
+        if rec is None:
             raise HTTPException(404, {"code": "RUN_NOT_FOUND",
-                                      "message": "没有这个 run_id（重启后状态会丢）：%s" % run_id})
+                                      "message": "没有这个 run_id：%s" % run_id})
         return rec
 
     @app.get("/api/v1/analyses/{run_id}", dependencies=guard)
