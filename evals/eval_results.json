@@ -1864,17 +1864,17 @@
   "_conclusion_diff": {
     "available": true,
     "path": "C:\\Users\\乔佟\\WorkBuddy\\2026-09-27-22-32-34\\multi_source_timeseries_analysis\\evals\\conclusion_diff_results.json",
-    "generated_at": "2026-10-23T22:53:04",
+    "generated_at": "2026-11-03T21:27:23",
     "summary": {
-      "pipeline_total": 507,
-      "agent_total": 389,
-      "missing_total": 118,
-      "mean_missing_per_case": 9.0769,
+      "pipeline_total": 663,
+      "agent_total": 528,
+      "missing_total": 135,
+      "mean_missing_per_case": 10.3846,
       "extra_total": 0,
       "reasons": {
-        "tool_not_run": 118
+        "tool_not_run": 135
       },
-      "reason_total": 118,
+      "reason_total": 135,
       "unattributed": 0,
       "unattributed_rate": 0.0,
       "attribution_complete": true
@@ -1882,9 +1882,9 @@
     "category_matrix": {
       "变化点": {
         "pipeline": 13,
-        "agent": 3,
-        "missing": 10,
-        "tool_not_run": 10,
+        "agent": 4,
+        "missing": 9,
+        "tool_not_run": 9,
         "no_detection": 0,
         "plan_or_parameter_diff": 0,
         "unattributed": 0,
@@ -1921,10 +1921,20 @@
         "extra": 0
       },
       "数据口径": {
-        "pipeline": 13,
-        "agent": 13,
+        "pipeline": 130,
+        "agent": 130,
         "missing": 0,
         "tool_not_run": 0,
+        "no_detection": 0,
+        "plan_or_parameter_diff": 0,
+        "unattributed": 0,
+        "extra": 0
+      },
+      "极端值": {
+        "pipeline": 39,
+        "agent": 21,
+        "missing": 18,
+        "tool_not_run": 18,
         "no_detection": 0,
         "plan_or_parameter_diff": 0,
         "unattributed": 0,
@@ -2264,7 +2274,7 @@
   "结论级趋势正确率(agent)": 0.5,
   "结论级季节正确率(agent)": 1.0,
   "结论级结论需求覆盖率(agent)": 1.0,
-  "结论差异总数": 118,
+  "结论差异总数": 135,
   "结论差异无法归因率": 0.0,
   "结论差异归因完整": true,
   "短数据复现一致": 1.0,
