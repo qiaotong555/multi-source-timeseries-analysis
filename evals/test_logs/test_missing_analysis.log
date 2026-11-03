@@ -1,5 +1,5 @@
 # test_missing_analysis
-# status=PASS exit=0 duration=11.9s passed=6 failed=0 errors=0
-......                                                                   [100%]
-6 passed in 9.47s
+# status=PASS exit=0 duration=24.16s passed=8 failed=0 errors=0
+........                                                                 [100%]
+8 passed in 21.77s
 

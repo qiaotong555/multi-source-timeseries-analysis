@@ -127,3 +127,41 @@ def test_pipeline_warns_about_omitted_analysis(restricted_run):
     warn = " ".join(res.warnings or [])
     assert "未包含以下分析项" in warn
     assert "不能解读为「未发现问题」" in warn
+
+
+def test_extremes_not_computed_when_not_planned(restricted_run):
+    """计划里既没有 `extreme` 也没有 `anomaly` 时，极值不该被算出来。
+
+    这条曾经是死键：引擎无条件调 `detect_extremes`，于是模型只选 trend/seasonal 时，
+    报告 8b 照样打印整张极值表，而 `extreme` 在引擎里没有任何消费者。
+    """
+    res, report = restricted_run
+    assert res.data["extremes"] == []
+    assert "极端值：**未执行**" in report
+
+
+def _run_with(tmp_path, keep, tag):
+    req = AnalysisRequest(request_id="req_" + tag, input_path=WEATHER_CSV,
+                          scene_id="weather", question="分析温度的趋势与季节性",
+                          seed=20260927, output_dir=str(tmp_path / tag), planner="rule")
+    original = engine.build_planner
+    engine.build_planner = lambda *a, **k: _RestrictedPlanner(keep)
+    try:
+        return engine.run_analysis(req, verbose=False)
+    finally:
+        engine.build_planner = original
+
+
+def test_extreme_switch_is_live(tmp_path):
+    """`extreme` 必须是一个真的开关：选了就有极值，不选就没有。
+
+    对比只取决于这一项，所以两次运行除 keep 集合外完全相同。
+    """
+    with_ext = _run_with(tmp_path, {"trend", "extreme"}, "with_ext")
+    without = _run_with(tmp_path, {"trend"}, "without_ext")
+    assert with_ext.status == "succeeded" and without.status == "succeeded"
+
+    assert with_ext.data["extremes"], "选了 extreme 却没算出极值"
+    assert without.data["extremes"] == [], "没选 extreme 却算出了极值"
+    # anomaly 不在计划里，但 extreme 在——极值随它一起产出
+    assert "anomaly" not in with_ext.data["plan"]["analyses"]

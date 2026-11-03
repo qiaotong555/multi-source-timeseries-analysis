@@ -347,6 +347,11 @@ def render_report(
     lines.append("")
 
     # 8b) 绝对极端
+    # 与引擎同一判据：pipeline 计划里有 extreme 或 anomaly；agent 分支总归算。
+    # 不这么判，模型只选 trend/seasonal 时这里会照印整张极值表。
+    extreme_ran = (getattr(ctx, "executed_tools", None) is not None
+                   or "extreme" in (ctx.plan.analyses or [])
+                   or ctx.tool_ran("detect_anomalies"))
     exts = getattr(ctx, "extremes", None) or []
     lines.append("## 8b. 极端值（绝对阈值）")
     lines.append("")
@@ -362,6 +367,9 @@ def render_report(
         lines.append("")
         lines.append("> 极端值按「本列经验分位」判定，回答「有没有超过自身分布的两端」；"
                      "与第 8 节的统计异常不是同一判据，不能互相替代。")
+    elif not extreme_ran:
+        lines.append("极端值：**未执行**（本次计划未选 `extreme` / `anomaly`），"
+                     "不能解读为「没有极端值」。")
     else:
         lines.append("极端值：未检出（样本不足或列无变化）。")
     lines.append("")

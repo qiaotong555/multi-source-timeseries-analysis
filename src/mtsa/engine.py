@@ -751,6 +751,9 @@ def _run_analysis_impl(request: AnalysisRequest, verbose: bool, run_id: str,
         # 计划里没选的检测项：这些小节一定是空的。必须显式说「没跑」，
         # 否则读者会把空当成零检出（与 agent 模式的 warnings 同一口径）。
         omitted = [a for a in ("anomaly", "changepoint") if a not in plan.analyses]
+        # 极值随 `anomaly` 一起产出，所以只有两者都没选时才算「没做」
+        if "extreme" not in plan.analyses and "anomaly" not in plan.analyses:
+            omitted.append("extreme")
         if omitted:
             warnings.append(
                 "本次计划未包含以下分析项：" + "、".join(omitted)
@@ -758,8 +761,16 @@ def _run_analysis_impl(request: AnalysisRequest, verbose: bool, run_id: str,
             )
 
     # ---- 9b. 绝对极端（描述性；不并入 anomalies，不参与异常判定） ----
-    # 与模式无关：分位数口径固定，cost 很低；Agent 是否执行检测不影响这个字段。
-    extremes = anomaly.detect_extremes(clean, plan)
+    # 由谁决定「算不算」：
+    #   - pipeline：计划里要有 `extreme` 或 `anomaly`（极值随异常检测一起产出）；
+    #   - agent：工具集里没有独立的极值工具，只要走了 agent 分支就照常算
+    #     （维持 D2「与模式无关」的约定）。
+    # 曾经是无条件计算，于是模型只选 trend/seasonal 时，报告 8b 照样打印整张极值表，
+    # 而 `extreme` 这个计划开关在引擎里没有任何消费者——等于死键，与「计划决定跑什么」矛盾。
+    _extreme_allowed = (agent_info is not None
+                        or "extreme" in plan.analyses
+                        or "anomaly" in plan.analyses)
+    extremes = anomaly.detect_extremes(clean, plan) if _extreme_allowed else []
     # 段上限截断会让「事件是否被覆盖」失真（D2 的 20→100 教训）。截断就必须说。
     _trunc = sorted({e["column"] for e in extremes if e.get("runs_truncated")})
     if _trunc:

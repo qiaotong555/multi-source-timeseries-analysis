@@ -465,9 +465,12 @@ class WeatherAdapter(ScenarioAdapter):
                 [], ["art_fig_anomaly"], "src/mtsa/anomaly.py::detect_change_points",
                 "未检出不等于不存在；密集或幅度较小的变化点可能低于检出下限")
 
-        # 绝对极端：与统计异常分开报告；只在检测工具执行过时输出，避免替 agent 扩权。
+        # 绝对极端：与统计异常分开报告。
+        # agent 分支仍要求 detect_anomalies 真跑过（D3 的「不替 agent 扩权」）；
+        # pipeline 只要算了极值就该出结论——计划里选了 `extreme` 也算，
+        # 否则会出现「表里有点、结论里没提」的半截状态。
         exts = list(getattr(ctx, "extremes", None) or [])
-        if exts and ctx.tool_ran("detect_anomalies"):
+        if exts and (ctx.executed_tools is None or ctx.tool_ran("detect_anomalies")):
             for e in exts[:3]:
                 tail_cn = "高" if e.get("tail") == "high" else "低"
                 runs = e.get("runs") or []
