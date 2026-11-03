@@ -97,6 +97,11 @@ mtsa-api --port 8000               # 提交 202 → 轮询状态 → 取 result.
 同一份天气数据、同一问题，缺省参数下 `plan_source=llm`、只跑 **3 项**；
 加 `--planner rule`（或 `MTSA_PLANNER=rule`）才是 **12 项**。要逐位复现，请显式指定。
 
+只跑部分项时，报告第 8 节把未跑的小节写成「**未执行**（本次计划未选该项）」并附一条 warning，
+不写成「未检出」——两者含义相反（没跑 ≠ 没发现问题）。2026-11-03 实测：问题
+「分析温度的趋势与季节性」下模型只选 `['trend','seasonal']`，旧实现会输出
+「未发现异常点（…已对 2 条目标序列执行检测）」，而实际一次检测都没跑。
+
 ---
 
 ## 2. 一条链路的六个步骤
@@ -118,7 +123,7 @@ mtsa-api --port 8000               # 提交 202 → 轮询状态 → 取 result.
 
 | 维度 | 结论 | 关键数字 | 证据 |
 | --- | --- | --- | --- |
-| 工程基线 | **通过** | 61 个测试文件 / 559 项 / 0 失败 / 627.6 s（2026-11-03 20:16） | `evals/test_logs/summary.json` |
+| 工程基线 | **通过** | 62 个测试文件 / 569 项 / 0 失败 / 716.6 s（2026-11-03 20:45） | `evals/test_logs/summary.json` |
 | 鲁棒性 | **通过** | 37 个坏输入与边界用例 37/37，0 崩溃；失败均带错误码与出错节点 | `evals/robustness_results.json` |
 | 结论级门禁（独立数据 v2） | **通过** | 24/24（10 pipeline + 10 agent + 4 非劣性）；事件级命中 R=0.9667、F1=0.9831；点级 P=1.000 / R=0.840 | `evals/conclusion_gate_v2_results.json` |
 | 真实数据验证（B） | **工程通过，正确性未证** | 10 份数据 × 4 问题 × 2 模式 = 80/80 成功，证据覆盖 1.000；14 项验收 13 项通过（此为 B 阶段口径；registry 已有 17 份，重跑会是 136 次，见 `doc/改进记录.md` 遗留问题汇总） | `evals/real_data_results.json` |
@@ -128,7 +133,7 @@ mtsa-api --port 8000               # 提交 202 → 轮询状态 → 取 result.
 | 规模与性能 | **有明确上限** | 20 万行上限（`MTSA_MAX_ROWS`）；1e5 行 37.1 s、2e5 行 123.9 s、5e5 行 736 s、1e6 未完成 | `doc/评估设计.md`、`doc/改进记录.md` #4/#6 |
 | 交付形态（E1 / E3） | **可用** | `mtsa-api` 9 个路由：7 个分析/产物接口 + 任务列表 `GET /analyses` + `GET /metrics`；SQLite 任务仓储（`MTSA_API_DB`）重启后仍能查状态与产物，重启前活跃任务标 `INTERRUPTED`；保留期 `MTSA_API_RETENTION_DAYS` 只清记录不删产物；25 项接口与仓储测试；真实 uvicorn 跨进程与运维面验证 | `tests/test_api.py`、`tests/test_api_store.py`、`tests/test_api_ops.py`、`doc/接口与字段.md` 第 7 节 |
 
-**规模数字**（2026-11-02 实测）：`src/mtsa` 36 个 py / 9,914 行；`tests` 目录 63 个 py（61 个测试文件，逐文件入口统计；用例数见 `evals/test_logs/summary.json`）；`evals` 22 个 py / 8,433 行；真实数据 registry 17 份（5 个来源：Open-Meteo / NOAA GHCN-Daily / DWD / ECCC / ASOS；2 种频率：hourly 14、daily 3）。
+**规模数字**（2026-11-03 实测）：`src/mtsa` 36 个 py / 9,979 行；`tests` 目录 64 个 py（62 个测试文件，逐文件入口统计；用例数见 `evals/test_logs/summary.json`）；`evals` 22 个 py / 8,433 行；真实数据 registry 17 份（5 个来源：Open-Meteo / NOAA GHCN-Daily / DWD / ECCC / ASOS；2 种频率：hourly 14、daily 3）。
 
 **评估指标**：29 项 = 22 项规则模式阈值指标 + 3 项 LLM 模式指标（合法率、回退率、覆盖率）+ 4 项 Agent 指标（后 7 项仅在对应评估缓存存在时纳入判定）。LLM 覆盖率只统计合法计划，回退时不计入平均——否则「模型全挂」会被算成高覆盖。
 
@@ -222,7 +227,7 @@ python -m mtsa.cli run --scene weather --input fixtures/weather_v1.csv \
 src/mtsa/            引擎：导入 / 摘要 / 质量 / 预处理 / 指标 / 频域 / 检验 / 异常 / 图表 / 报告 / 编排
   scenarios/         场景适配器（weather 主场景；stock 仅 pipeline）
 scripts/             一键 demo、真实数据抓取与标注、Word/PDF 文档生成
-tests/               61 个测试文件
+tests/               62 个测试文件
 evals/               22 个评估脚本与工具 + 结果 JSON + 评估记录
 fixtures/            固定样例、真实数据 registry、标签与真值
 artifacts/           运行产物（按 run_id 隔离，不入库）
