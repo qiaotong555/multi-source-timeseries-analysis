@@ -12,6 +12,10 @@ from typing import Optional
 import pandas as pd
 
 from .models import Artifact, Conclusion, Evidence
+from .anomaly import (EXTREME_MIN_POINTS, EXTREME_QUANTILE, MIN_ANOMALY_POINTS,
+                      anomaly_window_len, change_point_min_len, examined_series,
+                      extreme_examined)
+from .quality import LEVEL_SHIFT_MIN_POINTS, ROBUST_Z_THRESHOLD
 from .scenarios.base import ScenarioContext
 
 MAX_TABLE_ROWS = 120
@@ -165,7 +169,18 @@ def render_report(
             lines.append("")
             lines.append(f"> 仅列出前 {MAX_TABLE_ROWS} 条，完整清单见 `result.json`。")
     else:
-        lines.append("未检出数据质量问题。")
+        # 参与了逐列检查的数值列数：`check_quality` 对每列都写了 missing_ratio，
+        # 比 profile.numeric_columns 更贴近「实际查了几列」。
+        n_cols = len(getattr(quality, "missing_ratio", None)
+                     or getattr(profile, "numeric_columns", None) or {})
+        lines.append(
+            f"未检出数据质量问题（已检查 {n_cols} 个数值列的缺失率与连续缺失段、空列、"
+            f"时间轴重复/乱序/解析率、采样缺口、稳健 |Z| > {ROBUST_Z_THRESHOLD:g} 的异常候选、"
+            f"分组内水平跳变与疑似单位变化）。")
+        lines.append("")
+        lines.append(f"> 检查范围之外仍需业务确认：非数值列只查时间轴；有效点少于 "
+                     f"{LEVEL_SHIFT_MIN_POINTS} 的序列不做水平跳变/单位变化检测；"
+                     f"传感器漂移、量程越界、跨列一致性不在检查项内。")
     lines.append("")
 
     # 3) 分析计划
@@ -258,7 +273,7 @@ def render_report(
                                  ", ".join(f"{k}={v}" for k, v in o.items() if k != "op")]
                                 for i, o in enumerate(ops)]))
     else:
-        lines.append("未执行清洗操作。")
+        lines.append("未执行清洗操作（输入未触发任何清洗规则）；这不等于数据无问题，见第 2 节。")
     lines.append("")
     lines.append(f"- 丢弃行数：{ctx.clean.dropped_rows}")
     lines.append(f"- 插补单元格：{ctx.clean.imputed_cells}")
@@ -277,7 +292,8 @@ def render_report(
             lines.append("")
             lines.append(f"> 共 {len(rows)} 行，此处列出前 {MAX_TABLE_ROWS} 行，完整表见 `result.json`。")
     else:
-        lines.append("未产出指标。")
+        lines.append("未产出指标（`compute_metrics` 未返回任何行：输入可能无可用数值列，"
+                     "或全部列有效样本不足；这是异常状态，不代表指标取值为 0）。")
     lines.append("")
 
     # 6) 频域
@@ -316,7 +332,15 @@ def render_report(
              for a in ctx.anomalies[:MAX_TABLE_ROWS]],
         ))
     elif ctx.tool_ran("detect_anomalies"):
-        lines.append("异常点：未检出。")
+        # 「未检出」必须带出实际执行范围：目标列数不等于实检列数（列缺失、点太少会被跳过），
+        # 窗口也必须报 anomaly_window（不是指标模块的 rolling_window）。
+        n_total = len(ctx.plan.target_columns or [])
+        n_run = examined_series(frame, ctx.plan.target_columns, MIN_ANOMALY_POINTS)
+        thr = float(ctx.plan.parameters.get("anomaly_threshold", 5.0))
+        win = anomaly_window_len(len(frame), ctx.plan.parameters)
+        lines.append(f"异常点：未检出（已对 {n_run}/{n_total} 条目标序列执行；"
+                     f"判据「去趋势/季节残差的稳健 |Z| > {thr:g}」，滚动窗口 {win} 点；"
+                     f"插补点不计入，有效点少于 {MIN_ANOMALY_POINTS} 的列不参与）。")
     else:
         lines.append("异常点：**未执行**（本次计划未选 `anomaly`），"
                      "不能解读为「未发现问题」。")
@@ -338,7 +362,11 @@ def render_report(
                      "不能解读为「没有结构变化」。")
         lines.append("")
     else:
-        lines.append("变化点：未检出。")
+        min_len = change_point_min_len(len(frame))
+        n_total = len(ctx.plan.target_columns or [])
+        n_run = examined_series(frame, ctx.plan.target_columns, 4 * min_len)
+        lines.append(f"变化点：未检出（已对 {n_run}/{n_total} 条目标序列执行；"
+                     f"最小段长 {min_len} 点，序列有效点须 ≥ {4 * min_len} 点才纳入）。")
         lines.append("")
         lines.append("> 判据要求「局部水平差 / 局部去季节散布 ≥ 3」。`未检出` 的含义是"
                      "**没有超过噪声的突变**，不等于没有缓慢漂移或渐变；"
@@ -371,7 +399,12 @@ def render_report(
         lines.append("极端值：**未执行**（本次计划未选 `extreme` / `anomaly`），"
                      "不能解读为「没有极端值」。")
     else:
-        lines.append("极端值：未检出（样本不足或列无变化）。")
+        n_run, n_total = extreme_examined(ctx.clean, ctx.plan)
+        q = float(ctx.plan.parameters.get("extreme_quantile") or EXTREME_QUANTILE)
+        if not (0.5 < q < 1.0):
+            q = EXTREME_QUANTILE
+        lines.append(f"极端值：未检出（已检查 {n_run}/{n_total} 条目标序列；"
+                     f"按本列经验 p{q * 100:g} 判定，观测点少于 {EXTREME_MIN_POINTS} 的列不参与）。")
     lines.append("")
 
     # 8c) 预测（仅 --forecast 时存在）

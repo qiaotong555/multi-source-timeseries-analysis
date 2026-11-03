@@ -7,7 +7,8 @@ import pandas as pd
 
 from mtsa.engine import run_analysis
 from mtsa.models import ERR_LOOKAHEAD_VIOLATION, AnalysisRequest
-from mtsa.scenarios.stock import LOOKAHEAD_CORR_THRESHOLD, check_lookahead
+from mtsa.scenarios.stock import (LOOKAHEAD_CORR_THRESHOLD, check_lookahead,
+                                 lookahead_candidates)
 from .helpers import make_stock_frame
 
 
@@ -27,8 +28,34 @@ def test_check_lookahead_flags_leaky_signal():
 
 def test_check_lookahead_passes_legit_signal():
     df = make_stock_frame(n=400, seed=78)
-    df["momentum_20"] = df["close"] / df["close"].shift(20) - 1.0
+    # 列名必须命中 signal/factor 才进入检查；用 momentum_20 时这条断言是空的。
+    df["signal_mom20"] = df["close"] / df["close"].shift(20) - 1.0
+    assert lookahead_candidates(df, "close") == ["signal_mom20"]
     assert check_lookahead(df, "close") == []
+
+
+def test_lookahead_candidates_excludes_unmatched_names():
+    """名字不像信号列的不进检查——否则「未检出泄漏」是句空话。"""
+    df = make_stock_frame(n=400, seed=83)
+    df["momentum_20"] = df["close"] / df["close"].shift(20) - 1.0
+    assert lookahead_candidates(df, "close") == []
+    assert lookahead_candidates(df, "no_such_price") == []
+
+
+def test_lookahead_conclusion_admits_it_did_not_check(tmp_path):
+    """一列都没进检查时，结论必须是「未做检查」，不能是「未检出泄漏」。"""
+    import json
+    p = tmp_path / "nocand.csv"
+    make_stock_frame(n=400, seed=84).to_csv(p, index=False)
+    out = tmp_path / "out_nocand"
+    res = run_analysis(AnalysisRequest(
+        request_id="req_nocand", input_path=str(p), scene_id="stock",
+        question="回测", seed=1, output_dir=str(out)), verbose=False)
+    assert res.status == "succeeded"
+    doc = json.loads((out / "result.json").read_text(encoding="utf-8"))
+    texts = " ".join(c["text"] for c in doc["conclusions"] if c["category"] == "数据校验")
+    assert "未做未来数据泄漏检查" in texts
+    assert "未检出未来数据泄漏" not in texts
 
 
 def test_engine_fails_on_leak_dataset(tmp_path):

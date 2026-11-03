@@ -53,6 +53,28 @@ def max_drawdown(nav: np.ndarray) -> tuple[float, int, int]:
     return mdd, mi, ti
 
 
+def lookahead_candidates(frame: pd.DataFrame, price_col: str = "close") -> list[str]:
+    """真正能进入泄漏检查的列：列名像信号/因子，且与次日收益的重叠样本 ≥ 30。
+
+    「未检出泄漏」必须说清查了几列——一列都没进检查时，那句话是空的。
+    """
+    if price_col not in frame.columns:
+        return []
+    px = pd.to_numeric(frame[price_col], errors="coerce")
+    fwd = px.shift(-1) / px - 1.0
+    out: list[str] = []
+    for col in frame.columns:
+        if col == price_col or not pd.api.types.is_numeric_dtype(frame[col]):
+            continue
+        if not SIGNAL_HINT.search(str(col)):
+            continue
+        s = pd.to_numeric(frame[col], errors="coerce")
+        if int((s.notna() & fwd.notna()).sum()) < 30:
+            continue
+        out.append(str(col))
+    return out
+
+
 def check_lookahead(frame: pd.DataFrame, price_col: str = "close") -> list[dict]:
     """检查候选信号列是否包含未来信息。
 
@@ -64,15 +86,9 @@ def check_lookahead(frame: pd.DataFrame, price_col: str = "close") -> list[dict]
     px = pd.to_numeric(frame[price_col], errors="coerce")
     fwd = px.shift(-1) / px - 1.0
     issues = []
-    for col in frame.columns:
-        if col == price_col or not pd.api.types.is_numeric_dtype(frame[col]):
-            continue
-        if not SIGNAL_HINT.search(str(col)):
-            continue
+    for col in lookahead_candidates(frame, price_col):
         s = pd.to_numeric(frame[col], errors="coerce")
         mask = s.notna() & fwd.notna()
-        if mask.sum() < 30:
-            continue
         c = float(np.corrcoef(s[mask], fwd[mask])[0, 1])
         if abs(c) > LOOKAHEAD_CORR_THRESHOLD:
             issues.append({
@@ -329,11 +345,21 @@ class StockAdapter(ScenarioAdapter):
                 [], [], "src/mtsa/scenarios/stock.py::check_lookahead",
                 "判据为信号与次日收益相关系数绝对值 > 0.80")
         else:
-            add("数据校验",
-                "未检出未来数据泄漏：信号列与次日收益的相关系数均低于 0.80 阈值，"
-                "回测采用 T-1 决策、T 执行，且分段严格按时间切分无重叠。",
+            cands = lookahead_candidates(ctx.clean.frame, close or "close")
+            if cands:
+                scope = f"已检查 {len(cands)} 个信号列（" + "、".join(cands[:5]) + \
+                        ("等" if len(cands) > 5 else "") + "）"
+                text = (f"未检出未来数据泄漏：{scope}，与次日收益的相关系数绝对值均低于 "
+                        f"{LOOKAHEAD_CORR_THRESHOLD:.2f} 阈值，"
+                        f"回测采用 T-1 决策、T 执行，且分段严格按时间切分无重叠。")
+            else:
+                # 一列都没进检查时说「未检出」是空话：要么列名不像信号列，要么重叠样本不足 30。
+                text = (f"未做未来数据泄漏检查：没有列名匹配 signal/factor/信号/因子 且与次日收益"
+                        f"重叠样本 ≥ 30 的列，本项无判定。")
+            add("数据校验", text,
                 [], [], "src/mtsa/scenarios/stock.py::check_lookahead",
-                "该检查只能识别显式泄漏，无法排除特征构造中的隐性泄漏")
+                "该检查只能识别显式泄漏，无法排除特征构造中的隐性泄漏；"
+                "未进入检查的列不受这条结论保护")
 
         vp = m("stk.volprice.corr_vol_absret")
         if vp and vp.value is not None:

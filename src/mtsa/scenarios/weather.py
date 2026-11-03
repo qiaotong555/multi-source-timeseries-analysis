@@ -11,6 +11,8 @@ import re
 import numpy as np
 import pandas as pd
 
+from ..anomaly import (MIN_ANOMALY_POINTS, anomaly_window_len, change_point_min_len,
+                       examined_series)
 from ..models import (
     AnalysisPlan,
     CleanDataset,
@@ -356,10 +358,14 @@ class WeatherAdapter(ScenarioAdapter):
                     f"另有 {len(issues) - 8} 条质量问题未逐条列出，详见报告第 2 节。",
                     [], ["art_clean_csv"], "src/mtsa/quality.py::check_quality")
         else:
+            n_cols = len(ctx.quality.missing_ratio or {})
             add("数据口径",
-                "未发现数据质量问题（检查项：缺失、重复、乱序、采样缺口、单位变化、异常候选）。",
+                f"未发现数据质量问题（已检查 {n_cols} 个数值列的缺失率与连续缺失段、空列、"
+                f"时间轴重复/乱序/解析率、采样缺口、稳健 |Z| > 5 的异常候选、"
+                f"分组内水平跳变与疑似单位变化）。",
                 [], [], "src/mtsa/quality.py::check_quality",
-                "检查项之外的异常（如传感器漂移）仍需业务确认")
+                "检查项之外的情形仍需业务确认：非数值列只查时间轴；有效点少于 60 的序列"
+                "不做水平跳变/单位变化检测；传感器漂移、量程越界、跨列一致性不在检查项内")
 
         for col in ctx.plan.target_columns:
             mk = ctx.metric(f"ts.trend.mann_kendall_p:{col}")
@@ -445,23 +451,30 @@ class WeatherAdapter(ScenarioAdapter):
                 "二分分割受最大深度限制，密集变化点可能被合并")
 
         # 零检出：只有「工具确实执行过」才能说「未发现」。
+        # 且执行范围必须写实检列数与实检窗口——目标列数会让 N 虚高
+        # （列缺失或有效点不足的列根本不进入检测），
+        # `rolling_window` 是指标模块的窗口，与异常检测用的 `anomaly_window` 无关。
         params = ctx.plan.parameters or {}
+        frame = ctx.clean.frame
+        n_total = len(ctx.plan.target_columns or [])
         if ctx.tool_ran("detect_anomalies") and not ctx.anomalies:
+            n_run = examined_series(frame, ctx.plan.target_columns, MIN_ANOMALY_POINTS)
             thr = params.get("anomaly_threshold")
-            win = params.get("rolling_window")
-            detail = []
-            if thr is not None:
-                detail.append(f"稳健 Z 阈值 {thr}")
-            if win is not None:
-                detail.append(f"滚动窗口 {win}")
-            method = ("，".join(detail) + "；") if detail else ""
+            win = anomaly_window_len(len(frame), params)
+            detail = ([f"稳健 Z 阈值 {thr}"] if thr is not None else [])
+            detail.append(f"滚动窗口 {win} 点")
+            method = "，".join(detail) + "；"
             add("异常检测",
-                f"未发现异常点（{method}已对 {len(ctx.plan.target_columns)} 条目标序列执行检测）。",
+                f"未发现异常点（{method}已对 {n_run}/{n_total} 条目标序列执行检测；"
+                f"有效点少于 {MIN_ANOMALY_POINTS} 的列不参与，插补点不计入）。",
                 [], ["art_fig_anomaly"], "src/mtsa/anomaly.py::detect_anomalies",
                 "未检出不等于不存在；阈值与窗口可配置，极端事件需业务确认")
         if ctx.tool_ran("detect_change_points") and not ctx.change_points:
+            min_len = change_point_min_len(len(frame))
+            n_run = examined_series(frame, ctx.plan.target_columns, 4 * min_len)
             add("变化点",
-                f"未发现均值突变（二分分割；已对 {len(ctx.plan.target_columns)} 条目标序列执行检测）。",
+                f"未发现均值突变（二分分割；已对 {n_run}/{n_total} 条目标序列执行检测，"
+                f"最小段长 {min_len} 点，序列有效点须 ≥ {4 * min_len} 点才纳入）。",
                 [], ["art_fig_anomaly"], "src/mtsa/anomaly.py::detect_change_points",
                 "未检出不等于不存在；密集或幅度较小的变化点可能低于检出下限")
 

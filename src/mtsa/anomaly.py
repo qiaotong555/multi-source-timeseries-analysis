@@ -21,6 +21,39 @@ MIN_SEGMENT = 12
 MIN_SNR = 3.0
 # 水平与尺度都在切点两侧的窗口里估；窗口至少覆盖这么多周期，否则中位数估不准水平
 SNR_WINDOW_PERIODS = 3
+# 有效点少于此值的列根本不进入异常检测。报告里写「已对 N 条序列执行检测」时
+# 必须用**实际进入检测的列数**，不能拿目标列数顶替：列缺失或点太少都会让 N 虚高。
+MIN_ANOMALY_POINTS = 20
+# 变化点最小段长 = max(MIN_SEGMENT, n // CHANGE_POINT_MIN_DIVISOR)，
+# 且序列有效点必须够 4 段才纳入。
+CHANGE_POINT_MIN_DIVISOR = 40
+
+
+def anomaly_window_len(n_rows: int, parameters: dict | None) -> int:
+    """异常检测**实际**使用的滚动窗口。
+
+    别用 `rolling_window` 报这个数——那是指标模块的滚动统计窗口（天气场景默认
+    24 / 7），与异常检测无关。`anomaly_window` 未设置时按序列长度推出，
+    17568 点得到 351，和 24 差一个量级。
+    """
+    w = int((parameters or {}).get("anomaly_window", 0) or 0)
+    return w or max(12, n_rows // 50)
+
+
+def examined_series(frame: pd.DataFrame, columns, min_points: int) -> int:
+    """真正进入检测的列数：列不存在或有效点不足的会被跳过。"""
+    n = 0
+    for col in columns or ():
+        if col not in frame.columns:
+            continue
+        if int(pd.to_numeric(frame[col], errors="coerce").notna().sum()) < min_points:
+            continue
+        n += 1
+    return n
+
+
+def change_point_min_len(n_rows: int) -> int:
+    return max(MIN_SEGMENT, n_rows // CHANGE_POINT_MIN_DIVISOR)
 
 
 def _seasonal_phase(index: pd.Index, period: int) -> np.ndarray:
@@ -68,7 +101,7 @@ def detect_anomalies(clean: CleanDataset, plan: AnalysisPlan) -> list[AnomalyPoi
     frame = clean.frame
     threshold = float(plan.parameters.get("anomaly_threshold", 5.0))
     period = plan.parameters.get("seasonal_period")
-    window = int(plan.parameters.get("anomaly_window", 0)) or max(12, len(frame) // 50)
+    window = anomaly_window_len(len(frame), plan.parameters)
     # 插值点的值来自填补而非观测：长缺口上的线性插值无法还原季节形态，
     # 会把填补误差系统性识别为异常点，必须排除。
     imputed = set(clean.imputed_index or [])
@@ -78,7 +111,7 @@ def detect_anomalies(clean: CleanDataset, plan: AnalysisPlan) -> list[AnomalyPoi
         if col not in frame.columns:
             continue
         s = pd.to_numeric(frame[col], errors="coerce")
-        if s.notna().sum() < 20:
+        if s.notna().sum() < MIN_ANOMALY_POINTS:
             continue
         resid = _residual(s, int(period) if period else None, window)
         sig = robust_sigma(resid)
@@ -212,7 +245,7 @@ def detect_change_points(clean: CleanDataset, plan: AnalysisPlan) -> list[Change
     max_depth = int(plan.parameters.get("change_point_depth", 2))
     ratio = float(plan.parameters.get("change_point_sse_ratio", 0.7))
     period = int(plan.parameters.get("seasonal_period") or 0)
-    min_len = max(MIN_SEGMENT, len(frame) // 40)
+    min_len = change_point_min_len(len(frame))
     out: list[ChangePoint] = []
 
     for col in plan.target_columns:
@@ -286,6 +319,41 @@ def _extreme_runs(mask: pd.Series, index: pd.Index) -> tuple[list[dict], int]:
     return runs[:EXTREME_MAX_RUNS], len(runs)
 
 
+def _observed_mask(clean: CleanDataset, frame: pd.DataFrame, col: str) -> pd.Series:
+    """该列真正的观测点掩码（排除插补值）。
+
+    逐列插补位置优先：行级并集会让「气压缺一个点」把同刻的阵风极值一起排除掉。
+    没有逐列信息时（旧调用方/单测）退回行级，行为与 D2 一致。
+    """
+    s = pd.to_numeric(frame[col], errors="coerce")
+    per_col = getattr(clean, "imputed_columns", None) or {}
+    if per_col:
+        bad = {str(x) for x in (per_col.get(col) or [])}
+        col_mask = pd.Series([str(i) in bad for i in frame.index], index=frame.index)
+    else:
+        imputed = {str(x) for x in (clean.imputed_index or [])}
+        col_mask = pd.Series([str(i) in imputed for i in frame.index], index=frame.index)
+    return s.notna() & ~col_mask
+
+
+def extreme_examined(clean: CleanDataset, plan: AnalysisPlan) -> tuple[int, int]:
+    """(实际参与极值判定的列数, 目标列数)。
+
+    判据与 `detect_extremes` 的跳过条件一致：列缺失、或**观测点**（排除插补）
+    少于 `EXTREME_MIN_POINTS` 的列不参与。报告里说「已检查 N 条序列」时用这个数。
+    """
+    frame = clean.frame
+    total = len(plan.target_columns or [])
+    n = 0
+    for col in plan.target_columns or ():
+        if col not in frame.columns:
+            continue
+        if int(_observed_mask(clean, frame, col).sum()) < EXTREME_MIN_POINTS:
+            continue
+        n += 1
+    return n, total
+
+
 def detect_extremes(clean: CleanDataset, plan: AnalysisPlan) -> list[dict]:
     """绝对极端值：超过本列经验 p99（或低于 p1）的观测点。
 
@@ -298,23 +366,13 @@ def detect_extremes(clean: CleanDataset, plan: AnalysisPlan) -> list[dict]:
     q = float(plan.parameters.get("extreme_quantile") or EXTREME_QUANTILE)
     if not (0.5 < q < 1.0):
         q = EXTREME_QUANTILE
-    imputed = {str(x) for x in (clean.imputed_index or [])}
-    imputed_mask = pd.Series([str(i) in imputed for i in frame.index], index=frame.index)
-    # 逐列插补位置优先：行级并集会让「气压缺一个点」把同刻的阵风极值一起排除掉。
-    # 没有逐列信息时（旧调用方/单测）退回行级，行为与 D2 一致。
-    per_col = getattr(clean, "imputed_columns", None) or {}
     out: list[dict] = []
 
     for col in plan.target_columns:
         if col not in frame.columns:
             continue
         s = pd.to_numeric(frame[col], errors="coerce")
-        if per_col:
-            bad = {str(x) for x in (per_col.get(col) or [])}
-            col_mask = pd.Series([str(i) in bad for i in frame.index], index=frame.index)
-        else:
-            col_mask = imputed_mask
-        observed = s.notna() & ~col_mask
+        observed = _observed_mask(clean, frame, col)
         if int(observed.sum()) < EXTREME_MIN_POINTS:
             continue
         vals = s[observed]

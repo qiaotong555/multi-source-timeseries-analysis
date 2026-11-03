@@ -15,6 +15,9 @@ from .models import DatasetProfile, QualityIssue, QualityReport, RawDataset
 
 ROBUST_Z_THRESHOLD = 5.0
 LEVEL_SHIFT_SIGMA = 3.0
+# 序列短于此长度不做水平跳变/单位变化检测（窗口 12 两侧各要一段）。
+# 报告里说明检查范围时必须引用这个数，不能写死。
+LEVEL_SHIFT_MIN_POINTS = 60
 UNIT_RATIO_LOW = 0.5
 UNIT_RATIO_HIGH = 2.0
 # °F→°C 是仿射变换：真正发生量纲切换时，边界在换算后会重新连续；
@@ -114,7 +117,7 @@ def detect_level_shifts(series: pd.Series, window: Optional[int] = None,
     s = pd.to_numeric(series, errors="coerce").dropna()
     values = s.to_numpy(dtype=float)
     n = len(s)
-    if n < 60:
+    if n < LEVEL_SHIFT_MIN_POINTS:
         return []
     w = window or max(12, n // 50)
     step = max(1, n // 400)

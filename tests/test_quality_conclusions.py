@@ -107,3 +107,62 @@ def test_agent_without_detector_does_not_claim_none(monkeypatch, tmp_path):
     assert _cat(doc, "变化点") == []
     # 质量问题与工具无关，仍应给出
     assert _cat(doc, "数据口径")
+
+
+# ---------------- P1：否定句必须带前提 ----------------
+
+def test_zero_detection_reports_actual_scope_and_window(tmp_path):
+    """「已对 N 条序列执行检测」的 N 是**实检列数**，窗口是 `anomaly_window`。
+
+    回归：旧实现写 `len(plan.target_columns)`（计划列数）与 `rolling_window`
+    （指标模块的窗口，天气场景默认 24），而检测器实际按 `max(12, n // 50)` 取窗。
+    900 点 → 18 点，报 24 是错的。
+    """
+    doc = _run(tmp_path, "scope", _frame())
+    a = " ".join(c["text"] for c in _cat(doc, "异常检测"))
+    assert "已对 2/2 条目标序列执行检测" in a
+    assert "滚动窗口 18 点" in a
+    assert "滚动窗口 24 点" not in a
+
+    report = (tmp_path / "scope" / "report.md").read_text(encoding="utf-8")
+    assert "异常点：未检出（已对 2/2 条目标序列执行" in report
+    assert "滚动窗口 18 点" in report
+
+
+def test_quality_negative_states_scope_and_blind_spots(tmp_path):
+    """「未检出数据质量问题」要写明查了什么、以及查不到什么。"""
+    doc = _run(tmp_path, "clean_scope", _frame())
+    texts = " ".join(c["text"] for c in _cat(doc, "数据口径"))
+    assert "已检查 2 个数值列" in texts
+
+    report = (tmp_path / "clean_scope" / "report.md").read_text(encoding="utf-8")
+    assert "未检出数据质量问题（已检查 2 个数值列" in report
+    assert "有效点少于 60 的序列不做水平跳变" in report
+
+
+def test_examined_series_skips_missing_and_short_columns():
+    """实检列数必须排除「列不存在」与「点太少」两种情况。"""
+    from mtsa.anomaly import EXTREME_MIN_POINTS, MIN_ANOMALY_POINTS, examined_series
+    frame = pd.DataFrame({"long": np.arange(200.0),
+                          "short": [1.0, 2.0, 3.0, 4.0, 5.0] + [np.nan] * 195,
+                          "empty": [np.nan] * 200})
+    assert examined_series(frame, ["long", "short", "empty", "absent"],
+                           MIN_ANOMALY_POINTS) == 1
+    assert examined_series(frame, ["long", "short"], 3) == 2
+    assert EXTREME_MIN_POINTS > 0
+
+
+def test_extreme_examined_counts_only_observed_points():
+    """极值的「已检查列数」按观测点算：全被插补的列不算检查过。"""
+    from mtsa.anomaly import EXTREME_MIN_POINTS, extreme_examined
+    from mtsa.models import AnalysisPlan, CleanDataset
+
+    n = EXTREME_MIN_POINTS + 20
+    idx = pd.date_range("2024-01-01", periods=n, freq="h").astype(str)
+    frame = pd.DataFrame({"obs": np.arange(float(n)),
+                          "filled": np.arange(float(n))}, index=idx)
+    clean = CleanDataset(frame=frame, imputed_index=list(idx),
+                         imputed_columns={"filled": list(idx)})
+    plan = AnalysisPlan(scene_id="weather", scene_confidence=1.0, question="t",
+                        target_columns=["obs", "filled", "absent"], analyses=["anomaly"])
+    assert extreme_examined(clean, plan) == (1, 3)
