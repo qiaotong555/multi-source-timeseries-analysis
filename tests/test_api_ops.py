@@ -10,6 +10,7 @@
 from __future__ import annotations
 
 import time
+from datetime import datetime, timedelta
 
 from fastapi.testclient import TestClient
 
@@ -104,9 +105,12 @@ def test_metrics_works_with_store_off(tmp_path):
 
 def test_retention_purges_old_records_only(tmp_path):
     db = str(tmp_path / "state.sqlite3")
+    # 时间必须相对「现在」算：写死日期会让这条用例随日历过期
+    # （2026-11-02T10:00 + 保留 1 天，到了 11-03 就跨过截止线，记录被正确清理、断言落空）
+    recent = (datetime.now().astimezone() - timedelta(hours=1)).isoformat(timespec="seconds")
     _seed(db, [
         _rec("api_old", submitted="2020-01-01T00:00:00+08:00"),
-        _rec("api_new", submitted="2026-11-02T10:00:00+08:00"),
+        _rec("api_new", submitted=recent),
     ])
     app = create_app(TOKEN, workers=1, db_path=db, retention_days=1)
     with TestClient(app) as c:

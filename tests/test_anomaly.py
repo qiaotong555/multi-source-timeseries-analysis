@@ -68,6 +68,26 @@ def test_change_point_locates_level_shift(make_plan):
     assert abs(best.index - shift_at) <= 24, f"变化点定位偏差过大：{best.index} vs {shift_at}"
 
 
+def test_constant_block_does_not_produce_change_point(make_plan):
+    """局部散布为 0 时不得判显著。
+
+    降水列有整段为 0 的区段。曾经的实现写成「jump > 0 就给 inf」，
+    于是两侧中位数差 0.1 mm 被当成最高置信度的变化点报出来
+    （实测 4 个降水列各报 2–3 个）。没有噪声模型就没有证据。
+    """
+    n = 3000
+    idx = pd.date_range("2024-01-01", periods=n, freq="h")
+    vals = np.zeros(n)
+    vals[1500:] = 0.1                       # 常数 → 常数，差 0.1
+    df = pd.DataFrame({"timestamp": idx, "temperature": 20.0,
+                       "humidity": 50.0, "pressure": 1013.0,
+                       "wind_speed": 2.0, "rainfall": vals})
+    plan = make_plan("weather", ["rainfall"], seasonal_period=24, change_point_depth=2)
+    clean = _pipeline(df, plan)
+    cps = [c for c in anomaly.detect_change_points(clean, plan) if c.column == "rainfall"]
+    assert not cps, [(c.index, c.statistic) for c in cps]
+
+
 def test_anomaly_output_schema(make_plan):
     df = make_weather_frame(n=1500, seed=55, stations=1)
     sd = float(df["temperature"].std())

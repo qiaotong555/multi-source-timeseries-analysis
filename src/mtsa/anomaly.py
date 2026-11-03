@@ -196,7 +196,11 @@ def _local_snr(y: np.ndarray, phase: np.ndarray | None, period: int,
                           _deseason_dev(right, None if phase is None else phase[k:b], period)])
     scale = 1.4826 * float(np.median(np.abs(dev)))
     if not np.isfinite(scale) or scale <= 0:
-        snr = float("inf") if jump > 0 else 0.0
+        # 局部散布为 0（窗口内近乎常数，典型是降水列的大片零）时**不能判显著**。
+        # 曾经写成 jump>0 就给 inf，于是「两侧中位数差 0.1 mm」被当成最高置信度的
+        # 变化点报出来（实测 4 个降水列各报 2–3 个）。没有噪声模型就没有证据，
+        # 这种情况下返回 0 而不是 inf。
+        snr = 0.0
     else:
         snr = jump / scale
     return {"before": before, "after": after, "jump": jump, "scale": scale, "snr": snr}
