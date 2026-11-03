@@ -121,19 +121,34 @@ mtsa-api --port 8000               # 提交 202 → 轮询状态 → 取 result.
 
 ## 3. 现在做到哪里（按证据分级）
 
-| 维度 | 结论 | 关键数字 | 证据 |
-| --- | --- | --- | --- |
-| 工程基线 | **通过** | 62 个测试文件 / 569 项 / 0 失败 / 716.6 s（2026-11-03 20:45） | `evals/test_logs/summary.json` |
-| 鲁棒性 | **通过** | 37 个坏输入与边界用例 37/37，0 崩溃；失败均带错误码与出错节点 | `evals/robustness_results.json` |
-| 结论级门禁（独立数据 v2） | **通过** | 24/24（10 pipeline + 10 agent + 4 非劣性）；事件级命中 R=0.9667、F1=0.9831；点级 P=1.000 / R=0.840 | `evals/conclusion_gate_v2_results.json` |
-| 真实数据验证（B） | **工程通过，正确性未证** | 10 份数据 × 4 问题 × 2 模式 = 80/80 成功，证据覆盖 1.000；14 项验收 13 项通过（此为 B 阶段口径；registry 已有 17 份，重跑会是 136 次，见 `doc/改进记录.md` 遗留问题汇总） | `evals/real_data_results.json` |
-| 数据扩容（D3） | **部分通过** | 新增 7 份（3 大洲、4 份海拔 ≥1500 m），28/28 成功；registry 10 → 17 | `evals/d3_results.json` |
-| 预测（可选，仅天气） | **部分通过** | 17 份 / 94 列全部完成；90% 区间覆盖率 0.8799（125,160 点，每列 1440 点）；MASE≤1.0 占 68/94 = 0.723；零膨胀列「有雨时」条件覆盖率 13 列全部 0.840–0.936（F6 PASS）；**事件概率 F5 未通过**——13 列中 4 列 BSS ≤ 0 | `evals/forecast_results.json`、`doc/预测场景化.md` |
-| Agent 对照（13 用例） | **可用** | 13/13 成功；2.54 步；需求覆盖 1.00；结论 29.92 vs 39.00（−23.3%）；token 53,924；墙钟 12.77 s vs 12.09 s | `evals/mode_compare_results.json` |
-| 规模与性能 | **有明确上限** | 20 万行上限（`MTSA_MAX_ROWS`）；1e5 行 37.1 s、2e5 行 123.9 s、5e5 行 736 s、1e6 未完成 | `doc/评估设计.md`、`doc/改进记录.md` #4/#6 |
-| 交付形态（E1 / E3） | **可用** | `mtsa-api` 9 个路由：7 个分析/产物接口 + 任务列表 `GET /analyses` + `GET /metrics`；SQLite 任务仓储（`MTSA_API_DB`）重启后仍能查状态与产物，重启前活跃任务标 `INTERRUPTED`；保留期 `MTSA_API_RETENTION_DAYS` 只清记录不删产物；25 项接口与仓储测试；真实 uvicorn 跨进程与运维面验证 | `tests/test_api.py`、`tests/test_api_store.py`、`tests/test_api_ops.py`、`doc/接口与字段.md` 第 7 节 |
+| 维度 | 结论 | 关键数字 | 证据 | 证据生成 |
+| --- | --- | --- | --- | --- |
+| 工程基线 | **通过** | 63 个测试文件 / 576 项 / 0 失败 / 702.2 s（2026-11-03 21:53） | `evals/test_logs/summary.json` | 2026-11-03 21:53 |
+| 鲁棒性 | **通过** | 37 个坏输入与边界用例 37/37，0 崩溃；失败均带错误码与出错节点 | `evals/robustness_results.json` | 2026-11-03 |
+| 结论级门禁（独立数据 v2） | **通过** | 24/24（10 pipeline + 10 agent + 4 非劣性）；事件级命中 R=0.9667、F1=0.9831；点级 P=1.000 / R=0.840 | `evals/conclusion_gate_v2_results.json` | 2026-11-03 20:33 |
+| 真实数据验证（B） | **工程通过，正确性未证** | 10 份数据 × 4 问题 × 2 模式 = 80/80 成功，证据覆盖 1.000；14 项验收 13 项通过（此为 B 阶段口径；registry 已有 17 份，重跑会是 136 次，见 `doc/改进记录.md` 遗留问题汇总） | `evals/real_data_results.json` | **2026-10-25**（B 阶段基线） |
+| 数据扩容（D3） | **部分通过** | 新增 7 份（3 大洲、4 份海拔 ≥1500 m），28/28 成功；registry 10 → 17 | `evals/d3_results.json` | **2026-10-24**（D3 阶段基线） |
+| 预测（可选，仅天气） | **部分通过** | 17 份 / 94 列全部完成；90% 区间覆盖率 0.8799（125,160 点，每列 1440 点）；MASE≤1.0 占 68/94 = 0.723；零膨胀列「有雨时」条件覆盖率 13 列全部 0.840–0.936（F6 PASS）；**事件概率 F5 未通过**——13 列中 4 列 BSS ≤ 0 | `evals/forecast_results.json`、`doc/预测场景化.md` | 2026-11-03 |
+| Agent 对照（13 用例） | **可用** | 13/13 成功；2.69 步；需求覆盖 1.00；结论 40.62 vs 51.00（**−20.4%**）；token 56,176；墙钟 15.37 s vs 15.30 s（+0.4%） | `evals/mode_compare_results.json` | 2026-11-03 |
+| 规模与性能 | **有明确上限** | 20 万行上限（`MTSA_MAX_ROWS`）；1e5 行 37.1 s、2e5 行 123.9 s、5e5 行 736 s、1e6 未完成 | `doc/评估设计.md`、`doc/改进记录.md` #4/#6 | —（文档口径） |
+| 交付形态（E1 / E3） | **可用** | `mtsa-api` 9 个路由：7 个分析/产物接口 + 任务列表 `GET /analyses` + `GET /metrics`；SQLite 任务仓储（`MTSA_API_DB`）重启后仍能查状态与产物，重启前活跃任务标 `INTERRUPTED`；保留期 `MTSA_API_RETENTION_DAYS` 只清记录不删产物；25 项接口与仓储测试；真实 uvicorn 跨进程与运维面验证 | `tests/test_api.py`、`tests/test_api_store.py`、`tests/test_api_ops.py`、`doc/接口与字段.md` 第 7 节 | 2026-11-03 |
 
-**规模数字**（2026-11-03 实测）：`src/mtsa` 36 个 py / 9,979 行；`tests` 目录 64 个 py（62 个测试文件，逐文件入口统计；用例数见 `evals/test_logs/summary.json`）；`evals` 22 个 py / 8,433 行；真实数据 registry 17 份（5 个来源：Open-Meteo / NOAA GHCN-Daily / DWD / ECCC / ASOS；2 种频率：hourly 14、daily 3）。
+**证据时效**：`python scripts/evidence_freshness.py` 逐个比对「产物 mtime」与「它依赖源码的最后修改时间」。
+
+2026-11-03 首次检查：**15 个产物只有 2 个新鲜**——`eval_results.json` 停在 10-25，其中
+「结论级变化点F1」还是 0.5（A1/A3 修完是 1.0）。本轮刷新了 5 项（22 项主评估、结论级、鲁棒性、
+预测、Agent 对照），结果 **7 新鲜 / 8 过期**（`--tol-hours 1` 口径）。8 项的性质：
+
+| 未跟上 | 项 | 说明 |
+| --- | --- | --- |
+| 阶段基线（不重跑） | 真实数据 10-25、D3 10-24 | 重跑会因 registry 已 17 份而得到 17 份 / 136 次，与已发布的「80/80」不同源 |
+| 未重跑的子评估 | `llm_eval`、`agent_eval`、`holdout`、`stability`、`probe`、`benchmark` | 前两项的输入在 A3/#27 改过（工具描述、`tool_ran`），**重跑数字可能变**；后四项与本轮改动无关，但未验证 |
+
+> `eval_results.json` 的「结论级」几行读自 `artifacts/t212_compare`（在 `.gitignore` 里，未入库）。
+> 复现顺序：`python -m evals.mode_compare --out-root artifacts/t212_compare`
+> → `python -m evals.conclusion_eval` → `python -m evals.run_evals`。
+
+**规模数字**（2026-11-03 实测）：`src/mtsa` 36 个 py / 9,979 行；`tests` 目录 65 个 py（63 个测试文件，逐文件入口统计；用例数见 `evals/test_logs/summary.json`）；`evals` 22 个 py / 8,433 行；真实数据 registry 17 份（5 个来源：Open-Meteo / NOAA GHCN-Daily / DWD / ECCC / ASOS；2 种频率：hourly 14、daily 3）。
 
 **评估指标**：29 项 = 22 项规则模式阈值指标 + 3 项 LLM 模式指标（合法率、回退率、覆盖率）+ 4 项 Agent 指标（后 7 项仅在对应评估缓存存在时纳入判定）。LLM 覆盖率只统计合法计划，回退时不计入平均——否则「模型全挂」会被算成高覆盖。
 
@@ -154,7 +169,11 @@ mtsa-api --port 8000               # 提交 202 → 轮询状态 → 取 result.
 | 场景 | 股票 Agent | `AGENT_SCENE_UNSUPPORTED` | 「多场景 Agent」实际只有天气 | 用户明确暂缓 |
 | 产品化 | E1 可观测性 / E2 金额换算 / E3 REST | 未立项 | 对外交付前必须先做 | 按需启动 |
 
-**一条必须记住的口径**：`agent` 比 `pipeline` 少 23.3% 的结论，**100% 归因于「工具未执行」**，不是算错；但「没跑」也不能当成「没问题」——报告里必须写「未执行」，不能写「未检出」。
+**一条必须记住的口径**：`agent` 比 `pipeline` 少 20.4% 的结论（51.00 → 40.62），**100% 归因于「工具未执行」**，不是算错；但「没跑」也不能当成「没问题」——报告里必须写「未执行」，不能写「未检出」。
+
+> 2026-11-03 重跑：此前的 −23.3%（39.00 → 29.92）是 10-23 基线，早于 C3/D2/D3 三个结论通道，
+> 两侧都偏低且 pipeline 侧偏得更多。墙钟差也从 +5.6% 变成 **+0.4%**——不是 agent 变快，
+> 是 pipeline 多了结论与图（12.09 → 15.30 s），agent 只从 12.77 → 15.37 s。
 
 **R13 为什么定为「能力边界」而不是「待补缺口」**（2026-11-01）：三个实验——同期分位、降分位加持续性、异常通道的窗口×阈值 36 组网格——均未找到「覆盖达标且误报可接受」的参数组合。能达标的组合要求把 **23%–39%** 的观测判为异常（基线异常率 0.3%），即靠牺牲判别力换召回。根因是逐点稳健 Z 判据与真实灾害形态不匹配：灾害多为持续数天的区域高温/寒潮，不是单点离群；而持续高温会被滚动中位数吸收、短暂寒潮不会被吸收，于是同一站位 22 个温度异常点**全部指向低温方向、0 个高温**（方向性偏置，见报告第三节）。
 
@@ -227,7 +246,7 @@ python -m mtsa.cli run --scene weather --input fixtures/weather_v1.csv \
 src/mtsa/            引擎：导入 / 摘要 / 质量 / 预处理 / 指标 / 频域 / 检验 / 异常 / 图表 / 报告 / 编排
   scenarios/         场景适配器（weather 主场景；stock 仅 pipeline）
 scripts/             一键 demo、真实数据抓取与标注、Word/PDF 文档生成
-tests/               62 个测试文件
+tests/               63 个测试文件
 evals/               22 个评估脚本与工具 + 结果 JSON + 评估记录
 fixtures/            固定样例、真实数据 registry、标签与真值
 artifacts/           运行产物（按 run_id 隔离，不入库）
