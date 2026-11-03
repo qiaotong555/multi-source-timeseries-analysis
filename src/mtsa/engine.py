@@ -251,7 +251,7 @@ _AGENT_TOOL_DESC = {
     "analyze_spectrum": "频谱：主频与周期（Welch 功率谱）",
     "run_stat_tests": "统计检验：平稳性 / 自相关 / 正态性 / 趋势",
     "detect_anomalies": "异常点：离群与故障定位",
-    "detect_change_points": "变化点：均值或方差突变",
+    "detect_change_points": "变化点：均值突变（突变程度以局部信噪比衡量）",
 }
 
 

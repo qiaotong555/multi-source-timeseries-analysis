@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-02T23:00:03",
+  "generated_at": "2026-11-03T19:54:06",
   "dataset": "fixtures/weather_eval_v2.csv",
   "dataset_sha1": "2ee8077e5ddc8f446a793e04729ad50dd85c1eac",
   "labels": "fixtures/labels_weather_eval_v2.csv",
@@ -147,25 +147,25 @@
           "not_run_truth_instances": 0,
           "point": {
             "tp": 8,
-            "fp": 8,
+            "fp": 0,
             "fn": 0,
-            "detected": 16,
+            "detected": 8,
             "truth": 8,
-            "precision": 0.5,
+            "precision": 1.0,
             "recall": 1.0,
-            "f1": 0.6667
+            "f1": 1.0
           },
-          "mean_precision": 0.5,
+          "mean_precision": 1.0,
           "mean_recall": 1.0,
           "recall_adjusted": 1.0,
-          "f1_adjusted": 0.6667,
+          "f1_adjusted": 1.0,
           "ci": {
             "precision": {
               "k": 8,
-              "n": 16,
-              "value": 0.5,
-              "lo": 0.28,
-              "hi": 0.72
+              "n": 8,
+              "value": 1.0,
+              "lo": 0.6756,
+              "hi": 1.0
             },
             "recall": {
               "k": 8,
@@ -360,25 +360,25 @@
           "not_run_truth_instances": 0,
           "point": {
             "tp": 8,
-            "fp": 8,
+            "fp": 0,
             "fn": 0,
-            "detected": 16,
+            "detected": 8,
             "truth": 8,
-            "precision": 0.5,
+            "precision": 1.0,
             "recall": 1.0,
-            "f1": 0.6667
+            "f1": 1.0
           },
-          "mean_precision": 0.5,
+          "mean_precision": 1.0,
           "mean_recall": 1.0,
           "recall_adjusted": 1.0,
-          "f1_adjusted": 0.6667,
+          "f1_adjusted": 1.0,
           "ci": {
             "precision": {
               "k": 8,
-              "n": 16,
-              "value": 0.5,
-              "lo": 0.28,
-              "hi": 0.72
+              "n": 8,
+              "value": 1.0,
+              "lo": 0.6756,
+              "hi": 1.0
             },
             "recall": {
               "k": 8,
@@ -619,13 +619,13 @@
       },
       "changepoint_point": {
         "tp": 2,
-        "fp": 2,
+        "fp": 0,
         "fn": 0,
-        "detected": 4,
+        "detected": 2,
         "truth": 2,
-        "precision": 0.5,
+        "precision": 1.0,
         "recall": 1.0,
-        "f1": 0.6667
+        "f1": 1.0
       },
       "missing_tools": null,
       "anomaly_event": {
@@ -660,13 +660,13 @@
       },
       "changepoint_point": {
         "tp": 2,
-        "fp": 2,
+        "fp": 0,
         "fn": 0,
-        "detected": 4,
+        "detected": 2,
         "truth": 2,
-        "precision": 0.5,
+        "precision": 1.0,
         "recall": 1.0,
-        "f1": 0.6667
+        "f1": 1.0
       },
       "missing_tools": [
         "run_stat_tests"
@@ -703,13 +703,13 @@
       },
       "changepoint_point": {
         "tp": 2,
-        "fp": 2,
+        "fp": 0,
         "fn": 0,
-        "detected": 4,
+        "detected": 2,
         "truth": 2,
-        "precision": 0.5,
+        "precision": 1.0,
         "recall": 1.0,
-        "f1": 0.6667
+        "f1": 1.0
       },
       "missing_tools": null,
       "anomaly_event": {
@@ -744,13 +744,13 @@
       },
       "changepoint_point": {
         "tp": 2,
-        "fp": 2,
+        "fp": 0,
         "fn": 0,
-        "detected": 4,
+        "detected": 2,
         "truth": 2,
-        "precision": 0.5,
+        "precision": 1.0,
         "recall": 1.0,
-        "f1": 0.6667
+        "f1": 1.0
       },
       "missing_tools": [],
       "anomaly_event": {
@@ -785,13 +785,13 @@
       },
       "changepoint_point": {
         "tp": 2,
-        "fp": 2,
+        "fp": 0,
         "fn": 0,
-        "detected": 4,
+        "detected": 2,
         "truth": 2,
-        "precision": 0.5,
+        "precision": 1.0,
         "recall": 1.0,
-        "f1": 0.6667
+        "f1": 1.0
       },
       "missing_tools": null,
       "anomaly_event": {
@@ -826,13 +826,13 @@
       },
       "changepoint_point": {
         "tp": 2,
-        "fp": 2,
+        "fp": 0,
         "fn": 0,
-        "detected": 4,
+        "detected": 2,
         "truth": 2,
-        "precision": 0.5,
+        "precision": 1.0,
         "recall": 1.0,
-        "f1": 0.6667
+        "f1": 1.0
       },
       "missing_tools": [
         "run_stat_tests"
@@ -869,13 +869,13 @@
       },
       "changepoint_point": {
         "tp": 2,
-        "fp": 2,
+        "fp": 0,
         "fn": 0,
-        "detected": 4,
+        "detected": 2,
         "truth": 2,
-        "precision": 0.5,
+        "precision": 1.0,
         "recall": 1.0,
-        "f1": 0.6667
+        "f1": 1.0
       },
       "missing_tools": null,
       "anomaly_event": {
@@ -910,13 +910,13 @@
       },
       "changepoint_point": {
         "tp": 2,
-        "fp": 2,
+        "fp": 0,
         "fn": 0,
-        "detected": 4,
+        "detected": 2,
         "truth": 2,
-        "precision": 0.5,
+        "precision": 1.0,
         "recall": 1.0,
-        "f1": 0.6667
+        "f1": 1.0
       },
       "missing_tools": [
         "run_stat_tests"
@@ -951,7 +951,7 @@
       },
       {
         "name": "pipeline.changepoint_f1",
-        "value": 0.6667,
+        "value": 1.0,
         "threshold": 0.5,
         "op": ">=",
         "ok": true
@@ -1021,7 +1021,7 @@
       },
       {
         "name": "agent.changepoint_f1",
-        "value": 0.6667,
+        "value": 1.0,
         "threshold": 0.5,
         "op": ">=",
         "ok": true
@@ -1084,8 +1084,8 @@
       },
       {
         "name": "agent_non_inferior.changepoint_f1",
-        "value": 0.6667,
-        "threshold": 0.5667,
+        "value": 1.0,
+        "threshold": 0.9,
         "op": ">=",
         "ok": true
       },

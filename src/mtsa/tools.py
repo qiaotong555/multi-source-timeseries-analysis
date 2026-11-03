@@ -225,7 +225,7 @@ class DetectAnomaliesTool(Tool):
 
 class DetectChangePointsTool(Tool):
     name = "detect_change_points"
-    description = "均值与方差突变检测，定位结构性变化的时刻。"
+    description = "均值突变（水平跳变）检测，定位结构性变化的时刻。"
     when_to_use = "问题涉及「何时发生变化」「拐点」「水平跳变」「行为改变」时。"
 
     def run(self, ctx: ToolContext) -> ToolResult:

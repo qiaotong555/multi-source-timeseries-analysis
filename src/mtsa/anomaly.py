@@ -2,7 +2,8 @@
 """异常检测与变化点检测。
 
 异常：以稳健残差（STL 残差或滚动中位数残差）的稳健 Z 值判定，避免异常值污染尺度。
-变化点：基于最小二乘残差平方和的二分分割定位均值突变，并单独识别方差突变与单位跳变。
+变化点：基于最小二乘残差平方和的二分分割定位均值突变，再用局部信噪比门槛确认。
+（方差突变通道已于 2026-11-03 停用，理由见 doc/A3方差通道.md。）
 """
 from __future__ import annotations
 
@@ -239,21 +240,16 @@ def detect_change_points(clean: CleanDataset, plan: AnalysisPlan) -> list[Change
                 before=round(loc["before"], 6), after=round(loc["after"], 6),
                 confidence="high" if loc["snr"] >= 2 * MIN_SNR else "medium",
             ))
-        # 方差突变：滚动标准差的跳跃
-        w = max(12, len(y) // 40)
-        roll = pd.Series(y).rolling(w, min_periods=w).std()
-        d = roll.diff().abs()
-        base = float(roll.median())
-        if base > 0 and d.notna().any():
-            j = int(d.idxmax())
-            if float(d.loc[j]) > 2.0 * base:
-                out.append(ChangePoint(
-                    timestamp=str(frame.index[j]), index=j, column=col, kind="variance",
-                    statistic=round(float(d.loc[j] / base), 4),
-                    before=round(float(roll.loc[j - 1]) if j > 0 else float("nan"), 6),
-                    after=round(float(roll.loc[j]), 6),
-                    confidence="medium",
-                ))
+        # 方差突变通道已于 2026-11-03 停用，理由是被实测证明没有分辨力（见 doc/A3方差通道.md）：
+        # 1) 量纲错：判据是「滚动标准差的单步跳变 > 2 × 滚动标准差的中位数」。
+        #    σ→2σ 时跳变 ≈ σ、基线也 ≈ σ，比值恒 ≈1.0，**真变化永远够不到 2.0**；
+        #    它只在单个极端事件支配窗口时偶然越过（降水就是这种情况）。
+        # 2) 零膨胀 + 重尾下降解：v2 降水为 iid，却出现 7.0 与 11.1 倍的标准差比；
+        #    置换检验给出 p=0.499 / 0.005，而真正注入的 σ×3 变化 p=0.035——噪声比信号更「显著」。
+        # 3) 去季节残差上改判「相邻窗标准差比」也不成立：未注入时四列各报一个
+        #    σ 比 2.4–3.4 的假点（位置随机），而 σ×2 的真变化只有 2.1，埋在噪声上限之下。
+        # 结论：在本项目的样本量（每小时 1 年 / 窗口 219 点）下，缩放估计的抽样波动
+        # 大于要检测的变化。宁可不报，也不报不可验证的点。
     return out
 
 

@@ -88,6 +88,28 @@ def test_constant_block_does_not_produce_change_point(make_plan):
     assert not cps, [(c.index, c.statistic) for c in cps]
 
 
+def test_variance_channel_is_disabled(make_plan):
+    """方差突变通道已停用：纯方差变化（σ×2）不再报出。
+
+    停用不是因为「数字不好看」，而是实测没有分辨力（`doc/A3方差通道.md`）：
+    - 量纲错：σ→2σ 时跳变 ≈ σ、基线也 ≈ σ，比值恒 ≈1.0，够不到 2.0 的阈值；
+    - 未注入时同一判据在四个列上各报一个 σ 比 2.4–3.4 的假点，σ×2 的真变化只有 2.1。
+
+    这条测试锁住「不输出 `kind="variance"`」，避免以后无意中把它加回来。
+    """
+    df = make_weather_frame(n=3000, seed=71, stations=1)
+    vals = df["temperature"].to_numpy(dtype=float).copy()
+    half = len(vals) // 2
+    mid = float(vals[half:].mean())
+    vals[half:] = mid + (vals[half:] - mid) * 2.0      # 只放大残差，均值不变
+    df["temperature"] = vals
+    plan = make_plan("weather", ["temperature"], seasonal_period=24, change_point_depth=2)
+    clean = _pipeline(df, plan)
+    cps = anomaly.detect_change_points(clean, plan)
+    assert not [c for c in cps if c.kind == "variance"], \
+        [(c.index, c.statistic) for c in cps if c.kind == "variance"]
+
+
 def test_anomaly_output_schema(make_plan):
     df = make_weather_frame(n=1500, seed=55, stations=1)
     sd = float(df["temperature"].std())
