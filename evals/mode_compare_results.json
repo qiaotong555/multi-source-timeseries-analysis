@@ -6,29 +6,29 @@
   "pipeline": {
     "success": 13,
     "mean_steps": 5,
-    "mean_conclusions": 39,
-    "mean_evidence": 39,
-    "mean_wall_ms": 12092.62,
+    "mean_conclusions": 51,
+    "mean_evidence": 51,
+    "mean_wall_ms": 15302.92,
     "mean_rule_plan_coverage": 1.0,
     "mean_need_coverage": 1.0,
     "tokens_total": 0
   },
   "agent": {
     "success": 13,
-    "mean_steps": 2.54,
-    "mean_conclusions": 29.92,
-    "mean_evidence": 29.92,
-    "mean_wall_ms": 12767.54,
-    "mean_rule_plan_coverage": 0.66,
+    "mean_steps": 2.69,
+    "mean_conclusions": 40.62,
+    "mean_evidence": 40.62,
+    "mean_wall_ms": 15368,
+    "mean_rule_plan_coverage": 0.69,
     "mean_need_coverage": 1.0,
-    "tokens_total": 53924,
-    "tokens_avg_per_run": 4148.0
+    "tokens_total": 56176,
+    "tokens_avg_per_run": 4321.2
   },
   "deltas": {
-    "mean_conclusions": -9.08,
-    "mean_evidence": -9.08,
-    "mean_wall_ms": 674.9,
-    "mean_rule_plan_coverage": -0.34
+    "mean_conclusions": -10.38,
+    "mean_evidence": -10.38,
+    "mean_wall_ms": 65.1,
+    "mean_rule_plan_coverage": -0.31
   },
   "checks": {
     "pipeline 全部成功": true,
@@ -47,37 +47,38 @@
       "pipeline": {
         "status": "succeeded",
         "steps": 5,
-        "conclusions": 39,
-        "evidence": 39,
+        "conclusions": 51,
+        "evidence": 51,
         "rule_plan_coverage": 1.0,
         "need_coverage": 1.0,
-        "wall_ms": 13716,
+        "wall_ms": 15210,
         "metrics": 350,
         "tests": 50,
         "anomalies": 139,
-        "change_points": 6
+        "change_points": 2
       },
       "agent": {
         "status": "succeeded",
         "steps": 2,
         "terminate_reason": "budget_exhausted",
-        "conclusions": 35,
-        "evidence": 35,
+        "conclusions": 44,
+        "evidence": 44,
         "rule_plan_coverage": 0.5,
         "need_coverage": 1.0,
-        "wall_ms": 8989,
+        "wall_ms": 11306,
         "tokens": {
           "calls": 3,
-          "prompt_tokens": 3176,
-          "completion_tokens": 130,
-          "total_tokens": 3306,
-          "cached_tokens": 2048
+          "max_call_tokens": 1271,
+          "prompt_tokens": 3185,
+          "completion_tokens": 128,
+          "total_tokens": 3313,
+          "cached_tokens": 1408
         }
       },
       "delta": {
-        "conclusions": -4,
-        "evidence": -4,
-        "wall_ms": -4727,
+        "conclusions": -7,
+        "evidence": -7,
+        "wall_ms": -3904,
         "steps": -3
       }
     },
@@ -90,37 +91,38 @@
       "pipeline": {
         "status": "succeeded",
         "steps": 5,
-        "conclusions": 39,
-        "evidence": 39,
+        "conclusions": 51,
+        "evidence": 51,
         "rule_plan_coverage": 1.0,
         "need_coverage": 1.0,
-        "wall_ms": 12384,
+        "wall_ms": 14661,
         "metrics": 350,
         "tests": 50,
         "anomalies": 139,
-        "change_points": 6
+        "change_points": 2
       },
       "agent": {
         "status": "succeeded",
         "steps": 4,
         "terminate_reason": "budget_exhausted",
-        "conclusions": 29,
-        "evidence": 29,
+        "conclusions": 41,
+        "evidence": 41,
         "rule_plan_coverage": 0.9167,
         "need_coverage": 1.0,
-        "wall_ms": 16425,
+        "wall_ms": 19438,
         "tokens": {
           "calls": 5,
-          "prompt_tokens": 5913,
-          "completion_tokens": 231,
-          "total_tokens": 6144,
-          "cached_tokens": 4096
+          "max_call_tokens": 1488,
+          "prompt_tokens": 5746,
+          "completion_tokens": 206,
+          "total_tokens": 5952,
+          "cached_tokens": 2432
         }
       },
       "delta": {
         "conclusions": -10,
         "evidence": -10,
-        "wall_ms": 4041,
+        "wall_ms": 4777,
         "steps": -1
       }
     },
@@ -133,37 +135,38 @@
       "pipeline": {
         "status": "succeeded",
         "steps": 5,
-        "conclusions": 39,
-        "evidence": 39,
+        "conclusions": 51,
+        "evidence": 51,
         "rule_plan_coverage": 1.0,
         "need_coverage": 1.0,
-        "wall_ms": 12413,
+        "wall_ms": 15434,
         "metrics": 350,
         "tests": 50,
         "anomalies": 139,
-        "change_points": 6
+        "change_points": 2
       },
       "agent": {
         "status": "succeeded",
         "steps": 2,
         "terminate_reason": "budget_exhausted",
-        "conclusions": 25,
-        "evidence": 25,
+        "conclusions": 34,
+        "evidence": 34,
         "rule_plan_coverage": 0.75,
         "need_coverage": 1.0,
-        "wall_ms": 14455,
+        "wall_ms": 16968,
         "tokens": {
           "calls": 3,
-          "prompt_tokens": 3350,
-          "completion_tokens": 153,
-          "total_tokens": 3503,
-          "cached_tokens": 2048
+          "max_call_tokens": 1444,
+          "prompt_tokens": 3359,
+          "completion_tokens": 141,
+          "total_tokens": 3500,
+          "cached_tokens": 1408
         }
       },
       "delta": {
-        "conclusions": -14,
-        "evidence": -14,
-        "wall_ms": 2042,
+        "conclusions": -17,
+        "evidence": -17,
+        "wall_ms": 1534,
         "steps": -3
       }
     },
@@ -176,37 +179,38 @@
       "pipeline": {
         "status": "succeeded",
         "steps": 5,
-        "conclusions": 39,
-        "evidence": 39,
+        "conclusions": 51,
+        "evidence": 51,
         "rule_plan_coverage": 1.0,
         "need_coverage": 1.0,
-        "wall_ms": 11552,
+        "wall_ms": 14392,
         "metrics": 350,
         "tests": 50,
         "anomalies": 139,
-        "change_points": 6
+        "change_points": 2
       },
       "agent": {
         "status": "succeeded",
         "steps": 3,
         "terminate_reason": "budget_exhausted",
-        "conclusions": 35,
-        "evidence": 35,
+        "conclusions": 44,
+        "evidence": 44,
         "rule_plan_coverage": 0.8333,
         "need_coverage": 1.0,
-        "wall_ms": 15555,
+        "wall_ms": 17811,
         "tokens": {
           "calls": 4,
-          "prompt_tokens": 4884,
-          "completion_tokens": 204,
-          "total_tokens": 5088,
-          "cached_tokens": 2816
+          "max_call_tokens": 1460,
+          "prompt_tokens": 4890,
+          "completion_tokens": 184,
+          "total_tokens": 5074,
+          "cached_tokens": 1920
         }
       },
       "delta": {
-        "conclusions": -4,
-        "evidence": -4,
-        "wall_ms": 4003,
+        "conclusions": -7,
+        "evidence": -7,
+        "wall_ms": 3419,
         "steps": -2
       }
     },
@@ -218,38 +222,39 @@
       "pipeline": {
         "status": "succeeded",
         "steps": 5,
-        "conclusions": 39,
-        "evidence": 39,
+        "conclusions": 51,
+        "evidence": 51,
         "rule_plan_coverage": 1.0,
         "need_coverage": 1.0,
-        "wall_ms": 11679,
+        "wall_ms": 15123,
         "metrics": 350,
         "tests": 50,
         "anomalies": 139,
-        "change_points": 6
+        "change_points": 2
       },
       "agent": {
         "status": "succeeded",
-        "steps": 2,
-        "terminate_reason": "model_finished",
-        "conclusions": 35,
-        "evidence": 35,
-        "rule_plan_coverage": 0.5,
+        "steps": 3,
+        "terminate_reason": "budget_exhausted",
+        "conclusions": 44,
+        "evidence": 44,
+        "rule_plan_coverage": 0.8333,
         "need_coverage": 1.0,
-        "wall_ms": 9735,
+        "wall_ms": 18088,
         "tokens": {
-          "calls": 3,
-          "prompt_tokens": 3231,
-          "completion_tokens": 153,
-          "total_tokens": 3384,
-          "cached_tokens": 2048
+          "calls": 4,
+          "max_call_tokens": 1479,
+          "prompt_tokens": 4726,
+          "completion_tokens": 198,
+          "total_tokens": 4924,
+          "cached_tokens": 1920
         }
       },
       "delta": {
-        "conclusions": -4,
-        "evidence": -4,
-        "wall_ms": -1944,
-        "steps": -3
+        "conclusions": -7,
+        "evidence": -7,
+        "wall_ms": 2965,
+        "steps": -2
       }
     },
     {
@@ -260,37 +265,38 @@
       "pipeline": {
         "status": "succeeded",
         "steps": 5,
-        "conclusions": 39,
-        "evidence": 39,
+        "conclusions": 51,
+        "evidence": 51,
         "rule_plan_coverage": 1.0,
         "need_coverage": 1.0,
-        "wall_ms": 11684,
+        "wall_ms": 15238,
         "metrics": 350,
         "tests": 50,
         "anomalies": 139,
-        "change_points": 6
+        "change_points": 2
       },
       "agent": {
         "status": "succeeded",
         "steps": 3,
         "terminate_reason": "model_finished",
-        "conclusions": 29,
-        "evidence": 29,
+        "conclusions": 41,
+        "evidence": 41,
         "rule_plan_coverage": 0.5833,
         "need_coverage": 1.0,
-        "wall_ms": 12185,
+        "wall_ms": 13213,
         "tokens": {
           "calls": 4,
-          "prompt_tokens": 4447,
-          "completion_tokens": 193,
-          "total_tokens": 4640,
-          "cached_tokens": 2816
+          "max_call_tokens": 1220,
+          "prompt_tokens": 4277,
+          "completion_tokens": 194,
+          "total_tokens": 4471,
+          "cached_tokens": 1920
         }
       },
       "delta": {
         "conclusions": -10,
         "evidence": -10,
-        "wall_ms": 501,
+        "wall_ms": -2025,
         "steps": -2
       }
     },
@@ -302,37 +308,38 @@
       "pipeline": {
         "status": "succeeded",
         "steps": 5,
-        "conclusions": 39,
-        "evidence": 39,
+        "conclusions": 51,
+        "evidence": 51,
         "rule_plan_coverage": 1.0,
         "need_coverage": 1.0,
-        "wall_ms": 11984,
+        "wall_ms": 15601,
         "metrics": 350,
         "tests": 50,
         "anomalies": 139,
-        "change_points": 6
+        "change_points": 2
       },
       "agent": {
         "status": "succeeded",
         "steps": 2,
         "terminate_reason": "budget_exhausted",
-        "conclusions": 28,
-        "evidence": 28,
+        "conclusions": 40,
+        "evidence": 40,
         "rule_plan_coverage": 0.5,
         "need_coverage": 1.0,
-        "wall_ms": 9682,
+        "wall_ms": 10978,
         "tokens": {
           "calls": 3,
-          "prompt_tokens": 3054,
-          "completion_tokens": 156,
-          "total_tokens": 3210,
-          "cached_tokens": 2048
+          "max_call_tokens": 1152,
+          "prompt_tokens": 3063,
+          "completion_tokens": 141,
+          "total_tokens": 3204,
+          "cached_tokens": 1408
         }
       },
       "delta": {
         "conclusions": -11,
         "evidence": -11,
-        "wall_ms": -2302,
+        "wall_ms": -4623,
         "steps": -3
       }
     },
@@ -344,37 +351,38 @@
       "pipeline": {
         "status": "succeeded",
         "steps": 5,
-        "conclusions": 39,
-        "evidence": 39,
+        "conclusions": 51,
+        "evidence": 51,
         "rule_plan_coverage": 1.0,
         "need_coverage": 1.0,
-        "wall_ms": 11970,
+        "wall_ms": 14863,
         "metrics": 350,
         "tests": 50,
         "anomalies": 139,
-        "change_points": 6
+        "change_points": 2
       },
       "agent": {
         "status": "succeeded",
         "steps": 2,
         "terminate_reason": "model_finished",
-        "conclusions": 25,
-        "evidence": 25,
+        "conclusions": 34,
+        "evidence": 34,
         "rule_plan_coverage": 0.75,
         "need_coverage": 1.0,
-        "wall_ms": 15555,
+        "wall_ms": 16853,
         "tokens": {
           "calls": 3,
-          "prompt_tokens": 3384,
-          "completion_tokens": 158,
-          "total_tokens": 3542,
-          "cached_tokens": 2048
+          "max_call_tokens": 1474,
+          "prompt_tokens": 3393,
+          "completion_tokens": 153,
+          "total_tokens": 3546,
+          "cached_tokens": 1408
         }
       },
       "delta": {
-        "conclusions": -14,
-        "evidence": -14,
-        "wall_ms": 3585,
+        "conclusions": -17,
+        "evidence": -17,
+        "wall_ms": 1990,
         "steps": -3
       }
     },
@@ -384,37 +392,38 @@
       "pipeline": {
         "status": "succeeded",
         "steps": 5,
-        "conclusions": 39,
-        "evidence": 39,
+        "conclusions": 51,
+        "evidence": 51,
         "rule_plan_coverage": 1.0,
         "need_coverage": null,
-        "wall_ms": 11801,
+        "wall_ms": 15985,
         "metrics": 350,
         "tests": 50,
         "anomalies": 139,
-        "change_points": 6
+        "change_points": 2
       },
       "agent": {
         "status": "succeeded",
         "steps": 2,
         "terminate_reason": "budget_exhausted",
-        "conclusions": 28,
-        "evidence": 28,
+        "conclusions": 40,
+        "evidence": 40,
         "rule_plan_coverage": 0.5,
         "need_coverage": null,
-        "wall_ms": 9697,
+        "wall_ms": 11203,
         "tokens": {
           "calls": 3,
-          "prompt_tokens": 3063,
-          "completion_tokens": 137,
-          "total_tokens": 3200,
-          "cached_tokens": 2048
+          "max_call_tokens": 1158,
+          "prompt_tokens": 3072,
+          "completion_tokens": 130,
+          "total_tokens": 3202,
+          "cached_tokens": 1408
         }
       },
       "delta": {
         "conclusions": -11,
         "evidence": -11,
-        "wall_ms": -2104,
+        "wall_ms": -4782,
         "steps": -3
       }
     },
@@ -430,37 +439,38 @@
       "pipeline": {
         "status": "succeeded",
         "steps": 5,
-        "conclusions": 39,
-        "evidence": 39,
+        "conclusions": 51,
+        "evidence": 51,
         "rule_plan_coverage": 1.0,
         "need_coverage": 1.0,
-        "wall_ms": 11955,
+        "wall_ms": 15265,
         "metrics": 350,
         "tests": 50,
         "anomalies": 139,
-        "change_points": 6
+        "change_points": 2
       },
       "agent": {
         "status": "succeeded",
         "steps": 5,
         "terminate_reason": "model_finished",
-        "conclusions": 39,
-        "evidence": 39,
+        "conclusions": 51,
+        "evidence": 51,
         "rule_plan_coverage": 1.0,
         "need_coverage": 1.0,
-        "wall_ms": 19674,
+        "wall_ms": 21487,
         "tokens": {
           "calls": 6,
-          "prompt_tokens": 7560,
-          "completion_tokens": 306,
-          "total_tokens": 7866,
-          "cached_tokens": 4608
+          "max_call_tokens": 1569,
+          "prompt_tokens": 7487,
+          "completion_tokens": 304,
+          "total_tokens": 7791,
+          "cached_tokens": 2944
         }
       },
       "delta": {
         "conclusions": 0,
         "evidence": 0,
-        "wall_ms": 7719,
+        "wall_ms": 6222,
         "steps": 0
       }
     },
@@ -472,38 +482,39 @@
       "pipeline": {
         "status": "succeeded",
         "steps": 5,
-        "conclusions": 39,
-        "evidence": 39,
+        "conclusions": 51,
+        "evidence": 51,
         "rule_plan_coverage": 1.0,
         "need_coverage": 1.0,
-        "wall_ms": 11783,
+        "wall_ms": 15859,
         "metrics": 350,
         "tests": 50,
         "anomalies": 139,
-        "change_points": 6
+        "change_points": 2
       },
       "agent": {
         "status": "succeeded",
-        "steps": 2,
-        "terminate_reason": "model_finished",
-        "conclusions": 28,
-        "evidence": 28,
-        "rule_plan_coverage": 0.5,
+        "steps": 3,
+        "terminate_reason": "budget_exhausted",
+        "conclusions": 41,
+        "evidence": 41,
+        "rule_plan_coverage": 0.5833,
         "need_coverage": 1.0,
-        "wall_ms": 9062,
+        "wall_ms": 12632,
         "tokens": {
-          "calls": 3,
-          "prompt_tokens": 3148,
-          "completion_tokens": 175,
-          "total_tokens": 3323,
-          "cached_tokens": 2304
+          "calls": 4,
+          "max_call_tokens": 1191,
+          "prompt_tokens": 4296,
+          "completion_tokens": 190,
+          "total_tokens": 4486,
+          "cached_tokens": 1920
         }
       },
       "delta": {
-        "conclusions": -11,
-        "evidence": -11,
-        "wall_ms": -2721,
-        "steps": -3
+        "conclusions": -10,
+        "evidence": -10,
+        "wall_ms": -3227,
+        "steps": -2
       }
     },
     {
@@ -514,37 +525,38 @@
       "pipeline": {
         "status": "succeeded",
         "steps": 5,
-        "conclusions": 39,
-        "evidence": 39,
+        "conclusions": 51,
+        "evidence": 51,
         "rule_plan_coverage": 1.0,
         "need_coverage": 1.0,
-        "wall_ms": 11754,
+        "wall_ms": 15504,
         "metrics": 350,
         "tests": 50,
         "anomalies": 139,
-        "change_points": 6
+        "change_points": 2
       },
       "agent": {
         "status": "succeeded",
         "steps": 2,
         "terminate_reason": "budget_exhausted",
-        "conclusions": 25,
-        "evidence": 25,
+        "conclusions": 34,
+        "evidence": 34,
         "rule_plan_coverage": 0.75,
         "need_coverage": 1.0,
-        "wall_ms": 15407,
+        "wall_ms": 18058,
         "tokens": {
           "calls": 3,
-          "prompt_tokens": 3356,
-          "completion_tokens": 162,
-          "total_tokens": 3518,
-          "cached_tokens": 2048
+          "max_call_tokens": 1445,
+          "prompt_tokens": 3365,
+          "completion_tokens": 142,
+          "total_tokens": 3507,
+          "cached_tokens": 1408
         }
       },
       "delta": {
-        "conclusions": -14,
-        "evidence": -14,
-        "wall_ms": 3653,
+        "conclusions": -17,
+        "evidence": -17,
+        "wall_ms": 2554,
         "steps": -3
       }
     },
@@ -554,43 +566,44 @@
       "pipeline": {
         "status": "succeeded",
         "steps": 5,
-        "conclusions": 39,
-        "evidence": 39,
+        "conclusions": 51,
+        "evidence": 51,
         "rule_plan_coverage": 1.0,
         "need_coverage": null,
-        "wall_ms": 12529,
+        "wall_ms": 15803,
         "metrics": 350,
         "tests": 50,
         "anomalies": 139,
-        "change_points": 6
+        "change_points": 2
       },
       "agent": {
         "status": "succeeded",
         "steps": 2,
         "terminate_reason": "budget_exhausted",
-        "conclusions": 28,
-        "evidence": 28,
+        "conclusions": 40,
+        "evidence": 40,
         "rule_plan_coverage": 0.5,
         "need_coverage": null,
-        "wall_ms": 9557,
+        "wall_ms": 11749,
         "tokens": {
           "calls": 3,
-          "prompt_tokens": 3057,
-          "completion_tokens": 143,
-          "total_tokens": 3200,
-          "cached_tokens": 2048
+          "max_call_tokens": 1152,
+          "prompt_tokens": 3066,
+          "completion_tokens": 140,
+          "total_tokens": 3206,
+          "cached_tokens": 1408
         }
       },
       "delta": {
         "conclusions": -11,
         "evidence": -11,
-        "wall_ms": -2972,
+        "wall_ms": -4054,
         "steps": -3
       }
     }
   ],
-  "scope_note": "同批 9 个天气用例、同一份 12 项规则计划；覆盖率为「分析是否执行」，不代表检出结果的正确性",
-  "generated_at": "2026-10-23T22:03:29",
+  "scope_note": "同批 13 个天气用例、同一份 12 项规则计划；覆盖率为「分析是否执行」，不代表检出结果的正确性",
+  "generated_at": "2026-11-03T21:11:48",
   "thresholds": {
     "pipeline_success": 1.0,
     "agent_success": 1.0,

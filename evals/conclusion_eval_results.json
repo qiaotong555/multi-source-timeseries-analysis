@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-23T23:02:35",
+  "generated_at": "2026-11-03T21:12:28",
   "source": "existing_results",
   "result_root": "artifacts\\t212_compare",
   "labels": {
@@ -50,15 +50,15 @@
           "not_run_truth_instances": 0,
           "point": {
             "tp": 26,
-            "fp": 52,
+            "fp": 0,
             "fn": 0,
-            "detected": 78,
+            "detected": 26,
             "truth": 26,
-            "precision": 0.3333,
+            "precision": 1.0,
             "recall": 1.0,
-            "f1": 0.5
+            "f1": 1.0
           },
-          "mean_precision": 0.3333,
+          "mean_precision": 1.0,
           "mean_recall": 1.0
         },
         "trend": {
@@ -146,21 +146,21 @@
           "mean_recall": 1.0
         },
         "changepoint": {
-          "scored_runs": 3,
-          "not_run_runs": 10,
+          "scored_runs": 4,
+          "not_run_runs": 9,
           "truth_per_run": 2,
-          "not_run_truth_instances": 20,
+          "not_run_truth_instances": 18,
           "point": {
-            "tp": 6,
-            "fp": 12,
+            "tp": 8,
+            "fp": 0,
             "fn": 0,
-            "detected": 18,
-            "truth": 6,
-            "precision": 0.3333,
+            "detected": 8,
+            "truth": 8,
+            "precision": 1.0,
             "recall": 1.0,
-            "f1": 0.5
+            "f1": 1.0
           },
-          "mean_precision": 0.3333,
+          "mean_precision": 1.0,
           "mean_recall": 1.0
         },
         "trend": {
@@ -231,13 +231,13 @@
         },
         "changepoint_point": {
           "tp": 2,
-          "fp": 4,
+          "fp": 0,
           "fn": 0,
-          "detected": 6,
+          "detected": 2,
           "truth": 2,
-          "precision": 0.3333,
+          "precision": 1.0,
           "recall": 1.0,
-          "f1": 0.5
+          "f1": 1.0
         },
         "anomaly_hit": 18,
         "changepoint_hit": 2,
@@ -263,13 +263,13 @@
         },
         "changepoint_point": {
           "tp": 2,
-          "fp": 4,
+          "fp": 0,
           "fn": 0,
-          "detected": 6,
+          "detected": 2,
           "truth": 2,
-          "precision": 0.3333,
+          "precision": 1.0,
           "recall": 1.0,
-          "f1": 0.5
+          "f1": 1.0
         },
         "anomaly_hit": 18,
         "changepoint_hit": 2,
@@ -300,11 +300,11 @@
       },
       "changepoint": {
         "pipeline_scored_runs": 13,
-        "agent_scored_runs": 3,
-        "agent_not_run_runs": 10,
+        "agent_scored_runs": 4,
+        "agent_not_run_runs": 9,
         "pipeline_tp_instances": 26,
-        "agent_tp_instances": 6,
-        "missed_instances_due_to_not_run": 20,
+        "agent_tp_instances": 8,
+        "missed_instances_due_to_not_run": 18,
         "distinct_truth": 2,
         "pipeline_distinct_hit": 2,
         "agent_distinct_hit": 2,
@@ -336,15 +336,16 @@
         "detect_anomalies",
         "detect_change_points"
       ],
-      "conclusion_count": 29,
+      "conclusion_count": 41,
       "conclusion_categories": {
-        "数据口径": 1,
+        "数据口径": 10,
         "趋势": 10,
         "季节性": 10,
         "相关性": 3,
         "滞后关系": 1,
         "异常检测": 3,
-        "变化点": 1
+        "变化点": 1,
+        "极端值": 3
       },
       "anomaly": {
         "state": "scored",
@@ -374,13 +375,13 @@
         "state": "scored",
         "point": {
           "tp": 2,
-          "fp": 4,
+          "fp": 0,
           "fn": 0,
-          "detected": 6,
+          "detected": 2,
           "truth": 2,
-          "precision": 0.3333,
+          "precision": 1.0,
           "recall": 1.0,
-          "f1": 0.5
+          "f1": 1.0
         },
         "tolerance_seconds": 7200.0
       },
@@ -537,16 +538,17 @@
         "detect_anomalies",
         "detect_change_points"
       ],
-      "conclusion_count": 39,
+      "conclusion_count": 51,
       "conclusion_categories": {
-        "数据口径": 1,
+        "数据口径": 10,
         "趋势": 10,
         "周期": 10,
         "季节性": 10,
         "相关性": 3,
         "滞后关系": 1,
         "异常检测": 3,
-        "变化点": 1
+        "变化点": 1,
+        "极端值": 3
       },
       "anomaly": {
         "state": "scored",
@@ -576,13 +578,13 @@
         "state": "scored",
         "point": {
           "tp": 2,
-          "fp": 4,
+          "fp": 0,
           "fn": 0,
-          "detected": 6,
+          "detected": 2,
           "truth": 2,
-          "precision": 0.3333,
+          "precision": 1.0,
           "recall": 1.0,
-          "f1": 0.5
+          "f1": 1.0
         },
         "tolerance_seconds": 7200.0
       },
@@ -736,15 +738,16 @@
         "detect_anomalies",
         "detect_change_points"
       ],
-      "conclusion_count": 29,
+      "conclusion_count": 41,
       "conclusion_categories": {
-        "数据口径": 1,
+        "数据口径": 10,
         "趋势": 10,
         "季节性": 10,
         "相关性": 3,
         "滞后关系": 1,
         "异常检测": 3,
-        "变化点": 1
+        "变化点": 1,
+        "极端值": 3
       },
       "anomaly": {
         "state": "scored",
@@ -774,13 +777,13 @@
         "state": "scored",
         "point": {
           "tp": 2,
-          "fp": 4,
+          "fp": 0,
           "fn": 0,
-          "detected": 6,
+          "detected": 2,
           "truth": 2,
-          "precision": 0.3333,
+          "precision": 1.0,
           "recall": 1.0,
-          "f1": 0.5
+          "f1": 1.0
         },
         "tolerance_seconds": 7200.0
       },
@@ -935,16 +938,17 @@
         "detect_anomalies",
         "detect_change_points"
       ],
-      "conclusion_count": 39,
+      "conclusion_count": 51,
       "conclusion_categories": {
-        "数据口径": 1,
+        "数据口径": 10,
         "趋势": 10,
         "周期": 10,
         "季节性": 10,
         "相关性": 3,
         "滞后关系": 1,
         "异常检测": 3,
-        "变化点": 1
+        "变化点": 1,
+        "极端值": 3
       },
       "anomaly": {
         "state": "scored",
@@ -974,13 +978,13 @@
         "state": "scored",
         "point": {
           "tp": 2,
-          "fp": 4,
+          "fp": 0,
           "fn": 0,
-          "detected": 6,
+          "detected": 2,
           "truth": 2,
-          "precision": 0.3333,
+          "precision": 1.0,
           "recall": 1.0,
-          "f1": 0.5
+          "f1": 1.0
         },
         "tolerance_seconds": 7200.0
       },
@@ -1139,16 +1143,17 @@
         "detect_anomalies",
         "detect_change_points"
       ],
-      "conclusion_count": 39,
+      "conclusion_count": 51,
       "conclusion_categories": {
-        "数据口径": 1,
+        "数据口径": 10,
         "趋势": 10,
         "周期": 10,
         "季节性": 10,
         "相关性": 3,
         "滞后关系": 1,
         "异常检测": 3,
-        "变化点": 1
+        "变化点": 1,
+        "极端值": 3
       },
       "anomaly": {
         "state": "scored",
@@ -1178,13 +1183,13 @@
         "state": "scored",
         "point": {
           "tp": 2,
-          "fp": 4,
+          "fp": 0,
           "fn": 0,
-          "detected": 6,
+          "detected": 2,
           "truth": 2,
-          "precision": 0.3333,
+          "precision": 1.0,
           "recall": 1.0,
-          "f1": 0.5
+          "f1": 1.0
         },
         "tolerance_seconds": 7200.0
       },
@@ -1348,16 +1353,17 @@
         "detect_anomalies",
         "detect_change_points"
       ],
-      "conclusion_count": 39,
+      "conclusion_count": 51,
       "conclusion_categories": {
-        "数据口径": 1,
+        "数据口径": 10,
         "趋势": 10,
         "周期": 10,
         "季节性": 10,
         "相关性": 3,
         "滞后关系": 1,
         "异常检测": 3,
-        "变化点": 1
+        "变化点": 1,
+        "极端值": 3
       },
       "anomaly": {
         "state": "scored",
@@ -1387,13 +1393,13 @@
         "state": "scored",
         "point": {
           "tp": 2,
-          "fp": 4,
+          "fp": 0,
           "fn": 0,
-          "detected": 6,
+          "detected": 2,
           "truth": 2,
-          "precision": 0.3333,
+          "precision": 1.0,
           "recall": 1.0,
-          "f1": 0.5
+          "f1": 1.0
         },
         "tolerance_seconds": 7200.0
       },
@@ -1551,9 +1557,9 @@
         "compute_metrics",
         "run_stat_tests"
       ],
-      "conclusion_count": 25,
+      "conclusion_count": 34,
       "conclusion_categories": {
-        "数据口径": 1,
+        "数据口径": 10,
         "趋势": 10,
         "季节性": 10,
         "相关性": 3,
@@ -1723,16 +1729,17 @@
         "detect_anomalies",
         "detect_change_points"
       ],
-      "conclusion_count": 39,
+      "conclusion_count": 51,
       "conclusion_categories": {
-        "数据口径": 1,
+        "数据口径": 10,
         "趋势": 10,
         "周期": 10,
         "季节性": 10,
         "相关性": 3,
         "滞后关系": 1,
         "异常检测": 3,
-        "变化点": 1
+        "变化点": 1,
+        "极端值": 3
       },
       "anomaly": {
         "state": "scored",
@@ -1762,13 +1769,13 @@
         "state": "scored",
         "point": {
           "tp": 2,
-          "fp": 4,
+          "fp": 0,
           "fn": 0,
-          "detected": 6,
+          "detected": 2,
           "truth": 2,
-          "precision": 0.3333,
+          "precision": 1.0,
           "recall": 1.0,
-          "f1": 0.5
+          "f1": 1.0
         },
         "tolerance_seconds": 7200.0
       },
@@ -1921,14 +1928,15 @@
         "compute_metrics",
         "detect_anomalies"
       ],
-      "conclusion_count": 28,
+      "conclusion_count": 40,
       "conclusion_categories": {
-        "数据口径": 1,
+        "数据口径": 10,
         "趋势": 10,
         "季节性": 10,
         "相关性": 3,
         "滞后关系": 1,
-        "异常检测": 3
+        "异常检测": 3,
+        "极端值": 3
       },
       "anomaly": {
         "state": "scored",
@@ -2110,16 +2118,17 @@
         "detect_anomalies",
         "detect_change_points"
       ],
-      "conclusion_count": 39,
+      "conclusion_count": 51,
       "conclusion_categories": {
-        "数据口径": 1,
+        "数据口径": 10,
         "趋势": 10,
         "周期": 10,
         "季节性": 10,
         "相关性": 3,
         "滞后关系": 1,
         "异常检测": 3,
-        "变化点": 1
+        "变化点": 1,
+        "极端值": 3
       },
       "anomaly": {
         "state": "scored",
@@ -2149,13 +2158,13 @@
         "state": "scored",
         "point": {
           "tp": 2,
-          "fp": 4,
+          "fp": 0,
           "fn": 0,
-          "detected": 6,
+          "detected": 2,
           "truth": 2,
-          "precision": 0.3333,
+          "precision": 1.0,
           "recall": 1.0,
-          "f1": 0.5
+          "f1": 1.0
         },
         "tolerance_seconds": 7200.0
       },
@@ -2305,16 +2314,19 @@
       ],
       "executed_tools": [
         "compute_metrics",
-        "detect_anomalies"
+        "detect_anomalies",
+        "detect_change_points"
       ],
-      "conclusion_count": 28,
+      "conclusion_count": 41,
       "conclusion_categories": {
-        "数据口径": 1,
+        "数据口径": 10,
         "趋势": 10,
         "季节性": 10,
         "相关性": 3,
         "滞后关系": 1,
-        "异常检测": 3
+        "异常检测": 3,
+        "变化点": 1,
+        "极端值": 3
       },
       "anomaly": {
         "state": "scored",
@@ -2341,9 +2353,18 @@
         "detected_events": 134
       },
       "changepoint": {
-        "state": "not_run",
-        "point": null,
-        "reason": "detect_change_points 未执行"
+        "state": "scored",
+        "point": {
+          "tp": 2,
+          "fp": 0,
+          "fn": 0,
+          "detected": 2,
+          "truth": 2,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "tolerance_seconds": 7200.0
       },
       "trend": {
         "details": [
@@ -2496,16 +2517,17 @@
         "detect_anomalies",
         "detect_change_points"
       ],
-      "conclusion_count": 39,
+      "conclusion_count": 51,
       "conclusion_categories": {
-        "数据口径": 1,
+        "数据口径": 10,
         "趋势": 10,
         "周期": 10,
         "季节性": 10,
         "相关性": 3,
         "滞后关系": 1,
         "异常检测": 3,
-        "变化点": 1
+        "变化点": 1,
+        "极端值": 3
       },
       "anomaly": {
         "state": "scored",
@@ -2535,13 +2557,13 @@
         "state": "scored",
         "point": {
           "tp": 2,
-          "fp": 4,
+          "fp": 0,
           "fn": 0,
-          "detected": 6,
+          "detected": 2,
           "truth": 2,
-          "precision": 0.3333,
+          "precision": 1.0,
           "recall": 1.0,
-          "f1": 0.5
+          "f1": 1.0
         },
         "tolerance_seconds": 7200.0
       },
@@ -2693,9 +2715,9 @@
         "compute_metrics",
         "run_stat_tests"
       ],
-      "conclusion_count": 25,
+      "conclusion_count": 34,
       "conclusion_categories": {
-        "数据口径": 1,
+        "数据口径": 10,
         "趋势": 10,
         "季节性": 10,
         "相关性": 3,
@@ -2863,16 +2885,17 @@
         "detect_anomalies",
         "detect_change_points"
       ],
-      "conclusion_count": 39,
+      "conclusion_count": 51,
       "conclusion_categories": {
-        "数据口径": 1,
+        "数据口径": 10,
         "趋势": 10,
         "周期": 10,
         "季节性": 10,
         "相关性": 3,
         "滞后关系": 1,
         "异常检测": 3,
-        "变化点": 1
+        "变化点": 1,
+        "极端值": 3
       },
       "anomaly": {
         "state": "scored",
@@ -2902,13 +2925,13 @@
         "state": "scored",
         "point": {
           "tp": 2,
-          "fp": 4,
+          "fp": 0,
           "fn": 0,
-          "detected": 6,
+          "detected": 2,
           "truth": 2,
-          "precision": 0.3333,
+          "precision": 1.0,
           "recall": 1.0,
-          "f1": 0.5
+          "f1": 1.0
         },
         "tolerance_seconds": 7200.0
       },
@@ -3058,14 +3081,15 @@
         "compute_metrics",
         "detect_anomalies"
       ],
-      "conclusion_count": 28,
+      "conclusion_count": 40,
       "conclusion_categories": {
-        "数据口径": 1,
+        "数据口径": 10,
         "趋势": 10,
         "季节性": 10,
         "相关性": 3,
         "滞后关系": 1,
-        "异常检测": 3
+        "异常检测": 3,
+        "极端值": 3
       },
       "anomaly": {
         "state": "scored",
@@ -3243,16 +3267,17 @@
         "detect_anomalies",
         "detect_change_points"
       ],
-      "conclusion_count": 39,
+      "conclusion_count": 51,
       "conclusion_categories": {
-        "数据口径": 1,
+        "数据口径": 10,
         "趋势": 10,
         "周期": 10,
         "季节性": 10,
         "相关性": 3,
         "滞后关系": 1,
         "异常检测": 3,
-        "变化点": 1
+        "变化点": 1,
+        "极端值": 3
       },
       "anomaly": {
         "state": "scored",
@@ -3282,13 +3307,13 @@
         "state": "scored",
         "point": {
           "tp": 2,
-          "fp": 4,
+          "fp": 0,
           "fn": 0,
-          "detected": 6,
+          "detected": 2,
           "truth": 2,
-          "precision": 0.3333,
+          "precision": 1.0,
           "recall": 1.0,
-          "f1": 0.5
+          "f1": 1.0
         },
         "tolerance_seconds": 7200.0
       },
@@ -3436,14 +3461,15 @@
         "compute_metrics",
         "detect_anomalies"
       ],
-      "conclusion_count": 28,
+      "conclusion_count": 40,
       "conclusion_categories": {
-        "数据口径": 1,
+        "数据口径": 10,
         "趋势": 10,
         "季节性": 10,
         "相关性": 3,
         "滞后关系": 1,
-        "异常检测": 3
+        "异常检测": 3,
+        "极端值": 3
       },
       "anomaly": {
         "state": "scored",
@@ -3621,16 +3647,17 @@
         "detect_anomalies",
         "detect_change_points"
       ],
-      "conclusion_count": 39,
+      "conclusion_count": 51,
       "conclusion_categories": {
-        "数据口径": 1,
+        "数据口径": 10,
         "趋势": 10,
         "周期": 10,
         "季节性": 10,
         "相关性": 3,
         "滞后关系": 1,
         "异常检测": 3,
-        "变化点": 1
+        "变化点": 1,
+        "极端值": 3
       },
       "anomaly": {
         "state": "scored",
@@ -3660,13 +3687,13 @@
         "state": "scored",
         "point": {
           "tp": 2,
-          "fp": 4,
+          "fp": 0,
           "fn": 0,
-          "detected": 6,
+          "detected": 2,
           "truth": 2,
-          "precision": 0.3333,
+          "precision": 1.0,
           "recall": 1.0,
-          "f1": 0.5
+          "f1": 1.0
         },
         "tolerance_seconds": 7200.0
       },
@@ -3814,11 +3841,12 @@
       ],
       "executed_tools": [
         "compute_metrics",
-        "analyze_spectrum"
+        "analyze_spectrum",
+        "run_stat_tests"
       ],
-      "conclusion_count": 35,
+      "conclusion_count": 44,
       "conclusion_categories": {
-        "数据口径": 1,
+        "数据口径": 10,
         "趋势": 10,
         "周期": 10,
         "季节性": 10,
@@ -3987,16 +4015,17 @@
         "detect_anomalies",
         "detect_change_points"
       ],
-      "conclusion_count": 39,
+      "conclusion_count": 51,
       "conclusion_categories": {
-        "数据口径": 1,
+        "数据口径": 10,
         "趋势": 10,
         "周期": 10,
         "季节性": 10,
         "相关性": 3,
         "滞后关系": 1,
         "异常检测": 3,
-        "变化点": 1
+        "变化点": 1,
+        "极端值": 3
       },
       "anomaly": {
         "state": "scored",
@@ -4026,13 +4055,13 @@
         "state": "scored",
         "point": {
           "tp": 2,
-          "fp": 4,
+          "fp": 0,
           "fn": 0,
-          "detected": 6,
+          "detected": 2,
           "truth": 2,
-          "precision": 0.3333,
+          "precision": 1.0,
           "recall": 1.0,
-          "f1": 0.5
+          "f1": 1.0
         },
         "tolerance_seconds": 7200.0
       },
@@ -4186,9 +4215,9 @@
         "analyze_spectrum",
         "run_stat_tests"
       ],
-      "conclusion_count": 35,
+      "conclusion_count": 44,
       "conclusion_categories": {
-        "数据口径": 1,
+        "数据口径": 10,
         "趋势": 10,
         "周期": 10,
         "季节性": 10,
@@ -4359,16 +4388,17 @@
         "detect_anomalies",
         "detect_change_points"
       ],
-      "conclusion_count": 39,
+      "conclusion_count": 51,
       "conclusion_categories": {
-        "数据口径": 1,
+        "数据口径": 10,
         "趋势": 10,
         "周期": 10,
         "季节性": 10,
         "相关性": 3,
         "滞后关系": 1,
         "异常检测": 3,
-        "变化点": 1
+        "变化点": 1,
+        "极端值": 3
       },
       "anomaly": {
         "state": "scored",
@@ -4398,13 +4428,13 @@
         "state": "scored",
         "point": {
           "tp": 2,
-          "fp": 4,
+          "fp": 0,
           "fn": 0,
-          "detected": 6,
+          "detected": 2,
           "truth": 2,
-          "precision": 0.3333,
+          "precision": 1.0,
           "recall": 1.0,
-          "f1": 0.5
+          "f1": 1.0
         },
         "tolerance_seconds": 7200.0
       },
@@ -4559,9 +4589,9 @@
         "compute_metrics",
         "analyze_spectrum"
       ],
-      "conclusion_count": 35,
+      "conclusion_count": 44,
       "conclusion_categories": {
-        "数据口径": 1,
+        "数据口径": 10,
         "趋势": 10,
         "周期": 10,
         "季节性": 10,
@@ -4730,9 +4760,9 @@
         "compute_metrics",
         "run_stat_tests"
       ],
-      "conclusion_count": 25,
+      "conclusion_count": 34,
       "conclusion_categories": {
-        "数据口径": 1,
+        "数据口径": 10,
         "趋势": 10,
         "季节性": 10,
         "相关性": 3,
@@ -4900,16 +4930,17 @@
         "detect_anomalies",
         "detect_change_points"
       ],
-      "conclusion_count": 39,
+      "conclusion_count": 51,
       "conclusion_categories": {
-        "数据口径": 1,
+        "数据口径": 10,
         "趋势": 10,
         "周期": 10,
         "季节性": 10,
         "相关性": 3,
         "滞后关系": 1,
         "异常检测": 3,
-        "变化点": 1
+        "变化点": 1,
+        "极端值": 3
       },
       "anomaly": {
         "state": "scored",
@@ -4939,13 +4970,13 @@
         "state": "scored",
         "point": {
           "tp": 2,
-          "fp": 4,
+          "fp": 0,
           "fn": 0,
-          "detected": 6,
+          "detected": 2,
           "truth": 2,
-          "precision": 0.3333,
+          "precision": 1.0,
           "recall": 1.0,
-          "f1": 0.5
+          "f1": 1.0
         },
         "tolerance_seconds": 7200.0
       },
@@ -5102,16 +5133,17 @@
         "detect_anomalies",
         "detect_change_points"
       ],
-      "conclusion_count": 39,
+      "conclusion_count": 51,
       "conclusion_categories": {
-        "数据口径": 1,
+        "数据口径": 10,
         "趋势": 10,
         "周期": 10,
         "季节性": 10,
         "相关性": 3,
         "滞后关系": 1,
         "异常检测": 3,
-        "变化点": 1
+        "变化点": 1,
+        "极端值": 3
       },
       "anomaly": {
         "state": "scored",
@@ -5141,13 +5173,13 @@
         "state": "scored",
         "point": {
           "tp": 2,
-          "fp": 4,
+          "fp": 0,
           "fn": 0,
-          "detected": 6,
+          "detected": 2,
           "truth": 2,
-          "precision": 0.3333,
+          "precision": 1.0,
           "recall": 1.0,
-          "f1": 0.5
+          "f1": 1.0
         },
         "tolerance_seconds": 7200.0
       },

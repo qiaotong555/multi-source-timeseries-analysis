@@ -646,20 +646,20 @@
         "true_index": 4383,
         "delta": 14.0,
         "detected": false,
-        "found": 2,
-        "nearest_index": 8242,
-        "error": 3859,
-        "statistic": 1.2254
+        "found": 0,
+        "nearest_index": null,
+        "error": null,
+        "statistic": null
       },
       {
         "position": 0.25,
         "true_index": 4383,
         "delta": 16.0,
         "detected": true,
-        "found": 3,
+        "found": 1,
         "nearest_index": 4383,
         "error": 0,
-        "statistic": 1.2756
+        "statistic": 4.5707
       },
       {
         "position": 0.25,
@@ -669,7 +669,7 @@
         "found": 1,
         "nearest_index": 4383,
         "error": 0,
-        "statistic": 1.3956
+        "statistic": 5.3916
       },
       {
         "position": 0.25,
@@ -679,7 +679,7 @@
         "found": 1,
         "nearest_index": 4383,
         "error": 0,
-        "statistic": 1.771
+        "statistic": 7.8544
       },
       {
         "position": 0.4,
@@ -716,50 +716,50 @@
         "true_index": 7013,
         "delta": 12.0,
         "detected": false,
-        "found": 3,
-        "nearest_index": 7667,
-        "error": 654,
-        "statistic": 1.2406
+        "found": 0,
+        "nearest_index": null,
+        "error": null,
+        "statistic": null
       },
       {
         "position": 0.4,
         "true_index": 7013,
         "delta": 14.0,
         "detected": false,
-        "found": 3,
+        "found": 1,
         "nearest_index": 7392,
         "error": 379,
-        "statistic": 1.3266
+        "statistic": 3.6672
       },
       {
         "position": 0.4,
         "true_index": 7013,
         "delta": 16.0,
         "detected": true,
-        "found": 3,
+        "found": 1,
         "nearest_index": 7013,
         "error": 0,
-        "statistic": 1.3613
+        "statistic": 8.302
       },
       {
         "position": 0.4,
         "true_index": 7013,
         "delta": 18.0,
         "detected": true,
-        "found": 3,
+        "found": 1,
         "nearest_index": 7013,
         "error": 0,
-        "statistic": 1.3514
+        "statistic": 9.2762
       },
       {
         "position": 0.4,
         "true_index": 7013,
         "delta": 24.0,
         "detected": true,
-        "found": 3,
+        "found": 1,
         "nearest_index": 7013,
         "error": 0,
-        "statistic": 1.3079
+        "statistic": 12.1987
       },
       {
         "position": 0.55,
@@ -796,50 +796,50 @@
         "true_index": 9643,
         "delta": 12.0,
         "detected": false,
-        "found": 3,
+        "found": 1,
         "nearest_index": 9586,
         "error": 57,
-        "statistic": 1.3055
+        "statistic": 6.426
       },
       {
         "position": 0.55,
         "true_index": 9643,
         "delta": 14.0,
         "detected": true,
-        "found": 3,
+        "found": 1,
         "nearest_index": 9643,
         "error": 0,
-        "statistic": 1.3581
+        "statistic": 7.5586
       },
       {
         "position": 0.55,
         "true_index": 9643,
         "delta": 16.0,
         "detected": true,
-        "found": 3,
+        "found": 1,
         "nearest_index": 9643,
         "error": 0,
-        "statistic": 1.3685
+        "statistic": 8.4223
       },
       {
         "position": 0.55,
         "true_index": 9643,
         "delta": 18.0,
         "detected": true,
-        "found": 3,
+        "found": 1,
         "nearest_index": 9643,
         "error": 0,
-        "statistic": 1.3727
+        "statistic": 9.286
       },
       {
         "position": 0.55,
         "true_index": 9643,
         "delta": 24.0,
         "detected": true,
-        "found": 3,
+        "found": 1,
         "nearest_index": 9643,
         "error": 0,
-        "statistic": 1.3525
+        "statistic": 11.877
       },
       {
         "position": 0.7,
@@ -876,50 +876,50 @@
         "true_index": 12273,
         "delta": 12.0,
         "detected": false,
-        "found": 2,
-        "nearest_index": 9403,
-        "error": 2870,
-        "statistic": 1.2326
+        "found": 0,
+        "nearest_index": null,
+        "error": null,
+        "statistic": null
       },
       {
         "position": 0.7,
         "true_index": 12273,
         "delta": 14.0,
         "detected": false,
-        "found": 2,
-        "nearest_index": 9585,
-        "error": 2688,
-        "statistic": 1.3324
+        "found": 0,
+        "nearest_index": null,
+        "error": null,
+        "statistic": null
       },
       {
         "position": 0.7,
         "true_index": 12273,
         "delta": 16.0,
         "detected": true,
-        "found": 3,
+        "found": 1,
         "nearest_index": 12273,
         "error": 0,
-        "statistic": 1.2911
+        "statistic": 4.2996
       },
       {
         "position": 0.7,
         "true_index": 12273,
         "delta": 18.0,
         "detected": true,
-        "found": 3,
+        "found": 1,
         "nearest_index": 12273,
         "error": 0,
-        "statistic": 1.3573
+        "statistic": 5.0192
       },
       {
         "position": 0.7,
         "true_index": 12273,
         "delta": 24.0,
         "detected": true,
-        "found": 2,
+        "found": 1,
         "nearest_index": 12273,
         "error": 0,
-        "statistic": 1.4157
+        "statistic": 7.1779
       },
       {
         "position": 0.85,
@@ -986,20 +986,20 @@
         "true_index": 14903,
         "delta": 18.0,
         "detected": true,
-        "found": 2,
+        "found": 1,
         "nearest_index": 14903,
         "error": 0,
-        "statistic": 1.3479
+        "statistic": 7.5953
       },
       {
         "position": 0.85,
         "true_index": 14903,
         "delta": 24.0,
         "detected": true,
-        "found": 2,
+        "found": 1,
         "nearest_index": 14903,
         "error": 0,
-        "statistic": 2.037
+        "statistic": 10.3581
       }
     ],
     "grid_size": 40,
@@ -1569,7 +1569,7 @@
   "_conclusion_eval": {
     "available": true,
     "path": "C:\\Users\\乔佟\\WorkBuddy\\2026-09-27-22-32-34\\multi_source_timeseries_analysis\\evals\\conclusion_eval_results.json",
-    "generated_at": "2026-10-23T23:02:35",
+    "generated_at": "2026-11-03T21:12:28",
     "result_root": "artifacts\\t212_compare",
     "source": "existing_results",
     "pipeline": {
@@ -1600,13 +1600,13 @@
       "changepoint_scored_runs": 13,
       "changepoint": {
         "tp": 26,
-        "fp": 52,
+        "fp": 0,
         "fn": 0,
-        "detected": 78,
+        "detected": 26,
         "truth": 26,
-        "precision": 0.3333,
+        "precision": 1.0,
         "recall": 1.0,
-        "f1": 0.5
+        "f1": 1.0
       },
       "trend": {
         "states": {
@@ -1686,16 +1686,16 @@
         "recall": 1.0,
         "f1": 0.2368
       },
-      "changepoint_scored_runs": 3,
+      "changepoint_scored_runs": 4,
       "changepoint": {
-        "tp": 6,
-        "fp": 12,
+        "tp": 8,
+        "fp": 0,
         "fn": 0,
-        "detected": 18,
-        "truth": 6,
-        "precision": 0.3333,
+        "detected": 8,
+        "truth": 8,
+        "precision": 1.0,
         "recall": 1.0,
-        "f1": 0.5
+        "f1": 1.0
       },
       "trend": {
         "states": {
@@ -1767,11 +1767,11 @@
       },
       "changepoint": {
         "pipeline_scored_runs": 13,
-        "agent_scored_runs": 3,
-        "agent_not_run_runs": 10,
+        "agent_scored_runs": 4,
+        "agent_not_run_runs": 9,
         "pipeline_tp_instances": 26,
-        "agent_tp_instances": 6,
-        "missed_instances_due_to_not_run": 20,
+        "agent_tp_instances": 8,
+        "missed_instances_due_to_not_run": 18,
         "distinct_truth": 2,
         "pipeline_distinct_hit": 2,
         "agent_distinct_hit": 2,
@@ -1800,13 +1800,13 @@
         },
         "changepoint_point": {
           "tp": 2,
-          "fp": 4,
+          "fp": 0,
           "fn": 0,
-          "detected": 6,
+          "detected": 2,
           "truth": 2,
-          "precision": 0.3333,
+          "precision": 1.0,
           "recall": 1.0,
-          "f1": 0.5
+          "f1": 1.0
         },
         "anomaly_hit": 18,
         "changepoint_hit": 2,
@@ -1832,13 +1832,13 @@
         },
         "changepoint_point": {
           "tp": 2,
-          "fp": 4,
+          "fp": 0,
           "fn": 0,
-          "detected": 6,
+          "detected": 2,
           "truth": 2,
-          "precision": 0.3333,
+          "precision": 1.0,
           "recall": 1.0,
-          "f1": 0.5
+          "f1": 1.0
         },
         "anomaly_hit": 18,
         "changepoint_hit": 2,
@@ -2252,7 +2252,7 @@
   "结论级异常点R(pipeline)": 1.0,
   "结论级异常点F1(pipeline)": 0.2293,
   "结论级异常事件F1(pipeline)": 0.2368,
-  "结论级变化点F1(pipeline)": 0.5,
+  "结论级变化点F1(pipeline)": 1.0,
   "结论级趋势正确率(pipeline)": 0.5,
   "结论级季节正确率(pipeline)": 1.0,
   "结论级结论需求覆盖率(pipeline)": 1.0,
@@ -2260,7 +2260,7 @@
   "结论级异常点R(agent)": 1.0,
   "结论级异常点F1(agent)": 0.2293,
   "结论级异常事件F1(agent)": 0.2368,
-  "结论级变化点F1(agent)": 0.5,
+  "结论级变化点F1(agent)": 1.0,
   "结论级趋势正确率(agent)": 0.5,
   "结论级季节正确率(agent)": 1.0,
   "结论级结论需求覆盖率(agent)": 1.0,

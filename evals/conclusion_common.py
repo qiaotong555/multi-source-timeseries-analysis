@@ -30,6 +30,10 @@ WEATHER_TOOLS = (
 )
 
 # 结论类别 -> 产出该类别的工具。用于差异溯源，不用于判定正确性。
+# 漏登记一个类别不会报错，只会让差异落进「无法归因」——2026-11-03 就踩到了：
+# D2 新增「极端值」结论后没同步这张表，18 条差异（13.33%）变成无法归因，
+# 而文章里「100% 归因于 tool_not_run」这句话差点不成立。新增类别必须同时登记；
+# 确实无工具可归的（如「数据口径」来自预处理与质量检查，两种模式都跑）才不登记。
 CONCL_CATEGORY_TO_TOOL = {
     "趋势": "compute_metrics",
     "季节性": "compute_metrics",
@@ -37,6 +41,8 @@ CONCL_CATEGORY_TO_TOOL = {
     "滞后关系": "compute_metrics",
     "周期": "analyze_spectrum",
     "异常检测": "detect_anomalies",
+    # 极端值在 weather.py 里由 ctx.tool_ran("detect_anomalies") 门控后产出
+    "极端值": "detect_anomalies",
     "变化点": "detect_change_points",
 }
 

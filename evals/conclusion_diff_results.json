@@ -1,18 +1,18 @@
 {
-  "generated_at": "2026-10-23T22:53:04",
+  "generated_at": "2026-11-03T21:27:23",
   "source": "existing_results",
   "result_root": "artifacts\\t212_compare",
   "n_cases": 13,
   "summary": {
-    "pipeline_total": 507,
-    "agent_total": 389,
-    "missing_total": 118,
-    "mean_missing_per_case": 9.0769,
+    "pipeline_total": 663,
+    "agent_total": 528,
+    "missing_total": 135,
+    "mean_missing_per_case": 10.3846,
     "extra_total": 0,
     "reasons": {
-      "tool_not_run": 118
+      "tool_not_run": 135
     },
-    "reason_total": 118,
+    "reason_total": 135,
     "unattributed": 0,
     "unattributed_rate": 0.0,
     "attribution_complete": true
@@ -20,9 +20,9 @@
   "category_matrix": {
     "变化点": {
       "pipeline": 13,
-      "agent": 3,
-      "missing": 10,
-      "tool_not_run": 10,
+      "agent": 4,
+      "missing": 9,
+      "tool_not_run": 9,
       "no_detection": 0,
       "plan_or_parameter_diff": 0,
       "unattributed": 0,
@@ -59,10 +59,20 @@
       "extra": 0
     },
     "数据口径": {
-      "pipeline": 13,
-      "agent": 13,
+      "pipeline": 130,
+      "agent": 130,
       "missing": 0,
       "tool_not_run": 0,
+      "no_detection": 0,
+      "plan_or_parameter_diff": 0,
+      "unattributed": 0,
+      "extra": 0
+    },
+    "极端值": {
+      "pipeline": 39,
+      "agent": 21,
+      "missing": 18,
+      "tool_not_run": 18,
       "no_detection": 0,
       "plan_or_parameter_diff": 0,
       "unattributed": 0,
@@ -102,8 +112,8 @@
   "cases": [
     {
       "case": "wx_anomaly",
-      "pipeline_total": 39,
-      "agent_total": 29,
+      "pipeline_total": 51,
+      "agent_total": 41,
       "missing": 10,
       "extra": 0,
       "unattributed": 0,
@@ -156,11 +166,21 @@
         },
         {
           "category": "数据口径",
-          "pipeline": 1,
-          "agent": 1,
+          "pipeline": 10,
+          "agent": 10,
           "missing": 0,
           "extra": 0,
           "tool": "—",
+          "reason": "",
+          "detail": ""
+        },
+        {
+          "category": "极端值",
+          "pipeline": 3,
+          "agent": 3,
+          "missing": 0,
+          "extra": 0,
+          "tool": "detect_anomalies",
           "reason": "",
           "detail": ""
         },
@@ -200,8 +220,8 @@
     },
     {
       "case": "wx_change",
-      "pipeline_total": 39,
-      "agent_total": 29,
+      "pipeline_total": 51,
+      "agent_total": 41,
       "missing": 10,
       "extra": 0,
       "unattributed": 0,
@@ -253,11 +273,21 @@
         },
         {
           "category": "数据口径",
-          "pipeline": 1,
-          "agent": 1,
+          "pipeline": 10,
+          "agent": 10,
           "missing": 0,
           "extra": 0,
           "tool": "—",
+          "reason": "",
+          "detail": ""
+        },
+        {
+          "category": "极端值",
+          "pipeline": 3,
+          "agent": 3,
+          "missing": 0,
+          "extra": 0,
+          "tool": "detect_anomalies",
           "reason": "",
           "detail": ""
         },
@@ -297,8 +327,8 @@
     },
     {
       "case": "wx_composite",
-      "pipeline_total": 39,
-      "agent_total": 39,
+      "pipeline_total": 51,
+      "agent_total": 51,
       "missing": 0,
       "extra": 0,
       "unattributed": 0,
@@ -352,11 +382,21 @@
         },
         {
           "category": "数据口径",
-          "pipeline": 1,
-          "agent": 1,
+          "pipeline": 10,
+          "agent": 10,
           "missing": 0,
           "extra": 0,
           "tool": "—",
+          "reason": "",
+          "detail": ""
+        },
+        {
+          "category": "极端值",
+          "pipeline": 3,
+          "agent": 3,
+          "missing": 0,
+          "extra": 0,
+          "tool": "detect_anomalies",
           "reason": "",
           "detail": ""
         },
@@ -396,9 +436,9 @@
     },
     {
       "case": "wx_corr",
-      "pipeline_total": 39,
-      "agent_total": 25,
-      "missing": 14,
+      "pipeline_total": 51,
+      "agent_total": 34,
+      "missing": 17,
       "extra": 0,
       "unattributed": 0,
       "executed_tools": [
@@ -448,13 +488,23 @@
         },
         {
           "category": "数据口径",
-          "pipeline": 1,
-          "agent": 1,
+          "pipeline": 10,
+          "agent": 10,
           "missing": 0,
           "extra": 0,
           "tool": "—",
           "reason": "",
           "detail": ""
+        },
+        {
+          "category": "极端值",
+          "pipeline": 3,
+          "agent": 0,
+          "missing": 3,
+          "extra": 0,
+          "tool": "detect_anomalies",
+          "reason": "tool_not_run",
+          "detail": "agent 未执行 detect_anomalies"
         },
         {
           "category": "滞后关系",
@@ -492,8 +542,8 @@
     },
     {
       "case": "wx_extreme",
-      "pipeline_total": 39,
-      "agent_total": 28,
+      "pipeline_total": 51,
+      "agent_total": 40,
       "missing": 11,
       "extra": 0,
       "unattributed": 0,
@@ -544,11 +594,21 @@
         },
         {
           "category": "数据口径",
-          "pipeline": 1,
-          "agent": 1,
+          "pipeline": 10,
+          "agent": 10,
           "missing": 0,
           "extra": 0,
           "tool": "—",
+          "reason": "",
+          "detail": ""
+        },
+        {
+          "category": "极端值",
+          "pipeline": 3,
+          "agent": 3,
+          "missing": 0,
+          "extra": 0,
+          "tool": "detect_anomalies",
           "reason": "",
           "detail": ""
         },
@@ -588,25 +648,26 @@
     },
     {
       "case": "wx_missing",
-      "pipeline_total": 39,
-      "agent_total": 28,
-      "missing": 11,
+      "pipeline_total": 51,
+      "agent_total": 41,
+      "missing": 10,
       "extra": 0,
       "unattributed": 0,
       "executed_tools": [
         "compute_metrics",
-        "detect_anomalies"
+        "detect_anomalies",
+        "detect_change_points"
       ],
       "categories": [
         {
           "category": "变化点",
           "pipeline": 1,
-          "agent": 0,
-          "missing": 1,
+          "agent": 1,
+          "missing": 0,
           "extra": 0,
           "tool": "detect_change_points",
-          "reason": "tool_not_run",
-          "detail": "agent 未执行 detect_change_points"
+          "reason": "",
+          "detail": ""
         },
         {
           "category": "周期",
@@ -640,11 +701,21 @@
         },
         {
           "category": "数据口径",
-          "pipeline": 1,
-          "agent": 1,
+          "pipeline": 10,
+          "agent": 10,
           "missing": 0,
           "extra": 0,
           "tool": "—",
+          "reason": "",
+          "detail": ""
+        },
+        {
+          "category": "极端值",
+          "pipeline": 3,
+          "agent": 3,
+          "missing": 0,
+          "extra": 0,
+          "tool": "detect_anomalies",
           "reason": "",
           "detail": ""
         },
@@ -684,9 +755,9 @@
     },
     {
       "case": "wx_normal",
-      "pipeline_total": 39,
-      "agent_total": 25,
-      "missing": 14,
+      "pipeline_total": 51,
+      "agent_total": 34,
+      "missing": 17,
       "extra": 0,
       "unattributed": 0,
       "executed_tools": [
@@ -736,13 +807,23 @@
         },
         {
           "category": "数据口径",
-          "pipeline": 1,
-          "agent": 1,
+          "pipeline": 10,
+          "agent": 10,
           "missing": 0,
           "extra": 0,
           "tool": "—",
           "reason": "",
           "detail": ""
+        },
+        {
+          "category": "极端值",
+          "pipeline": 3,
+          "agent": 0,
+          "missing": 3,
+          "extra": 0,
+          "tool": "detect_anomalies",
+          "reason": "tool_not_run",
+          "detail": "agent 未执行 detect_anomalies"
         },
         {
           "category": "滞后关系",
@@ -780,8 +861,8 @@
     },
     {
       "case": "wx_open",
-      "pipeline_total": 39,
-      "agent_total": 28,
+      "pipeline_total": 51,
+      "agent_total": 40,
       "missing": 11,
       "extra": 0,
       "unattributed": 0,
@@ -832,11 +913,21 @@
         },
         {
           "category": "数据口径",
-          "pipeline": 1,
-          "agent": 1,
+          "pipeline": 10,
+          "agent": 10,
           "missing": 0,
           "extra": 0,
           "tool": "—",
+          "reason": "",
+          "detail": ""
+        },
+        {
+          "category": "极端值",
+          "pipeline": 3,
+          "agent": 3,
+          "missing": 0,
+          "extra": 0,
+          "tool": "detect_anomalies",
           "reason": "",
           "detail": ""
         },
@@ -876,8 +967,8 @@
     },
     {
       "case": "wx_risk_open",
-      "pipeline_total": 39,
-      "agent_total": 28,
+      "pipeline_total": 51,
+      "agent_total": 40,
       "missing": 11,
       "extra": 0,
       "unattributed": 0,
@@ -928,11 +1019,21 @@
         },
         {
           "category": "数据口径",
-          "pipeline": 1,
-          "agent": 1,
+          "pipeline": 10,
+          "agent": 10,
           "missing": 0,
           "extra": 0,
           "tool": "—",
+          "reason": "",
+          "detail": ""
+        },
+        {
+          "category": "极端值",
+          "pipeline": 3,
+          "agent": 3,
+          "missing": 0,
+          "extra": 0,
+          "tool": "detect_anomalies",
           "reason": "",
           "detail": ""
         },
@@ -972,105 +1073,9 @@
     },
     {
       "case": "wx_spectrum",
-      "pipeline_total": 39,
-      "agent_total": 35,
-      "missing": 4,
-      "extra": 0,
-      "unattributed": 0,
-      "executed_tools": [
-        "analyze_spectrum",
-        "compute_metrics"
-      ],
-      "categories": [
-        {
-          "category": "变化点",
-          "pipeline": 1,
-          "agent": 0,
-          "missing": 1,
-          "extra": 0,
-          "tool": "detect_change_points",
-          "reason": "tool_not_run",
-          "detail": "agent 未执行 detect_change_points"
-        },
-        {
-          "category": "周期",
-          "pipeline": 10,
-          "agent": 10,
-          "missing": 0,
-          "extra": 0,
-          "tool": "analyze_spectrum",
-          "reason": "",
-          "detail": ""
-        },
-        {
-          "category": "季节性",
-          "pipeline": 10,
-          "agent": 10,
-          "missing": 0,
-          "extra": 0,
-          "tool": "compute_metrics",
-          "reason": "",
-          "detail": ""
-        },
-        {
-          "category": "异常检测",
-          "pipeline": 3,
-          "agent": 0,
-          "missing": 3,
-          "extra": 0,
-          "tool": "detect_anomalies",
-          "reason": "tool_not_run",
-          "detail": "agent 未执行 detect_anomalies"
-        },
-        {
-          "category": "数据口径",
-          "pipeline": 1,
-          "agent": 1,
-          "missing": 0,
-          "extra": 0,
-          "tool": "—",
-          "reason": "",
-          "detail": ""
-        },
-        {
-          "category": "滞后关系",
-          "pipeline": 1,
-          "agent": 1,
-          "missing": 0,
-          "extra": 0,
-          "tool": "compute_metrics",
-          "reason": "",
-          "detail": ""
-        },
-        {
-          "category": "相关性",
-          "pipeline": 3,
-          "agent": 3,
-          "missing": 0,
-          "extra": 0,
-          "tool": "compute_metrics",
-          "reason": "",
-          "detail": ""
-        },
-        {
-          "category": "趋势",
-          "pipeline": 10,
-          "agent": 10,
-          "missing": 0,
-          "extra": 0,
-          "tool": "compute_metrics",
-          "reason": "",
-          "detail": ""
-        }
-      ],
-      "pipeline_path": "artifacts\\t212_compare\\wx_spectrum_pipeline\\result.json",
-      "agent_path": "artifacts\\t212_compare\\wx_spectrum_agent\\result.json"
-    },
-    {
-      "case": "wx_stationary",
-      "pipeline_total": 39,
-      "agent_total": 35,
-      "missing": 4,
+      "pipeline_total": 51,
+      "agent_total": 44,
+      "missing": 7,
       "extra": 0,
       "unattributed": 0,
       "executed_tools": [
@@ -1121,13 +1126,130 @@
         },
         {
           "category": "数据口径",
-          "pipeline": 1,
-          "agent": 1,
+          "pipeline": 10,
+          "agent": 10,
           "missing": 0,
           "extra": 0,
           "tool": "—",
           "reason": "",
           "detail": ""
+        },
+        {
+          "category": "极端值",
+          "pipeline": 3,
+          "agent": 0,
+          "missing": 3,
+          "extra": 0,
+          "tool": "detect_anomalies",
+          "reason": "tool_not_run",
+          "detail": "agent 未执行 detect_anomalies"
+        },
+        {
+          "category": "滞后关系",
+          "pipeline": 1,
+          "agent": 1,
+          "missing": 0,
+          "extra": 0,
+          "tool": "compute_metrics",
+          "reason": "",
+          "detail": ""
+        },
+        {
+          "category": "相关性",
+          "pipeline": 3,
+          "agent": 3,
+          "missing": 0,
+          "extra": 0,
+          "tool": "compute_metrics",
+          "reason": "",
+          "detail": ""
+        },
+        {
+          "category": "趋势",
+          "pipeline": 10,
+          "agent": 10,
+          "missing": 0,
+          "extra": 0,
+          "tool": "compute_metrics",
+          "reason": "",
+          "detail": ""
+        }
+      ],
+      "pipeline_path": "artifacts\\t212_compare\\wx_spectrum_pipeline\\result.json",
+      "agent_path": "artifacts\\t212_compare\\wx_spectrum_agent\\result.json"
+    },
+    {
+      "case": "wx_stationary",
+      "pipeline_total": 51,
+      "agent_total": 44,
+      "missing": 7,
+      "extra": 0,
+      "unattributed": 0,
+      "executed_tools": [
+        "analyze_spectrum",
+        "compute_metrics",
+        "run_stat_tests"
+      ],
+      "categories": [
+        {
+          "category": "变化点",
+          "pipeline": 1,
+          "agent": 0,
+          "missing": 1,
+          "extra": 0,
+          "tool": "detect_change_points",
+          "reason": "tool_not_run",
+          "detail": "agent 未执行 detect_change_points"
+        },
+        {
+          "category": "周期",
+          "pipeline": 10,
+          "agent": 10,
+          "missing": 0,
+          "extra": 0,
+          "tool": "analyze_spectrum",
+          "reason": "",
+          "detail": ""
+        },
+        {
+          "category": "季节性",
+          "pipeline": 10,
+          "agent": 10,
+          "missing": 0,
+          "extra": 0,
+          "tool": "compute_metrics",
+          "reason": "",
+          "detail": ""
+        },
+        {
+          "category": "异常检测",
+          "pipeline": 3,
+          "agent": 0,
+          "missing": 3,
+          "extra": 0,
+          "tool": "detect_anomalies",
+          "reason": "tool_not_run",
+          "detail": "agent 未执行 detect_anomalies"
+        },
+        {
+          "category": "数据口径",
+          "pipeline": 10,
+          "agent": 10,
+          "missing": 0,
+          "extra": 0,
+          "tool": "—",
+          "reason": "",
+          "detail": ""
+        },
+        {
+          "category": "极端值",
+          "pipeline": 3,
+          "agent": 0,
+          "missing": 3,
+          "extra": 0,
+          "tool": "detect_anomalies",
+          "reason": "tool_not_run",
+          "detail": "agent 未执行 detect_anomalies"
         },
         {
           "category": "滞后关系",
@@ -1165,9 +1287,9 @@
     },
     {
       "case": "wx_trend",
-      "pipeline_total": 39,
-      "agent_total": 35,
-      "missing": 4,
+      "pipeline_total": 51,
+      "agent_total": 44,
+      "missing": 7,
       "extra": 0,
       "unattributed": 0,
       "executed_tools": [
@@ -1217,13 +1339,23 @@
         },
         {
           "category": "数据口径",
-          "pipeline": 1,
-          "agent": 1,
+          "pipeline": 10,
+          "agent": 10,
           "missing": 0,
           "extra": 0,
           "tool": "—",
           "reason": "",
           "detail": ""
+        },
+        {
+          "category": "极端值",
+          "pipeline": 3,
+          "agent": 0,
+          "missing": 3,
+          "extra": 0,
+          "tool": "detect_anomalies",
+          "reason": "tool_not_run",
+          "detail": "agent 未执行 detect_anomalies"
         },
         {
           "category": "滞后关系",
@@ -1261,9 +1393,9 @@
     },
     {
       "case": "wx_trend_neg",
-      "pipeline_total": 39,
-      "agent_total": 25,
-      "missing": 14,
+      "pipeline_total": 51,
+      "agent_total": 34,
+      "missing": 17,
       "extra": 0,
       "unattributed": 0,
       "executed_tools": [
@@ -1313,13 +1445,23 @@
         },
         {
           "category": "数据口径",
-          "pipeline": 1,
-          "agent": 1,
+          "pipeline": 10,
+          "agent": 10,
           "missing": 0,
           "extra": 0,
           "tool": "—",
           "reason": "",
           "detail": ""
+        },
+        {
+          "category": "极端值",
+          "pipeline": 3,
+          "agent": 0,
+          "missing": 3,
+          "extra": 0,
+          "tool": "detect_anomalies",
+          "reason": "tool_not_run",
+          "detail": "agent 未执行 detect_anomalies"
         },
         {
           "category": "滞后关系",
