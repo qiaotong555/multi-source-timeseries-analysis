@@ -22,6 +22,19 @@ from ..models import (
 )
 
 
+# 工具函数名 → 触发它所需的分析项（`plan.analyses` 里的名字）。
+# pipeline 模式没有 `executed_tools`，只能靠这张表判断某个工具到底跑没跑。
+#
+# **只列真正被计划门控的工具**：引擎里是 `if "anomaly" in plan.analyses: ...` 这种写法。
+# `compute_metrics` / `run_stat_tests` 是无条件执行的，不能列进来——否则计划里没写
+# trend 时会得出「指标没算」的错误结论，把假话从「未检出」换成「未执行」。
+TOOL_ANALYSES: dict[str, frozenset[str]] = {
+    "detect_anomalies": frozenset({"anomaly"}),
+    "detect_change_points": frozenset({"changepoint"}),
+    "analyze_spectrum": frozenset({"spectrum"}),
+}
+
+
 class ScenarioContext:
     """适配器生成结论时可访问的只读上下文。"""
 
@@ -58,7 +71,24 @@ class ScenarioContext:
         self.forecast = forecast
 
     def tool_ran(self, name: str) -> bool:
-        return True if self.executed_tools is None else name in self.executed_tools
+        """该工具本次是否**真的执行过**。
+
+        agent 模式下 `executed_tools` 是权威答案。pipeline 模式下它是 `None`，
+        过去直接返回 True——等于假设「计划里的 12 项全都跑过」。可是模型出力计划时
+        常常只选 3–5 项（默认 `--planner auto` 有模型就交给模型），于是
+        `anomaly` 没被选中、`anomalies` 为空，结论却仍写
+        「未发现异常点（已对 N 条目标序列执行检测）」。
+
+        这正是项目硬约束禁止的：没跑 ≠ 没检出。所以 `None` 时必须回落到
+        `plan.analyses`，用 `TOOL_ANALYSES` 判断这个工具由哪些分析项触发。
+        未知工具名保持 True，避免以后新增工具时静默变成「永不执行」。
+        """
+        if self.executed_tools is not None:
+            return name in self.executed_tools
+        required = TOOL_ANALYSES.get(name)
+        if required is None:
+            return True
+        return bool(required & set(getattr(self.plan, "analyses", None) or ()))
 
     def metric(self, metric_id: str):
         rows = [r for r in self.metrics.rows if r.metric_id == metric_id]

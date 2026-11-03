@@ -222,6 +222,54 @@ def test_corrupted_cache_is_ignored(ctx, tmp_path):
     assert client.calls == 2
 
 
+def test_cache_key_follows_tool_specs(ctx, monkeypatch):
+    """改工具描述必须让缓存键失效。
+
+    缓存键原先只有 `(PLANNER_VERSION, scene, question, 列名, 行数)`，改描述不会失效。
+    2026-11-03 把 `changepoint` 从「均值与方差突变」改成「均值突变」时就踩到了：
+    老缓存里仍是按旧描述生成的计划，而调用方只看到 `plan_source=cache`。
+    """
+    frame, profile, _, _ = ctx
+    planner = LLMPlanner(FakeClient(payload=None), cache_dir=None)
+    before = planner._cache_key("分析趋势", profile, frame, "weather")
+    monkeypatch.setitem(TOOL_SPECS, "changepoint", TOOL_SPECS["changepoint"] + "（改动）")
+    after = planner._cache_key("分析趋势", profile, frame, "weather")
+    assert after != before
+
+
+def test_cache_key_follows_model(ctx):
+    """换模型必须让缓存键失效：同一提示词在不同模型上的输出不可互替。"""
+    frame, profile, _, _ = ctx
+    a, b = FakeClient(payload=None), FakeClient(payload=None)
+    b.model = "qwen-max"
+    ka = LLMPlanner(a, cache_dir=None)._cache_key("分析趋势", profile, frame, "weather")
+    kb = LLMPlanner(b, cache_dir=None)._cache_key("分析趋势", profile, frame, "weather")
+    assert ka != kb
+
+
+def test_cache_key_is_stable_without_changes(ctx):
+    """同一输入两次算出的键必须相同，否则缓存永不命中。"""
+    frame, profile, _, _ = ctx
+    planner = LLMPlanner(FakeClient(payload=None), cache_dir=None)
+    assert (planner._cache_key("分析趋势", profile, frame, "weather")
+            == planner._cache_key("分析趋势", profile, frame, "weather"))
+
+
+def test_prompt_change_invalidates_cache(ctx, tmp_path, monkeypatch):
+    """端到端：改提示词后同一条问题必须重新调用模型，不能吃旧缓存。"""
+    payload = {"analyses": ["trend"], "target_columns": ["temperature"],
+               "parameters": {}, "reason": "关注趋势"}
+    client = FakeClient(payload=payload)
+    planner = LLMPlanner(client, cache_dir=str(tmp_path / "cache"))
+
+    _, first = _plan(planner, ctx)
+    assert first == "llm" and client.calls == 1
+
+    monkeypatch.setitem(TOOL_SPECS, "changepoint", TOOL_SPECS["changepoint"] + "（改动）")
+    _, second = _plan(planner, ctx)
+    assert second == "llm" and client.calls == 2
+
+
 def test_locked_params_are_declared(ctx):
     """锁定参数清单必须非空，否则「模型不得改阈值」这条约束没有落点。"""
     assert PARAM_LOCKED

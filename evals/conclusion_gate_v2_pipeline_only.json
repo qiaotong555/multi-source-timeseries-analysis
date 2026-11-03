@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-03T19:50:57",
+  "generated_at": "2026-11-03T20:30:38",
   "dataset": "fixtures/weather_eval_v2.csv",
   "dataset_sha1": "2ee8077e5ddc8f446a793e04729ad50dd85c1eac",
   "labels": "fixtures/labels_weather_eval_v2.csv",

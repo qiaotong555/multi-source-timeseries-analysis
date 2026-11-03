@@ -315,8 +315,11 @@ def render_report(
             [[a.timestamp, str(a.index), a.column, _fmt(a.value), _fmt(a.score), a.method]
              for a in ctx.anomalies[:MAX_TABLE_ROWS]],
         ))
-    else:
+    elif ctx.tool_ran("detect_anomalies"):
         lines.append("异常点：未检出。")
+    else:
+        lines.append("异常点：**未执行**（本次计划未选 `anomaly`），"
+                     "不能解读为「未发现问题」。")
     lines.append("")
     if ctx.change_points:
         lines.append(f"### 变化点（共 {len(ctx.change_points)} 个）")
@@ -330,6 +333,10 @@ def render_report(
         lines.append("> 变化点的接受判据是「**局部水平差 / 局部去季节散布 ≥ 3**」："
                      "统计量即这个信噪比，前/后中位数取切点两侧紧邻窗口（不是整段前后缀）。"
                      "`未检出` 表示没有超过噪声的突变，**不等于**没有缓慢漂移。")
+    elif not ctx.tool_ran("detect_change_points"):
+        lines.append("变化点：**未执行**（本次计划未选 `changepoint`），"
+                     "不能解读为「没有结构变化」。")
+        lines.append("")
     else:
         lines.append("变化点：未检出。")
         lines.append("")

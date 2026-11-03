@@ -231,9 +231,28 @@ class LLMPlanner:
 
     # ---- 缓存 ----
 
+    def _prompt_fingerprint(self) -> str:
+        """提示词与模型的指纹，进缓存键。
+
+        缓存键原本只有 `(PLANNER_VERSION, scene, question, 列名, 行数)`，于是
+        **改工具描述、改提示词规则、换模型、换供应商都不会让缓存失效**——
+        实测 4/4 项都不变（`scripts/exp_plan_cache_key.py`）。
+
+        后果是静默的：2026-11-03 把 `changepoint` 的描述从「均值与方差突变」改成
+        「均值突变」（方差通道停用），同一条问题仍会命中按旧描述生成的计划，
+        而调用方只看到 `plan_source=cache`，会以为拿到的是新描述下的结果。
+
+        `PLANNER_VERSION` 是人工维护的常量，靠人记得改；指纹是自动的，改了就变。
+        `model` / `base_url` 一起入键，因为同一提示词在不同模型上的输出不可互替。
+        """
+        model = str(getattr(self.client, "model", "") or "")
+        base_url = str(getattr(self.client, "base_url", "") or "")
+        raw = "\x1f".join([PLANNER_VERSION, self._system_prompt(), model, base_url])
+        return hashlib.sha1(raw.encode("utf-8")).hexdigest()[:8]
+
     def _cache_key(self, question: str, profile, frame: pd.DataFrame, scene_id: str) -> str:
         parts = [
-            PLANNER_VERSION, scene_id, question.strip(),
+            PLANNER_VERSION, self._prompt_fingerprint(), scene_id, question.strip(),
             ",".join(map(str, getattr(profile, "numeric_columns", []) or [])),
             str(len(frame)),
         ]

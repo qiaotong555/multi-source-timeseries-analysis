@@ -748,6 +748,15 @@ def _run_analysis_impl(request: AnalysisRequest, verbose: bool, run_id: str,
         timer.run("detect_anomalies", lambda: {"anomalies": len(anomalies),
                                                "change_points": len(change_points)})
 
+        # 计划里没选的检测项：这些小节一定是空的。必须显式说「没跑」，
+        # 否则读者会把空当成零检出（与 agent 模式的 warnings 同一口径）。
+        omitted = [a for a in ("anomaly", "changepoint") if a not in plan.analyses]
+        if omitted:
+            warnings.append(
+                "本次计划未包含以下分析项：" + "、".join(omitted)
+                + "。报告中对应小节为空，不能解读为「未发现问题」。"
+            )
+
     # ---- 9b. 绝对极端（描述性；不并入 anomalies，不参与异常判定） ----
     # 与模式无关：分位数口径固定，cost 很低；Agent 是否执行检测不影响这个字段。
     extremes = anomaly.detect_extremes(clean, plan)
