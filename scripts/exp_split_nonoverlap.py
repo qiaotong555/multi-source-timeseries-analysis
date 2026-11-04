@@ -40,6 +40,13 @@ NONOVERLAP = [
     {"name": "fold2", "dev_ratio": 0.60, "holdout_len": 0.20},
     {"name": "fold3", "dev_ratio": 0.80, "holdout_len": 0.20},
 ]
+# 折中方案：dev 保持 ≥60%（阈值扫描样本不缩水），把 holdout 从 20% 压到 13%，
+# 让三段首尾相接、互不重叠。代价是每折 holdout 的真值变少。
+COMPACT = [
+    {"name": "fold1", "dev_ratio": 0.60, "holdout_len": 0.1333},
+    {"name": "fold2", "dev_ratio": 0.7333, "holdout_len": 0.1333},
+    {"name": "fold3", "dev_ratio": 0.8666, "holdout_len": 0.1334},
+]
 
 
 def run(name: str, folds: list[dict]) -> dict:
@@ -73,23 +80,32 @@ def main() -> int:
     os.makedirs(OUT, exist_ok=True)
     a = run("overlap", OVERLAP)
     b = run("nonoverlap", NONOVERLAP)
+    c = run("compact", COMPACT)
     with open(os.path.join(OUT, "compare.json"), "w", encoding="utf-8") as f:
-        json.dump({"overlap": a, "nonoverlap": b}, f, ensure_ascii=False, indent=2)
+        json.dump({"overlap": a, "nonoverlap": b, "compact": c}, f,
+                  ensure_ascii=False, indent=2)
 
     print()
-    print("| 指标 | 重叠（现行） | 不重叠 | 差 |")
+    print("| 指标 | 重叠（现行） | 不重叠 | 压缩折中 |")
     print("|---|---|---|---|")
     for k in ("mean_holdout_precision", "mean_holdout_recall",
               "mean_holdout_event_recall", "mean_collective_recall"):
-        x, y = a["summary"].get(k), b["summary"].get(k)
-        if x is None or y is None:
+        x, y, z = a["summary"].get(k), b["summary"].get(k), c["summary"].get(k)
+        if x is None or y is None or z is None:
             continue
-        print("| %s | %.4f | %.4f | %+.4f |" % (k, x, y, y - x))
-    print("| 选中阈值 | %s | %s | |" % (a["summary"]["selected_thresholds"],
-                                        b["summary"]["selected_thresholds"]))
-    print("| 阈值稳定 | %s | %s | |" % (a["summary"]["threshold_stable"],
-                                        b["summary"]["threshold_stable"]))
-    print("| 通过 | %s | %s | |" % (a["summary"]["passed"], b["summary"]["passed"]))
+        print("| %s | %.4f | %.4f | %.4f |" % (k, x, y, z))
+    print("| 选中阈值 | %s | %s | %s |" % (
+        a["summary"]["selected_thresholds"], b["summary"]["selected_thresholds"],
+        c["summary"]["selected_thresholds"]))
+    print("| 阈值稳定 | %s | %s | %s |" % (
+        a["summary"]["threshold_stable"], b["summary"]["threshold_stable"],
+        c["summary"]["threshold_stable"]))
+    print("| 每折真值 | %s | %s | %s |" % (
+        [f.get("holdout_truth_count") for f in a["folds"]],
+        [f.get("holdout_truth_count") for f in b["folds"]],
+        [f.get("holdout_truth_count") for f in c["folds"]]))
+    print("| 通过 | %s | %s | %s |" % (
+        a["summary"]["passed"], b["summary"]["passed"], c["summary"]["passed"]))
     print()
     print("明细：", os.path.join(OUT, "compare.json"))
     return 0

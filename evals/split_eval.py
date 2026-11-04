@@ -20,11 +20,12 @@ holdout 样本与 dev 样本在时间上交错，等价于把答案泄漏给调�
 
 已知限制
 --------
-三折的 holdout 段存在重叠，不构成完全独立的重复实验。异常真值来自评估专用集
-`weather_eval_v1`，与演示集 `weather_v1` 分离。**实测每折 holdout 的标注点数**
-（2026-11-04，`weather_eval_v1` + `labels_weather_eval_v1`）依次为 43 / 44 / 60，
-点数层面的抽样波动约 1/50；但**事件级**（把连续点压成一次事件）每折只有 18 个，
-事件召回率的置信区间比点数指标宽得多——引用时要区分这两个口径。
+三段的 holdout 已改成**互不重叠**（2026-11-04，各占 13.33%，首尾相接），
+但仍不是「三条独立序列」：三段来自同一份数据的不同时段，季节结构只覆盖一次。
+异常真值来自评估专用集 `weather_eval_v1`，与演示集 `weather_v1` 分离。
+**实测每折 holdout 的标注点数**（2026-11-04）依次为 32 / 41 / 30；
+**事件级**（把连续点压成一次事件）更少，事件召回率的置信区间比点数指标宽得多——
+引用时要区分这两个口径。
 """
 from __future__ import annotations
 
@@ -40,11 +41,20 @@ import pandas as pd
 EVAL_DATASET = "weather_eval_v1.csv"
 EVAL_LABELS = "labels_weather_eval_v1.csv"
 
-# 三折前向滚动：dev 逐折扩大，holdout 紧随其后、长度固定为 20%
+# 三折前向滚动。2026-11-04 起改为**互不重叠**：dev 保持 ≥60%（阈值扫描样本不缩水），
+# holdout 由 20% 压到 13.33%，三段首尾相接。
+#
+# 旧配置（dev 60/70/80 + holdout 20%）的三段 holdout 是 [0.60,0.80)、[0.70,0.90)、
+# [0.80,1.0)，两两重叠 40–50%，「三折都通过」并不等于三次独立验证。
+# 实测（scripts/exp_split_nonoverlap.py）：
+#   旧配置 P 0.7621 / R 0.8333，阈值 7.0/7.0/7.0；
+#   改成 dev 40/60/80 + holdout 20%（也不重叠）时 fold1 的 dev 只剩 40%，
+#   阈值掉到 5.0、P 掉到 0.7014 —— 说明「阈值稳定」原来靠的是 dev 够长；
+#   现行配置两者兼得：P 0.7540 / R 0.8697，阈值仍 7.0/7.0/7.0，每折真值 32/41/30。
 FOLDS = [
-    {"name": "fold1", "dev_ratio": 0.60, "holdout_len": 0.20},
-    {"name": "fold2", "dev_ratio": 0.70, "holdout_len": 0.20},
-    {"name": "fold3", "dev_ratio": 0.80, "holdout_len": 0.20},
+    {"name": "fold1", "dev_ratio": 0.60, "holdout_len": 0.1333},
+    {"name": "fold2", "dev_ratio": 0.7333, "holdout_len": 0.1333},
+    {"name": "fold3", "dev_ratio": 0.8666, "holdout_len": 0.1334},
 ]
 
 # dev 上的阈值扫描网格。上界放到 12：若阈值仍选在边界，说明在当前数据上

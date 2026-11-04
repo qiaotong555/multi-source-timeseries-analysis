@@ -1,6 +1,6 @@
 # F：预测回测评估
 
-生成时间：2026-11-04T08:59:32
+生成时间：2026-11-04T09:20:08
 数据：18 份（v2 fixture + 17 份公开真实天气数据）
 方法：seasonal_naive（基线）/ moving_average（窗=周期）/ drift（末值+平均增量）；按 walk-forward MASE 选型，候选须相对基线下降 ≥5% 才允许替换
 区间：最近 12 个 origin 的误差按 horizon 归一、分 4 箱、取 conformal 有限样本修正分位
