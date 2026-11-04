@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import pandas as pd
+import pytest
 
 from mtsa.agent_runtime import AgentStep, AgentTrajectory, WEATHER_AGENT_TOOLS
 from mtsa.models import CleanDataset
@@ -172,3 +173,40 @@ def test_coverage_matrix_lists_analyses_each_tool_covers():
     assert by_tool["compute_metrics"]["covers"] == ["trend", "corr"]
     # 工具负责但计划里没排的分析项不出现——不能把「没排进计划」说成「工具不负责」
     assert by_tool["analyze_spectrum"]["covers"] == []
+
+
+# ---------------- 极值的归属：引擎，不是 compute_metrics ----------------
+
+def _plan_with(*analyses: str):
+    raw = make_weather_frame(n=400, stations=1)
+    raw.index = pd.to_datetime(raw["timestamp"])
+    wide = raw.drop(columns=["timestamp", "station"])
+    plan = make_plan("weather", list(wide.columns))
+    plan.analyses = list(analyses)
+    return plan
+
+
+def test_extreme_is_covered_by_engine_not_by_a_tool():
+    """模型只跑 detect_anomalies 时，极值照样算过，覆盖率必须认。
+
+    回归：`extreme` 曾挂在 `compute_metrics` 的 covers 下，而极值实际由引擎统一计算。
+    compute_metrics 不跑时，报告里有极值表、覆盖率却说「未覆盖」。
+    """
+    plan = _plan_with("trend", "extreme", "anomaly")
+    traj = _traj(1, executed=("detect_anomalies",))
+    cov = coverage_summary(plan, traj, WEATHER_AGENT_TOOLS)
+    by_tool = {t["tool"]: t for t in cov["tools"]}
+    assert cov["engine_covers"] == ["extreme"]
+    assert "extreme" in cov["covered_analyses"]
+    # 归因必须分开：工具不代表引擎，引擎也不代表工具
+    assert "extreme" not in by_tool["compute_metrics"]["covers"]
+    assert cov["missing_analyses"] == ["trend"]
+    assert cov["analysis_coverage"] == pytest.approx(2 / 3, abs=1e-4)
+
+
+def test_engine_covers_is_empty_when_extreme_not_planned():
+    plan = _plan_with("trend", "anomaly")
+    traj = _traj(1, executed=("detect_anomalies",))
+    cov = coverage_summary(plan, traj, WEATHER_AGENT_TOOLS)
+    assert cov["engine_covers"] == []
+    assert "extreme" not in cov["covered_analyses"]

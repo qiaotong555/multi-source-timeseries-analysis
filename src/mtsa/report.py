@@ -239,14 +239,17 @@ def render_report(
         lines.append("")
         cov_tools = cov.get("tools") or []
         if cov_tools:
-            lines.append("**覆盖矩阵**：每个工具的状态、它负责的分析项、以及未执行的原因。")
+            lines.append("**覆盖矩阵**：每个工具的状态、它负责的分析项、以及未执行的原因。"
+                         "「引擎」一行不属于任何工具——极值由引擎统一计算，"
+                         "只要计划里有 `extreme` 就一定算过。")
             lines.append("")
-            lines.append(_md_table(
-                ["工具", "状态", "覆盖分析项", "原因"],
-                [[t.get("tool", ""), _STATE_CN.get(t.get("state", ""), t.get("state", "")),
-                  "、".join(t.get("covers") or []) or "—",
-                  t.get("reason") or "—"] for t in cov_tools],
-            ))
+            cov_rows = [[t.get("tool", ""), _STATE_CN.get(t.get("state", ""), t.get("state", "")),
+                         "、".join(t.get("covers") or []) or "—",
+                         t.get("reason") or "—"] for t in cov_tools]
+            if cov.get("engine_covers"):
+                cov_rows.append(["（引擎）", "已执行", "、".join(cov["engine_covers"]),
+                                 "由引擎统一计算，与执行了哪些工具无关"])
+            lines.append(_md_table(["工具", "状态", "覆盖分析项", "原因"], cov_rows))
             lines.append("")
         steps = list(agent.get("steps") or [])
         if steps:

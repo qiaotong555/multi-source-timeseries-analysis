@@ -35,14 +35,21 @@ MAX_TOTAL_TOKENS = 6000
 RECENT_STEPS = 2
 
 # 工具覆盖的分析开关。用于回答「模型说做了统计检验，计划里的平稳性到底覆盖了吗」。
+# 注意：`extreme` 不在这里。极值由引擎统一计算（`anomaly.detect_extremes`，见 #29），
+# 没有任何工具负责它，把它挂在 compute_metrics 名下会与实现不一致——
+# 模型不跑 compute_metrics 时，报告仍会出极值表，覆盖率却记成「未覆盖」。
 TOOL_COVERS: dict[str, tuple[str, ...]] = {
-    "compute_metrics": ("trend", "volatility", "corr", "lag", "extreme",
+    "compute_metrics": ("trend", "volatility", "corr", "lag",
                         "seasonal", "scenario_metrics"),
     "analyze_spectrum": ("spectrum",),
     "run_stat_tests": ("test", "stationarity", "autocorr", "normality", "randomness"),
     "detect_anomalies": ("anomaly",),
     "detect_change_points": ("changepoint",),
 }
+
+# 由引擎无条件计算的分析项：agent 模式下 `_extreme_allowed` 恒真，
+# 只要计划里有 `extreme` 就必然算过，与用哪个工具无关。
+ENGINE_COVERS: tuple[str, ...] = ("extreme",)
 
 
 def estimate_tokens(text: str) -> int:
@@ -117,6 +124,9 @@ def coverage_summary(plan: AnalysisPlan, traj, allowed_tools: Sequence[str]) -> 
 
     planned = list(dict.fromkeys(plan.analyses))
     covered = {a for t in executed for a in TOOL_COVERS.get(t, ()) if a in planned}
+    # 引擎计算的分析项与工具无关：只要计划里有就算已执行（见 ENGINE_COVERS 注释）
+    engine_covered = [a for a in ENGINE_COVERS if a in planned]
+    covered |= set(engine_covered)
     missing_analyses = [a for a in planned if a not in covered]
 
     states = tool_states(traj, allowed)
@@ -136,6 +146,8 @@ def coverage_summary(plan: AnalysisPlan, traj, allowed_tools: Sequence[str]) -> 
         "covered_analyses": [a for a in planned if a in covered],
         "missing_analyses": missing_analyses,
         "analysis_coverage": round(len(covered) / len(planned), 4) if planned else 1.0,
+        # 归因用：这部分不是任何工具做的，报告里单独列一行，避免读者以为某工具负责极值
+        "engine_covers": engine_covered,
         "tools": tools,
     }
 

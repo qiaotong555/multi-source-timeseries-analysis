@@ -62,6 +62,22 @@ def test_need_coverage_ignores_probe_cases():
     assert row["need_missing"] == []
 
 
+def test_extreme_counts_as_engine_work_not_a_tool():
+    """极值由引擎无条件计算（#29），需求里有 extreme 时不能因为没跑 compute_metrics 就记漏。"""
+    row = agent_eval.metrics_from_result(_doc(["detect_anomalies"]), expect=["extreme"])
+    assert row["need_coverage"] == 1.0
+    assert "extreme" in agent_eval.covered_analyses(["detect_anomalies"])
+    # 归因：工具不再替引擎宣称覆盖
+    assert "extreme" not in agent_eval.TOOL_COVERS["compute_metrics"]
+
+
+def test_failed_run_gets_no_engine_credit():
+    """失败/中断时引擎没走到极值那一步，不能替它记覆盖。"""
+    row = agent_eval.metrics_from_result(_doc(status="failed"))
+    assert row["rule_plan_coverage"] == 0.0
+    assert "extreme" not in agent_eval.covered_analyses([], engine=False)
+
+
 def test_tool_failure_rate_and_guard_counts():
     steps = [
         {"action": "compute_metrics", "outcome": "ok"},

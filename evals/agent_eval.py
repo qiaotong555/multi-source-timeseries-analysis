@@ -55,7 +55,7 @@ from mtsa import engine
 from mtsa.agent_runtime import WEATHER_AGENT_TOOLS, AgentRunner
 from mtsa.llm_client import client_from_env
 from mtsa.models import AnalysisRequest
-from mtsa.observation import TOOL_COVERS
+from mtsa.observation import ENGINE_COVERS, TOOL_COVERS
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FIX = os.path.join(ROOT, "fixtures")
@@ -119,9 +119,16 @@ MAX_TOOL_FAILURE_RATE = 0.10
 
 # ---------------- 指标计算（纯函数，便于离线复核） ----------------
 
-def covered_analyses(executed_tools: list[str]) -> set[str]:
-    """已执行工具所覆盖的分析项（与报告里的口径一致）。"""
-    out: set[str] = set()
+def covered_analyses(executed_tools: list[str], engine: bool = True) -> set[str]:
+    """已覆盖的分析项：工具栏 + 引擎栏（与报告里的口径一致）。
+
+    `extreme` 不归任何工具，由引擎在 agent 模式下无条件计算（`ENGINE_COVERS`）。
+    把它算进「已执行工具所覆盖」会在 compute_metrics 未跑时漏计，
+    而报告里那部分极值照样是算过的。
+
+    engine=False 用于失败/中断的运行：引擎没走到那一步，不能替它记覆盖。
+    """
+    out: set[str] = set(ENGINE_COVERS) if engine else set()
     for tool in executed_tools or []:
         out.update(TOOL_COVERS.get(tool, ()))
     return out
@@ -143,7 +150,8 @@ def metrics_from_result(doc: dict[str, Any], expect: Optional[list[str]] = None,
         # 历史结果或异常结果可能没有 coverage：按最终状态回推
         executed = [t for t, st in states.items() if st in ("ok", "skipped")]
 
-    covered = covered_analyses(executed)
+    # 只有跑成功的运行才把「引擎做的事」计入覆盖：失败/中断时引擎没走到那一步。
+    covered = covered_analyses(executed, engine=(doc.get("status") == "succeeded"))
     rule_hit = covered & set(RULE_PLAN_ITEMS)
     need = [e for e in (expect or []) if e]
     need_hit = [e for e in need if e in covered]

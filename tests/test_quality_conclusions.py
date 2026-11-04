@@ -109,6 +109,19 @@ def test_agent_without_detector_does_not_claim_none(monkeypatch, tmp_path):
     assert _cat(doc, "数据口径")
 
 
+def test_agent_report_attributes_extreme_to_engine(monkeypatch, tmp_path):
+    """覆盖矩阵要把「引擎做的」单列一行，不能记在 compute_metrics 名下（#29 遗留）。"""
+    _patch_runner(monkeypatch, [_act("compute_metrics"), _finish()])
+    doc = _run(tmp_path, "agent_cov", _frame(), mode="agent", agent_scope="free")
+    cov = doc["data"]["agent"]["coverage"]
+    assert cov["engine_covers"] == ["extreme"]
+    assert "extreme" in cov["covered_analyses"]
+
+    report = (tmp_path / "agent_cov" / "report.md").read_text(encoding="utf-8")
+    assert "（引擎）" in report
+    assert "极值由引擎统一计算" in report
+
+
 # ---------------- P1：否定句必须带前提 ----------------
 
 def test_zero_detection_reports_actual_scope_and_window(tmp_path):
