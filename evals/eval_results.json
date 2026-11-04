@@ -1069,11 +1069,11 @@
   "1e5行峰值内存": 849.1,
   "_llm_eval": {
     "available": true,
-    "generated_at": "2026-10-23T00:04:31",
+    "generated_at": "2026-11-04T08:41:43",
     "model": "deepseek-chat",
     "base_url": "https://api.deepseek.com/v1",
     "planner_version": "v1",
-    "n_calls": 11,
+    "n_calls": 41,
     "summary": {
       "n_cases": 9,
       "n_judged": 7,
@@ -1081,15 +1081,15 @@
       "valid_rate": 1.0,
       "fallback_rate": 0.0,
       "mean_tool_recall": 1.0,
-      "plan_consistency": 1.0,
-      "consistency_samples": 2,
+      "plan_consistency": 0.875,
+      "consistency_samples": 32,
       "checks": {
         "合法率>=0.9": true,
         "回退率<=0.1": true,
         "覆盖率>=0.6": true
       },
       "passed": true,
-      "scope_note": "覆盖率仅统计合法且带期望项的用例；一致率仅对有重复调用的用例计算"
+      "scope_note": "覆盖率仅统计合法且带期望项的用例；一致率按重复调用的两两比较计数，样本数 = Σ(每例调用次数 - 1)"
     },
     "cases": [
       {
@@ -1119,7 +1119,7 @@
         "source": "llm",
         "tool_recall": 1.0,
         "missing": [],
-        "consistent": null
+        "consistent": true
       },
       {
         "id": "wx_corr",
@@ -1155,15 +1155,15 @@
         "question": "分析股价的趋势与波动特征",
         "selected": [
           "trend",
-          "changepoint",
           "extreme",
-          "autocorr"
+          "changepoint",
+          "anomaly"
         ],
         "valid": true,
         "source": "llm",
         "tool_recall": 1.0,
         "missing": [],
-        "consistent": null
+        "consistent": false
       },
       {
         "id": "st_anomaly",
@@ -1217,8 +1217,7 @@
           "trend",
           "changepoint",
           "anomaly",
-          "corr",
-          "extreme"
+          "corr"
         ],
         "valid": true,
         "source": "llm",

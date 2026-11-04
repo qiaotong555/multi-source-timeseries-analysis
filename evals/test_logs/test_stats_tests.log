@@ -1,5 +1,5 @@
 # test_stats_tests
-# status=PASS exit=0 duration=3.14s passed=15 failed=0 errors=0
+# status=PASS exit=0 duration=3.09s passed=15 failed=0 errors=0
 ...............                                                          [100%]
 ============================== warnings summary ===============================
 tests/test_stats_tests.py::test_adf_detects_random_walk_as_nonstationary

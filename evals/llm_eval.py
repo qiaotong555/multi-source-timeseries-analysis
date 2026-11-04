@@ -17,7 +17,9 @@
   评估要检验的是模型本次的输出，命中缓存说明没有新的模型输出。
 - **回退**：模型输出被拒（格式 / schema / 语义任一不通过），`plan_source` 为 `rule`。
 - **覆盖率**：问题所期望的分析项中被模型选中的比例。
-- **一致率**：同一问题两次调用，分析项集合是否相同。
+- **一致率**：同一问题重复调用（默认 3 次），后续每次与首次的分析项集合比对；
+  按**比较次数**汇总，所以一例 3 次调用贡献 2 个样本。2026-11-04 之前是 2 例 × 2 次
+  = 2 个样本，一致率 1.00 无法排除巧合。
 
 覆盖率的局限必须说清
 --------------------
@@ -92,8 +94,12 @@ CASES: list[dict[str, Any]] = [
      "expect": [], "probe": True},
 ]
 
-# 这两个用例额外重复调用一次，用于观察计划一致率
-REPEAT_IDS = {"wx_trend", "st_anomaly"}
+# 这些用例额外重复调用，用于观察计划一致率。
+# 2026-11-04 起：每例 3 次调用（2 次比较），覆盖两个场景的「直白问题」两条主干。
+# 原来的 2 例 × 2 次只给 2 个比较样本，一致率 1.00 无法排除巧合。
+REPEAT_IDS = {"wx_trend", "wx_anomaly", "st_trend", "st_anomaly"}
+# 每个重复用例的总调用次数（含首次）。1 等于不做重复。
+DEFAULT_REPEATS = 3
 
 MIN_VALID_RATE = 0.90
 MAX_FALLBACK_RATE = 0.10
@@ -153,22 +159,32 @@ def _run_once(client, case: dict, cache: dict) -> dict[str, Any]:
     }
 
 
-def _run_case(client, case: dict, cache: dict, repeat: bool, verbose: bool) -> dict[str, Any]:
+def _run_case(client, case: dict, cache: dict, repeat: bool, verbose: bool,
+              repeats: int = DEFAULT_REPEATS) -> dict[str, Any]:
     first = _run_once(client, case, cache)
     row: dict[str, Any] = {
         "id": case["id"], "scene": case["scene"], "csv": case["csv"],
         "question": case["question"], "expect": list(case["expect"]),
         **first,
     }
-    if repeat:
-        second = _run_once(client, case, cache)
-        row["repeat_selected"] = second["selected"]
-        row["repeat_source"] = second["source"]
-        # 只比较「有序去重后的集合」：顺序无意义，重复项也无意义
-        row["consistent"] = sorted(set(first["selected"])) == sorted(set(second["selected"]))
+    k = max(1, int(repeats))
+    if repeat and k > 1:
+        extra = [_run_once(client, case, cache) for _ in range(k - 1)]
+        row["repeat_selected"] = [r["selected"] for r in extra]
+        row["repeat_source"] = [r["source"] for r in extra]
+        # 只比较「有序去重后的集合」：顺序无意义，重复项也无意义。
+        # 每个后续运行各与首次比一次，一致率按**比较次数**统计，
+        # 这样 k=3 时一例贡献 2 个样本，而不是 1 个「三次全同」的合并判定。
+        base = sorted(set(first["selected"]))
+        row["consistent_runs"] = [base == sorted(set(r["selected"])) for r in extra]
+        row["consistent"] = all(row["consistent_runs"])
     if verbose:
         flag = "OK " if row["valid"] else "回退"
-        cons = "" if "consistent" not in row else (" 一致" if row["consistent"] else " 不一致")
+        if "consistent_runs" in row:
+            cons = " 一致" if row["consistent"] else " 不一致%d/%d" % (
+                sum(row["consistent_runs"]), len(row["consistent_runs"]))
+        else:
+            cons = ""
         cov = "探针" if row["tool_recall"] is None else "%.2f" % row["tool_recall"]
         print("  %-14s %s 覆盖率=%-5s 缺=%-12s 用时=%.1fs%s" % (
             row["id"], flag, cov, "、".join(row["missing"]) or "无", row["elapsed_s"], cons))
@@ -192,9 +208,18 @@ def summarize(rows: list[dict[str, Any]]) -> dict[str, Any]:
     recall_pool = [r["tool_recall"] for r in valid if r.get("tool_recall") is not None]
     mean_recall: Optional[float] = round(statistics.mean(recall_pool), 4) if recall_pool else None
 
-    cons_pool = [r["consistent"] for r in rows if "consistent" in r]
-    consistency: Optional[float] = round(sum(1 for c in cons_pool if c) / len(cons_pool), 4) \
-        if cons_pool else None
+    # 一致率按**比较次数**统计：k 次调用给 k-1 个样本。
+    # 旧结果里只有 consistent（一次比较），继续兼容。
+    pairs: list[bool] = []
+    for r in rows:
+        runs = r.get("consistent_runs")
+        if runs is None:
+            if "consistent" in r:
+                pairs.append(bool(r["consistent"]))
+        else:
+            pairs.extend(bool(x) for x in runs)
+    consistency: Optional[float] = round(sum(1 for c in pairs if c) / len(pairs), 4) \
+        if pairs else None
 
     checks = {
         f"合法率>={MIN_VALID_RATE}": valid_rate >= MIN_VALID_RATE,
@@ -209,10 +234,11 @@ def summarize(rows: list[dict[str, Any]]) -> dict[str, Any]:
         "fallback_rate": fallback_rate,
         "mean_tool_recall": mean_recall,
         "plan_consistency": consistency,
-        "consistency_samples": len(cons_pool),
+        "consistency_samples": len(pairs),
         "checks": checks,
         "passed": all(checks.values()),
-        "scope_note": "覆盖率仅统计合法且带期望项的用例；一致率仅对有重复调用的用例计算",
+        "scope_note": ("覆盖率仅统计合法且带期望项的用例；"
+                       "一致率按重复调用的两两比较计数，样本数 = Σ(每例调用次数 - 1)"),
     }
 
 
@@ -222,7 +248,8 @@ def run_llm_eval(cases: Optional[list[dict]] = None,
                  repeat_ids: Optional[set[str]] = None,
                  client=None,
                  out_path: Optional[str] = None,
-                 verbose: bool = True) -> dict[str, Any]:
+                 verbose: bool = True,
+                 repeats: int = DEFAULT_REPEATS) -> dict[str, Any]:
     cases = cases if cases is not None else CASES
     repeat_ids = REPEAT_IDS if repeat_ids is None else repeat_ids
     client = client if client is not None else client_from_env()
@@ -231,16 +258,18 @@ def run_llm_eval(cases: Optional[list[dict]] = None,
             "未配置 LLM：需要环境变量 MTSA_LLM_BASE_URL 与 MTSA_LLM_API_KEY")
 
     cache: dict = {}
-    rows = [_run_case(client, c, cache, repeat=(c["id"] in repeat_ids), verbose=verbose)
-            for c in cases]
+    rows = [_run_case(client, c, cache, repeat=(c["id"] in repeat_ids),
+                      verbose=verbose, repeats=repeats) for c in cases]
     summary = summarize(rows)
+    n_calls = len(rows) + sum(len(r.get("repeat_selected") or []) for r in rows)
 
     result = {
         "generated_at": datetime.now().isoformat(timespec="seconds"),
         "model": getattr(client, "model", None),
         "base_url": getattr(client, "base_url", None),
         "planner_version": PLANNER_VERSION,
-        "n_calls": len(rows) + len([r for r in rows if "consistent" in r]),
+        "repeats": repeats,
+        "n_calls": n_calls,
         "cases": rows,
         "summary": summary,
     }
@@ -274,6 +303,8 @@ def main(argv: Optional[list[str]] = None) -> int:
     ap = argparse.ArgumentParser(description="LLM 计划层评估（真实调用，禁用缓存）")
     ap.add_argument("--out", default=DEFAULT_OUT)
     ap.add_argument("--no-repeat", action="store_true", help="不做重复调用，跳过一致率")
+    ap.add_argument("--repeats", type=int, default=DEFAULT_REPEATS,
+                    help="重复用例的总调用次数，默认 %d" % DEFAULT_REPEATS)
     ap.add_argument("--dry", action="store_true", help="只列出用例，不调用模型")
     args = ap.parse_args(argv)
 
@@ -286,7 +317,8 @@ def main(argv: Optional[list[str]] = None) -> int:
 
     print("=== LLM 计划层评估 ===")
     result = run_llm_eval(repeat_ids=set() if args.no_repeat else None,
-                          out_path=args.out, verbose=True)
+                          out_path=args.out, verbose=True,
+                          repeats=1 if args.no_repeat else args.repeats)
     print()
     print(format_table(result))
     print()

@@ -168,6 +168,37 @@ def test_repeat_detects_inconsistency(tmp_path):
     assert res["summary"]["plan_consistency"] == 0.0
 
 
+def test_three_repeats_give_two_samples(tmp_path):
+    """k 次调用贡献 k-1 个比较样本——这是一致率样本量不足的直接原因。"""
+    class _Same(_FakeClient):
+        def chat_json(self, system, user):
+            self.calls += 1
+            return {"analyses": ["trend"], "reason": "x"}
+
+    case = {"id": "rep", "scene": "weather", "csv": "weather_v1.csv",
+            "question": "随便看看", "expect": []}
+    client = _Same({})
+    res = LE.run_llm_eval(cases=[case], repeat_ids={"rep"}, client=client,
+                          out_path=str(tmp_path / "r.json"), verbose=False, repeats=3)
+    row = res["cases"][0]
+    assert len(row["consistent_runs"]) == 2
+    assert res["n_calls"] == 3 and client.calls == 3
+    assert res["summary"]["plan_consistency"] == 1.0
+    assert res["summary"]["consistency_samples"] == 2
+
+
+def test_repeats_one_disables_consistency(tmp_path):
+    """repeats=1 等于不重复：仍要能跑，只是不给一致率。"""
+    client = _FakeClient({"analyses": ["trend"], "reason": "x"})
+    case = {"id": "rep", "scene": "weather", "csv": "weather_v1.csv",
+            "question": "随便看看", "expect": []}
+    res = LE.run_llm_eval(cases=[case], repeat_ids={"rep"}, client=client,
+                          out_path=str(tmp_path / "r.json"), verbose=False, repeats=1)
+    assert "consistent" not in res["cases"][0]
+    assert res["summary"]["plan_consistency"] is None
+    assert client.calls == 1
+
+
 def test_missing_client_raises_with_actionable_message(monkeypatch):
     """必须显式清空环境变量：开发者本机配置了 MTSA_LLM_* 时，测试不能因此改走联网路径。"""
     for key in ("MTSA_LLM_BASE_URL", "MTSA_LLM_API_KEY", "MTSA_LLM_MODEL"):
