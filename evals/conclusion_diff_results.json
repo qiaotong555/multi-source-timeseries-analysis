@@ -1,18 +1,18 @@
 {
-  "generated_at": "2026-11-03T21:27:23",
+  "generated_at": "2026-11-04T13:02:18",
   "source": "existing_results",
   "result_root": "artifacts\\t212_compare",
   "n_cases": 13,
   "summary": {
     "pipeline_total": 663,
-    "agent_total": 528,
-    "missing_total": 135,
-    "mean_missing_per_case": 10.3846,
+    "agent_total": 522,
+    "missing_total": 141,
+    "mean_missing_per_case": 10.8462,
     "extra_total": 0,
     "reasons": {
-      "tool_not_run": 135
+      "tool_not_run": 141
     },
-    "reason_total": 135,
+    "reason_total": 141,
     "unattributed": 0,
     "unattributed_rate": 0.0,
     "attribution_complete": true
@@ -50,9 +50,9 @@
     },
     "异常检测": {
       "pipeline": 39,
-      "agent": 21,
-      "missing": 18,
-      "tool_not_run": 18,
+      "agent": 18,
+      "missing": 21,
+      "tool_not_run": 21,
       "no_detection": 0,
       "plan_or_parameter_diff": 0,
       "unattributed": 0,
@@ -70,9 +70,9 @@
     },
     "极端值": {
       "pipeline": 39,
-      "agent": 21,
-      "missing": 18,
-      "tool_not_run": 18,
+      "agent": 18,
+      "missing": 21,
+      "tool_not_run": 21,
       "no_detection": 0,
       "plan_or_parameter_diff": 0,
       "unattributed": 0,
@@ -221,13 +221,12 @@
     {
       "case": "wx_change",
       "pipeline_total": 51,
-      "agent_total": 41,
-      "missing": 10,
+      "agent_total": 35,
+      "missing": 16,
       "extra": 0,
       "unattributed": 0,
       "executed_tools": [
         "compute_metrics",
-        "detect_anomalies",
         "detect_change_points"
       ],
       "categories": [
@@ -264,12 +263,12 @@
         {
           "category": "异常检测",
           "pipeline": 3,
-          "agent": 3,
-          "missing": 0,
+          "agent": 0,
+          "missing": 3,
           "extra": 0,
           "tool": "detect_anomalies",
-          "reason": "",
-          "detail": ""
+          "reason": "tool_not_run",
+          "detail": "agent 未执行 detect_anomalies"
         },
         {
           "category": "数据口径",
@@ -284,12 +283,12 @@
         {
           "category": "极端值",
           "pipeline": 3,
-          "agent": 3,
-          "missing": 0,
+          "agent": 0,
+          "missing": 3,
           "extra": 0,
           "tool": "detect_anomalies",
-          "reason": "",
-          "detail": ""
+          "reason": "tool_not_run",
+          "detail": "agent 未执行 detect_anomalies"
         },
         {
           "category": "滞后关系",

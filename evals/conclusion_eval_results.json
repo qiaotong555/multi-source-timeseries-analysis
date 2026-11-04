@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-04T12:23:10",
+  "generated_at": "2026-11-04T13:02:17",
   "source": "existing_results",
   "result_root": "artifacts\\t212_compare",
   "labels": {
@@ -118,26 +118,26 @@
         "runs": 13,
         "succeeded": 13,
         "anomaly": {
-          "scored_runs": 7,
-          "not_run_runs": 6,
+          "scored_runs": 6,
+          "not_run_runs": 7,
           "truth_per_run": 18,
-          "not_run_truth_instances": 108,
+          "not_run_truth_instances": 126,
           "point": {
-            "tp": 126,
-            "fp": 847,
+            "tp": 108,
+            "fp": 726,
             "fn": 0,
-            "detected": 973,
-            "truth": 126,
+            "detected": 834,
+            "truth": 108,
             "precision": 0.1295,
             "recall": 1.0,
             "f1": 0.2293
           },
           "event": {
-            "tp": 126,
-            "fp": 812,
+            "tp": 108,
+            "fp": 696,
             "fn": 0,
-            "detected": 938,
-            "truth": 126,
+            "detected": 804,
+            "truth": 108,
             "precision": 0.1343,
             "recall": 1.0,
             "f1": 0.2368
@@ -286,13 +286,13 @@
     "agent_vs_pipeline": {
       "anomaly": {
         "pipeline_scored_runs": 13,
-        "agent_scored_runs": 7,
-        "agent_not_run_runs": 6,
+        "agent_scored_runs": 6,
+        "agent_not_run_runs": 7,
         "pipeline_tp_instances": 234,
-        "agent_tp_instances": 126,
-        "missed_instances_due_to_not_run": 108,
+        "agent_tp_instances": 108,
+        "missed_instances_due_to_not_run": 126,
         "pipeline_fp_instances": 1573,
-        "agent_fp_instances": 847,
+        "agent_fp_instances": 726,
         "distinct_truth": 18,
         "pipeline_distinct_hit": 18,
         "agent_distinct_hit": 18,
@@ -735,43 +735,22 @@
       ],
       "executed_tools": [
         "compute_metrics",
-        "detect_anomalies",
         "detect_change_points"
       ],
-      "conclusion_count": 41,
+      "conclusion_count": 35,
       "conclusion_categories": {
         "数据口径": 10,
         "趋势": 10,
         "季节性": 10,
         "相关性": 3,
         "滞后关系": 1,
-        "异常检测": 3,
-        "变化点": 1,
-        "极端值": 3
+        "变化点": 1
       },
       "anomaly": {
-        "state": "scored",
-        "point": {
-          "tp": 18,
-          "fp": 121,
-          "fn": 0,
-          "detected": 139,
-          "truth": 18,
-          "precision": 0.1295,
-          "recall": 1.0,
-          "f1": 0.2293
-        },
-        "event": {
-          "tp": 18,
-          "fp": 116,
-          "fn": 0,
-          "detected": 134,
-          "truth": 18,
-          "precision": 0.1343,
-          "recall": 1.0,
-          "f1": 0.2368
-        },
-        "detected_events": 134
+        "state": "not_run",
+        "point": null,
+        "event": null,
+        "reason": "detect_anomalies 未执行，不能把未看当成没异常"
       },
       "changepoint": {
         "state": "scored",

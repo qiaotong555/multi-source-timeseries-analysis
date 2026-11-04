@@ -1234,7 +1234,7 @@
     "available": true,
     "judged": true,
     "source": "real",
-    "generated_at": "2026-10-23T21:58:03",
+    "generated_at": "2026-11-04T12:54:11",
     "model": "deepseek-chat",
     "planner": "rule",
     "summary": {
@@ -1244,16 +1244,16 @@
       "n_runs": 13,
       "n_succeeded": 13,
       "success_rate": 1.0,
-      "avg_steps": 2.5385,
+      "avg_steps": 2.6923,
       "median_steps": 2,
       "max_steps_observed": 5,
       "terminate_distribution": {
-        "budget_exhausted": 8,
-        "model_finished": 5
+        "budget_exhausted": 10,
+        "model_finished": 3
       },
-      "mean_tool_coverage": 0.5077,
-      "mean_analysis_coverage": 0.6603,
-      "mean_rule_plan_coverage": 0.6603,
+      "mean_tool_coverage": 0.5385,
+      "mean_analysis_coverage": 0.6923,
+      "mean_rule_plan_coverage": 0.6923,
       "min_rule_plan_coverage": 0.5,
       "mean_need_coverage": 1.0,
       "all_needs_covered_rate": 1.0,
@@ -1262,15 +1262,15 @@
       "replay_pool_size": 13,
       "guard_violations_total": 0,
       "guard_violations_per_run": 0.0,
-      "rejects_total": 8,
+      "rejects_total": 10,
       "mean_tool_failure_rate": 0.0,
-      "mean_elapsed_ms": 7507.7,
-      "p90_elapsed_ms": 11957.0,
+      "mean_elapsed_ms": 8980.2,
+      "p90_elapsed_ms": 13300.0,
       "tokens_available_runs": 13,
-      "tokens_total": 53983,
-      "tokens_avg_per_run": 4152.5,
-      "tokens_prompt_total": 51623,
-      "tokens_completion_total": 2360,
+      "tokens_total": 56129,
+      "tokens_avg_per_run": 4317.6,
+      "tokens_prompt_total": 53880,
+      "tokens_completion_total": 2249,
       "checks": {
         "成功率>=0.9": true,
         "需求覆盖率>=0.8": true,
@@ -1294,14 +1294,15 @@
         "need_coverage": 1.0,
         "tool_failure_rate": 0.0,
         "guard_violations": 0,
-        "elapsed_ms": 4483,
+        "elapsed_ms": 4223,
         "replay_ok": true,
         "tokens": {
           "calls": 3,
-          "prompt_tokens": 3176,
-          "completion_tokens": 136,
-          "total_tokens": 3312,
-          "cached_tokens": 2048
+          "max_call_tokens": 1271,
+          "prompt_tokens": 3182,
+          "completion_tokens": 132,
+          "total_tokens": 3314,
+          "cached_tokens": 1920
         }
       },
       {
@@ -1315,14 +1316,15 @@
         "need_coverage": 1.0,
         "tool_failure_rate": 0.0,
         "guard_violations": 0,
-        "elapsed_ms": 11957,
+        "elapsed_ms": 12652,
         "replay_ok": true,
         "tokens": {
           "calls": 5,
-          "prompt_tokens": 5913,
-          "completion_tokens": 224,
-          "total_tokens": 6137,
-          "cached_tokens": 3840
+          "max_call_tokens": 1473,
+          "prompt_tokens": 5743,
+          "completion_tokens": 210,
+          "total_tokens": 5953,
+          "cached_tokens": 2944
         }
       },
       {
@@ -1336,14 +1338,15 @@
         "need_coverage": 1.0,
         "tool_failure_rate": 0.0,
         "guard_violations": 0,
-        "elapsed_ms": 9602,
+        "elapsed_ms": 12128,
         "replay_ok": true,
         "tokens": {
           "calls": 3,
-          "prompt_tokens": 3350,
-          "completion_tokens": 147,
-          "total_tokens": 3497,
-          "cached_tokens": 2048
+          "max_call_tokens": 1439,
+          "prompt_tokens": 3356,
+          "completion_tokens": 135,
+          "total_tokens": 3491,
+          "cached_tokens": 1920
         }
       },
       {
@@ -1357,35 +1360,37 @@
         "need_coverage": 1.0,
         "tool_failure_rate": 0.0,
         "guard_violations": 0,
-        "elapsed_ms": 10602,
+        "elapsed_ms": 15323,
         "replay_ok": true,
         "tokens": {
           "calls": 4,
+          "max_call_tokens": 1461,
           "prompt_tokens": 4884,
-          "completion_tokens": 208,
-          "total_tokens": 5092,
-          "cached_tokens": 2816
+          "completion_tokens": 182,
+          "total_tokens": 5066,
+          "cached_tokens": 2688
         }
       },
       {
         "case": "wx_spectrum",
         "status": "succeeded",
-        "steps": 2,
-        "terminate_reason": "model_finished",
-        "tool_coverage": 0.4,
-        "analysis_coverage": 0.5,
-        "rule_plan_coverage": 0.5,
+        "steps": 3,
+        "terminate_reason": "budget_exhausted",
+        "tool_coverage": 0.6,
+        "analysis_coverage": 0.8333,
+        "rule_plan_coverage": 0.8333,
         "need_coverage": 1.0,
         "tool_failure_rate": 0.0,
         "guard_violations": 0,
-        "elapsed_ms": 4117,
+        "elapsed_ms": 11941,
         "replay_ok": true,
         "tokens": {
-          "calls": 3,
-          "prompt_tokens": 3231,
-          "completion_tokens": 164,
-          "total_tokens": 3395,
-          "cached_tokens": 1920
+          "calls": 4,
+          "max_call_tokens": 1475,
+          "prompt_tokens": 4720,
+          "completion_tokens": 199,
+          "total_tokens": 4919,
+          "cached_tokens": 2688
         }
       },
       {
@@ -1399,14 +1404,15 @@
         "need_coverage": 1.0,
         "tool_failure_rate": 0.0,
         "guard_violations": 0,
-        "elapsed_ms": 5699,
+        "elapsed_ms": 5454,
         "replay_ok": true,
         "tokens": {
           "calls": 4,
-          "prompt_tokens": 4447,
-          "completion_tokens": 213,
-          "total_tokens": 4660,
-          "cached_tokens": 2816
+          "max_call_tokens": 1234,
+          "prompt_tokens": 4274,
+          "completion_tokens": 202,
+          "total_tokens": 4476,
+          "cached_tokens": 2688
         }
       },
       {
@@ -1420,14 +1426,15 @@
         "need_coverage": 1.0,
         "tool_failure_rate": 0.0,
         "guard_violations": 0,
-        "elapsed_ms": 4041,
+        "elapsed_ms": 4185,
         "replay_ok": true,
         "tokens": {
           "calls": 3,
-          "prompt_tokens": 3054,
-          "completion_tokens": 150,
+          "max_call_tokens": 1158,
+          "prompt_tokens": 3060,
+          "completion_tokens": 144,
           "total_tokens": 3204,
-          "cached_tokens": 2048
+          "cached_tokens": 1920
         }
       },
       {
@@ -1441,14 +1448,15 @@
         "need_coverage": 1.0,
         "tool_failure_rate": 0.0,
         "guard_violations": 0,
-        "elapsed_ms": 10888,
+        "elapsed_ms": 10858,
         "replay_ok": true,
         "tokens": {
           "calls": 3,
-          "prompt_tokens": 3384,
-          "completion_tokens": 146,
-          "total_tokens": 3530,
-          "cached_tokens": 2048
+          "max_call_tokens": 1473,
+          "prompt_tokens": 3390,
+          "completion_tokens": 152,
+          "total_tokens": 3542,
+          "cached_tokens": 1920
         }
       },
       {
@@ -1462,14 +1470,15 @@
         "need_coverage": null,
         "tool_failure_rate": 0.0,
         "guard_violations": 0,
-        "elapsed_ms": 4734,
+        "elapsed_ms": 4230,
         "replay_ok": true,
         "tokens": {
           "calls": 3,
-          "prompt_tokens": 3063,
-          "completion_tokens": 159,
-          "total_tokens": 3222,
-          "cached_tokens": 2048
+          "max_call_tokens": 1160,
+          "prompt_tokens": 3069,
+          "completion_tokens": 162,
+          "total_tokens": 3231,
+          "cached_tokens": 1920
         }
       },
       {
@@ -1483,35 +1492,37 @@
         "need_coverage": 1.0,
         "tool_failure_rate": 0.0,
         "guard_violations": 0,
-        "elapsed_ms": 12597,
+        "elapsed_ms": 13300,
         "replay_ok": true,
         "tokens": {
           "calls": 6,
-          "prompt_tokens": 7560,
-          "completion_tokens": 294,
-          "total_tokens": 7854,
-          "cached_tokens": 4608
+          "max_call_tokens": 1569,
+          "prompt_tokens": 7484,
+          "completion_tokens": 280,
+          "total_tokens": 7764,
+          "cached_tokens": 4480
         }
       },
       {
         "case": "wx_missing",
         "status": "succeeded",
-        "steps": 2,
-        "terminate_reason": "model_finished",
-        "tool_coverage": 0.4,
-        "analysis_coverage": 0.5,
-        "rule_plan_coverage": 0.5,
+        "steps": 3,
+        "terminate_reason": "budget_exhausted",
+        "tool_coverage": 0.6,
+        "analysis_coverage": 0.5833,
+        "rule_plan_coverage": 0.5833,
         "need_coverage": 1.0,
         "tool_failure_rate": 0.0,
         "guard_violations": 0,
-        "elapsed_ms": 4529,
+        "elapsed_ms": 6104,
         "replay_ok": true,
         "tokens": {
-          "calls": 3,
-          "prompt_tokens": 3148,
-          "completion_tokens": 191,
-          "total_tokens": 3339,
-          "cached_tokens": 2304
+          "calls": 4,
+          "max_call_tokens": 1189,
+          "prompt_tokens": 4293,
+          "completion_tokens": 184,
+          "total_tokens": 4477,
+          "cached_tokens": 2944
         }
       },
       {
@@ -1525,14 +1536,15 @@
         "need_coverage": 1.0,
         "tool_failure_rate": 0.0,
         "guard_violations": 0,
-        "elapsed_ms": 9724,
+        "elapsed_ms": 11669,
         "replay_ok": true,
         "tokens": {
           "calls": 3,
-          "prompt_tokens": 3356,
-          "completion_tokens": 171,
-          "total_tokens": 3527,
-          "cached_tokens": 2048
+          "max_call_tokens": 1441,
+          "prompt_tokens": 3362,
+          "completion_tokens": 132,
+          "total_tokens": 3494,
+          "cached_tokens": 1920
         }
       },
       {
@@ -1546,29 +1558,30 @@
         "need_coverage": null,
         "tool_failure_rate": 0.0,
         "guard_violations": 0,
-        "elapsed_ms": 4627,
+        "elapsed_ms": 4676,
         "replay_ok": true,
         "tokens": {
           "calls": 3,
-          "prompt_tokens": 3057,
-          "completion_tokens": 157,
-          "total_tokens": 3214,
-          "cached_tokens": 2048
+          "max_call_tokens": 1152,
+          "prompt_tokens": 3063,
+          "completion_tokens": 135,
+          "total_tokens": 3198,
+          "cached_tokens": 1920
         }
       }
     ]
   },
   "Agent成功率": 1.0,
   "Agent需求覆盖率": 1.0,
-  "Agent规则计划覆盖率": 0.6603,
+  "Agent规则计划覆盖率": 0.6923,
   "Agent可重放率": 1.0,
   "Agent工具失败率": 0.0,
-  "Agent平均步数": 2.5385,
+  "Agent平均步数": 2.6923,
   "Agent越界拒绝总数": 0,
   "_conclusion_eval": {
     "available": true,
     "path": "C:\\Users\\乔佟\\WorkBuddy\\2026-09-27-22-32-34\\multi_source_timeseries_analysis\\evals\\conclusion_eval_results.json",
-    "generated_at": "2026-11-04T09:24:57",
+    "generated_at": "2026-11-04T13:02:17",
     "result_root": "artifacts\\t212_compare",
     "source": "existing_results",
     "pipeline": {
@@ -1661,26 +1674,26 @@
       }
     },
     "agent": {
-      "scored_runs": 7,
-      "not_run_runs": 6,
+      "scored_runs": 6,
+      "not_run_runs": 7,
       "truth_per_run": 18,
-      "not_run_truth_instances": 108,
+      "not_run_truth_instances": 126,
       "anomaly_point": {
-        "tp": 126,
-        "fp": 847,
+        "tp": 108,
+        "fp": 726,
         "fn": 0,
-        "detected": 973,
-        "truth": 126,
+        "detected": 834,
+        "truth": 108,
         "precision": 0.1295,
         "recall": 1.0,
         "f1": 0.2293
       },
       "anomaly_event": {
-        "tp": 126,
-        "fp": 812,
+        "tp": 108,
+        "fp": 696,
         "fn": 0,
-        "detected": 938,
-        "truth": 126,
+        "detected": 804,
+        "truth": 108,
         "precision": 0.1343,
         "recall": 1.0,
         "f1": 0.2368
@@ -1752,13 +1765,13 @@
     "agent_vs_pipeline": {
       "anomaly": {
         "pipeline_scored_runs": 13,
-        "agent_scored_runs": 7,
-        "agent_not_run_runs": 6,
+        "agent_scored_runs": 6,
+        "agent_not_run_runs": 7,
         "pipeline_tp_instances": 234,
-        "agent_tp_instances": 126,
-        "missed_instances_due_to_not_run": 108,
+        "agent_tp_instances": 108,
+        "missed_instances_due_to_not_run": 126,
         "pipeline_fp_instances": 1573,
-        "agent_fp_instances": 847,
+        "agent_fp_instances": 726,
         "distinct_truth": 18,
         "pipeline_distinct_hit": 18,
         "agent_distinct_hit": 18,
@@ -1863,17 +1876,17 @@
   "_conclusion_diff": {
     "available": true,
     "path": "C:\\Users\\乔佟\\WorkBuddy\\2026-09-27-22-32-34\\multi_source_timeseries_analysis\\evals\\conclusion_diff_results.json",
-    "generated_at": "2026-11-03T21:27:23",
+    "generated_at": "2026-11-04T13:02:18",
     "summary": {
       "pipeline_total": 663,
-      "agent_total": 528,
-      "missing_total": 135,
-      "mean_missing_per_case": 10.3846,
+      "agent_total": 522,
+      "missing_total": 141,
+      "mean_missing_per_case": 10.8462,
       "extra_total": 0,
       "reasons": {
-        "tool_not_run": 135
+        "tool_not_run": 141
       },
-      "reason_total": 135,
+      "reason_total": 141,
       "unattributed": 0,
       "unattributed_rate": 0.0,
       "attribution_complete": true
@@ -1911,9 +1924,9 @@
       },
       "异常检测": {
         "pipeline": 39,
-        "agent": 21,
-        "missing": 18,
-        "tool_not_run": 18,
+        "agent": 18,
+        "missing": 21,
+        "tool_not_run": 21,
         "no_detection": 0,
         "plan_or_parameter_diff": 0,
         "unattributed": 0,
@@ -1931,9 +1944,9 @@
       },
       "极端值": {
         "pipeline": 39,
-        "agent": 21,
-        "missing": 18,
-        "tool_not_run": 18,
+        "agent": 18,
+        "missing": 21,
+        "tool_not_run": 21,
         "no_detection": 0,
         "plan_or_parameter_diff": 0,
         "unattributed": 0,
@@ -2273,7 +2286,7 @@
   "结论级趋势正确率(agent)": 0.5,
   "结论级季节正确率(agent)": 1.0,
   "结论级结论需求覆盖率(agent)": 1.0,
-  "结论差异总数": 135,
+  "结论差异总数": 141,
   "结论差异无法归因率": 0.0,
   "结论差异归因完整": true,
   "短数据复现一致": 1.0,
