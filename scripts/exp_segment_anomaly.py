@@ -246,6 +246,39 @@ def main() -> int:
         r3 = np.mean([p > thr for p in peaks[(3.0, 48, 24)]])
         print("| %.2f | %.2f | %s | %.2f | %.2f | %.2f |" % (
             thr, len(al) * 30.0 / days, str(longest), r1, r2, r3))
+
+    # ---------- 四、生产配置下的实测（含持续性要求）----------
+    # 上面的 ROC 只用了阈值，没有含「区间至少跨 2 个周期」这条要求。
+    # 生产配置两者都有，必须按生产配置重新量，否则会拿一个不存在的召回对外说。
+    from mtsa import anomaly as A
+    print()
+    print("=== 生产配置实测（threshold=%.1f，区间 ≥%d 个周期）===" % (
+        A.SEGMENT_THRESHOLD, A.SEGMENT_MIN_SPAN_PERIODS))
+    print("| 幅度 | 长度 | 段级召回 | 点检器召回@7σ |")
+    print("|---|---|---|---|")
+    for amp in AMPS:
+        for length in (24, 48, 72):
+            hit_seg = hit_pt = 0
+            for _ in range(REPS):
+                start = usable[int(rng.integers(0, len(usable)))]
+                if start + pd.Timedelta(hours=length) > eval_idx[-1]:
+                    start = eval_idx[-1] - pd.Timedelta(hours=length + 1)
+                end = start + pd.Timedelta(hours=length - 1)
+                inj = s.copy()
+                inj.loc[start:end] = inj.loc[start:end] + amp * sig
+                segs = A._segment_scan(inj, 24, A.SEGMENT_THRESHOLD)
+                if any(overlaps(x["start"], x["end"], start, end) for x in segs):
+                    hit_seg += 1
+                frame = pd.DataFrame({COLUMN: inj})
+                pts = detect_anomalies(CleanDataset(frame=frame), plan)
+                if point_detected({str(p.timestamp) for p in pts}, start, end):
+                    hit_pt += 1
+            print("| %.1fσ | %d h | %.2f | %.2f |" % (amp, length, hit_seg / REPS, hit_pt / REPS))
+
+    seg_clean = A._segment_scan(s.loc[eval_idx[0]:eval_idx[-1]], 24, A.SEGMENT_THRESHOLD)
+    print()
+    print("eval 段未注入数据上的段级误报：%d 次 / %.1f 天 = %.2f 次/30 天" % (
+        len(seg_clean), days, len(seg_clean) * 30.0 / days))
     return 0
 
 

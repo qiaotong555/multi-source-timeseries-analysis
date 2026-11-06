@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-04T12:19:57",
+  "generated_at": "2026-11-06T11:21:09",
   "params": {
     "methods": [
       "seasonal_naive",
@@ -5106,8 +5106,8 @@
     "missing_reason": [],
     "selected_counts": {
       "moving_average": 33,
-      "drift": 7,
-      "seasonal_naive": 54
+      "seasonal_naive": 54,
+      "drift": 7
     },
     "conditional": {
       "judged": 13,

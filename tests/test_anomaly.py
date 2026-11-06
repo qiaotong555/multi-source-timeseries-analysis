@@ -8,7 +8,7 @@ import pandas as pd
 from mtsa import anomaly, profiler, preprocess
 from mtsa.io_loaders import build_spec
 from mtsa.models import RawDataset
-from .helpers import make_weather_frame
+from .helpers import make_plan, make_weather_frame
 
 MIN_PRECISION = 0.70
 MIN_RECALL = 0.70
@@ -121,3 +121,69 @@ def test_anomaly_output_schema(make_plan):
     p = pts[0]
     assert isinstance(p.value, float) and isinstance(p.score, float)
     assert p.method and p.column == "temperature"
+
+
+# ---------------- 段级通道（持续偏移） ----------------
+# 点判据减一个周期的滚动中位数，会把 ≥半个周期的台阶吸收进趋势项；
+# 段通道换 7 周期基线 + 窗口均值。默认关闭，只有显式开参数才生效。
+
+def _inject_step(col: str, k: float, hours: int, seed: int = 7):
+    """在序列中段注入 k·σ 的台阶，返回 (df, 开启段通道的计划, 注入起止时间戳)。"""
+    df = make_weather_frame(n=24 * 200, seed=seed, stations=1)
+    vals = df[col].to_numpy(dtype=float).copy()
+    sd = float(np.std(vals - pd.Series(vals).rolling(24, center=True).mean().bfill().ffill()))
+    start = len(vals) // 2
+    vals[start:start + hours] += k * sd
+    df[col] = vals
+    plan_on = make_plan("weather", [col], seasonal_period=24, anomaly_threshold=7.0,
+                        segment_anomaly=True)
+    t0 = pd.Timestamp(df["timestamp"].iloc[start])
+    t1 = pd.Timestamp(df["timestamp"].iloc[start + hours - 1])
+    return df, plan_on, t0, t1
+
+
+def test_segment_channel_off_by_default(make_plan):
+    """默认不跑段通道：同一份注入了台阶的数据，不应出现 sustained_offset。"""
+    df, _plan_on, _, _ = _inject_step("temperature", k=5.0, hours=48)
+    plan = make_plan("weather", ["temperature"], seasonal_period=24, anomaly_threshold=7.0)
+    clean = _pipeline(df, plan)
+    pts = anomaly.detect_anomalies(clean, plan)
+    assert not [p for p in pts if p.method.startswith("sustained_offset")]
+
+
+def test_segment_channel_detects_sustained_step():
+    """开段通道后，48 小时 5σ 的台阶应被报成一段，且代表点落在台阶内。"""
+    df, plan, start, end = _inject_step("temperature", k=5.0, hours=48)
+    clean = _pipeline(df, plan)
+    pts = anomaly.detect_anomalies(clean, plan)
+    seg = [p for p in pts if p.method.startswith("sustained_offset")]
+    assert seg, "48h/5σ 的台阶没有被段通道检出"
+    assert len(seg) <= 2, [(p.timestamp, p.score) for p in seg]
+    for p in seg:
+        assert start <= pd.Timestamp(p.timestamp) <= end
+        assert "window=24" in p.method and "span=" in p.method
+
+
+def test_segment_channel_ignores_short_blip():
+    """只有 12 小时的偏移不该算「持续」：持续性要求是区间 ≥2 个周期。"""
+    df, plan, _, _ = _inject_step("temperature", k=6.0, hours=12)
+    clean = _pipeline(df, plan)
+    pts = anomaly.detect_anomalies(clean, plan)
+    assert not [p for p in pts if p.method.startswith("sustained_offset")]
+
+
+def test_segment_channel_skips_zero_inflated_column():
+    """零值占比过半的列（降水）不参与段级判定——窗口均值衡量的是「猜没下雨」。"""
+    df, plan, _, _ = _inject_step("rainfall", k=0.0, hours=48)
+    clean = _pipeline(df, plan)
+    pts = anomaly.detect_anomalies(clean, plan)
+    assert not [p for p in pts if p.method.startswith("sustained_offset")]
+
+
+def test_segment_channel_tolerates_short_series(make_plan):
+    """序列短于 3 个基线时直接跳过，不报错、不产出。"""
+    df = make_weather_frame(n=24 * 10, seed=13, stations=1)
+    plan = make_plan("weather", ["temperature"], seasonal_period=24, segment_anomaly=True)
+    clean = _pipeline(df, plan)
+    pts = anomaly.detect_anomalies(clean, plan)
+    assert not [p for p in pts if p.method.startswith("sustained_offset")]

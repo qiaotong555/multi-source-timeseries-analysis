@@ -7,6 +7,8 @@
 """
 from __future__ import annotations
 
+from typing import Optional
+
 import numpy as np
 import pandas as pd
 
@@ -24,6 +26,16 @@ SNR_WINDOW_PERIODS = 3
 # 有效点少于此值的列根本不进入异常检测。报告里写「已对 N 条序列执行检测」时
 # 必须用**实际进入检测的列数**，不能拿目标列数顶替：列缺失或点太少都会让 N 虚高。
 MIN_ANOMALY_POINTS = 20
+# 段级（持续偏移）通道。点判据减一个周期的滚动中位数，会把 ≥半个周期的台阶当趋势吸收，
+# 所以另开一条通道。参数标定见 doc/段级异常检测.md：
+#   w=24、阈值 2.6 时，「≥3σ 且 ≥24h」的偏移召回 0.65–0.85，误报约 1 次/年；
+#   2.5σ 以下或 12h 以下的峰值与噪声同量级，不做。
+SEGMENT_THRESHOLD = 2.6
+SEGMENT_BASELINE_PERIODS = 7   # 基线取 7 个周期（小时级 = 7 天）
+SEGMENT_MIN_SPAN_PERIODS = 2   # 超阈区间至少跨 2 个周期才算「持续」，
+                               # 否则只是贴着阈值的边缘抖动（实测 wind_speed 尤其多）
+SEGMENT_MIN_MULTIPLE = 3       # 序列至少 3 个基线长度才判
+SEGMENT_MAX_ZERO_SHARE = 0.5   # 零值占比 ≥50% 的列跳过（降水等）
 # 变化点最小段长 = max(MIN_SEGMENT, n // CHANGE_POINT_MIN_DIVISOR)，
 # 且序列有效点必须够 4 段才纳入。
 CHANGE_POINT_MIN_DIVISOR = 40
@@ -97,11 +109,103 @@ def _residual(series: pd.Series, period: int | None, window: int) -> pd.Series:
     return resid
 
 
+def _step_delta(index: pd.Index) -> pd.Timedelta:
+    """序列的典型采样间隔；索引不是时间时退化为 1 小时。"""
+    if isinstance(index, pd.DatetimeIndex) and len(index) > 2:
+        d = np.diff(index.values).astype("timedelta64[s]").astype(float)
+        pos = d[d > 0]
+        if len(pos):
+            return pd.Timedelta(seconds=float(np.median(pos)))
+    return pd.Timedelta(hours=1)
+
+
+def _zero_inflated(s: pd.Series, share: float = SEGMENT_MAX_ZERO_SHARE) -> bool:
+    """零值占比过半的列不做段级判定：窗口均值衡量的是「猜没下雨」，没有意义。"""
+    v = s.dropna()
+    if v.empty:
+        return True
+    return float((v == 0).mean()) >= share
+
+
+def _segment_scan(s: pd.Series, period: int, threshold: float) -> list[dict]:
+    """持续偏移扫描：7 个周期的基线 + 一个周期窗口均值的稳健 z。
+
+    点判据减的是一个周期的中心滚动中位数，而它本身就是局部水平估计——持续超过
+    半个周期的台阶会被吸收进趋势项，残差几乎为零（见 `doc/段级异常检测.md`）。
+    基线拉长到 7 个周期后，台阶在窗口里占比远低于 50%，才留得下来。
+    尺度 `scale` 用**滚动均值的 MAD 实测**，不用 σ/√w：残差有自相关，解析式会低估数倍。
+    """
+    w = int(period)
+    baseline = w * SEGMENT_BASELINE_PERIODS
+    n = int(s.notna().sum())
+    if w < 2 or len(s) < SEGMENT_MIN_MULTIPLE * baseline or n < SEGMENT_MIN_MULTIPLE * w:
+        return []
+    base = s.rolling(baseline, center=True, min_periods=max(3, baseline // 2)).median()
+    detrended = s - base
+    seasonal = detrended.groupby(_seasonal_phase(s.index, w)).transform("median")
+    resid = s - base - seasonal
+    # 基线窗口不完整的端部不判：分解不可靠，会系统性产生伪段
+    resid.iloc[:baseline] = np.nan
+    resid.iloc[-baseline:] = np.nan
+    mean = resid.rolling(w, min_periods=w).mean()
+    scale = 1.4826 * float(np.nanmedian(np.abs(mean - np.nanmedian(mean))))
+    if not np.isfinite(scale) or scale <= 0:
+        return []
+    score = mean / scale
+    hit = (score > threshold).fillna(False).astype(bool)
+    if not bool(hit.any()):
+        return []
+
+    step = _step_delta(score.index)
+    min_hits = int(w * SEGMENT_MIN_SPAN_PERIODS)
+    segs: list[dict] = []
+    cur: list = []
+    for ts in score.index[hit]:
+        if cur and ts - cur[-1] > step:
+            seg = _segment_from(cur, score, w, step, min_hits)
+            if seg:
+                segs.append(seg)
+            cur = []
+        cur.append(ts)
+    if cur:
+        seg = _segment_from(cur, score, w, step, min_hits)
+        if seg:
+            segs.append(seg)
+    return segs
+
+
+def _segment_from(ends: list, score: pd.Series, w: int, step: pd.Timedelta,
+                  min_hits: int = 1) -> Optional[dict]:
+    """把一个连续超阈的窗口链折算成区间与代表点（峰值处）。
+
+    持续性按**连续超阈的窗口个数**算，不能按加宽后的区间长度算：
+    窗口对齐会让区间前后各拖出 w−1 个点，12 小时的偏移也能凑出 50 多个点，
+    那样「至少 2 个周期」就形同虚设（实测过一次，56 点的段只对应 12 小时注入）。
+    """
+    if len(ends) < max(1, min_hits):
+        return None
+    start = ends[0] - step * (w - 1)
+    end = ends[-1]
+    peak = max(ends, key=lambda t: float(score.loc[t]))
+    return {
+        "start": start, "end": end, "peak": peak,
+        "score": float(score.loc[peak]),
+        "points": int((end - start) / step) + 1,
+        "hits": len(ends),
+    }
+
+
 def detect_anomalies(clean: CleanDataset, plan: AnalysisPlan) -> list[AnomalyPoint]:
     frame = clean.frame
     threshold = float(plan.parameters.get("anomaly_threshold", 5.0))
     period = plan.parameters.get("seasonal_period")
     window = anomaly_window_len(len(frame), plan.parameters)
+    # 段级通道：默认**关闭**。2026-11-06 按方案 B（并入异常指标）实测后关闭，
+    # 理由见 doc/段级异常检测.md 第八节：开持续性要求时召回与点检器持平，
+    # 关掉则精确率从 0.7540 掉到 0.5966（标注集里没有「持续偏移」这一类，新检出全记 FP）。
+    segment_on = bool(plan.parameters.get("segment_anomaly", False))
+    seg_thr = float(plan.parameters.get("segment_threshold", SEGMENT_THRESHOLD))
+    seg_w = int(plan.parameters.get("segment_window") or (int(period) if period else 0) or 0)
     # 插值点的值来自填补而非观测：长缺口上的线性插值无法还原季节形态，
     # 会把填补误差系统性识别为异常点，必须排除。
     imputed = set(clean.imputed_index or [])
@@ -113,29 +217,56 @@ def detect_anomalies(clean: CleanDataset, plan: AnalysisPlan) -> list[AnomalyPoi
         s = pd.to_numeric(frame[col], errors="coerce")
         if s.notna().sum() < MIN_ANOMALY_POINTS:
             continue
+        col_points: list[AnomalyPoint] = []
+
+        # ---- 点通道 ----
         resid = _residual(s, int(period) if period else None, window)
         sig = robust_sigma(resid)
-        if sig <= 0:
-            continue
-        z = (resid - float(resid.median())) / sig
-        mask = z.abs() > threshold
-        if not mask.any():
-            continue
-        method = f"robust_seasonal_trend_residual_robust_z(period={period})" \
-            if (period and len(s) >= 2 * int(period)) \
-            else f"rolling_median_residual_robust_z(window={window})"
-        for idx in s.index[mask.fillna(False)]:
-            val = s.loc[idx]
-            if pd.isna(val) or str(idx) in imputed:
-                continue
-            out.append(AnomalyPoint(
-                timestamp=str(idx),
-                index=int(frame.index.get_loc(idx)),
-                column=col,
-                value=round(float(val), 6),
-                score=round(float(z.loc[idx]), 4),
-                method=f"{method}, threshold={threshold}",
-            ))
+        if sig > 0:
+            z = (resid - float(resid.median())) / sig
+            mask = z.abs() > threshold
+            method = f"robust_seasonal_trend_residual_robust_z(period={period})" \
+                if (period and len(s) >= 2 * int(period)) \
+                else f"rolling_median_residual_robust_z(window={window})"
+            for idx in s.index[mask.fillna(False)]:
+                val = s.loc[idx]
+                if pd.isna(val) or str(idx) in imputed:
+                    continue
+                col_points.append(AnomalyPoint(
+                    timestamp=str(idx),
+                    index=int(frame.index.get_loc(idx)),
+                    column=col,
+                    value=round(float(val), 6),
+                    score=round(float(z.loc[idx]), 4),
+                    method=f"{method}, threshold={threshold}",
+                ))
+
+        # ---- 段通道（持续偏移）----
+        if segment_on and seg_w >= 2 and not _zero_inflated(s):
+            seen = {p.timestamp for p in col_points}
+            for seg in _segment_scan(s, seg_w, seg_thr):
+                peak = seg["peak"]
+                key = str(peak)
+                # 峰值那一点若已由点通道报过，就不重复计：方案 B 只是并渠道，不是双计
+                if key in seen or key in imputed:
+                    continue
+                val = s.loc[peak]
+                if pd.isna(val):
+                    continue
+                col_points.append(AnomalyPoint(
+                    timestamp=key,
+                    index=int(frame.index.get_loc(peak)),
+                    column=col,
+                    value=round(float(val), 6),
+                    score=round(float(seg["score"]), 4),
+                    method=(f"sustained_offset(baseline={seg_w * SEGMENT_BASELINE_PERIODS}, "
+                            f"window={seg_w}, threshold={seg_thr}), span={seg['points']} points, "
+                            f"hits={seg['hits']}"),
+                ))
+                seen.add(key)
+
+        col_points.sort(key=lambda p: p.index)
+        out.extend(col_points)
     return out
 
 
