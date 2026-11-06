@@ -37,6 +37,8 @@ from typing import Any, Iterable, Optional
 import numpy as np
 import pandas as pd
 
+from . import interval
+
 # 评估专用集：异常密度高于演示集，避免每折 holdout 只有三五条真值
 EVAL_DATASET = "weather_eval_v1.csv"
 EVAL_LABELS = "labels_weather_eval_v1.csv"
@@ -173,11 +175,14 @@ def _truth_pairs(labels: pd.DataFrame) -> list[tuple[str, str]]:
     return out
 
 
-def anomaly_pr(anomalies: Iterable[Any], labels: pd.DataFrame) -> dict:
+def anomaly_pr(anomalies: Iterable[Any], labels: pd.DataFrame,
+               detail: bool = False) -> dict:
     """计算点级精确率与召回率。
 
     分母只统计有真值的列：未注入异常的列（如降雨）上的检出不计入假阳性，
     否则会把「极端值检测」这类合理检出误判成误报。
+
+    `detail=True` 时额外返回三个点对集合（命中/误报/漏报），供区间估计使用。
     """
     truth_pairs = _truth_pairs(labels)
     truth_by_col: dict[str, set] = {}
@@ -190,21 +195,35 @@ def anomaly_pr(anomalies: Iterable[Any], labels: pd.DataFrame) -> dict:
             got_by_col.setdefault(col, set()).add(ts)
 
     tp = fp = fn = 0
+    tp_pairs: list[tuple[str, str]] = []
+    fp_pairs: list[tuple[str, str]] = []
+    fn_pairs: list[tuple[str, str]] = []
     for col, ts_set in truth_by_col.items():
         got = got_by_col.get(col, set())
-        tp += len(ts_set & got)
-        fp += len(got - ts_set)
-        fn += len(ts_set - got)
+        hits = ts_set & got
+        misses = ts_set - got
+        wrong = got - ts_set
+        tp += len(hits)
+        fp += len(wrong)
+        fn += len(misses)
+        tp_pairs.extend((col, ts) for ts in sorted(hits))
+        fp_pairs.extend((col, ts) for ts in sorted(wrong))
+        fn_pairs.extend((col, ts) for ts in sorted(misses))
 
     precision = tp / (tp + fp) if (tp + fp) else 0.0
     recall = tp / (tp + fn) if (tp + fn) else 0.0
-    return {
+    out = {
         "tp": tp, "fp": fp, "fn": fn,
         "precision": round(precision, 4),
         "recall": round(recall, 4),
         "truth_count": tp + fn,
         "detected_count": tp + fp,
     }
+    if detail:
+        out["tp_pairs"] = tp_pairs
+        out["fp_pairs"] = fp_pairs
+        out["fn_pairs"] = fn_pairs
+    return out
 
 
 def _merge_events(pairs: Iterable[tuple[str, str]], max_gap_seconds: float) -> list[tuple]:
@@ -407,6 +426,11 @@ def run_split_eval(
     time_col = "timestamp" if "timestamp" in frame.columns else frame.columns[0]
 
     fold_reports = []
+    # 三折 holdout 互不重叠，命中/误报/漏报点可以合并成一个池子，
+    # 用更大的样本算「整体」区间；逐折区间各自只有 30–41 个真值，会宽到没信息量。
+    pool_tp: list[tuple[str, str]] = []
+    pool_fp: list[tuple[str, str]] = []
+    pool_fn: list[tuple[str, str]] = []
     with rule_planner_env(planner_mode):
         for fold in (folds or FOLDS):
             name = fold["name"]
@@ -461,9 +485,15 @@ def run_split_eval(
                     print(f"  {name}: harness_error —— {problem}")
                 continue
 
-            pr_hold = anomaly_pr(res.data["anomalies"], hold_labels)
+            pr_hold = anomaly_pr(res.data["anomalies"], hold_labels, detail=True)
             ev_hold = event_pr(res.data["anomalies"], hold_labels)
             type_recall = ev_hold.get("recall_by_type", {})
+            # 区间按**事件**重采样，不按点：逐小时点高度自相关，按点算的区间会窄一个量级。
+            pr_int = interval.pr_interval(pr_hold["tp_pairs"], pr_hold["fp_pairs"],
+                                          pr_hold["fn_pairs"])
+            pool_tp.extend(pr_hold["tp_pairs"])
+            pool_fp.extend(pr_hold["fp_pairs"])
+            pool_fn.extend(pr_hold["fn_pairs"])
 
             fold_reports.append({
                 "fold": name,
@@ -489,6 +519,10 @@ def run_split_eval(
                 "gap_recall": round(abs(choice["dev_recall"] - pr_hold["recall"]), 4),
                 "holdout_precision_lower95": wilson_lower(pr_hold["tp"], pr_hold["tp"] + pr_hold["fp"]),
                 "holdout_recall_lower95": wilson_lower(pr_hold["tp"], pr_hold["tp"] + pr_hold["fn"]),
+                # 事件级 cluster bootstrap 的 95% 区间（比 Wilson 宽，因为它按事件算有效样本量）
+                "holdout_precision_ci": list(pr_int["precision"]) if pr_int["precision"] else None,
+                "holdout_recall_ci": list(pr_int["recall"]) if pr_int["recall"] else None,
+                "holdout_ci_events": pr_int["n_events"],
                 "holdout_event_precision": ev_hold["precision"],
                 "holdout_event_recall": ev_hold["recall"],
                 "holdout_event_truth": ev_hold["truth_events"],
@@ -504,7 +538,30 @@ def run_split_eval(
                       f"事件 P/R={ev_hold['precision']}/{ev_hold['recall']} "
                       f"分类型={type_recall} truth={pr_hold['truth_count']}")
 
-    return summarize(fold_reports)
+    result = summarize(fold_reports)
+    result["summary"]["pooled_precision_ci"] = None
+    result["summary"]["pooled_recall_ci"] = None
+    result["summary"]["pooled_precision"] = None
+    result["summary"]["pooled_recall"] = None
+    result["summary"]["pooled_ci_events"] = 0
+    if pool_tp or pool_fp or pool_fn:
+        pooled = interval.pr_interval(pool_tp, pool_fp, pool_fn)
+        # 合并口径与 22 项指标用的「逐折均值」不是同一个量，两个都要给：
+        # 均值口径回答「典型一折多准」，合并口径回答「这批 holdout 整体多准」，区间只能对后者。
+        n_tp, n_fp, n_fn = len(pool_tp), len(pool_fp), len(pool_fn)
+        result["summary"]["pooled_tp"] = n_tp
+        result["summary"]["pooled_fp"] = n_fp
+        result["summary"]["pooled_fn"] = n_fn
+        result["summary"]["pooled_precision"] = round(n_tp / (n_tp + n_fp), 4) if (n_tp + n_fp) else 0.0
+        result["summary"]["pooled_recall"] = round(n_tp / (n_tp + n_fn), 4) if (n_tp + n_fn) else 0.0
+        result["summary"]["pooled_precision_ci"] = list(pooled["precision"]) if pooled["precision"] else None
+        result["summary"]["pooled_recall_ci"] = list(pooled["recall"]) if pooled["recall"] else None
+        result["summary"]["pooled_ci_events"] = pooled["n_events"]
+        result["summary"]["pooled_ci_fp_clusters"] = pooled["n_fp_clusters"]
+        result["summary"]["pooled_ci_note"] = (
+            "按事件做 cluster bootstrap（2000 次，percentile 95%），针对**合并口径**的比率；"
+            "22 项指标里的 Precision/Recall 是逐折均值的均值，两者点值略有差异。")
+    return result
 
 
 def summarize(fold_reports: list[dict]) -> dict:

@@ -139,6 +139,15 @@
         "gap_recall": 0.0726,
         "holdout_precision_lower95": 0.6166,
         "holdout_recall_lower95": 0.7985,
+        "holdout_precision_ci": [
+          0.5385,
+          0.88
+        ],
+        "holdout_recall_ci": [
+          0.7778,
+          1.0
+        ],
+        "holdout_ci_events": 11,
         "holdout_event_precision": 1.0,
         "holdout_event_recall": 0.75,
         "holdout_event_truth": 12,
@@ -282,6 +291,15 @@
         "gap_recall": 0.0673,
         "holdout_precision_lower95": 0.6056,
         "holdout_recall_lower95": 0.6599,
+        "holdout_precision_ci": [
+          0.5924,
+          0.8333
+        ],
+        "holdout_recall_ci": [
+          0.5882,
+          0.963
+        ],
+        "holdout_ci_events": 13,
         "holdout_event_precision": 1.0,
         "holdout_event_recall": 0.9231,
         "holdout_event_truth": 13,
@@ -425,6 +443,15 @@
         "gap_recall": 0.007,
         "holdout_precision_lower95": 0.5793,
         "holdout_recall_lower95": 0.7032,
+        "holdout_precision_ci": [
+          0.5652,
+          0.8333
+        ],
+        "holdout_recall_ci": [
+          0.7297,
+          1.0
+        ],
+        "holdout_ci_events": 9,
         "holdout_event_precision": 1.0,
         "holdout_event_recall": 1.0,
         "holdout_event_truth": 9,
@@ -472,7 +499,23 @@
       "skipped_folds": [],
       "valid_truth_total": 103,
       "reason": null,
-      "note": "holdout 段存在重叠，不构成完全独立的重复实验；每折真值样本有限，应结合置信下界解读"
+      "note": "holdout 段存在重叠，不构成完全独立的重复实验；每折真值样本有限，应结合置信下界解读",
+      "pooled_precision_ci": [
+        0.6633,
+        0.8175
+      ],
+      "pooled_recall_ci": [
+        0.7528,
+        0.9551
+      ],
+      "pooled_precision": 0.7542,
+      "pooled_recall": 0.8641,
+      "pooled_ci_events": 33,
+      "pooled_tp": 89,
+      "pooled_fp": 29,
+      "pooled_fn": 14,
+      "pooled_ci_fp_clusters": 6,
+      "pooled_ci_note": "按事件做 cluster bootstrap（2000 次，percentile 95%），针对**合并口径**的比率；22 项指标里的 Precision/Recall 是逐折均值的均值，两者点值略有差异。"
     }
   },
   "异常检测 Precision": 0.754,
@@ -590,7 +633,23 @@
       "skipped_folds": [],
       "valid_truth_total": 103,
       "reason": null,
-      "note": "holdout 段存在重叠，不构成完全独立的重复实验；每折真值样本有限，应结合置信下界解读"
+      "note": "holdout 段存在重叠，不构成完全独立的重复实验；每折真值样本有限，应结合置信下界解读",
+      "pooled_precision_ci": [
+        0.6633,
+        0.8175
+      ],
+      "pooled_recall_ci": [
+        0.7528,
+        0.9551
+      ],
+      "pooled_precision": 0.7542,
+      "pooled_recall": 0.8641,
+      "pooled_ci_events": 33,
+      "pooled_tp": 89,
+      "pooled_fp": 29,
+      "pooled_fn": 14,
+      "pooled_ci_fp_clusters": 6,
+      "pooled_ci_note": "按事件做 cluster bootstrap（2000 次，percentile 95%），针对**合并口径**的比率；22 项指标里的 Precision/Recall 是逐折均值的均值，两者点值略有差异。"
     }
   },
   "变化点检出率": 1.0,
@@ -1581,7 +1640,7 @@
   "_conclusion_eval": {
     "available": true,
     "path": "C:\\Users\\乔佟\\WorkBuddy\\2026-09-27-22-32-34\\multi_source_timeseries_analysis\\evals\\conclusion_eval_results.json",
-    "generated_at": "2026-11-04T13:02:17",
+    "generated_at": "2026-11-06T11:24:54",
     "result_root": "artifacts\\t212_compare",
     "source": "existing_results",
     "pipeline": {
