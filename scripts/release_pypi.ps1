@@ -13,11 +13,23 @@ if (-not (Test-Path $py)) { $py = "python" }
 
 # twine 装在临时目录，不污染项目环境
 $tw = Join-Path $env:TEMP "tw"
-if (-not (Test-Path (Join-Path $tw "twine"))) {
-    Write-Host "安装 twine 到 $tw ..."
-    & $py -m pip install -q --target $tw twine
+if ($env:PYTHONPATH) { $env:PYTHONPATH = $tw + ";" + $env:PYTHONPATH } else { $env:PYTHONPATH = $tw }
+
+# 不能只看目录在不在：曾出现「twine\ 只剩 commands/ 与 __pycache__」的半装状态，
+# 目录存在但 import 失败，脚本每次都复用它，报 No module named twine.__main__。
+function Test-Twine {
+    & $py -c "import twine.__main__" 2>&1 | Out-Null
+    return ($LASTEXITCODE -eq 0)
 }
-$env:PYTHONPATH = $tw
+if (-not (Test-Twine)) {
+    Write-Host "安装/修复 twine 到 $tw ..."
+    & $py -m pip install -q --upgrade --force-reinstall --target $tw twine
+    if (-not (Test-Twine)) {
+        Write-Host "twine 仍不可用。删掉临时目录后重试：" -ForegroundColor Red
+        Write-Host ("  Remove-Item '" + $tw + "' -Recurse -Force") -ForegroundColor Red
+        exit 1
+    }
+}
 
 # 只上传目标版本：dist\ 里常躺着历史版本，全量上传会被 PyPI 拒绝（该版本已存在）
 if (-not $Version) {
@@ -56,8 +68,19 @@ if ($token -notmatch '^pypi-[\x21-\x7E]+$') {
 $env:TWINE_USERNAME = "__token__"
 $env:TWINE_PASSWORD = $token
 try {
+    # 原生命令失败不会触发 $ErrorActionPreference，必须显式看退出码，
+    # 否则上传失败也会静默返回 0，看起来像成功。
     & $py -m twine check $files.FullName
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "twine check 未通过，已中止上传" -ForegroundColor Red
+        exit 1
+    }
     & $py -m twine upload --repository pypi $files.FullName
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host ("上传失败，twine 退出码 " + $LASTEXITCODE) -ForegroundColor Red
+        exit $LASTEXITCODE
+    }
+    Write-Host ("上传完成：" + $Version) -ForegroundColor Green
 } finally {
     Remove-Item Env:\TWINE_PASSWORD -ErrorAction SilentlyContinue
 }
