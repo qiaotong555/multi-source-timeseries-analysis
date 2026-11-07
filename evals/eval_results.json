@@ -1128,7 +1128,7 @@
   "1e5行峰值内存": 849.1,
   "_llm_eval": {
     "available": true,
-    "generated_at": "2026-11-07T10:53:58",
+    "generated_at": "2026-11-07T11:20:48",
     "model": "deepseek-chat",
     "base_url": "https://api.deepseek.com/v1",
     "planner_version": "v1",
@@ -1140,7 +1140,7 @@
       "valid_rate": 1.0,
       "fallback_rate": 0.0,
       "mean_tool_recall": 1.0,
-      "plan_consistency": 1.0,
+      "plan_consistency": 0.9688,
       "consistency_samples": 32,
       "checks": {
         "合法率>=0.9": true,
@@ -1222,7 +1222,7 @@
         "source": "llm",
         "tool_recall": 1.0,
         "missing": [],
-        "consistent": true
+        "consistent": false
       },
       {
         "id": "st_anomaly",
@@ -1276,8 +1276,7 @@
           "trend",
           "changepoint",
           "anomaly",
-          "corr",
-          "extreme"
+          "corr"
         ],
         "valid": true,
         "source": "llm",
@@ -1641,7 +1640,7 @@
   "_conclusion_eval": {
     "available": true,
     "path": "C:\\Users\\乔佟\\WorkBuddy\\2026-09-27-22-32-34\\multi_source_timeseries_analysis\\evals\\conclusion_eval_results.json",
-    "generated_at": "2026-11-07T10:52:08",
+    "generated_at": "2026-11-07T11:24:30",
     "result_root": "artifacts\\t212_compare",
     "source": "existing_results",
     "pipeline": {

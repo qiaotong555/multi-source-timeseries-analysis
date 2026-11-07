@@ -115,3 +115,29 @@ def test_dry_run_failure_does_not_create_dir(tmp_path):
     assert res.status == "failed"
     assert res.error.code == "DATA_LOAD_FAILED"
     assert not out.exists()
+
+
+def test_every_artifact_carries_sha1(tmp_path, monkeypatch):
+    """产物清单里的 sha1 必须与磁盘上的文件一致。
+
+    这个字段一直在契约里（`doc/接口与字段.md` 的 `Artifact`），但长期只留空串：
+    外部拿到报告无从核对「是不是这一次跑出来的」。回归用例锁住「非空且等于文件哈希」。
+    """
+    import hashlib
+    import os
+
+    monkeypatch.setenv("MTSA_PLANNER", "rule")
+    req, _ = _req(tmp_path, rid="sha1")
+    res = run_analysis(req, verbose=False)
+    assert res.status == "succeeded"
+    assert res.artifacts, "没有产物"
+
+    checked = 0
+    for art in res.artifacts:
+        assert art.sha1, f"{art.artifact_id} 的 sha1 为空"
+        assert len(art.sha1) == 40
+        assert os.path.isfile(art.path)
+        digest = hashlib.sha1(open(art.path, "rb").read()).hexdigest()
+        assert art.sha1 == digest, art.artifact_id
+        checked += 1
+    assert checked >= 3

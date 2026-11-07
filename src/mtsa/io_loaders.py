@@ -27,6 +27,26 @@ def sha1_of_file(path: str, chunk: int = 1 << 20) -> str:
     return h.hexdigest()
 
 
+def fill_artifact_sha1(artifacts) -> int:
+    """给已落盘的产物补 `sha1`，返回成功填充的数量。
+
+    这个字段一直在契约里（`doc/接口与字段.md` 的 `Artifact`），但实现里只留了空串——
+    外部无法校验下载到的报告/图表是不是当初跑出来的那一份，「可回放」就少了一个锚点。
+    文件不存在或读失败时保持空串：宁可缺失，也不要写一个错的哈希。
+    """
+    filled = 0
+    for art in artifacts or []:
+        path = getattr(art, "path", "") or ""
+        if not path or not os.path.isfile(path):
+            continue
+        try:
+            art.sha1 = sha1_of_file(path)
+            filled += 1
+        except OSError:
+            continue
+    return filled
+
+
 # 可选格式的依赖：缺失时要给「装哪个包」的指令，而不是把 ImportError 原样抛给用户
 _OPTIONAL_DEP = {
     ".xlsx": ("openpyxl", "mtsa[io]"),

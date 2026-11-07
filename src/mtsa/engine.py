@@ -976,11 +976,16 @@ def _run_analysis_impl(request: AnalysisRequest, verbose: bool, run_id: str,
     # 落盘
     os.makedirs(outdir, exist_ok=True)
     out_json = os.path.join(outdir, "result.json")
+    # 先补哈希再写 result.json：写出去的文件里 sha1 必须已经有值，
+    # 否则外部拿到报告却无法核对「是不是这一次跑的产物」。
+    io_loaders.fill_artifact_sha1(artifacts)
     with open(out_json, "w", encoding="utf-8") as f:
         f.write(result.model_dump_json(indent=2))
     result.artifacts.append(
         Artifact(artifact_id="art_result_json", kind="table_csv", path=out_json,
-                 title="结构化结果", fields=["all"])
+                 title="结构化结果", fields=["all"],
+                 # result.json 落盘后才能算自己的哈希；它也不可能把自己的哈希写进自己
+                 sha1=io_loaders.sha1_of_file(out_json))
     )
     if verbose:
         print(f"完成：run_id={run_id}  场景={plan.scene_id}  置信度={plan.scene_confidence}")

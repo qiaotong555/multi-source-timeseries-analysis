@@ -1,5 +1,5 @@
 # test_lookahead
-# status=PASS exit=0 duration=17.43s passed=7 failed=0 errors=0
+# status=PASS exit=0 duration=17.31s passed=7 failed=0 errors=0
 .......                                                                  [100%]
 ============================== warnings summary ===============================
 tests/test_lookahead.py::test_lookahead_conclusion_admits_it_did_not_check

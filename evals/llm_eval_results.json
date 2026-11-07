@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-07T10:53:58",
+  "generated_at": "2026-11-07T11:20:48",
   "model": "deepseek-chat",
   "base_url": "https://api.deepseek.com/v1",
   "planner_version": "v1",
@@ -26,7 +26,7 @@
       "error": null,
       "tool_recall": 1.0,
       "missing": [],
-      "elapsed_s": 1.55,
+      "elapsed_s": 1.73,
       "repeat_selected": [
         [
           "trend",
@@ -109,7 +109,7 @@
       "error": null,
       "tool_recall": 1.0,
       "missing": [],
-      "elapsed_s": 1.07,
+      "elapsed_s": 1.21,
       "repeat_selected": [
         [
           "anomaly",
@@ -184,7 +184,7 @@
       "error": null,
       "tool_recall": 1.0,
       "missing": [],
-      "elapsed_s": 1.07
+      "elapsed_s": 0.86
     },
     {
       "id": "wx_stationary",
@@ -203,7 +203,7 @@
       "error": null,
       "tool_recall": 1.0,
       "missing": [],
-      "elapsed_s": 1.13
+      "elapsed_s": 1.37
     },
     {
       "id": "st_trend",
@@ -224,7 +224,7 @@
       "error": null,
       "tool_recall": 1.0,
       "missing": [],
-      "elapsed_s": 1.51,
+      "elapsed_s": 1.07,
       "repeat_selected": [
         [
           "trend",
@@ -272,7 +272,7 @@
           "trend",
           "extreme",
           "changepoint",
-          "anomaly"
+          "autocorr"
         ]
       ],
       "repeat_source": [
@@ -293,9 +293,9 @@
         true,
         true,
         true,
-        true
+        false
       ],
-      "consistent": true
+      "consistent": false
     },
     {
       "id": "st_anomaly",
@@ -315,7 +315,7 @@
       "error": null,
       "tool_recall": 1.0,
       "missing": [],
-      "elapsed_s": 1.35,
+      "elapsed_s": 1.09,
       "repeat_selected": [
         [
           "anomaly",
@@ -409,7 +409,7 @@
       "error": null,
       "tool_recall": null,
       "missing": [],
-      "elapsed_s": 1.5
+      "elapsed_s": 0.91
     },
     {
       "id": "st_open",
@@ -421,15 +421,14 @@
         "trend",
         "changepoint",
         "anomaly",
-        "corr",
-        "extreme"
+        "corr"
       ],
       "source": "llm",
       "valid": true,
       "error": null,
       "tool_recall": null,
       "missing": [],
-      "elapsed_s": 1.53
+      "elapsed_s": 1.27
     }
   ],
   "summary": {
@@ -439,7 +438,7 @@
     "valid_rate": 1.0,
     "fallback_rate": 0.0,
     "mean_tool_recall": 1.0,
-    "plan_consistency": 1.0,
+    "plan_consistency": 0.9688,
     "consistency_samples": 32,
     "checks": {
       "合法率>=0.9": true,
