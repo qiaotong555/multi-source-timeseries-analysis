@@ -1,5 +1,5 @@
 # test_timeout_guard
-# status=PASS exit=0 duration=27.79s passed=7 failed=0 errors=0
+# status=PASS exit=0 duration=25.08s passed=7 failed=0 errors=0
 .......                                                                  [100%]
-7 passed in 26.08s
+7 passed in 23.47s
 
