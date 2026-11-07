@@ -412,6 +412,7 @@ def run_split_eval(
     folds: Optional[list[dict]] = None,
     verbose: bool = False,
     planner_mode: str = "rule",
+    keep_pairs: bool = False,
 ) -> dict:
     """执行三折前向滚动评估，返回结构化结果。
 
@@ -561,6 +562,9 @@ def run_split_eval(
         result["summary"]["pooled_ci_note"] = (
             "按事件做 cluster bootstrap（2000 次，percentile 95%），针对**合并口径**的比率；"
             "22 项指标里的 Precision/Recall 是逐折均值的均值，两者点值略有差异。")
+    if keep_pairs:
+        # 只给实验脚本用（样本量分析要事件池）；写盘路径保持 keep_pairs=False，不污染结果文件。
+        result["_pairs"] = {"tp": pool_tp, "fp": pool_fp, "fn": pool_fn}
     return result
 
 
