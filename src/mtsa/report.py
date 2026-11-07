@@ -490,6 +490,11 @@ def render_report(
                      "回测窗口内一致」；horizon 越长误差越大，90% 区间由历史回测误差标定，"
                      "覆盖率见上表。与第 8 节的异常、第 8b 节的绝对极端不是同一口径。")
         lines.append("")
+        if any(c.get("lower_bound") is not None for c in ok_cols):
+            lines.append("> 降水、风速、湿度这类非负量的区间下界已按物理下界 **0** 截断"
+                         "（原始分位数可能为负）；温度等可正可负的变量不截断。"
+                         "截断只影响展示值，覆盖率仍按未截断的误差区间计算。")
+            lines.append("")
 
         if any((c.get("conditional") or {}).get("coverage") is not None for c in ok_cols):
             lines.append("")

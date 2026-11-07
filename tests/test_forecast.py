@@ -254,3 +254,43 @@ def test_conditional_interval_learns_from_nonzero_only():
     width_cond = float(np.mean(np.array(cond["hi"]) - np.array(cond["lo"])))
     width_all = float(np.mean(np.array([p["hi"] - p["lo"] for p in out["forecast"]])))
     assert width_cond > width_all, (width_cond, width_all)
+
+
+# ---------------- 区间下界的物理约束 ----------------
+# 预测下界 = point + 误差下分位，零膨胀列上会算出负数。实测 94 列里 44 列有负下界
+# （降水 299 点、风速 164 点、湿度 18 点、温度 148 点）；温度那部分是真的（-20.1 °C）。
+
+def test_physical_lower_bound_only_for_nonnegative_variables():
+    for col in ("rainfall@A", "降水量@北京", "wind_speed@B", "风速@上海",
+                "wind_gust@C", "humidity@A", "湿度@北京"):
+        assert forecast.physical_lower_bound(col) == 0.0, col
+    for col in ("temperature@A", "温度@北京", "pressure@B", "气压@上海"):
+        assert forecast.physical_lower_bound(col) is None, col
+
+
+def _rain_series(n: int = 2000, seed: int = 5) -> pd.Series:
+    """偶数天 14 点下雨、奇数天不下：季节朴素法会取到前一天的值，误差为负。"""
+    idx = pd.date_range("2024-01-01", periods=n, freq="h")
+    vals = np.zeros(n)
+    for d in range(0, n // 24, 2):
+        vals[d * 24 + 14] = 5.0
+    return pd.Series(vals, index=idx, name="rainfall@STA_A")
+
+
+def test_precipitation_interval_is_clipped_at_zero():
+    res = forecast._fit_column(_rain_series(), 24, 24, 150)
+    assert res["lower_bound"] == 0.0
+    los = [p["lo"] for p in res["forecast"] if p.get("lo") is not None]
+    assert los and all(v >= 0.0 for v in los), min(los)
+
+
+def test_temperature_keeps_negative_lower_bound():
+    """温度不能截断：雷克雅未克冬季实测 -20.1 °C，截到 0 就是改数据。"""
+    idx = pd.date_range("2024-01-01", periods=2000, freq="h")
+    rng = np.random.default_rng(9)
+    vals = 0.4 + rng.normal(0, 0.5, 2000)      # 在 0 附近抖动，下界必然为负
+    s = pd.Series(vals, index=idx, name="temperature@STA_A")
+    res = forecast._fit_column(s, 24, 24, 150)
+    assert res["lower_bound"] is None
+    los = [p["lo"] for p in res["forecast"] if p.get("lo") is not None]
+    assert any(v < 0 for v in los), los

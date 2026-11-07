@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-07T19:53:32",
+  "generated_at": "2026-11-07T20:25:27",
   "params": {
     "methods": [
       "seasonal_naive",
@@ -5105,9 +5105,9 @@
     "beats_baseline_share": 0.4255,
     "missing_reason": [],
     "selected_counts": {
-      "moving_average": 33,
       "drift": 7,
-      "seasonal_naive": 54
+      "seasonal_naive": 54,
+      "moving_average": 33
     },
     "conditional": {
       "judged": 13,

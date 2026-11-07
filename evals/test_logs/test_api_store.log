@@ -1,5 +1,5 @@
 # test_api_store
-# status=PASS exit=0 duration=19.77s passed=5 failed=0 errors=0
+# status=PASS exit=0 duration=20.22s passed=5 failed=0 errors=0
 .....                                                                    [100%]
 ============================== warnings summary ===============================
 ..\..\..\.workbuddy\binaries\python\envs\mtsa\Lib\site-packages\fastapi\testclient.py:1
@@ -7,5 +7,5 @@
     from starlette.testclient import TestClient as TestClient  # noqa
 
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
-5 passed, 1 warning in 17.82s
+5 passed, 1 warning in 18.27s
 

@@ -57,6 +57,23 @@ MIN_POINTS_PER_PERIOD = 3
 MIN_POINTS_ABS = 30
 MIN_CALIB_POINTS = 20
 
+# 物理上非负的变量（定义域下界为 0）：降水、风速、阵风、湿度。
+# 预测区间的下界是「点预测 + 误差下分位」，零膨胀列上会算出负数——实测 94 列里
+# 44 列出现负下界（降水 299 点、风速 164 点、湿度 18 点）。
+# **只对这类变量截断展示值**，因为：
+#   1) 覆盖率是用误差空间的 `cal["lo"]` 算的（`_coverage`），与展示值无关，
+#      截断不改任何指标；
+#   2) 不能按数据判断「历史无负值就非负」——雷克雅未克冬季气温实测最低 -20.1 °C，
+#      热带站点则可能全程为正，用 min(y) >= 0 会把负温度预测错误截到 0。
+NONNEGATIVE_HINTS = ("rain", "precip", "降水", "雨", "wind", "风速", "gust", "阵风",
+                     "humidity", "湿度")
+
+
+def physical_lower_bound(column: str) -> float | None:
+    """变量定义域的下界；返回 None 表示不设（温度等可正可负）。"""
+    head = str(column).split("@")[0].lower()
+    return 0.0 if any(h in head for h in NONNEGATIVE_HINTS) else None
+
 
 def infer_period(index: pd.Index) -> int:
     """从时间间隔推断季节周期：小时→24，日→7，周→4，月→12，其他按一天步数。"""
@@ -415,6 +432,7 @@ def _fit_column(s: pd.Series, period: int, horizon: int, origins_n: int) -> dict
             step = d.median()
     idx = [s.index[-1] + step * (i + 1) for i in range(horizon)] if step is not None else []
 
+    bound = physical_lower_bound(name)
     return {
         "column": name, "status": "ok", "points": int(n),
         "period": period, "horizon": horizon, "origins": len(origins),
@@ -445,10 +463,12 @@ def _fit_column(s: pd.Series, period: int, horizon: int, origins_n: int) -> dict
         if zero_share >= ZERO_INFLATED_SHARE else (
             "整体覆盖率可作为区间质量判据；非零观测覆盖率与它几乎相同，仅作对照"
             if coverage_nz is not None else "非零观测不存在，无法给出非零覆盖率"),
+        "lower_bound": bound,
         "forecast": [
             {"timestamp": str(idx[i]) if idx else None,
              "value": _jnum(point[i]),
-             "lo": _jnum(point[i] + lo[i]),
+             "lo": _jnum(max(bound, point[i] + lo[i]) if bound is not None
+                         else point[i] + lo[i]),
              "hi": _jnum(point[i] + hi[i])}
             for i in range(horizon)
         ],

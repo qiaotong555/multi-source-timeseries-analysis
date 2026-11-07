@@ -1,5 +1,5 @@
 # test_quality_conclusions
-# status=PASS exit=0 duration=41.67s passed=11 failed=0 errors=0
+# status=PASS exit=0 duration=43.0s passed=11 failed=0 errors=0
 ...........                                                              [100%]
 ============================== warnings summary ===============================
 tests/test_quality_conclusions.py: 14 warnings
@@ -11,5 +11,5 @@ tests/test_quality_conclusions.py::test_changepoint_report_states_time_resolutio
     kpss_res = kpss(vals, regression="c", nlags="auto", result_object=False)
 
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
-11 passed, 15 warnings in 39.80s
+11 passed, 15 warnings in 41.03s
 
