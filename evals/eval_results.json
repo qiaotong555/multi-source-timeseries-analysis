@@ -1642,7 +1642,7 @@
   "_conclusion_eval": {
     "available": true,
     "path": "C:\\Users\\乔佟\\WorkBuddy\\2026-09-27-22-32-34\\multi_source_timeseries_analysis\\evals\\conclusion_eval_results.json",
-    "generated_at": "2026-11-07T11:24:30",
+    "generated_at": "2026-11-07T19:56:47",
     "result_root": "artifacts\\t212_compare",
     "source": "existing_results",
     "pipeline": {

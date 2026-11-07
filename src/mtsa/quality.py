@@ -303,7 +303,7 @@ def check_quality(
                     issues.append(QualityIssue(
                         code="DUPLICATE_TIMESTAMPS", severity="warn", column=ta.column,
                         group=str(gval), count=d, start=ds, end=de, row_label=drow,
-                        detail=f"分组 {gval} 内重复 {d} 行，清洗阶段按 (时间, 分组) 聚合",
+                        detail=f"同一时刻重复 {d} 行，清洗阶段按 (时间, 分组) 聚合",
                     ))
                 o = int((v.diff().dt.total_seconds() < 0).sum()) if len(v) > 1 else 0
                 if o:
@@ -311,7 +311,7 @@ def check_quality(
                     issues.append(QualityIssue(
                         code="OUT_OF_ORDER", severity="warn", column=ta.column,
                         group=str(gval), count=o, start=os_, end=oe, row_label=orow,
-                        detail=f"分组 {gval} 内时间戳下降 {o} 次，清洗阶段将排序",
+                        detail=f"组内时间戳下降 {o} 次，清洗阶段将排序",
                     ))
                 dup += d
                 out_of_order += o
@@ -393,7 +393,6 @@ def check_quality(
             order = pd.Series(parsed_time, index=frame.index).loc[series.index].sort_values().index
             series_for_shift = series.loc[order]
         for hit in detect_level_shifts(series_for_shift, temperature=is_temp):
-            tag = f"（分组 {gval}）" if gval else ""
             # 起始时间必须给出：输入可能乱序，行标签不能代表时间先后
             start_ts = None
             if parsed_time is not None:
@@ -405,7 +404,7 @@ def check_quality(
                 issues.append(QualityIssue(
                     code="POSSIBLE_UNIT_CHANGE", severity="warn", column=c, group=gval,
                     row_label=hit["index"], start=start_ts,
-                    count=1, detail=(f"第 {hit['position']} 个采样点{tag}前后中位数 "
+                    count=1, detail=(f"第 {hit['position']} 个采样点前后中位数 "
                                      f"{hit['before_median']:.3f} → {hit['after_median']:.3f}"
                                      f"（比值 {hit['ratio']:.3f}），疑似单位或量纲变化"),
                 ))
@@ -413,7 +412,7 @@ def check_quality(
                 issues.append(QualityIssue(
                     code="LEVEL_SHIFT", severity="info", column=c, group=gval,
                     row_label=hit["index"], start=start_ts, count=1,
-                    detail=f"第 {hit['position']} 个采样点{tag}存在水平跳变（比值 {hit['ratio']:.3f}）",
+                    detail=f"第 {hit['position']} 个采样点存在水平跳变（比值 {hit['ratio']:.3f}）",
                 ))
 
     return QualityReport(

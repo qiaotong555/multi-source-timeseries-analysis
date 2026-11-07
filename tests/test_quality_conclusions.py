@@ -179,3 +179,49 @@ def test_extreme_examined_counts_only_observed_points():
     plan = AnalysisPlan(scene_id="weather", scene_confidence=1.0, question="t",
                         target_columns=["obs", "filled", "absent"], analyses=["anomaly"])
     assert extreme_examined(clean, plan) == (1, 3)
+
+def test_quality_conclusion_does_not_repeat_group(tmp_path):
+    """分组只出现一次：`group` 已是结构化字段，`detail` 里不再内嵌。
+
+    旧文案是「列 timestamp，分组 STA_A 分组 STA_A 内重复 5 行」——同一句里说了两遍，
+    报告第 2 节的表还另有「分组」列，于是三处重复。
+    必须用两站数据：单站会被当成常量列，走的是无分组分支。
+    """
+    rng = np.random.default_rng(11)
+    idx = pd.date_range("2024-01-01", periods=400, freq="h")
+    parts = []
+    for st in ("STA_A", "STA_B"):
+        parts.append(pd.DataFrame({"timestamp": idx, "station": st,
+                                   "temperature": 15.0 + rng.normal(0, 0.5, 400),
+                                   "humidity": 60.0 + rng.normal(0, 1.0, 400)}))
+    df = pd.concat(parts, ignore_index=True)
+    df = pd.concat([df, df[df["station"] == "STA_A"].iloc[10:13]], ignore_index=True)
+
+    doc = _run(tmp_path, "dup_group", df)
+    dup = [c["text"] for c in _cat(doc, "数据口径") if "DUPLICATE_TIMESTAMPS" in c["text"]]
+    assert dup, [c["text"] for c in _cat(doc, "数据口径")]
+    assert dup[0].count("分组 STA_A") == 1, dup[0]
+    assert "同一时刻重复" in dup[0], dup[0]
+
+
+def test_changepoint_report_states_time_resolution(tmp_path):
+    """变化点时间戳必须带定位分辨率，否则用户会当成突变发生的准确时刻。
+
+    实测：注入 2/15 00:00 开始的台阶，检出时间戳是 2/14 15:00（偏 9 小时），
+    而报告当时只给一个精确到小时的时刻，没有说窗口有多宽。
+    """
+    rng = np.random.default_rng(3)
+    n = 900
+    idx = pd.date_range("2024-01-01", periods=n, freq="h")
+    temp = 15.0 + rng.normal(0, 0.4, n)
+    temp[450:] += 5.0
+    df = pd.DataFrame({"timestamp": idx, "station": "STA_A", "temperature": temp})
+
+    doc = _run(tmp_path, "cp_window", df)
+    cps = doc["data"]["change_points"]
+    assert cps, "注入 5 度台阶后没有变化点"
+    assert all(c.get("window") for c in cps), cps
+
+    md = (tmp_path / "cp_window" / "report.md").read_text(encoding="utf-8")
+    assert "时间戳不是精确时刻" in md
+    assert "定位不确定度" in md

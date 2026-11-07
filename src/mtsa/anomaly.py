@@ -403,6 +403,7 @@ def detect_change_points(clean: CleanDataset, plan: AnalysisPlan) -> list[Change
                 statistic=round(float(loc["snr"]), 4),
                 before=round(loc["before"], 6), after=round(loc["after"], 6),
                 confidence="high" if loc["snr"] >= 2 * MIN_SNR else "medium",
+                window=int(h),
             ))
         # 方差突变通道已于 2026-11-03 停用，理由是被实测证明没有分辨力（见 doc/A3方差通道.md）：
         # 1) 量纲错：判据是「滚动标准差的单步跳变 > 2 × 滚动标准差的中位数」。

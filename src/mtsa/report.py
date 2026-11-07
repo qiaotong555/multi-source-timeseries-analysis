@@ -109,9 +109,15 @@ def _extreme_longest(item: dict) -> str:
 
 
 def _md_table(headers: list[str], rows: list[list[str]]) -> str:
-    out = ["| " + " | ".join(headers) + " |", "|" + "|".join(["---"] * len(headers)) + "|"]
+    # 单元格里的竖线会被当成列分隔符，把整张表冲成多一列（实测：
+    # `稳健 |Z| > 5.0` 让数据质量表从 7 列变 9 列）。统一转义，别指望调用方记得。
+    def _cell(v: object) -> str:
+        return str(v).replace("|", "\\|")
+
+    out = ["| " + " | ".join(_cell(h) for h in headers) + " |",
+           "|" + "|".join(["---"] * len(headers)) + "|"]
     for r in rows:
-        out.append("| " + " | ".join(r) + " |")
+        out.append("| " + " | ".join(_cell(c) for c in r) + " |")
     return "\n".join(out)
 
 
@@ -360,6 +366,13 @@ def render_report(
         lines.append("> 变化点的接受判据是「**局部水平差 / 局部去季节散布 ≥ 3**」："
                      "统计量即这个信噪比，前/后中位数取切点两侧紧邻窗口（不是整段前后缀）。"
                      "`未检出` 表示没有超过噪声的突变，**不等于**没有缓慢漂移。")
+        wins = sorted({c.window for c in ctx.change_points if c.window})
+        if wins:
+            w = wins[-1]
+            lines.append(">")
+            lines.append(f"> **时间戳不是精确时刻**：切点在 {w} 点滑动窗口上判定，"
+                         f"定位不确定度约为 ±{w // 2} 个采样间隔。"
+                         f"表中时间只表示「突变落在这一带」，不要当作准确到该时刻的事件时间。")
     elif not ctx.tool_ran("detect_change_points"):
         lines.append("变化点：**未执行**（本次计划未选 `changepoint`），"
                      "不能解读为「没有结构变化」。")

@@ -278,6 +278,10 @@ class ChangePoint(MtsaModel):
     before: Optional[float] = None
     after: Optional[float] = None
     confidence: str = "medium"
+    # 判定所用的局部窗口（采样点数）。切点定位的不确定度约为 ±window/2，
+    # 报告要据此说明「时间戳不是精确时刻」——不加这个字段时，
+    # 用户会把 `2024-02-14 15:00:00` 当成突变发生的准确时间（实测偏 9 小时）。
+    window: Optional[int] = None
 
 
 class Artifact(MtsaModel):
