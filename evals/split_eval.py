@@ -39,9 +39,13 @@ import pandas as pd
 
 from . import interval
 
-# 评估专用集：异常密度高于演示集，避免每折 holdout 只有三五条真值
-EVAL_DATASET = "weather_eval_v1.csv"
-EVAL_LABELS = "labels_weather_eval_v1.csv"
+# 评估专用集。2026-11-07 起切到 v3（9 站，holdout 约 150 个真值事件）：
+# v1 只有 2 站、三折 holdout 合计 33 个事件，按事件 bootstrap 的精确率区间宽 0.156，
+# 下界 0.663 落在 0.70 门线之下（改进记录 #36/#37）。v3 只增加站点、单站注入密度不变，
+# 所以「异常有多难」与 v1 可比，事件数按比例增长。
+# v1 的两个文件（weather_eval_v1.csv / labels_weather_eval_v1.csv）仍留在 fixtures/ 供对照。
+EVAL_DATASET = "weather_eval_v3.csv"
+EVAL_LABELS = "labels_weather_eval_v3.csv"
 
 # 三折前向滚动。2026-11-04 起改为**互不重叠**：dev 保持 ≥60%（阈值扫描样本不缩水），
 # holdout 由 20% 压到 13.33%，三段首尾相接。

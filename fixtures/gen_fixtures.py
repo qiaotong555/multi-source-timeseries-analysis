@@ -21,6 +21,10 @@ SEED = 20260927
 WEATHER_START = "2024-01-01 00:00:00"
 WEATHER_HOURS = 17544          # 2 年小时级
 WEATHER_STATIONS = ("STA_A", "STA_B")
+# 评估集扩容（2026-11-07）：评估集单独用更多站点，演示集保持 2 站不动。
+# 只加站点、不改单站注入密度——这样事件数按比例增长，而「异常有多难」不变；
+# 若改成在同样两站上加倍注入，事件会挤在一起、被 3 小时聚类合并，难度反而变了。
+EVAL_STATIONS = tuple(["STA_A", "STA_B"] + [chr(ord("C") + i) for i in range(7)])  # STA_A..STA_I，9 站
 
 
 def _ar1(rng, n, phi, sigma):
@@ -253,8 +257,13 @@ def _stratified_positions(rng, n: int, k: int, exclude=None, margin: int = 1) ->
     return out
 
 
-def gen_weather_eval(seed: int = SEED + 7) -> tuple[pd.DataFrame, pd.DataFrame]:
-    """生成评估专用天气集：基础信号同演示集，异常密度更高、幅度更接近检测边界。"""
+def gen_weather_eval(seed: int = SEED + 7, stations: tuple[str, ...] = WEATHER_STATIONS
+                     ) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """生成评估专用天气集：基础信号同演示集，异常密度更高、幅度更接近检测边界。
+
+    `stations` 默认为演示集的 2 站（v1 口径）。传 `EVAL_STATIONS` 可生成扩容版：
+    只增加站点数，单站的注入密度与幅度区间完全不变。
+    """
     rng = np.random.default_rng(seed)
     idx = pd.date_range(WEATHER_START, periods=WEATHER_HOURS, freq="h")
     hour = idx.hour.to_numpy()
@@ -262,14 +271,16 @@ def gen_weather_eval(seed: int = SEED + 7) -> tuple[pd.DataFrame, pd.DataFrame]:
     t_year = (idx - idx[0]).days.to_numpy() / 365.25
 
     frames, labels = [], []
-    for s_i, station in enumerate(WEATHER_STATIONS):
+    for s_i, station in enumerate(stations):
         n = WEATHER_HOURS
-        phase = 0.0 if s_i == 0 else 0.6
+        # 多站时按序号错开相位与水平，避免各站序列几乎相同（那等于没有增加独立样本）
+        phase = 0.35 * s_i
         annual = 12.0 * np.sin(2 * np.pi * (doy - 100) / 365.25 + phase)
         diurnal = 6.0 * np.sin(2 * np.pi * (hour - 14) / 24.0 + phase)
         trend = 0.8 * t_year
         noise = _ar1(rng, n, 0.97, 0.35)
-        temp = 15.0 + annual + diurnal + trend + noise + (1.5 if s_i == 0 else -1.5)
+        level = 1.5 if s_i % 2 == 0 else -1.5
+        temp = 15.0 + annual + diurnal + trend + noise + level
 
         humidity = 65.0 - 0.8 * (temp - 15.0) + _ar1(rng, n, 0.95, 2.5)
         humidity = np.clip(humidity, 5.0, 100.0)
@@ -289,7 +300,7 @@ def gen_weather_eval(seed: int = SEED + 7) -> tuple[pd.DataFrame, pd.DataFrame]:
 
     # ---- 异常注入（两类：孤立点 + 持续段；分层、按残差尺度换算幅度）----
     unit_span = (3000, 3720)          # 留给华氏段的区间，异常点避开
-    for station in WEATHER_STATIONS:
+    for station in stations:
         m = data["station"] == station
         n_st = int(m.sum())
         for col in EVAL_COLUMNS:
@@ -335,7 +346,7 @@ def gen_weather_eval(seed: int = SEED + 7) -> tuple[pd.DataFrame, pd.DataFrame]:
     data.loc[miss_rows, "temperature"] = np.nan
 
     gap_rows = []
-    for station in WEATHER_STATIONS:
+    for station in stations:
         gap_rows.extend(list(data.index[data["station"] == station][8000:8010]))
     data = data.drop(index=gap_rows).reset_index(drop=True)
 
@@ -351,7 +362,24 @@ def gen_weather_eval(seed: int = SEED + 7) -> tuple[pd.DataFrame, pd.DataFrame]:
     return data, pd.DataFrame(labels)
 
 
-def main() -> None:
+def main(argv: list[str] | None = None) -> None:
+    import argparse
+
+    ap = argparse.ArgumentParser(description="生成 fixtures")
+    ap.add_argument("--only", default="all",
+                    choices=("all", "weather_eval_large"),
+                    help="只生成指定产物；默认全量（确定性，重跑逐字节一致）")
+    args = ap.parse_args(argv)
+
+    if args.only in ("all", "weather_eval_large"):
+        we3, we3l = gen_weather_eval(stations=EVAL_STATIONS)
+        we3.to_csv(os.path.join(HERE, "weather_eval_v3.csv"), index=False, encoding="utf-8-sig")
+        we3l.to_csv(os.path.join(HERE, "labels_weather_eval_v3.csv"), index=False,
+                    encoding="utf-8-sig")
+        print("已生成：weather_eval_v3.csv（%d 行，%d 站）" % (len(we3), we3["station"].nunique()))
+    if args.only != "all":
+        return
+
     w, wl = gen_weather()
     w.to_csv(os.path.join(HERE, "weather_v1.csv"), index=False, encoding="utf-8-sig")
     wl.to_csv(os.path.join(HERE, "labels_weather_v1.csv"), index=False, encoding="utf-8-sig")

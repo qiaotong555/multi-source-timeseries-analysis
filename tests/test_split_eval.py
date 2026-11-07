@@ -322,24 +322,31 @@ def test_eval_fixture_differs_from_demo():
 
 
 def test_eval_fixture_has_enough_truth():
+    """真值密度按生成器配置核对，不写死站点数——扩容（#39）后仍成立。"""
+    from fixtures.gen_fixtures import EVAL_COLUMNS, EVAL_STATIONS
+
     _, labels = _eval_fixture()
     anom = labels[labels["kind"] == "anomaly"]
     assert len(anom) >= 50
     per = anom.groupby(["column", "station"]).size()
-    assert len(per) == 6
+    assert len(per) == len(EVAL_COLUMNS) * len(EVAL_STATIONS)
     assert int(per.min()) >= 8
 
 
 def test_eval_fixture_has_both_anomaly_types():
     """评估集必须同时覆盖孤立点与持续段，否则「题型扩展」没有验证对象。"""
+    from fixtures.gen_fixtures import (EVAL_COLLECTIVE_SEGMENTS, EVAL_COLUMNS,
+                                       EVAL_PER_COLUMN, EVAL_STATIONS)
+
     _, labels = _eval_fixture()
     anom = labels[labels["kind"] == "anomaly"]
     assert set(anom["anomaly_type"].unique()) == {"point", "collective"}
     assert "event_id" in anom.columns
+    cells = len(EVAL_COLUMNS) * len(EVAL_STATIONS)
     n_point_events = anom[anom["anomaly_type"] == "point"]["event_id"].nunique()
     n_coll_events = anom[anom["anomaly_type"] == "collective"]["event_id"].nunique()
-    assert n_point_events == 60
-    assert n_coll_events == 24
+    assert n_point_events == EVAL_PER_COLUMN * cells
+    assert n_coll_events == EVAL_COLLECTIVE_SEGMENTS * cells
     # 持续段每段至少 5 个点，否则退化成点异常
     per_event = anom[anom["anomaly_type"] == "collective"].groupby("event_id").size()
     assert int(per_event.min()) >= 5
