@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-04T08:41:43",
+  "generated_at": "2026-11-07T10:53:58",
   "model": "deepseek-chat",
   "base_url": "https://api.deepseek.com/v1",
   "planner_version": "v1",
@@ -26,7 +26,7 @@
       "error": null,
       "tool_recall": 1.0,
       "missing": [],
-      "elapsed_s": 0.84,
+      "elapsed_s": 1.55,
       "repeat_selected": [
         [
           "trend",
@@ -109,7 +109,7 @@
       "error": null,
       "tool_recall": 1.0,
       "missing": [],
-      "elapsed_s": 0.67,
+      "elapsed_s": 1.07,
       "repeat_selected": [
         [
           "anomaly",
@@ -184,7 +184,7 @@
       "error": null,
       "tool_recall": 1.0,
       "missing": [],
-      "elapsed_s": 0.76
+      "elapsed_s": 1.07
     },
     {
       "id": "wx_stationary",
@@ -203,7 +203,7 @@
       "error": null,
       "tool_recall": 1.0,
       "missing": [],
-      "elapsed_s": 1.02
+      "elapsed_s": 1.13
     },
     {
       "id": "st_trend",
@@ -224,7 +224,7 @@
       "error": null,
       "tool_recall": 1.0,
       "missing": [],
-      "elapsed_s": 1.05,
+      "elapsed_s": 1.51,
       "repeat_selected": [
         [
           "trend",
@@ -236,13 +236,13 @@
           "trend",
           "extreme",
           "changepoint",
-          "autocorr"
+          "anomaly"
         ],
         [
           "trend",
           "extreme",
           "changepoint",
-          "autocorr"
+          "anomaly"
         ],
         [
           "trend",
@@ -260,7 +260,7 @@
           "trend",
           "extreme",
           "changepoint",
-          "autocorr"
+          "anomaly"
         ],
         [
           "trend",
@@ -272,7 +272,7 @@
           "trend",
           "extreme",
           "changepoint",
-          "autocorr"
+          "anomaly"
         ]
       ],
       "repeat_source": [
@@ -287,15 +287,15 @@
       ],
       "consistent_runs": [
         true,
-        false,
-        false,
         true,
         true,
-        false,
         true,
-        false
+        true,
+        true,
+        true,
+        true
       ],
-      "consistent": false
+      "consistent": true
     },
     {
       "id": "st_anomaly",
@@ -315,7 +315,7 @@
       "error": null,
       "tool_recall": 1.0,
       "missing": [],
-      "elapsed_s": 0.96,
+      "elapsed_s": 1.35,
       "repeat_selected": [
         [
           "anomaly",
@@ -390,7 +390,7 @@
       "error": null,
       "tool_recall": 1.0,
       "missing": [],
-      "elapsed_s": 0.66
+      "elapsed_s": 1.26
     },
     {
       "id": "wx_open",
@@ -401,15 +401,15 @@
       "selected": [
         "trend",
         "changepoint",
-        "extreme",
-        "anomaly"
+        "anomaly",
+        "extreme"
       ],
       "source": "llm",
       "valid": true,
       "error": null,
       "tool_recall": null,
       "missing": [],
-      "elapsed_s": 0.89
+      "elapsed_s": 1.5
     },
     {
       "id": "st_open",
@@ -421,14 +421,15 @@
         "trend",
         "changepoint",
         "anomaly",
-        "corr"
+        "corr",
+        "extreme"
       ],
       "source": "llm",
       "valid": true,
       "error": null,
       "tool_recall": null,
       "missing": [],
-      "elapsed_s": 1.06
+      "elapsed_s": 1.53
     }
   ],
   "summary": {
@@ -438,7 +439,7 @@
     "valid_rate": 1.0,
     "fallback_rate": 0.0,
     "mean_tool_recall": 1.0,
-    "plan_consistency": 0.875,
+    "plan_consistency": 1.0,
     "consistency_samples": 32,
     "checks": {
       "合法率>=0.9": true,

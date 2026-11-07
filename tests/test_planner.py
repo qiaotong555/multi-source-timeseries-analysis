@@ -343,3 +343,12 @@ def test_request_mode_none_still_follows_env(ctx):
     assert isinstance(build_planner(ctx[3], env={"MTSA_PLANNER": "rule"}, mode=None),
                       RulePlanner)
     assert isinstance(build_planner(ctx[3], env={}, mode=None), RulePlanner)
+
+
+def test_segment_params_are_locked_not_merely_unlisted():
+    """段级参数必须落在「禁止修改」分支，而不是「不在白名单」——
+
+    两者的错误信息不同：前者说明这是刻意锁定的统计标定参数，后者读起来像还没开放。
+    """
+    assert {"segment_anomaly", "segment_threshold", "segment_window"} <= PARAM_LOCKED
+    assert "anomaly_window" in PARAM_LOCKED

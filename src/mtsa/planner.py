@@ -61,8 +61,13 @@ FORCED_ANALYSES = frozenset({"scenario_metrics"})
 
 # 允许模型调整的参数键（分析配置类）
 PARAM_OVERRIDABLE = frozenset({"seasonal_period", "max_lag", "rolling_window", "change_point_depth"})
-# 禁止模型调整的参数键（统计标定类，改动会破坏已有评估结论）
-PARAM_LOCKED = frozenset({"anomaly_threshold", "change_point_sse_ratio", "close_column"})
+# 禁止模型调整的参数键（统计标定类，改动会破坏已有评估结论）。
+# 段级通道的三个键默认关闭，但一旦被打开就会改变检出集合，同样必须锁住——
+# 不加进来时它们会落进「不在白名单」分支，错误信息读起来像「只是没开放」，而不是「不许改」。
+PARAM_LOCKED = frozenset({
+    "anomaly_threshold", "change_point_sse_ratio", "close_column",
+    "anomaly_window", "segment_anomaly", "segment_threshold", "segment_window",
+})
 
 MIN_ANALYSES = 1
 
