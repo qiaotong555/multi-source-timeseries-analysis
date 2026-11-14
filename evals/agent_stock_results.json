@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-10T21:24:41",
+  "generated_at": "2026-11-14T20:11:08",
   "scene": "stock",
   "mode": "agent",
   "planner": "rule",
@@ -14,8 +14,7 @@
     "need_coverage": 1.0,
     "avg_steps": 2.75,
     "terminate_reasons": {
-      "budget_exhausted": 3,
-      "model_finished": 1
+      "budget_exhausted": 4
     },
     "checks": [
       {
@@ -203,7 +202,7 @@
       "status": "succeeded",
       "error": null,
       "steps": 4,
-      "terminate_reason": "model_finished",
+      "terminate_reason": "budget_exhausted",
       "tools_run": [
         "compute_metrics",
         "run_stat_tests",

@@ -1,6 +1,6 @@
 # 股票 Agent 评估（E4）
 
-> 生成：2026-11-10T21:24:41　场景：`stock`　模式：`agent`　计划器：`rule`
+> 生成：2026-11-14T20:11:08　场景：`stock`　模式：`agent`　计划器：`rule`
 
 ## 汇总
 
@@ -11,7 +11,7 @@
 | scenario_layer_rate | 1.0 | >= 1.0 | PASS |
 | need_coverage | 1.0 | >= 1.0 | PASS |
 
-平均步数 2.75；终止原因 {'budget_exhausted': 3, 'model_finished': 1}
+平均步数 2.75；终止原因 {'budget_exhausted': 4}
 
 ## 逐例
 
