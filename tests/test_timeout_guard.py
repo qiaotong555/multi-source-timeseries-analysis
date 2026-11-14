@@ -100,11 +100,26 @@ def test_child_stdio_is_forced_to_utf8(tmp_path, monkeypatch):
 
     captured = {}
 
-    def fake_run(cmd, **kwargs):
-        captured.update(kwargs)
-        return subprocess.CompletedProcess(cmd, 1, "", "boom")
+    class FakeProc:
+        """替代 Popen：只实现 run_with_timeout 用到的那几个成员。"""
 
-    monkeypatch.setattr(guard.subprocess, "run", fake_run)
+        def __init__(self, cmd, **kwargs):
+            captured.update(kwargs)
+            self.returncode = 1
+
+        def communicate(self, timeout=None):
+            return "", "boom"
+
+        def terminate(self):
+            pass
+
+        def wait(self, timeout=None):
+            return self.returncode
+
+        def kill(self):
+            pass
+
+    monkeypatch.setattr(guard.subprocess, "Popen", FakeProc)
     res = run_with_timeout(_req(tmp_path, rid="to_enc"), timeout_s=30, verbose=False)
 
     assert captured["encoding"] == "utf-8"
@@ -113,3 +128,27 @@ def test_child_stdio_is_forced_to_utf8(tmp_path, monkeypatch):
     # 失败路径不受影响：stderr 仍以 str 进入 details
     assert res.status == "failed"
     assert res.error.details["stderr_tail"] == ["boom"]
+
+
+def test_cancel_event_kills_child_and_reports_cancelled(tmp_path):
+    """取消与超时必须分成两种结果：一个是「我不想要了」，一个是「它太慢了」。"""
+    import threading
+    import time as _time
+
+    ev = threading.Event()
+    timer = threading.Timer(0.4, ev.set)
+    timer.daemon = True
+    timer.start()
+    t0 = _time.monotonic()
+    try:
+        res = run_with_timeout(_req(tmp_path, rid="to_cancel"), timeout_s=300,
+                               verbose=False, cancel_event=ev)
+    finally:
+        timer.cancel()
+    elapsed = _time.monotonic() - t0
+
+    assert res.status == "cancelled"
+    assert res.error is not None and res.error.code == "CANCELLED"
+    # 子进程必须在取消后很快退出：留 15 秒给解释器启动与进程回收
+    assert elapsed < 15, f"取消后仍未及时退出：{elapsed:.1f}s"
+    assert not os.path.exists(os.path.join(tmp_path, "out", "result.json"))

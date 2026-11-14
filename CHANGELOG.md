@@ -5,6 +5,17 @@
 
 ## 未发布
 
+**新增：取消与补参续跑，七个状态全部可达（A2）**
+
+- `POST /api/v1/analyses/{id}/cancel`：排队中 → 立即 `cancelled`；运行中 → `cancel_requested`，
+  父进程每 50 ms 轮询取消信号并终止子进程，随后转 `cancelled`。已结束的任务返回 409。
+- `POST /api/v1/analyses/{id}/resume`：`waiting_for_input` 的任务可补 `scene_id` 等字段后重新排队；
+  只收输入类字段，不收 `mode` / 预算 / 安全开关。
+- `waiting_for_input` 只由 `SCENE_NOT_DETECTED` 触发——这是唯一一种「补一个字段必然能继续」
+  的情形；`TIME_AXIS_NOT_FOUND` / `EMPTY_NUMERIC_COLUMN` 仍是 `failed`，不承诺救得活。
+- `run_with_timeout(..., cancel_event=)`：`subprocess.run` → `Popen` + 轮询，超时语义逐条不变。
+- 新增错误码 `CANCELLED`；状态信封增加 `cancellable` / `input_required` / `cancel_url` / `resume_url`。
+
 **新增：指标表单独导出 CSV（A4）**
 
 - 每次运行多出两份产物：`metrics.csv`（基础指标）与 `scenario_metrics.csv`（场景指标），

@@ -24,7 +24,7 @@ def _wait(client: TestClient, run_id: str, limit_s: float = 180) -> dict:
     deadline = time.time() + limit_s
     while time.time() < deadline:
         doc = client.get("/api/v1/analyses/%s" % run_id, headers=H).json()
-        if doc["status"] not in ("queued", "running"):
+        if doc["status"] not in ("queued", "running", "cancel_requested"):
             return doc
         time.sleep(0.3)
     raise AssertionError("等待运行结束超时：%s" % run_id)

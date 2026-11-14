@@ -30,10 +30,12 @@ import json
 import os
 import subprocess
 import sys
+import time
 import uuid
 from typing import Optional
 
 from .models import (
+    ERR_CANCELLED,
     ERR_INTERNAL_ERROR,
     ERR_NODE_TIMEOUT,
     AnalysisRequest,
@@ -46,6 +48,9 @@ from .models import (
 DEFAULT_TIMEOUT_S = 600.0
 # 超时终止后等待进程退出的时间
 _KILL_GRACE_S = 5.0
+# 轮询间隔：既要让取消及时生效，又不能让等待变成忙循环。
+# 50 ms 对一次数百毫秒起步的分析没有可测开销，取消延迟也够用。
+_POLL_S = 0.05
 
 
 def _failed(req: AnalysisRequest, code: str, message: str, **details) -> AnalysisResult:
@@ -69,12 +74,41 @@ def _read_result(path: str) -> Optional[AnalysisResult]:
         return None
 
 
+def _terminate(proc: subprocess.Popen) -> None:
+    """先礼后兵：terminate，宽限期内没退出再 kill。"""
+    proc.terminate()
+    try:
+        proc.wait(timeout=_KILL_GRACE_S)
+    except subprocess.TimeoutExpired:
+        proc.kill()
+
+
+def _cancelled(req: AnalysisRequest, outdir: str) -> AnalysisResult:
+    return AnalysisResult(
+        request_id=req.request_id,
+        run_id=f"run_{uuid.uuid4().hex[:8]}",
+        status="cancelled",
+        error=ErrorDetail(code=ERR_CANCELLED,
+                          message="分析已被调用方取消，子进程已终止",
+                          details={"output_dir": outdir,
+                                   "partial_artifacts": (os.listdir(outdir)
+                                                         if os.path.isdir(outdir) else [])}),
+        warnings=[],
+        events=[],
+    )
+
+
 def run_with_timeout(request: AnalysisRequest,
                      timeout_s: Optional[float] = None,
-                     verbose: bool = True) -> AnalysisResult:
-    """在子进程中执行分析；超时终止并返回 `NODE_TIMEOUT`。
+                     verbose: bool = True,
+                     cancel_event=None) -> AnalysisResult:
+    """在子进程中执行分析；超时终止并返回 `NODE_TIMEOUT`，取消返回 `CANCELLED`。
 
     `timeout_s <= 0` 表示不设超时，此时仍走子进程（保留隔离），只是不主动终止。
+
+    `cancel_event` 是 `threading.Event` 之类的对象（只用到 `is_set()`）。父进程每
+    50 ms 轮询一次，一旦置位就终止子进程。**取消只能做到「尽快」，不是「立刻」**：
+    最长会多跑一个轮询间隔，且已写出的半成品留在输出目录里（`partial_artifacts` 列明）。
     """
     limit = DEFAULT_TIMEOUT_S if timeout_s is None else float(timeout_s)
 
@@ -97,21 +131,34 @@ def run_with_timeout(request: AnalysisRequest,
     # 子进程的输出由父进程按 UTF-8 解释，必须让它也按 UTF-8 写；
     # 否则中文 Windows 上默认 GBK，含中文路径的告警会让父进程解码失败。
     env["PYTHONIOENCODING"] = "utf-8"
-    try:
-        proc = subprocess.run(cmd, capture_output=True, text=True,
-                              encoding="utf-8", errors="replace",
-                              env=env,
-                              timeout=limit if limit > 0 else None)
-    except subprocess.TimeoutExpired:
-        # subprocess 已终止子进程；这里只需回收并如实报告
-        return _failed(
-            req, ERR_NODE_TIMEOUT,
-            f"分析超过 {limit:.0f} 秒未完成，已终止子进程",
-            timeout_s=limit, output_dir=outdir,
-            hint=("常见原因：数据规模超出承受范围、单个检验在异常输入上退化。"
-                  "请先确认行数是否超过上限；如需完整排查可加 --timeout 调大后重跑"),
-            partial_artifacts=os.listdir(outdir) if os.path.isdir(outdir) else [],
-        )
+    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                            text=True, encoding="utf-8", errors="replace", env=env)
+    deadline = (time.monotonic() + limit) if limit > 0 else None
+    stdout = stderr = ""
+    while True:
+        try:
+            stdout, stderr = proc.communicate(timeout=_POLL_S)
+            break
+        except subprocess.TimeoutExpired:
+            reason = None
+            if cancel_event is not None and cancel_event.is_set():
+                reason = "cancel"
+            elif deadline is not None and time.monotonic() >= deadline:
+                reason = "timeout"
+            if reason is None:
+                continue
+            _terminate(proc)
+            proc.communicate()          # 回收管道；不读走会留下僵尸
+            if reason == "cancel":
+                return _cancelled(req, outdir)
+            return _failed(
+                req, ERR_NODE_TIMEOUT,
+                f"分析超过 {limit:.0f} 秒未完成，已终止子进程",
+                timeout_s=limit, output_dir=outdir,
+                hint=("常见原因：数据规模超出承受范围、单个检验在异常输入上退化。"
+                      "请先确认行数是否超过上限；如需完整排查可加 --timeout 调大后重跑"),
+                partial_artifacts=os.listdir(outdir) if os.path.isdir(outdir) else [],
+            )
 
     result_path = os.path.join(outdir, "result.json")
     parsed = _read_result(result_path)
@@ -122,7 +169,7 @@ def run_with_timeout(request: AnalysisRequest,
         return parsed
 
     # 子进程结束但没有产出 result.json：进程崩溃、导入失败或被杀
-    tail = (proc.stderr or "").strip().splitlines()[-8:]
+    tail = (stderr or "").strip().splitlines()[-8:]
     return _failed(
         req, ERR_INTERNAL_ERROR,
         "子进程已退出但未产出 result.json",

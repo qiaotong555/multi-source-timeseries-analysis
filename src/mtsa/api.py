@@ -25,11 +25,25 @@ API 句柄是 `run_id`（形如 `api_1a2b3c4d`，本层生成，用来查状态�
 `result.json` 的 `request_id` 就是 API 句柄，`run_id` 是引擎那个——状态响应里两个都给
 （`run_id` / `engine_run_id`），免得对不上账。
 
-为什么状态只有 4 个
-------------------
-`models.Status` 里有 7 个词，其中 `waiting_for_input` / `cancel_requested` / `cancelled`
-在本项目里**没有实现语义**（只出现在 Literal 定义里）。薄壳只写
-`queued → running → succeeded | failed`，不假装支持另外三个。
+七个状态怎么走
+--------------
+`models.Status` 的 7 个词在这里都有对应的路径（2026-11-14 补齐，此前只有 4 个）：
+
+| 状态 | 何时出现 |
+| --- | --- |
+| `queued` | 已受理、等执行槽 |
+| `running` | 子进程在跑 |
+| `waiting_for_input` | 失败原因是**场景识别不出**（唯一一种「补一个字段必然能继续」的情形）；补 `scene_id` 后 `POST /resume` 重新排队 |
+| `cancel_requested` | 运行中收到取消，子进程正在被终止 |
+| `succeeded` / `failed` | 终态 |
+| `cancelled` | 取消完成（排队中取消是即时的，运行中取消要等进程退出） |
+
+**取消是尽力而为，不是即时的。** 父进程每 50 ms 轮询一次取消信号，随后 terminate（宽限期内
+不退出再 kill）。因此从 `cancel_requested` 到 `cancelled` 之间有一小段窗口，调用方必须轮询，
+不能假设 POST /cancel 返回时任务已经停下。
+
+**`waiting_for_input` 不占并发槽。** 它在等调用方补字段，占着槽只会让队列白堵；
+但重启时也不该被标成「中断」——它本来就没在跑。
 
 启动
 ----
@@ -86,7 +100,25 @@ Mode = Literal["pipeline", "agent", "auto"]
 SceneId = Literal["weather", "stock"]
 ScopeMode = Literal["guided", "free"]
 
-ACTIVE = ("queued", "running")
+# 「还占着并发槽」的状态。`cancel_requested` 也算：进程还没死，槽位没释放。
+# `waiting_for_input` 不算——它在等调用方补字段，不该占槽。
+ACTIVE = ("queued", "running", "cancel_requested")
+
+# 这些错误码的本质是「缺一个字段」，补上就能跑。出现它们时任务进 `waiting_for_input`
+# 而不是 `failed`：`failed` 表示重试也没用，`waiting_for_input` 表示等你补参数。
+# 只有「补一个字段就一定能跑」的错误才进这张表。宁可判 failed 也别把任务
+# 停在 waiting_for_input —— 后者的语义是「等你补参数就能继续」，承诺错了比
+# 直接失败更糟：调用方会一直等一个不会到的结果。
+#
+# - `SCENE_NOT_DETECTED`：场景识别不出，给了 scene_id 必然能进计划阶段。
+# - `TIME_AXIS_NOT_FOUND` / `EMPTY_NUMERIC_COLUMN` 故意**不在**表里：profiler 已经
+#   把所有列试过一遍，指定一个列名能否救活取决于数据本身，无法事先保证。
+#   这两种情况按 failed 处理，错误提示里已经写明「用 --time-column 显式指定」。
+# - `DATA_LOAD_FAILED` 也不在：提交时就查过文件存在性（INPUT_NOT_FOUND 400），
+#   走不到执行阶段。
+FIXABLE_INPUTS: dict[str, list[str]] = {
+    "SCENE_NOT_DETECTED": ["scene_id"],
+}
 DEFAULT_DB = os.path.join(OUT_ROOT, "state.sqlite3")
 
 
@@ -131,6 +163,24 @@ class AnalysisIn(BaseModel):
     strict_verify: bool = False
 
 
+class ResumeIn(BaseModel):
+    """补参数后继续：只允许改「可能缺的输入」，不允许改 mode/成本/安全相关开关。
+
+    这是有意的收窄。`waiting_for_input` 的语义是「差一个字段」，不是
+    「给你一次重新配置的机会」——放宽到全量字段会让「补输入」变成绕过队列与预算的后门。
+    """
+
+    input_path: Optional[str] = Field(default=None, description="换个文件路径重试")
+    question: Optional[str] = None
+    scene_id: Optional[SceneId] = None
+    time_column: Optional[str] = None
+    value_columns: Optional[list[str]] = None
+    group_column: Optional[str] = None
+    unit: Optional[str] = None
+    dataset_note: Optional[str] = None
+    param_overrides: Optional[dict[str, float | int | str | bool]] = None
+
+
 @dataclass
 class RunRecord:
     run_id: str
@@ -147,6 +197,8 @@ class RunRecord:
     engine_run_id: Optional[str] = None
     error: Optional[dict[str, Any]] = None
     artifacts: list[dict[str, Any]] = field(default_factory=list)
+    # 仅 `waiting_for_input` 时有值：缺哪些字段才能继续
+    input_required: list[str] = field(default_factory=list)
 
 
 _RECORD_FIELDS = {f.name for f in fields(RunRecord)}
@@ -167,16 +219,32 @@ def _record_from_dict(d: dict[str, Any]) -> RunRecord:
 
 def _execute(app: FastAPI, run_id: str) -> None:
     rec: RunRecord = app.state.records[run_id]
-    rec.status = "running"
-    rec.started_at = _now()
+    with app.state.lock:
+        # 排队期间被取消：不要开始算。这条检查必须在置 running 之前，
+        # 否则取消会输给「刚好轮到它」的竞态。
+        if rec.status == "cancelled":
+            return
+        rec.status = "running"
+        rec.started_at = _now()
     _persist(app, rec)
     t0 = time.time()
+    event = app.state.cancel_events.setdefault(run_id, threading.Event())
     try:
         req = AnalysisRequest(request_id=run_id, input_path=rec.input_path,
                               question=rec.question, output_dir=rec.out_dir,
                               mode=rec.mode, **rec.kwargs)
-        res = run_with_timeout(req, timeout_s=app.state.run_timeout, verbose=False)
-        rec.status = "succeeded" if res.status == "succeeded" else "failed"
+        res = run_with_timeout(req, timeout_s=app.state.run_timeout,
+                               verbose=False, cancel_event=event)
+        if res.status == "cancelled":
+            rec.status = "cancelled"
+        elif res.status == "succeeded":
+            rec.status = "succeeded"
+        else:
+            code = res.error.code if res.error else None
+            required = FIXABLE_INPUTS.get(code or "")
+            # 「补一个字段就能跑」与「跑不动」是两回事：前者挂起等输入，后者判失败。
+            rec.status = "waiting_for_input" if required else "failed"
+            rec.input_required = list(required or [])
         rec.engine_run_id = getattr(res, "run_id", None)
         if res.error is not None:
             # `ErrorDetail` 只有 code / message / details，没有 node 字段；
@@ -203,6 +271,7 @@ def _execute(app: FastAPI, run_id: str) -> None:
 
 def _submit(app: FastAPI, rec: RunRecord) -> None:
     app.state.records[rec.run_id] = rec
+    app.state.cancel_events[rec.run_id] = threading.Event()
     os.makedirs(rec.out_dir, exist_ok=True)
     _persist(app, rec)
     app.state.pool.submit(_execute, app, rec.run_id)
@@ -219,6 +288,15 @@ def _check_capacity(app: FastAPI) -> None:
             headers={"Retry-After": "30"})
 
 
+def _has_field(rec: RunRecord, name: str) -> bool:
+    """判断某个「可补字段」是否已经有着落。空列表、空字典都算没有。"""
+    if name == "input_path":
+        return bool(rec.input_path)
+    if name == "question":
+        return bool(rec.question)
+    return bool(rec.kwargs.get(name))
+
+
 def _new_run(*, input_path: str, question: str, mode: str, **kwargs) -> RunRecord:
     run_id = "api_" + secrets.token_hex(6)
     return RunRecord(run_id=run_id, question=question, input_path=input_path,
@@ -230,6 +308,7 @@ def _created(rec: RunRecord) -> JSONResponse:
     return JSONResponse(status_code=http_status.HTTP_202_ACCEPTED, content={
         "run_id": rec.run_id, "status": rec.status,
         "status_url": base, "result_url": base + "/result",
+        "cancel_url": base + "/cancel",
         "out_dir": rec.out_dir,
     })
 
@@ -249,6 +328,11 @@ def _envelope(rec: RunRecord) -> dict[str, Any]:
         "result_available": done and os.path.exists(os.path.join(rec.out_dir, "result.json")),
         "result_url": base + "/result",
         "artifact_url": base + "/artifacts/{name}",
+        # 只有「等输入」时才有内容；「可取消」按状态算，避免调用方猜
+        "input_required": rec.input_required,
+        "cancel_url": base + "/cancel",
+        "resume_url": base + "/resume" if rec.status == "waiting_for_input" else None,
+        "cancellable": rec.status in ACTIVE,
     }
 
 
@@ -304,6 +388,9 @@ def create_app(token: Optional[str] = None,
     app.state.pool = ThreadPoolExecutor(max_workers=max(1, workers),
                                         thread_name_prefix="mtsa-api")
     app.state.records: dict[str, RunRecord] = {}
+    # 每个任务一个取消信号。放内存而不是仓储：取消是「对正在跑的进程说一声」，
+    # 进程没了信号就没有意义；重启后未完成的任务本就被标为 INTERRUPTED。
+    app.state.cancel_events: dict[str, threading.Event] = {}
     app.state.store = RunStore(db_path)
     app.state.retention_days = max(0.0, retention_days)
     app.state.started_at = time.time()
@@ -430,7 +517,7 @@ def create_app(token: Optional[str] = None,
         返回的是「摘要」不是完整信封：`question` 截断到 80 字、`artifacts` 只给数量。
         要看完整字段用 `GET /api/v1/analyses/{run_id}`。
         """
-        allowed = set(ACTIVE) | {"succeeded", "failed"}
+        allowed = set(ACTIVE) | {"waiting_for_input", "succeeded", "failed", "cancelled"}
         if status is not None and status not in allowed:
             raise HTTPException(400, {"code": "BAD_STATUS_FILTER",
                                       "message": "status 只能是 %s" % sorted(allowed)})
@@ -479,10 +566,81 @@ def create_app(token: Optional[str] = None,
     def get_status(run_id: str) -> dict[str, Any]:
         return _envelope(_record(run_id))
 
+    @app.post("/api/v1/analyses/{run_id}/cancel", dependencies=guard)
+    def cancel_run(run_id: str):
+        """取消。排队中 → 直接 `cancelled`；运行中 → `cancel_requested` 并终止子进程。
+
+        语义边界：只能尽快，不能立刻。运行中的任务要等子进程被终止并把状态写回来，
+        中间会短暂停在 `cancel_requested`——调用方应当轮询到终态，而不是假设同步完成。
+        """
+        rec = _record(run_id)
+        with app.state.lock:
+            if rec.status == "cancelled":
+                return _envelope(rec)                    # 幂等
+            if rec.status in ("succeeded", "failed"):
+                raise HTTPException(409, {
+                    "code": "CANCEL_NOT_ALLOWED",
+                    "message": "任务已结束（%s），无法取消" % rec.status})
+            if rec.status in ("queued", "waiting_for_input"):
+                # 还没开始跑，也没有进程要杀：直接落终态
+                rec.status = "cancelled"
+                rec.input_required = []
+                rec.finished_at = _now()
+                rec.duration_s = 0.0
+                rec.error = {"code": "CANCELLED", "message": "调用方在开始前取消"}
+            else:                                        # running / cancel_requested
+                rec.status = "cancel_requested"
+                app.state.cancel_events.setdefault(
+                    run_id, threading.Event()).set()
+        _persist(app, rec)
+        return _envelope(rec)
+
+    @app.post("/api/v1/analyses/{run_id}/resume", dependencies=guard)
+    def resume_run(run_id: str, body: Optional[ResumeIn] = None):
+        """补上缺失字段后重新排队。只对 `waiting_for_input` 有效。"""
+        rec = _record(run_id)
+        if rec.status != "waiting_for_input":
+            raise HTTPException(409, {
+                "code": "RESUME_NOT_ALLOWED",
+                "message": "只有 waiting_for_input 的任务能补参（当前 %s）" % rec.status})
+        data = (body.model_dump(exclude_none=True) if body is not None else {})
+        if data.get("input_path"):
+            rec.input_path = data.pop("input_path")
+        if data.get("question"):
+            rec.question = data.pop("question")
+        data.pop("input_path", None)
+        data.pop("question", None)
+        rec.kwargs.update(data)
+
+        # 补完还得查一遍：缺的没补齐就重跑，只会再失败一次，白占一次执行
+        still = [f for f in rec.input_required if not _has_field(rec, f)]
+        if still:
+            raise HTTPException(400, {
+                "code": "INPUT_STILL_MISSING",
+                "message": "仍需补充：%s" % "、".join(still),
+                "input_required": still})
+
+        _check_capacity(app)
+        rec.status = "queued"
+        rec.input_required = []
+        rec.error = None
+        rec.started_at = rec.finished_at = rec.duration_s = None
+        rec.artifacts = []
+        _persist(app, rec)
+        _submit(app, rec)
+        return _created(rec)
+
     @app.get("/api/v1/analyses/{run_id}/result", dependencies=guard)
     def get_result(run_id: str) -> FileResponse:
         rec = _record(run_id)
         path = os.path.join(rec.out_dir, "result.json")
+        if rec.status == "cancelled":
+            raise HTTPException(409, {"code": "RUN_CANCELLED",
+                                      "message": "任务已取消，没有结果文件"})
+        if rec.status == "waiting_for_input":
+            raise HTTPException(409, {"code": "INPUT_REQUIRED",
+                                      "message": "任务在等补充输入",
+                                      "input_required": rec.input_required})
         if rec.status in ACTIVE or not os.path.exists(path):
             raise HTTPException(409, {"code": "RESULT_NOT_READY",
                                       "message": "状态为 %s，结果文件尚未生成" % rec.status})

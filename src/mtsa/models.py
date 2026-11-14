@@ -36,6 +36,9 @@ ERR_LOOKAHEAD_VIOLATION = "LOOKAHEAD_VIOLATION"
 ERR_NODE_TIMEOUT = "NODE_TIMEOUT"
 ERR_DATASET_TOO_LARGE = "DATASET_TOO_LARGE"
 ERR_INTERNAL_ERROR = "INTERNAL_ERROR"
+# 用户主动取消：与超时、失败区分开。API 层据此把状态置为 `cancelled`，
+# 而不是 `failed`——「我不想要了」和「它出错了」不是一回事。
+ERR_CANCELLED = "CANCELLED"
 # Agent 模式专用错误。分开定义而不是都塞进 INTERNAL_ERROR：
 # 调用方需要区分「环境没配好」「场景不支持」「模型什么都没做」这三种可操作信息。
 ERR_AGENT_UNAVAILABLE = "AGENT_UNAVAILABLE"

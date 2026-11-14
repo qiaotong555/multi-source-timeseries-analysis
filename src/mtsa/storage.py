@@ -52,7 +52,9 @@ CREATE INDEX IF NOT EXISTS idx_runs_status ON runs(status);
 CREATE INDEX IF NOT EXISTS idx_runs_submitted ON runs(submitted_at);
 """
 
-ACTIVE_STATUSES = ("queued", "running")
+# 与 api.ACTIVE 保持一致：`cancel_requested` 的进程还没死，仍占并发槽。
+# `waiting_for_input` 不在此列——它在等调用方补字段，不占槽，重启后也不该被标成中断。
+ACTIVE_STATUSES = ("queued", "running", "cancel_requested")
 
 # 关闭持久化的取值。测试与「无状态部署」两种场景都会用到。
 OFF = "off"
@@ -158,8 +160,9 @@ class RunStore:
             return 0
         changed = 0
         try:
+            marks = ",".join("?" * len(ACTIVE_STATUSES))
             rows = conn.execute(
-                "SELECT run_id, payload FROM runs WHERE status IN (?,?)",
+                f"SELECT run_id, payload FROM runs WHERE status IN ({marks})",
                 ACTIVE_STATUSES).fetchall()
             now = _now()
             for run_id, payload in rows:
