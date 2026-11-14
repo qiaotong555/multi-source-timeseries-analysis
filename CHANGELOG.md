@@ -5,6 +5,13 @@
 
 ## 未发布
 
+**新增：指标表单独导出 CSV（A4）**
+
+- 每次运行多出两份产物：`metrics.csv`（基础指标）与 `scenario_metrics.csv`（场景指标），
+  列与 `MetricRow` 一一对应，行与 `result.json` 逐字段一致——导出的东西必须能当证据用。
+- 报告第 5 节末尾注明两份文件与各自行数；空表不落盘（避免「有产物但内容为空」）。
+- 产物数 19 → 21（`art_metrics_csv` / `art_scenario_metrics_csv`）。
+
 **新增：`dataset_note`（数据说明）入参**
 
 - `AnalysisRequest.dataset_note` / API `AnalysisIn.dataset_note` / CLI `--dataset-note`：

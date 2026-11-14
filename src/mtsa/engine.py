@@ -860,6 +860,8 @@ def _run_analysis_impl(request: AnalysisRequest, verbose: bool, run_id: str,
     conclusions, evidences = adapter.conclusions(ctx)
     clean_art = report_mod.write_clean_csv(ctx, outdir)
     artifacts.append(clean_art)
+    # A4：指标表单独导出，供人工复算（报告里只放前 N 行）
+    artifacts.extend(report_mod.write_metrics_csv(mtab.rows, extra.rows, outdir))
     dataset_info = {
         "task_id": TASK_ID,
         "run_id": run_id,

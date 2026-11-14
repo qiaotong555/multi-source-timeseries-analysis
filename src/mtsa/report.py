@@ -5,6 +5,7 @@
 """
 from __future__ import annotations
 
+import csv
 import math
 import os
 from typing import Optional
@@ -307,9 +308,13 @@ def render_report(
                  r.window or "—", r.method] for r in all_rows]
         lines.append(_md_table(["指标 ID", "名称", "列", "分组", "取值", "单位", "窗口", "方法"],
                                rows[:MAX_TABLE_ROWS]))
+        lines.append("")
+        # 报告里只放得下前 N 行；完整表另存 CSV，列与 result.json 的行逐字段一致。
+        lines.append(f"> 共 {len(rows)} 行：`metrics.csv` {len(ctx.metrics.rows)} 行 + "
+                     f"`scenario_metrics.csv` {len(ctx.extra.rows)} 行，两份 CSV 的列与 "
+                     f"`result.json` 里的行逐字段一致，可直接用于复算。")
         if len(rows) > MAX_TABLE_ROWS:
-            lines.append("")
-            lines.append(f"> 共 {len(rows)} 行，此处列出前 {MAX_TABLE_ROWS} 行，完整表见 `result.json`。")
+            lines.append(f"> 本页只列出前 {MAX_TABLE_ROWS} 行。")
     else:
         lines.append("未产出指标（`compute_metrics` 未返回任何行：输入可能无可用数值列，"
                      "或全部列有效样本不足；这是异常状态，不代表指标取值为 0）。")
@@ -611,6 +616,43 @@ def write_clean_csv(ctx: ScenarioContext, outdir: str) -> Artifact:
     ctx.clean.frame.to_csv(path, encoding="utf-8-sig")
     return Artifact(artifact_id="art_clean_csv", kind="table_csv", path=path,
                     title="清洗后数据", fields=list(ctx.clean.frame.columns))
+
+
+METRIC_CSV_FIELDS = ["metric_id", "name", "column", "group", "value", "unit",
+                      "window", "method", "formula"]
+
+
+def _write_metric_table(rows, outdir: str, filename: str, artifact_id: str,
+                        title: str) -> Optional[Artifact]:
+    """把一张指标表写成 CSV。空表不落盘——空文件会被当成「有产物但内容缺失」。"""
+    if not rows:
+        return None
+    os.makedirs(outdir, exist_ok=True)
+    path = os.path.join(outdir, filename)
+    with open(path, "w", encoding="utf-8-sig", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=METRIC_CSV_FIELDS, extrasaction="ignore")
+        writer.writeheader()
+        for r in rows:
+            writer.writerow({k: getattr(r, k, "") if getattr(r, k, None) is not None else ""
+                             for k in METRIC_CSV_FIELDS})
+    return Artifact(artifact_id=artifact_id, kind="table_csv", path=path,
+                    title=title, fields=list(METRIC_CSV_FIELDS))
+
+
+def write_metrics_csv(metrics, scenario_metrics, outdir: str) -> list[Artifact]:
+    """把指标表单独导出成 CSV，供人工复算（A4）。
+
+    `data.metrics` 与 `data.scenario_metrics` 各写一份，列名与 `MetricRow` 一一对应，
+    不新增派生列——导出的东西必须和 `result.json` 里的行**逐字段一致**，否则它不是证据。
+    """
+    out: list[Artifact] = []
+    for rows, name, aid, title in (
+            (metrics, "metrics.csv", "art_metrics_csv", "指标表"),
+            (scenario_metrics, "scenario_metrics.csv", "art_scenario_metrics_csv", "场景指标表")):
+        art = _write_metric_table(rows, outdir, name, aid, title)
+        if art is not None:
+            out.append(art)
+    return out
 
 
 def write_repro_script(dataset_info: dict, outdir: str) -> Artifact:
