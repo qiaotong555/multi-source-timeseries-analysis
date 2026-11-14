@@ -1,5 +1,5 @@
 # test_engine_agent
-# status=PASS exit=0 duration=22.86s passed=6 failed=0 errors=0
-......                                                                   [100%]
-6 passed in 20.91s
+# status=PASS exit=0 duration=31.36s passed=8 failed=0 errors=0
+........                                                                 [100%]
+8 passed in 29.43s
 
