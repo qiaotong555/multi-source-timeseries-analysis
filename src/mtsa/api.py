@@ -113,6 +113,9 @@ class AnalysisIn(BaseModel):
     time_column: Optional[str] = None
     value_columns: Optional[list[str]] = None
     group_column: Optional[str] = None
+    # 原文记录到 datasets[0].dataset_note 与报告第 1 节；不参与任何计算
+    dataset_note: Optional[str] = Field(
+        default=None, description="数据说明（来源/采集方式/已知缺陷），原样记录")
     mode: Mode = "pipeline"
     # 请求级计划器；None = 跟随服务端 MTSA_PLANNER。见 models.AnalysisRequest.planner
     planner: Optional[Literal["auto", "rule", "llm"]] = Field(

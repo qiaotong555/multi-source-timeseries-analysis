@@ -113,7 +113,9 @@ def _md_table(headers: list[str], rows: list[list[str]]) -> str:
     # 单元格里的竖线会被当成列分隔符，把整张表冲成多一列（实测：
     # `稳健 |Z| > 5.0` 让数据质量表从 7 列变 9 列）。统一转义，别指望调用方记得。
     def _cell(v: object) -> str:
-        return str(v).replace("|", "\\|")
+        # 竖线变列分隔符、换行把一行拆成两行——两者都会让表结构崩掉。
+        # 统一在出口处理，调用方不必记得转义（数据说明是自由文本，尤其容易带这两样）。
+        return str(v).replace("|", "\\|").replace("\r", "").replace("\n", " ")
 
     out = ["| " + " | ".join(_cell(h) for h in headers) + " |",
            "|" + "|".join(["---"] * len(headers)) + "|"]
@@ -150,17 +152,18 @@ def render_report(
     # 1) 数据集
     lines.append("## 1. 数据集")
     lines.append("")
-    lines.append(_md_table(
-        ["项目", "取值"],
-        [["输入路径", dataset_info.get("input_path", "—")],
-         ["文件 SHA1", dataset_info.get("file_hash", "—")],
-         ["原始行数", str(dataset_info.get("row_count", "—"))],
-         ["清洗后行数", str(len(frame))],
-         ["时间范围", f"{frame.index.min()} ~ {frame.index.max()}" if len(frame) else "—"],
-         ["目标列", "、".join(ctx.plan.target_columns)],
-         ["分组列", ctx.plan.group_column or "—"],
-         ["运行模式", dataset_info.get("mode", "pipeline")]],
-    ))
+    info_rows = [["输入路径", dataset_info.get("input_path", "—")],
+                 ["文件 SHA1", dataset_info.get("file_hash", "—")],
+                 ["原始行数", str(dataset_info.get("row_count", "—"))],
+                 ["清洗后行数", str(len(frame))],
+                 ["时间范围", f"{frame.index.min()} ~ {frame.index.max()}" if len(frame) else "—"],
+                 ["目标列", "、".join(ctx.plan.target_columns)],
+                 ["分组列", ctx.plan.group_column or "—"],
+                 ["运行模式", dataset_info.get("mode", "pipeline")]]
+    # 数据说明只原样转述，不做解读——它不是分析结论，是调用方的交代。
+    if dataset_info.get("dataset_note"):
+        info_rows.append(["数据说明", dataset_info["dataset_note"]])
+    lines.append(_md_table(["项目", "取值"], info_rows))
     lines.append("")
 
     # 2) 数据质量
@@ -618,6 +621,13 @@ def write_repro_script(dataset_info: dict, outdir: str) -> Artifact:
     if dataset_info.get("forecast"):
         forecast_args = ('\n        "--forecast",\n'
                          '        "--forecast-horizon", "%s",' % dataset_info.get("forecast_horizon"))
+    # 数据说明也要进脚本：否则复现出来的报告少了这一段，两份产物对不上。
+    note_args = ""
+    if dataset_info.get("dataset_note"):
+        # 说明是自由文本，转义反斜杠/引号/换行，保证生成的脚本仍是合法 Python
+        note = (str(dataset_info["dataset_note"]).replace("\\", "\\\\")
+                .replace('"', '\\"').replace("\n", "\\n").replace("\r", " "))
+        note_args = '\n        "--dataset-note", "%s",' % note
     content = f'''# -*- coding: utf-8 -*-
 """复现脚本：与本次运行完全相同的参数。"""
 import sys, os
@@ -631,7 +641,7 @@ if __name__ == "__main__":
         "--scene", "{dataset_info.get("scene_id")}",
         "--input", r"{dataset_info.get("input_path")}",
         "--question", "{dataset_info.get("question")}",
-        "--seed", "{dataset_info.get("seed")}",{forecast_args}
+        "--seed", "{dataset_info.get("seed")}",{forecast_args}{note_args}
     ]
     raise SystemExit(main())
 '''

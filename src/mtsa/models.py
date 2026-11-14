@@ -71,6 +71,10 @@ class AnalysisRequest(MtsaModel):
     group_column: Optional[str] = None
     unit: Optional[str] = None
     sampling_interval: Optional[str] = None
+    # 数据说明（来源、采集方式、已知缺陷……）。**原样记录，不参与任何计算**，
+    # 只写进 `datasets[0].dataset_note` 与报告第 1 节。给调用方一个地方交代
+    # 「这份数据是怎么来的」，避免说明只活在提问里、下一手无从追溯。
+    dataset_note: Optional[str] = None
     # 覆盖场景适配器给出的计划参数（如 anomaly_threshold）。键必须是计划中已存在的参数，
     # 未知键直接报错——静默忽略会让「调参」变成假象。
     param_overrides: dict[str, Any] = Field(default_factory=dict)

@@ -5,6 +5,14 @@
 
 ## 未发布
 
+**新增：`dataset_note`（数据说明）入参**
+
+- `AnalysisRequest.dataset_note` / API `AnalysisIn.dataset_note` / CLI `--dataset-note`：
+  记录数据来源、采集方式、已知缺陷。**原样存储，不参与任何计算**。
+- 落盘位置 `datasets[0].dataset_note`（不传则不出现，既有结果字段集不变）；
+  报告第 1 节多一行「数据说明」；`reproduce.py` 带上该参数（含转义，脚本仍可执行）。
+- 顺带修掉一个表格隐患：`_md_table` 现在同时把换行压平——自由文本单元格此前会把一行拆成两行。
+
 **新增：证据链补齐（A5）——每条结论的数字都能指回一个节点**
 
 - `Evidence` 新增 `data_refs`：指向 `result.data` 的路径（`data.anomalies[3]`、

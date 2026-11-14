@@ -124,7 +124,7 @@ mtsa-api --port 8000               # 提交 202 → 轮询状态 → 取 result.
 
 | 维度 | 结论 | 关键数字 | 证据 | 证据生成 |
 | --- | --- | --- | --- | --- |
-| 工程基线 | **通过** | 65 个测试文件 / 624 项 / 0 失败 / 738.5 s（2026-11-14 11:24） | `evals/test_logs/summary.json` | 2026-11-14 11:24 |
+| 工程基线 | **通过** | 66 个测试文件 / 629 项 / 0 失败 / 772.1 s（2026-11-14 12:07） | `evals/test_logs/summary.json` | 2026-11-14 12:07 |
 | 异常检测准确性 | **通过** | 9 站数据集、**154 个 holdout 事件**：精确率 **0.7857**（95% CI 0.730–0.828）、召回 **0.9184**（0.869–0.954）；事件级 0.9168、集体异常 0.9804。代价：三折阈值 6/5/5，**fold2 精确率 0.688 低于 0.70 门线**（判定用逐折均值） | `evals/eval_results.json` 的 `_split_eval` | 2026-11-07 |
 | 鲁棒性 | **通过** | 37 个坏输入与边界用例 37/37，0 崩溃；失败均带错误码与出错节点 | `evals/robustness_results.json` | 2026-11-07 |
 | 结论级门禁（独立数据 v2） | **通过** | 24/24（10 pipeline + 10 agent + 4 非劣性）；事件级命中 R=0.9667、F1=0.9831；点级 P=1.000 / R=0.840 | `evals/conclusion_gate_v2_results.json` | 2026-11-07 |
@@ -152,7 +152,7 @@ mtsa-api --port 8000               # 提交 202 → 轮询状态 → 取 result.
 > 复现顺序：`python -m evals.mode_compare --out-root artifacts/t212_compare`
 > → `python -m evals.conclusion_eval` → `python -m evals.run_evals`。
 
-**规模数字**（2026-11-14 实测）：`src/mtsa` 36 个 py / 10,658 行；`tests` 目录 67 个 py（65 个测试文件，逐文件入口统计；用例数见 `evals/test_logs/summary.json`）；`evals` 24 个 py / 8,999 行；真实数据 registry 17 份（5 个来源：Open-Meteo / NOAA GHCN-Daily / DWD / ECCC / ASOS；2 种频率：hourly 14、daily 3）。
+**规模数字**（2026-11-14 实测）：`src/mtsa` 36 个 py / 10,681 行；`tests` 目录 68 个 py（66 个测试文件，逐文件入口统计；用例数见 `evals/test_logs/summary.json`）；`evals` 24 个 py / 8,999 行；真实数据 registry 17 份（5 个来源：Open-Meteo / NOAA GHCN-Daily / DWD / ECCC / ASOS；2 种频率：hourly 14、daily 3）。
 
 **评估指标**：29 项 = 22 项规则模式阈值指标 + 3 项 LLM 模式指标（合法率、回退率、覆盖率）+ 4 项 Agent 指标（后 7 项仅在对应评估缓存存在时纳入判定）。LLM 覆盖率只统计合法计划，回退时不计入平均——否则「模型全挂」会被算成高覆盖。
 

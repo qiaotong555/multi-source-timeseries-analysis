@@ -873,6 +873,9 @@ def _run_analysis_impl(request: AnalysisRequest, verbose: bool, run_id: str,
         "mode": effective_mode,
         "mode_requested": requested_mode,
     }
+    # 数据说明：给了才写，没给时 datasets[0] 的字段集合与改动前完全一致。
+    if request.dataset_note:
+        dataset_info["dataset_note"] = request.dataset_note
     # 只在开启预测时才写这两个键：关闭时 datasets[0] 的字段集合保持不变（F5）
     if forecast_res is not None:
         dataset_info["forecast"] = True

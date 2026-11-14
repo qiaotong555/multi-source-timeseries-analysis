@@ -85,6 +85,8 @@ def _build_parser() -> argparse.ArgumentParser:
     r.add_argument("--time-column", default=None)
     r.add_argument("--value-columns", default=None, help="逗号分隔")
     r.add_argument("--group-column", default=None)
+    r.add_argument("--dataset-note", default=None,
+                   help="数据说明（来源/采集方式/已知缺陷）。原样记入 datasets[0]，不参与计算")
     r.add_argument("--seed", type=int, default=DEFAULT_SEED)
     r.add_argument("--param", action="append", default=[], metavar="KEY=VALUE",
                    help="覆盖计划参数，可重复，如 --param anomaly_threshold=7.5")
@@ -248,6 +250,7 @@ def main(argv: list[str] | None = None) -> int:
         time_column=args.time_column,
         value_columns=args.value_columns.split(",") if args.value_columns else None,
         group_column=args.group_column,
+        dataset_note=args.dataset_note,
         param_overrides=_parse_overrides(args.param),
         seed=args.seed,
         output_dir=args.output,
