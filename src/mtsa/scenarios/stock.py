@@ -378,6 +378,53 @@ class StockAdapter(ScenarioAdapter):
                 [adj.metric_id], [], "src/mtsa/scenarios/stock.py::extra_metrics",
                 "仅校验数值一致性，不校验除权除息事件本身是否正确")
 
+        # ---------------- 分析层结论：受工具门控 ----------------
+        # 上面的收益/回测/复权/量价读的是场景指标，只要有 compute_metrics 的产出就成立，
+        # 与「选了哪些分析工具」无关。异常与变化点不同：没跑就是没跑，
+        # 写成「未发现」会把「没查」说成「查过且干净」——项目硬约束不允许。
+        n_anom = len(ctx.anomalies)
+        if not ctx.tool_ran("detect_anomalies"):
+            add("异常检测",
+                "本次未执行异常检测，`data.anomalies` 为空不能解读为「未发现异常」。",
+                [], [], "src/mtsa/scenarios/stock.py::conclusions",
+                "工具未执行 ≠ 未检出")
+        elif not n_anom:
+            add("异常检测",
+                f"未检出异常点：已对 {len(ctx.plan.target_columns)} 条序列执行稳健 z 检测，"
+                f"阈值 {float(ctx.plan.parameters.get('anomaly_threshold') or 0):g}σ。",
+                [], ["art_fig_anomaly"], "src/mtsa/scenarios/stock.py::conclusions",
+                "只覆盖单点偏离；缓慢漂移与整段偏移不在判据内")
+        else:
+            cols = {a.column for a in ctx.anomalies}
+            top = max(ctx.anomalies, key=lambda a: abs(a.score))
+            add("异常检测",
+                f"检出 {n_anom} 个异常点，覆盖 {len(cols)} 条序列；偏离最大的是 "
+                f"{top.column} 的 {top.timestamp}（{top.score:.2f}σ，值 {top.value:.4g}）。",
+                [], ["art_fig_anomaly"], "src/mtsa/scenarios/stock.py::conclusions",
+                "异常点是相对自身基线的统计偏离，不构成买卖信号")
+
+        n_cp = len(ctx.change_points)
+        if not ctx.tool_ran("detect_change_points"):
+            add("变化点",
+                "本次未执行变化点检测，`data.change_points` 为空不能解读为「无结构变化」。",
+                [], [], "src/mtsa/scenarios/stock.py::conclusions",
+                "工具未执行 ≠ 未检出")
+        elif not n_cp:
+            add("变化点",
+                f"未检出变化点：已对 {len(ctx.plan.target_columns)} 条序列做 SSE 二分 + "
+                "局部信噪比判据，未发现通过门槛的均值突变。",
+                [], ["art_fig_anomaly"], "src/mtsa/scenarios/stock.py::conclusions",
+                "判据只覆盖均值突变；方差突变与缓慢趋势改变不在范围内")
+        else:
+            cols = {c.column for c in ctx.change_points}
+            cp = max(ctx.change_points, key=lambda c: abs(c.statistic))
+            add("变化点",
+                f"检出 {n_cp} 个变化点，覆盖 {len(cols)} 条序列；最强的一处在 "
+                f"{cp.column} 的 {cp.timestamp}（{cp.kind}，统计量 {cp.statistic:.2f}，"
+                f"置信度 {cp.confidence}）。",
+                [], ["art_fig_anomaly"], "src/mtsa/scenarios/stock.py::conclusions",
+                "变化点时间戳的定位误差约为窗口一半，不是精确时刻；不构成买卖信号")
+
         add("免责声明",
             "本分析为统计计算结果，不构成任何投资建议或买卖依据，不代表未来收益。",
             [], [], "src/mtsa/scenarios/stock.py::conclusions", "")

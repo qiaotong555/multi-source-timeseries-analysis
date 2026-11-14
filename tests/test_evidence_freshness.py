@@ -85,5 +85,6 @@ def test_repo_evidence_list_covers_readme_claims():
                  "evals/eval_results.json",
                  "evals/real_data_results.json",
                  "evals/forecast_results.json",
+                 "evals/agent_stock_results.json",
                  "evals/mode_compare_results.json"):
         assert must in listed, must

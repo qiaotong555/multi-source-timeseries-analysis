@@ -1,0 +1,253 @@
+{
+  "generated_at": "2026-11-10T21:24:41",
+  "scene": "stock",
+  "mode": "agent",
+  "planner": "rule",
+  "source": "real",
+  "input": "fixtures\\stock_v1.csv",
+  "summary": {
+    "runs": 4,
+    "succeeded": 4,
+    "success_rate": 1.0,
+    "gate_consistency": 1.0,
+    "scenario_layer_rate": 1.0,
+    "need_coverage": 1.0,
+    "avg_steps": 2.75,
+    "terminate_reasons": {
+      "budget_exhausted": 3,
+      "model_finished": 1
+    },
+    "checks": [
+      {
+        "name": "success_rate",
+        "value": 1.0,
+        "op": ">=",
+        "threshold": 1.0,
+        "ok": true
+      },
+      {
+        "name": "gate_consistency",
+        "value": 1.0,
+        "op": ">=",
+        "threshold": 1.0,
+        "ok": true
+      },
+      {
+        "name": "scenario_layer_rate",
+        "value": 1.0,
+        "op": ">=",
+        "threshold": 1.0,
+        "ok": true
+      },
+      {
+        "name": "need_coverage",
+        "value": 1.0,
+        "op": ">=",
+        "threshold": 1.0,
+        "ok": true
+      }
+    ],
+    "ok": true
+  },
+  "cases": [
+    {
+      "id": "s_return",
+      "question": "这只股票的收益、回撤和量价关系如何？",
+      "status": "succeeded",
+      "error": null,
+      "steps": 2,
+      "terminate_reason": "budget_exhausted",
+      "tools_run": [
+        "compute_metrics",
+        "run_stat_tests"
+      ],
+      "allowed_tools": [
+        "compute_metrics",
+        "analyze_spectrum",
+        "run_stat_tests",
+        "detect_anomalies",
+        "detect_change_points"
+      ],
+      "tool_coverage": 0.4,
+      "analysis_coverage": 0.7778,
+      "categories": [
+        "收益风险",
+        "回测",
+        "数据校验",
+        "量价关系",
+        "复权校验",
+        "异常检测",
+        "变化点",
+        "免责声明"
+      ],
+      "texts": {
+        "收益风险": "区间累计收益 16.69%，年化波动率 28.12%，最大回撤 -35.57%，夏普比率 0.220（无风险利率 2%）。",
+        "回测": "Walk-forward 共 5 段，策略跑赢基准 2 段；各段超额：-14.75%、-29.71%、+7.52%、-11.66%、+14.57%。",
+        "数据校验": "未检出未来数据泄漏：已检查 1 个信号列（adjust_factor），与次日收益的相关系数绝对值均低于 0.80 阈值，回测采用 T-1 决策、T 执行，且分段严格按时间切分无重叠。",
+        "量价关系": "成交量与绝对收益相关系数 0.589，呈现显著的量价同步特征。",
+        "复权校验": "复权价与 close×adjust_factor 的最大相对偏差 1.00e-02，存在不一致，需核对除权除息数据。",
+        "异常检测": "本次未执行异常检测，`data.anomalies` 为空不能解读为「未发现异常」。",
+        "变化点": "本次未执行变化点检测，`data.change_points` 为空不能解读为「无结构变化」。",
+        "免责声明": "本分析为统计计算结果，不构成任何投资建议或买卖依据，不代表未来收益。"
+      },
+      "need": [
+        "compute_metrics"
+      ],
+      "gate_ok": true,
+      "problems": [],
+      "scenario_layer_ok": true,
+      "need_coverage": 1.0
+    },
+    {
+      "id": "s_anomaly",
+      "question": "有没有异常交易日？跳空多不多？",
+      "status": "succeeded",
+      "error": null,
+      "steps": 3,
+      "terminate_reason": "budget_exhausted",
+      "tools_run": [
+        "detect_anomalies",
+        "compute_metrics",
+        "detect_change_points"
+      ],
+      "allowed_tools": [
+        "compute_metrics",
+        "analyze_spectrum",
+        "run_stat_tests",
+        "detect_anomalies",
+        "detect_change_points"
+      ],
+      "tool_coverage": 0.6,
+      "analysis_coverage": 0.6667,
+      "categories": [
+        "收益风险",
+        "回测",
+        "数据校验",
+        "量价关系",
+        "复权校验",
+        "异常检测",
+        "变化点",
+        "免责声明"
+      ],
+      "texts": {
+        "收益风险": "区间累计收益 16.69%，年化波动率 28.12%，最大回撤 -35.57%，夏普比率 0.220（无风险利率 2%）。",
+        "回测": "Walk-forward 共 5 段，策略跑赢基准 2 段；各段超额：-14.75%、-29.71%、+7.52%、-11.66%、+14.57%。",
+        "数据校验": "未检出未来数据泄漏：已检查 1 个信号列（adjust_factor），与次日收益的相关系数绝对值均低于 0.80 阈值，回测采用 T-1 决策、T 执行，且分段严格按时间切分无重叠。",
+        "量价关系": "成交量与绝对收益相关系数 0.589，呈现显著的量价同步特征。",
+        "复权校验": "复权价与 close×adjust_factor 的最大相对偏差 1.00e-02，存在不一致，需核对除权除息数据。",
+        "异常检测": "检出 18 个异常点，覆盖 2 条序列；偏离最大的是 close 的 2025-04-08 00:00:00（12.37σ，值 20.77）。",
+        "变化点": "检出 4 个变化点，覆盖 2 条序列；最强的一处在 benchmark 的 2024-10-24 00:00:00（mean，统计量 6.74，置信度 high）。",
+        "免责声明": "本分析为统计计算结果，不构成任何投资建议或买卖依据，不代表未来收益。"
+      },
+      "need": [
+        "compute_metrics",
+        "detect_anomalies"
+      ],
+      "gate_ok": true,
+      "problems": [],
+      "scenario_layer_ok": true,
+      "need_coverage": 1.0
+    },
+    {
+      "id": "s_changepoint",
+      "question": "行情在什么时候发生了转折？",
+      "status": "succeeded",
+      "error": null,
+      "steps": 2,
+      "terminate_reason": "budget_exhausted",
+      "tools_run": [
+        "compute_metrics",
+        "detect_change_points"
+      ],
+      "allowed_tools": [
+        "compute_metrics",
+        "analyze_spectrum",
+        "run_stat_tests",
+        "detect_anomalies",
+        "detect_change_points"
+      ],
+      "tool_coverage": 0.4,
+      "analysis_coverage": 0.5556,
+      "categories": [
+        "收益风险",
+        "回测",
+        "数据校验",
+        "量价关系",
+        "复权校验",
+        "异常检测",
+        "变化点",
+        "免责声明"
+      ],
+      "texts": {
+        "收益风险": "区间累计收益 16.69%，年化波动率 28.12%，最大回撤 -35.57%，夏普比率 0.220（无风险利率 2%）。",
+        "回测": "Walk-forward 共 5 段，策略跑赢基准 2 段；各段超额：-14.75%、-29.71%、+7.52%、-11.66%、+14.57%。",
+        "数据校验": "未检出未来数据泄漏：已检查 1 个信号列（adjust_factor），与次日收益的相关系数绝对值均低于 0.80 阈值，回测采用 T-1 决策、T 执行，且分段严格按时间切分无重叠。",
+        "量价关系": "成交量与绝对收益相关系数 0.589，呈现显著的量价同步特征。",
+        "复权校验": "复权价与 close×adjust_factor 的最大相对偏差 1.00e-02，存在不一致，需核对除权除息数据。",
+        "异常检测": "本次未执行异常检测，`data.anomalies` 为空不能解读为「未发现异常」。",
+        "变化点": "检出 4 个变化点，覆盖 2 条序列；最强的一处在 benchmark 的 2024-10-24 00:00:00（mean，统计量 6.74，置信度 high）。",
+        "免责声明": "本分析为统计计算结果，不构成任何投资建议或买卖依据，不代表未来收益。"
+      },
+      "need": [
+        "compute_metrics",
+        "detect_change_points"
+      ],
+      "gate_ok": true,
+      "problems": [],
+      "scenario_layer_ok": true,
+      "need_coverage": 1.0
+    },
+    {
+      "id": "s_mixed",
+      "question": "收益怎么样？价格序列平稳吗？有没有异常？",
+      "status": "succeeded",
+      "error": null,
+      "steps": 4,
+      "terminate_reason": "model_finished",
+      "tools_run": [
+        "compute_metrics",
+        "run_stat_tests",
+        "detect_anomalies",
+        "detect_change_points"
+      ],
+      "allowed_tools": [
+        "compute_metrics",
+        "analyze_spectrum",
+        "run_stat_tests",
+        "detect_anomalies",
+        "detect_change_points"
+      ],
+      "tool_coverage": 0.8,
+      "analysis_coverage": 1.0,
+      "categories": [
+        "收益风险",
+        "回测",
+        "数据校验",
+        "量价关系",
+        "复权校验",
+        "异常检测",
+        "变化点",
+        "免责声明"
+      ],
+      "texts": {
+        "收益风险": "区间累计收益 16.69%，年化波动率 28.12%，最大回撤 -35.57%，夏普比率 0.220（无风险利率 2%）。",
+        "回测": "Walk-forward 共 5 段，策略跑赢基准 2 段；各段超额：-14.75%、-29.71%、+7.52%、-11.66%、+14.57%。",
+        "数据校验": "未检出未来数据泄漏：已检查 1 个信号列（adjust_factor），与次日收益的相关系数绝对值均低于 0.80 阈值，回测采用 T-1 决策、T 执行，且分段严格按时间切分无重叠。",
+        "量价关系": "成交量与绝对收益相关系数 0.589，呈现显著的量价同步特征。",
+        "复权校验": "复权价与 close×adjust_factor 的最大相对偏差 1.00e-02，存在不一致，需核对除权除息数据。",
+        "异常检测": "检出 18 个异常点，覆盖 2 条序列；偏离最大的是 close 的 2025-04-08 00:00:00（12.37σ，值 20.77）。",
+        "变化点": "检出 4 个变化点，覆盖 2 条序列；最强的一处在 benchmark 的 2024-10-24 00:00:00（mean，统计量 6.74，置信度 high）。",
+        "免责声明": "本分析为统计计算结果，不构成任何投资建议或买卖依据，不代表未来收益。"
+      },
+      "need": [
+        "compute_metrics",
+        "run_stat_tests",
+        "detect_anomalies"
+      ],
+      "gate_ok": true,
+      "problems": [],
+      "scenario_layer_ok": true,
+      "need_coverage": 1.0
+    }
+  ]
+}

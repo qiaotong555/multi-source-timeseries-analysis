@@ -18,7 +18,7 @@ import pandas as pd
 from . import io_loaders, profiler, quality, preprocess, metrics, freq, stats_tests, anomaly
 from . import forecast as forecast_mod
 from . import replay as replay_mod
-from .agent_runtime import WEATHER_AGENT_TOOLS, build_agent_runner
+from .agent_runtime import AGENT_SCENES, agent_tools_for, build_agent_runner
 from .observation import coverage_summary, tool_states
 from .models import (
     DEFAULT_SEED,
@@ -274,8 +274,9 @@ def _resolve_effective_mode(request: AnalysisRequest, plan: AnalysisPlan,
     if requested != "auto":
         return requested, requested
     from .llm_client import client_from_env
-    if plan.scene_id != "weather":
-        warnings.append("auto 模式：当前场景不是天气，Agent 尚未支持该场景，已回退 pipeline")
+    if plan.scene_id not in AGENT_SCENES:
+        warnings.append(
+            f"auto 模式：当前场景（{plan.scene_id}）尚未接入 Agent，已回退 pipeline")
         return requested, "pipeline"
     if client_from_env() is None:
         warnings.append("auto 模式：未配置可用的模型客户端，已回退 pipeline")
@@ -294,7 +295,7 @@ def _preview_payload(request: AnalysisRequest, raw, profile, qrep, plan: Analysi
         groups = int(raw.frame[group_col].nunique(dropna=True))
     if effective_mode == "agent":
         tools = [{"name": n, "description": _AGENT_TOOL_DESC.get(n, "")}
-                 for n in WEATHER_AGENT_TOOLS]
+                 for n in agent_tools_for(plan.scene_id)]
     else:
         tools = [{"name": a, "description": TOOL_SPECS.get(a, "场景专属分析（不由模型裁剪）")}
                  for a in plan.analyses]
@@ -552,16 +553,18 @@ def _run_analysis_impl(request: AnalysisRequest, verbose: bool, run_id: str,
 
     # ---- 6-10. 分析层 ----
     # pipeline：固定顺序，行为与 T1.8 保持一致。
-    # agent：仅天气场景，由模型在白名单内选择工具；数值仍由工具内部的确定性代码产出。
+    # agent：在场景白名单内由模型选择工具；数值仍由工具内部的确定性代码产出。
     agent_info: Optional[dict[str, Any]] = None
+    agent_tools: tuple[str, ...] = ()
     if effective_mode == "agent":
-        if plan.scene_id != "weather":
+        if plan.scene_id not in AGENT_SCENES:
             return fail(
                 ERR_AGENT_SCENE_UNSUPPORTED,
-                f"Agent 模式本轮只支持天气场景，当前场景为 {plan.scene_id}",
-                scene=plan.scene_id, supported=["weather"],
-                hint="请改用 --mode pipeline，或等待股票场景的 Agent 实现",
+                f"Agent 模式尚未支持场景 {plan.scene_id}",
+                scene=plan.scene_id, supported=list(AGENT_SCENES),
+                hint="请改用 --mode pipeline",
             )
+        agent_tools = agent_tools_for(plan.scene_id)
 
         # E2 成本语义：价目表先校验再跑，配置错误不该等到花完 token 才暴露。
         # 未配置时 price_table 为 None，金额字段整体缺失（不写 0 冒充免费）。
@@ -593,7 +596,7 @@ def _run_analysis_impl(request: AnalysisRequest, verbose: bool, run_id: str,
                 tool_ctx,
                 request.question,
                 max_steps=request.agent_max_steps,
-                allowed_tools=WEATHER_AGENT_TOOLS,
+                allowed_tools=agent_tools,
                 scope_mode=request.agent_scope,
                 max_extra_steps=request.agent_max_extra_steps,
                 max_tokens=request.agent_max_tokens,
@@ -609,14 +612,14 @@ def _run_analysis_impl(request: AnalysisRequest, verbose: bool, run_id: str,
             usage_client = runner.client
         agent_elapsed = int((time.perf_counter() - t_agent) * 1000)
         agent_info = traj.to_dict()
-        states = tool_states(traj, WEATHER_AGENT_TOOLS)
+        states = tool_states(traj, agent_tools)
         agent_info.update({"mode": "agent", "elapsed_ms": agent_elapsed,
                            "max_steps": request.agent_max_steps,
                            "max_extra_steps": request.agent_max_extra_steps,
                            "max_tokens": request.agent_max_tokens,
                            "tool_states": states,
                            "replay_version": replay_mod.REPLAY_VERSION,
-                           "coverage": coverage_summary(plan, traj, WEATHER_AGENT_TOOLS)})
+                           "coverage": coverage_summary(plan, traj, agent_tools)})
         # 模型 token 用量：服务端未返回 usage 时留空，不用估算值冒充成本。
         usage_fn = getattr(usage_client, "usage_summary", None)
         tokens = usage_fn() if callable(usage_fn) else None
@@ -685,7 +688,7 @@ def _run_analysis_impl(request: AnalysisRequest, verbose: bool, run_id: str,
             node="agent_analysis", started_at=agent_started, elapsed_ms=agent_elapsed,
             status="succeeded",
             summary={"steps": traj.step_count, "terminate_reason": traj.terminate_reason,
-                     "tools_run": traj.tools_run, "allowed_tools": list(WEATHER_AGENT_TOOLS),
+                     "tools_run": traj.tools_run, "allowed_tools": list(agent_tools),
                      "replayed": replay_source is not None},
         ))
 
@@ -698,9 +701,9 @@ def _run_analysis_impl(request: AnalysisRequest, verbose: bool, run_id: str,
             )
 
         mtab, extra, spectra, tests, anomalies, change_points = _agent_outputs(traj)
-        missing = [t for t in WEATHER_AGENT_TOOLS if states[t] == "not_run"]
-        failed = [t for t in WEATHER_AGENT_TOOLS if states[t] == "failed"]
-        skipped = [t for t in WEATHER_AGENT_TOOLS if states[t] == "skipped"]
+        missing = [t for t in agent_tools if states[t] == "not_run"]
+        failed = [t for t in agent_tools if states[t] == "failed"]
+        skipped = [t for t in agent_tools if states[t] == "skipped"]
         if missing:
             warnings.append(
                 "Agent 未执行以下分析工具：" + "、".join(missing)

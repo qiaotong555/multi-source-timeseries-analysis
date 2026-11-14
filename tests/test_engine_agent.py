@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
-"""T2.2 集成测试：Agent 接入 engine，且本轮只支持天气场景。
+"""T2.2 集成测试：Agent 接入 engine，支持天气与股票两个场景。
 
 全部使用 FakeClient，不访问网络。测试重点是「接入是否真的发生」：
 - 正式入口能跑通 Agent 闭环；
 - 轨迹写进 result.json，报告里有轨迹章节；
-- 股票场景被明确拒绝；
+- 股票场景可跑，且未执行的工具不会写成「未发现」；
 - 没有模型配置、没有产出时都明确失败，不生成空报告冒充成功。
 """
 from __future__ import annotations
@@ -117,16 +117,67 @@ def test_weather_agent_runs_through_engine(monkeypatch, tmp_path):
     assert "未执行工具" in report
 
 
-def test_stock_scene_is_rejected_in_agent_mode(monkeypatch, tmp_path):
+def test_stock_scene_runs_in_agent_mode(monkeypatch, tmp_path):
+    """股票场景可走 Agent；没跑的工具必须在结论里写成「未执行」。"""
     _ensure_fixtures()
-    _patch_runner(monkeypatch, [_finish()])
+    _patch_runner(monkeypatch, [
+        _act("compute_metrics"),
+        _act("detect_anomalies"),
+        _finish(),
+    ])
+    out = str(tmp_path / "agent_stock")
     req = AnalysisRequest(request_id="req_agent_stock", input_path=STOCK_CSV,
                           scene_id="stock", question="分析收益与回撤",
-                          output_dir=str(tmp_path / "agent_stock"), mode="agent")
+                          output_dir=out, mode="agent")
+    res = engine.run_analysis(req, verbose=False)
+
+    assert res.status == "succeeded", res.error
+    agent = res.data["agent"]
+    assert agent["allowed_tools"] == [
+        "compute_metrics", "analyze_spectrum", "run_stat_tests",
+        "detect_anomalies", "detect_change_points",
+    ]
+    assert agent["tools_run"] == ["compute_metrics", "detect_anomalies"]
+
+    # 场景层结论来自 compute_metrics 的场景指标，照常输出
+    cats = [c.category for c in res.conclusions]
+    for must in ("收益风险", "回测", "复权校验", "量价关系"):
+        assert must in cats, f"缺场景层结论：{must}"
+    # 分析层：跑了异常 → 出检出结论；没跑变化点 → 必须写「未执行」而不是「未发现」
+    by_cat = {c.category: c.text for c in res.conclusions}
+    assert "异常检测" in by_cat and "未执行" not in by_cat["异常检测"]
+    assert "变化点" in by_cat and "未执行变化点检测" in by_cat["变化点"]
+    assert res.data["change_points"] == [], "未选变化点，不应凭空产生变化点"
+
+    md = open(os.path.join(out, "report.md"), encoding="utf-8").read()
+    assert "Agent 执行轨迹" in md
+    assert "detect_change_points" in md
+
+
+def test_unregistered_scene_is_still_rejected(monkeypatch, tmp_path):
+    """守卫本身不能因为「当前两个场景都支持」而失效：把股票移出白名单应重新被拒。"""
+    _ensure_fixtures()
+    monkeypatch.setattr(engine, "AGENT_SCENES", ("weather",))
+    _patch_runner(monkeypatch, [_finish()])
+    req = AnalysisRequest(request_id="req_agent_guard", input_path=STOCK_CSV,
+                          scene_id="stock", question="分析收益与回撤",
+                          output_dir=str(tmp_path / "agent_guard"), mode="agent")
     res = engine.run_analysis(req, verbose=False)
     assert res.status == "failed"
     assert res.error.code == "AGENT_SCENE_UNSUPPORTED"
     assert res.error.details["scene"] == "stock"
+    assert res.error.details["supported"] == ["weather"]
+
+
+def test_agent_tools_are_registered_per_scene():
+    """白名单按场景登记；未登记场景取不到工具，也就无法进入 Agent。"""
+    from mtsa.agent_runtime import AGENT_SCENES, agent_tools_for
+
+    assert set(AGENT_SCENES) == {"weather", "stock"}
+    assert agent_tools_for("stock") == agent_tools_for("weather")
+    assert "check_lookahead" not in agent_tools_for("stock"), \
+        "泄漏检查是引擎硬门，不是可选工具"
+    assert agent_tools_for("no_such_scene") == ()
 
 
 def test_agent_mode_without_client_fails_explicitly(monkeypatch, tmp_path):

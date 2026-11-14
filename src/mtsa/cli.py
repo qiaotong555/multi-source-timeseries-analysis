@@ -91,7 +91,7 @@ def _build_parser() -> argparse.ArgumentParser:
     r.add_argument("--output", default=None, help="产物目录，默认 artifacts/<run_id>")
     r.add_argument("--request-id", default=None)
     r.add_argument("--mode", choices=("pipeline", "agent", "auto"), default=None,
-                   help="运行模式：pipeline 固定流水线；agent 由模型选择工具（本轮仅天气）；"
+                   help="运行模式：pipeline 固定流水线；agent 由模型选择工具（支持天气/股票）；"
                         "auto 有模型且场景支持时走 agent，否则回退 pipeline。"
                         "缺省读 MTSA_AGENT，再缺省 pipeline。"
                          "注意：这与计划器不是同一个开关——分析哪些项由 --planner 决定")

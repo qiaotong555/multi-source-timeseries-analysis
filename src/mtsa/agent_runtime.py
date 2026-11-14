@@ -13,8 +13,8 @@ M1 的计划层是**一次性规划**：看完数据摘要就定下 12 个分析
 边界
 ----
 1. **只编排白名单内的分析工具**。数据管道（导入至清洗）与收尾（图表至报告）不进
-   循环：前者有严格前置依赖，后者需聚合全部结果。本轮天气场景白名单为五个工具，
-   股票专属的 `check_lookahead` 不在其中。
+   循环：前者有严格前置依赖，后者需聚合全部结果。天气与股票共用同一组五个通用
+   分析工具；股票专属的 `check_lookahead` 是引擎硬门，不在白名单里。
 2. **数值不经模型**。模型只看到 `ToolResult.summary`，看不到 `data`。
 3. **失败可重试一次**。工具失败后，模型可以在下一步重试同一工具；成功或 skipped
    的工具不得重复。边界由 `agent_guards.ActionGuard` 判定并留痕。
@@ -83,15 +83,39 @@ DEFAULT_MAX_EXTRA_STEPS = 1
 
 AGENT_VERSION = "agent-v1"
 
-# 本轮 Agent 只实现天气正式场景。股票场景不接入，股票专属的 check_lookahead
-# 因此不在此集合内——它仍可由 pipeline 使用，但不作为天气 Agent 的可选动作。
-WEATHER_AGENT_TOOLS: tuple[str, ...] = (
+# Agent 的工具集与场景无关：工具只吃 `ToolContext`，场景差异由适配器与结论层承担。
+#
+# `check_lookahead` 刻意**不进**白名单：它是引擎第 10 步的硬门（`engine.py`
+# 场景为 stock 时无条件执行，命中泄漏直接失败），如果放进白名单，模型不选它
+# 就会让人以为「没查泄漏」，而实际上查了；反过来，模型选了它也不会多查一次。
+# 一句话：泄漏检查是流程前置条件，不是可选分析动作。
+AGENT_TOOLS: tuple[str, ...] = (
     "compute_metrics",
     "analyze_spectrum",
     "run_stat_tests",
     "detect_anomalies",
     "detect_change_points",
 )
+
+# 历史名称：0.6.1 及以前只有天气场景，工具集叫这个名字。股票接入后语义变成
+# 「所有场景共用的工具集」，故改名为 AGENT_TOOLS；别名保留，避免外部脚本
+# （`evals/agent_eval.py`、两个测试）因改名失败。两者是同一个 tuple，不是两份清单。
+WEATHER_AGENT_TOOLS = AGENT_TOOLS
+
+# 场景 → 允许的工具。新增场景时在这里登记，engine 与 dry-run 都从这里取，
+# 不在别处硬编码场景名。未登记的场景视为不支持 Agent。
+AGENT_TOOLS_BY_SCENE: dict[str, tuple[str, ...]] = {
+    "weather": AGENT_TOOLS,
+    "stock": AGENT_TOOLS,
+}
+
+# 允许走 Agent 模式的场景。与 AGENT_TOOLS_BY_SCENE 同源，避免两处名单不一致。
+AGENT_SCENES: tuple[str, ...] = tuple(AGENT_TOOLS_BY_SCENE)
+
+
+def agent_tools_for(scene_id: str) -> tuple[str, ...]:
+    """取某场景的 Agent 工具白名单；未登记的场景返回空元组（不支持 Agent）。"""
+    return AGENT_TOOLS_BY_SCENE.get(scene_id, ())
 
 
 @dataclass

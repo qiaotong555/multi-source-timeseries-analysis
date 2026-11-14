@@ -76,7 +76,8 @@ class AnalysisRequest(MtsaModel):
     param_overrides: dict[str, Any] = Field(default_factory=dict)
     seed: int = DEFAULT_SEED
     output_dir: Optional[str] = None
-    # 运行模式。本轮 Agent 只支持天气场景；pipeline 是默认值，保持既有行为不变。
+    # 运行模式。Agent 支持天气与股票场景（见 agent_runtime.AGENT_SCENES）；
+    # pipeline 是默认值，保持既有行为不变。
     mode: Literal["pipeline", "agent", "auto"] = "pipeline"
     # 计划器（决定"分析哪些项、哪些目标列"）。与 mode 不是同一个开关：
     #   None（默认）= 跟随环境变量 MTSA_PLANNER（其缺省为 auto）；
@@ -85,7 +86,7 @@ class AnalysisRequest(MtsaModel):
     #   "llm"       = 强制模型；配置不全时回退规则并在 warnings 里说明。
     # 请求里给了值就以请求为准——这样 API/CLI 调用方不必改服务端环境变量。
     planner: Optional[Literal["auto", "rule", "llm"]] = None
-    # Agent 最大决策步数。默认 8，足以覆盖天气场景的 5 个工具并留出纠错余量。
+    # Agent 最大决策步数。默认 8，足以覆盖 5 个工具并留出纠错余量。
     agent_max_steps: int = 8
     # 范围下限模式（T2.11）。guided：关键词下限 + 达标前不得结束 + 最多 1 步扩展；
     # free：范围完全由模型判断（T2.2 原始行为，步数会波动）。

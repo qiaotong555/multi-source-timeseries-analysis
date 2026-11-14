@@ -89,15 +89,31 @@ def test_auto_with_model_uses_agent(tmp_path):
     assert "agent" in res.data
 
 
-def test_auto_on_stock_falls_back_to_pipeline(tmp_path):
-    """模型可用但场景不支持 Agent 时，auto 不应报错，而应回退 pipeline。"""
+def test_auto_on_stock_upgrades_to_agent(tmp_path, monkeypatch):
+    """股票已接入 Agent：auto + 有模型时应升级为 agent，而不是回退 pipeline。"""
     _ensure_fixtures()
+    monkeypatch.setattr(engine, "build_agent_runner", _fake_build)
     with patch("mtsa.llm_client.client_from_env", return_value=DummyClient()):
         req = AnalysisRequest(request_id="req_auto_stock", input_path=STOCK_CSV,
                               scene_id="stock", question="计算收益与回撤",
                               output_dir=str(tmp_path / "auto_stock"), mode="auto")
         res = engine.run_analysis(req, verbose=False)
     assert res.status == "succeeded", res.error
+    assert res.datasets[0]["mode"] == "agent"
+    assert "agent" in res.data
+
+
+def test_auto_on_unregistered_scene_falls_back_to_pipeline(tmp_path, monkeypatch):
+    """场景未登记为 Agent 场景时，auto 不应报错，而应回退 pipeline。"""
+    _ensure_fixtures()
+    # 把股票临时移出 Agent 名单，模拟「以后新增了场景但还没接 Agent」
+    monkeypatch.setattr(engine, "AGENT_SCENES", ("weather",))
+    with patch("mtsa.llm_client.client_from_env", return_value=DummyClient()):
+        req = AnalysisRequest(request_id="req_auto_unknown", input_path=STOCK_CSV,
+                              scene_id="stock", question="计算收益与回撤",
+                              output_dir=str(tmp_path / "auto_unknown"), mode="auto")
+        res = engine.run_analysis(req, verbose=False)
+    assert res.status == "succeeded", res.error
     assert res.datasets[0]["mode"] == "pipeline"
     assert "agent" not in res.data
-    assert any("不是天气" in w for w in res.warnings)
+    assert any("尚未接入 Agent" in w for w in res.warnings)

@@ -245,9 +245,15 @@ def render_report(
         lines.append("")
         cov_tools = cov.get("tools") or []
         if cov_tools:
-            lines.append("**覆盖矩阵**：每个工具的状态、它负责的分析项、以及未执行的原因。"
-                         "「引擎」一行不属于任何工具——极值由引擎统一计算，"
-                         "只要计划里有 `extreme` 就一定算过。")
+            matrix_note = ("**覆盖矩阵**：每个工具的状态、它负责的分析项、以及未执行的原因。"
+                           "「引擎」一行不属于任何工具——极值由引擎统一计算，"
+                           "只要计划里有 `extreme` 就一定算过。")
+            if ctx.plan.scene_id == "stock":
+                matrix_note += ("股票场景另有两类不经工具门控的产物：场景指标"
+                                "（复权/收益/回撤/回测/量价）随 `compute_metrics` 一次产出；"
+                                "未来数据泄漏检查是引擎第 10 步的硬门，命中即整单失败，"
+                                "不因模型没选它而跳过。")
+            lines.append(matrix_note)
             lines.append("")
             cov_rows = [[t.get("tool", ""), _STATE_CN.get(t.get("state", ""), t.get("state", "")),
                          "、".join(t.get("covers") or []) or "—",

@@ -75,7 +75,6 @@ mtsa-api --port 8000               # 提交 202 → 轮询状态 → 取 result.
 - 不做因果推断，不做交易建议与自动交易；
 - 不让模型参与任何数值计算（模型只决定「先跑哪个工具」）；
 - 不改原始输入文件，所有产物写入独立 `artifacts/<run_id>/`；
-- 股票场景只支持固定流水线，Agent 未实现（请求返回 `AGENT_SCENE_UNSUPPORTED`）；
 - 彩票 / CSI 场景、多模型对比、对外 REST 服务，均未实现。
 
 ### 两种运行模式
@@ -83,8 +82,8 @@ mtsa-api --port 8000               # 提交 202 → 轮询状态 → 取 result.
 | 模式 | 行为 | 无模型时 |
 | --- | --- | --- |
 | `pipeline`（默认） | 固定流程、逐节点执行；分析哪些项由计划器决定（规则计划为 12 项） | 正常 |
-| `agent` | 天气场景下由模型在白名单 5 个工具里选下一步 | `AGENT_UNAVAILABLE` |
-| `auto` | 天气且有模型才升级，否则回退 | 回退 pipeline 并写 warning |
+| `agent` | 天气或股票场景下，由模型在白名单 5 个工具里选下一步 | `AGENT_UNAVAILABLE` |
+| `auto` | 场景已接入 Agent 且有模型才升级，否则回退 | 回退 pipeline 并写 warning |
 
 **两个开关不要混**：`--mode` 决定「谁决定执行顺序」，`--planner`（或环境变量 `MTSA_PLANNER`）决定「分析哪些项」。
 
@@ -125,7 +124,7 @@ mtsa-api --port 8000               # 提交 202 → 轮询状态 → 取 result.
 
 | 维度 | 结论 | 关键数字 | 证据 | 证据生成 |
 | --- | --- | --- | --- | --- |
-| 工程基线 | **通过** | 64 个测试文件 / 611 项 / 0 失败 / 684.1 s（2026-11-07 20:37） | `evals/test_logs/summary.json` | 2026-11-07 20:37 |
+| 工程基线 | **通过** | 64 个测试文件 / 614 项 / 0 失败 / 692.7 s（2026-11-10 21:40） | `evals/test_logs/summary.json` | 2026-11-10 21:40 |
 | 异常检测准确性 | **通过** | 9 站数据集、**154 个 holdout 事件**：精确率 **0.7857**（95% CI 0.730–0.828）、召回 **0.9184**（0.869–0.954）；事件级 0.9168、集体异常 0.9804。代价：三折阈值 6/5/5，**fold2 精确率 0.688 低于 0.70 门线**（判定用逐折均值） | `evals/eval_results.json` 的 `_split_eval` | 2026-11-07 |
 | 鲁棒性 | **通过** | 37 个坏输入与边界用例 37/37，0 崩溃；失败均带错误码与出错节点 | `evals/robustness_results.json` | 2026-11-07 |
 | 结论级门禁（独立数据 v2） | **通过** | 24/24（10 pipeline + 10 agent + 4 非劣性）；事件级命中 R=0.9667、F1=0.9831；点级 P=1.000 / R=0.840 | `evals/conclusion_gate_v2_results.json` | 2026-11-07 |
@@ -133,24 +132,28 @@ mtsa-api --port 8000               # 提交 202 → 轮询状态 → 取 result.
 | 数据扩容（D3） | **部分通过** | 新增 7 份（3 大洲、4 份海拔 ≥1500 m），28/28 成功；registry 10 → 17 | `evals/d3_results.json` | **2026-10-24**（D3 阶段基线） |
 | 预测（可选，仅天气） | **部分通过** | 17 份 / 94 列全部完成；90% 区间覆盖率 0.8799（125,160 点：84 列各 1440 点、10 列各 420 点）；MASE≤1.0 占 68/94 = 0.723；零膨胀列「有雨时」条件覆盖率 13 列全部 0.840–0.936（F6 PASS）；**事件概率 F5 未通过**——13 列中 4 列 BSS ≤ 0 | `evals/forecast_results.json`、`doc/预测场景化.md` | 2026-11-07 |
 | Agent 对照（13 用例） | **可用** | 13/13 成功；2.62 步；需求覆盖 1.00、规则计划覆盖 0.69；结论 40.15 vs 51.0（**−21.3%**）；token 55,031；墙钟 17.73 s vs 18.29 s（−3.1%） | `evals/mode_compare_results.json` | 2026-11-04 |
+| 股票 Agent（E4） | **通过** | 4 用例：门控一致率 1.0、场景层完整率 1.0、需求覆盖率 1.00；平均 2.75 步（2 例 `model_finished`、2 例 `budget_exhausted`） | `evals/agent_stock_results.json`、`doc/评估设计.md` 6.5.1 | 2026-11-10 |
 | 规模与性能 | **有明确上限** | 20 万行上限（`MTSA_MAX_ROWS`）；1e5 行 37.1 s、2e5 行 123.9 s、5e5 行 736 s、1e6 未完成 | `doc/评估设计.md`、`doc/改进记录.md` #4/#6 | —（文档口径） |
 | 交付形态（E1 / E3） | **可用** | `mtsa-api` 9 个路由：7 个分析/产物接口 + 任务列表 `GET /analyses` + `GET /metrics`；SQLite 任务仓储（`MTSA_API_DB`）重启后仍能查状态与产物，重启前活跃任务标 `INTERRUPTED`；保留期 `MTSA_API_RETENTION_DAYS` 只清记录不删产物；27 项接口与仓储测试；真实 uvicorn 跨进程与运维面验证 | `tests/test_api.py`、`tests/test_api_store.py`、`tests/test_api_ops.py`、`doc/接口与字段.md` 第 7 节 | 2026-11-03 |
 
 **证据时效**：`python scripts/evidence_freshness.py` 逐个比对「产物 mtime」与「它依赖源码的最后修改时间」。
 
-2026-11-08 复核（`python scripts/evidence_freshness.py`）：**8 新鲜 / 7 过期**（共 15 个产物）。
-过期 7 项分两类：
+2026-11-10 复核：**4 新鲜 / 12 过期**（16 个产物）。判据是「产物 mtime 晚于依赖源码」的保守口径：本轮改了 `agent_runtime` / `engine` / `scenarios/stock.py`，凡依赖 `src/**/*.py` 的产物都被标过期，**不代表结论失效**——22 项规则指标已重跑并逐叶比对（1805 叶 0 差异），鲁棒性 37/37 已重跑。
 
-| 未跟上 | 项 | 说明 |
+剩下 12 项按处理方式分四类：
+
+| 类别 | 项 | 处理 |
 | --- | --- | --- |
-| 阶段基线（不重跑） | 真实数据 10-25、D3 10-24 | 重跑会因 registry 已 17 份而得到 17 份 / 136 次，与已发布的「80/80」不同源 |
-| 未重跑的子评估 | `mode_compare` 11-04、`holdout` 10-25、`stability` 11-04、`probe` 11-03、`benchmark` 10-23 | 未重跑，数字保持原日期；11-06/07 的改动（#40–#42）是否影响它们**尚未验证**，`mode_compare` 重跑需调模型 |
+| 阶段基线（不重跑） | 真实数据 10-25、D3 10-24、holdout 10-25 | 重跑会换源（registry 已 17 份），数字保持原日期 |
+| 需真实模型（成本高） | `llm_eval` 11-07、`agent_eval` 11-04、`mode_compare` 11-04、`stability` 11-04、`probe` 11-03 | 未重跑；改动集中在 Agent 白名单与股票结论，天气路径未动 |
+| 可复算（无模型） | `conclusion_gate_v2` 11-07、`conclusion_eval` 11-07、`forecast` 11-07 | 未重跑，下次批量刷新时一起跑 |
+| 长基准 | `benchmark` 10-23 | 100 万行超时，不重跑 |
 
 > `eval_results.json` 的「结论级」几行读自 `artifacts/t212_compare`（在 `.gitignore` 里，未入库）。
 > 复现顺序：`python -m evals.mode_compare --out-root artifacts/t212_compare`
 > → `python -m evals.conclusion_eval` → `python -m evals.run_evals`。
 
-**规模数字**（2026-11-08 实测）：`src/mtsa` 36 个 py / 10,354 行；`tests` 目录 66 个 py（64 个测试文件，逐文件入口统计；用例数见 `evals/test_logs/summary.json`）；`evals` 23 个 py / 8,765 行；真实数据 registry 17 份（5 个来源：Open-Meteo / NOAA GHCN-Daily / DWD / ECCC / ASOS；2 种频率：hourly 14、daily 3）。
+**规模数字**（2026-11-10 实测）：`src/mtsa` 36 个 py / 10,437 行；`tests` 目录 66 个 py（64 个测试文件，逐文件入口统计；用例数见 `evals/test_logs/summary.json`）；`evals` 24 个 py / 8,999 行；真实数据 registry 17 份（5 个来源：Open-Meteo / NOAA GHCN-Daily / DWD / ECCC / ASOS；2 种频率：hourly 14、daily 3）。
 
 **评估指标**：29 项 = 22 项规则模式阈值指标 + 3 项 LLM 模式指标（合法率、回退率、覆盖率）+ 4 项 Agent 指标（后 7 项仅在对应评估缓存存在时纳入判定）。LLM 覆盖率只统计合法计划，回退时不计入平均——否则「模型全挂」会被算成高覆盖。
 
@@ -168,7 +171,7 @@ mtsa-api --port 8000               # 提交 202 → 轮询状态 → 取 result.
 | 检测器能力 | 缓慢漂移与持续偏移 | 逐点判定检不出「单点不超阈、整段偏移」 | 传感器漂移类故障会漏 | 见 `doc/改进记录.md` 遗留问题汇总 |
 | 变化点（真实数据） | 一年期序列里的台阶 | 17 份真实数据 0 检出；注入对照：R01 的 12 °C 台阶偏 6 点、日频数据全脱靶；三种候选生成器改法实测均不迁移 | 一年期数据里 5–12 °C 的台阶与年周期不可分离；且贪心递归被季节分界挡住 | 已量化，不做（`doc/A2变化点候选生成.md`） |
 | 规模 | 百万行 | 1e6 超 300 s 未完成；ADF 不能截断滞后阶（实测会翻转平稳性判定） | 大文件只能拒绝或降采样 | 已设 20 万行上限 |
-| 场景 | 股票 Agent | `AGENT_SCENE_UNSUPPORTED` | 「多场景 Agent」实际只有天气 | 用户明确暂缓 |
+| 场景 | ~~股票 Agent~~ | **已实现**（2026-11-10）：股票与天气共用 5 个通用工具，场景指标随 `compute_metrics` 恒算，泄漏检查仍是引擎硬门 | 「多场景 Agent」名副其实 |
 | 产品化 | ~~E1 可观测性 / E2 金额换算 / E3 REST~~ | 三项均已交付：E1 覆盖矩阵、E2 成本语义（价目表 + 预算）、E3 HTTP 薄壳 + SQLite 任务仓储 | 曾经的「对外交付前必须先做」已经做完 | **已完成**（2026-11-03，见第 3 节「交付形态」行） |
 
 **一条必须记住的口径**：`agent` 比 `pipeline` 少 21.3% 的结论（51.00 → 40.15），**100% 归因于「工具未执行」**，不是算错；但「没跑」也不能当成「没问题」——报告里必须写「未执行」，不能写「未检出」。
@@ -196,6 +199,12 @@ python -m mtsa.cli run --scene weather \
 
 python -m mtsa.cli run --mode agent --scene weather \
   --input fixtures/weather_v1.csv --question "分析温度的趋势、季节性和异常"
+
+python -m mtsa.cli run --mode agent --scene stock --planner rule \
+  --input fixtures/stock_v1.csv --question "收益和回撤如何？有没有异常交易日？"
+# 股票场景的 Agent：场景指标（复权/收益/回撤/回测/量价）随 compute_metrics 恒算，
+# 异常与变化点按「工具是否真的跑了」出结论；没跑就写「未执行」，不写「未发现」。
+# 加 --planner rule 是为了固定计划（否则配了模型时会先由模型出计划）。
 
 python -m mtsa.cli run --scene weather --input fixtures/weather_eval_v2.csv \
   --question "分析温度的趋势" --forecast --forecast-horizon 24
