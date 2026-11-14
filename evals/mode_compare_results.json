@@ -8,26 +8,26 @@
     "mean_steps": 5,
     "mean_conclusions": 51,
     "mean_evidence": 51,
-    "mean_wall_ms": 18291.23,
+    "mean_wall_ms": 14739.31,
     "mean_rule_plan_coverage": 1.0,
     "mean_need_coverage": 1.0,
     "tokens_total": 0
   },
   "agent": {
     "success": 13,
-    "mean_steps": 2.62,
-    "mean_conclusions": 40.15,
-    "mean_evidence": 40.15,
-    "mean_wall_ms": 17730.85,
+    "mean_steps": 2.69,
+    "mean_conclusions": 40.62,
+    "mean_evidence": 40.62,
+    "mean_wall_ms": 15908.62,
     "mean_rule_plan_coverage": 0.69,
     "mean_need_coverage": 1.0,
-    "tokens_total": 55031,
-    "tokens_avg_per_run": 4233.2
+    "tokens_total": 56404,
+    "tokens_avg_per_run": 4338.8
   },
   "deltas": {
-    "mean_conclusions": -10.85,
-    "mean_evidence": -10.85,
-    "mean_wall_ms": -560.4,
+    "mean_conclusions": -10.38,
+    "mean_evidence": -10.38,
+    "mean_wall_ms": 1169.3,
     "mean_rule_plan_coverage": -0.31
   },
   "checks": {
@@ -51,7 +51,7 @@
         "evidence": 51,
         "rule_plan_coverage": 1.0,
         "need_coverage": 1.0,
-        "wall_ms": 18405,
+        "wall_ms": 14507,
         "metrics": 350,
         "tests": 50,
         "anomalies": 139,
@@ -65,20 +65,20 @@
         "evidence": 44,
         "rule_plan_coverage": 0.5,
         "need_coverage": 1.0,
-        "wall_ms": 12699,
+        "wall_ms": 11170,
         "tokens": {
           "calls": 3,
           "max_call_tokens": 1271,
           "prompt_tokens": 3182,
           "completion_tokens": 129,
           "total_tokens": 3311,
-          "cached_tokens": 2048
+          "cached_tokens": 1408
         }
       },
       "delta": {
         "conclusions": -7,
         "evidence": -7,
-        "wall_ms": -5706,
+        "wall_ms": -3337,
         "steps": -3
       }
     },
@@ -95,7 +95,7 @@
         "evidence": 51,
         "rule_plan_coverage": 1.0,
         "need_coverage": 1.0,
-        "wall_ms": 19476,
+        "wall_ms": 14545,
         "metrics": 350,
         "tests": 50,
         "anomalies": 139,
@@ -109,20 +109,20 @@
         "evidence": 41,
         "rule_plan_coverage": 0.9167,
         "need_coverage": 1.0,
-        "wall_ms": 22169,
+        "wall_ms": 20027,
         "tokens": {
           "calls": 5,
-          "max_call_tokens": 1480,
+          "max_call_tokens": 1472,
           "prompt_tokens": 5743,
-          "completion_tokens": 223,
-          "total_tokens": 5966,
-          "cached_tokens": 3840
+          "completion_tokens": 211,
+          "total_tokens": 5954,
+          "cached_tokens": 2432
         }
       },
       "delta": {
         "conclusions": -10,
         "evidence": -10,
-        "wall_ms": 2693,
+        "wall_ms": 5482,
         "steps": -1
       }
     },
@@ -139,7 +139,7 @@
         "evidence": 51,
         "rule_plan_coverage": 1.0,
         "need_coverage": 1.0,
-        "wall_ms": 17904,
+        "wall_ms": 14235,
         "metrics": 350,
         "tests": 50,
         "anomalies": 139,
@@ -153,20 +153,20 @@
         "evidence": 34,
         "rule_plan_coverage": 0.75,
         "need_coverage": 1.0,
-        "wall_ms": 22193,
+        "wall_ms": 18981,
         "tokens": {
           "calls": 3,
-          "max_call_tokens": 1443,
+          "max_call_tokens": 1451,
           "prompt_tokens": 3356,
-          "completion_tokens": 139,
-          "total_tokens": 3495,
-          "cached_tokens": 2048
+          "completion_tokens": 147,
+          "total_tokens": 3503,
+          "cached_tokens": 1408
         }
       },
       "delta": {
         "conclusions": -17,
         "evidence": -17,
-        "wall_ms": 4289,
+        "wall_ms": 4746,
         "steps": -3
       }
     },
@@ -183,7 +183,7 @@
         "evidence": 51,
         "rule_plan_coverage": 1.0,
         "need_coverage": 1.0,
-        "wall_ms": 17767,
+        "wall_ms": 15792,
         "metrics": 350,
         "tests": 50,
         "anomalies": 139,
@@ -197,20 +197,20 @@
         "evidence": 44,
         "rule_plan_coverage": 0.8333,
         "need_coverage": 1.0,
-        "wall_ms": 20653,
+        "wall_ms": 17989,
         "tokens": {
           "calls": 4,
-          "max_call_tokens": 1539,
+          "max_call_tokens": 1543,
           "prompt_tokens": 4893,
-          "completion_tokens": 205,
-          "total_tokens": 5098,
-          "cached_tokens": 2560
+          "completion_tokens": 202,
+          "total_tokens": 5095,
+          "cached_tokens": 1920
         }
       },
       "delta": {
         "conclusions": -7,
         "evidence": -7,
-        "wall_ms": 2886,
+        "wall_ms": 2197,
         "steps": -2
       }
     },
@@ -226,7 +226,7 @@
         "evidence": 51,
         "rule_plan_coverage": 1.0,
         "need_coverage": 1.0,
-        "wall_ms": 18178,
+        "wall_ms": 14248,
         "metrics": 350,
         "tests": 50,
         "anomalies": 139,
@@ -240,20 +240,20 @@
         "evidence": 44,
         "rule_plan_coverage": 0.8333,
         "need_coverage": 1.0,
-        "wall_ms": 21222,
+        "wall_ms": 18718,
         "tokens": {
           "calls": 4,
-          "max_call_tokens": 1479,
+          "max_call_tokens": 1472,
           "prompt_tokens": 4720,
-          "completion_tokens": 200,
-          "total_tokens": 4920,
-          "cached_tokens": 2944
+          "completion_tokens": 175,
+          "total_tokens": 4895,
+          "cached_tokens": 1920
         }
       },
       "delta": {
         "conclusions": -7,
         "evidence": -7,
-        "wall_ms": 3044,
+        "wall_ms": 4470,
         "steps": -2
       }
     },
@@ -269,7 +269,7 @@
         "evidence": 51,
         "rule_plan_coverage": 1.0,
         "need_coverage": 1.0,
-        "wall_ms": 24036,
+        "wall_ms": 15069,
         "metrics": 350,
         "tests": 50,
         "anomalies": 139,
@@ -277,27 +277,27 @@
       },
       "agent": {
         "status": "succeeded",
-        "steps": 2,
+        "steps": 3,
         "terminate_reason": "model_finished",
-        "conclusions": 35,
-        "evidence": 35,
-        "rule_plan_coverage": 0.5,
+        "conclusions": 41,
+        "evidence": 41,
+        "rule_plan_coverage": 0.5833,
         "need_coverage": 1.0,
-        "wall_ms": 13243,
+        "wall_ms": 16790,
         "tokens": {
-          "calls": 3,
-          "max_call_tokens": 1249,
-          "prompt_tokens": 3152,
-          "completion_tokens": 162,
-          "total_tokens": 3314,
-          "cached_tokens": 2048
+          "calls": 4,
+          "max_call_tokens": 1234,
+          "prompt_tokens": 4274,
+          "completion_tokens": 224,
+          "total_tokens": 4498,
+          "cached_tokens": 1920
         }
       },
       "delta": {
-        "conclusions": -16,
-        "evidence": -16,
-        "wall_ms": -10793,
-        "steps": -3
+        "conclusions": -10,
+        "evidence": -10,
+        "wall_ms": 1721,
+        "steps": -2
       }
     },
     {
@@ -312,7 +312,7 @@
         "evidence": 51,
         "rule_plan_coverage": 1.0,
         "need_coverage": 1.0,
-        "wall_ms": 19356,
+        "wall_ms": 17617,
         "metrics": 350,
         "tests": 50,
         "anomalies": 139,
@@ -326,20 +326,20 @@
         "evidence": 40,
         "rule_plan_coverage": 0.5,
         "need_coverage": 1.0,
-        "wall_ms": 12766,
+        "wall_ms": 14079,
         "tokens": {
           "calls": 3,
-          "max_call_tokens": 1159,
+          "max_call_tokens": 1150,
           "prompt_tokens": 3060,
-          "completion_tokens": 152,
-          "total_tokens": 3212,
-          "cached_tokens": 2048
+          "completion_tokens": 135,
+          "total_tokens": 3195,
+          "cached_tokens": 1408
         }
       },
       "delta": {
         "conclusions": -11,
         "evidence": -11,
-        "wall_ms": -6590,
+        "wall_ms": -3538,
         "steps": -3
       }
     },
@@ -355,7 +355,7 @@
         "evidence": 51,
         "rule_plan_coverage": 1.0,
         "need_coverage": 1.0,
-        "wall_ms": 17558,
+        "wall_ms": 15396,
         "metrics": 350,
         "tests": 50,
         "anomalies": 139,
@@ -369,20 +369,20 @@
         "evidence": 34,
         "rule_plan_coverage": 0.75,
         "need_coverage": 1.0,
-        "wall_ms": 21053,
+        "wall_ms": 16567,
         "tokens": {
           "calls": 3,
-          "max_call_tokens": 1473,
-          "prompt_tokens": 3390,
-          "completion_tokens": 151,
-          "total_tokens": 3541,
-          "cached_tokens": 2048
+          "max_call_tokens": 1469,
+          "prompt_tokens": 3616,
+          "completion_tokens": 152,
+          "total_tokens": 3768,
+          "cached_tokens": 1408
         }
       },
       "delta": {
         "conclusions": -17,
         "evidence": -17,
-        "wall_ms": 3495,
+        "wall_ms": 1171,
         "steps": -3
       }
     },
@@ -396,7 +396,7 @@
         "evidence": 51,
         "rule_plan_coverage": 1.0,
         "need_coverage": null,
-        "wall_ms": 17491,
+        "wall_ms": 13621,
         "metrics": 350,
         "tests": 50,
         "anomalies": 139,
@@ -410,20 +410,20 @@
         "evidence": 40,
         "rule_plan_coverage": 0.5,
         "need_coverage": null,
-        "wall_ms": 13130,
+        "wall_ms": 11017,
         "tokens": {
           "calls": 3,
           "max_call_tokens": 1152,
           "prompt_tokens": 3069,
-          "completion_tokens": 151,
-          "total_tokens": 3220,
-          "cached_tokens": 2048
+          "completion_tokens": 150,
+          "total_tokens": 3219,
+          "cached_tokens": 1408
         }
       },
       "delta": {
         "conclusions": -11,
         "evidence": -11,
-        "wall_ms": -4361,
+        "wall_ms": -2604,
         "steps": -3
       }
     },
@@ -443,7 +443,7 @@
         "evidence": 51,
         "rule_plan_coverage": 1.0,
         "need_coverage": 1.0,
-        "wall_ms": 17371,
+        "wall_ms": 13773,
         "metrics": 350,
         "tests": 50,
         "anomalies": 139,
@@ -457,20 +457,20 @@
         "evidence": 51,
         "rule_plan_coverage": 1.0,
         "need_coverage": 1.0,
-        "wall_ms": 25557,
+        "wall_ms": 19738,
         "tokens": {
           "calls": 6,
           "max_call_tokens": 1569,
           "prompt_tokens": 7484,
-          "completion_tokens": 277,
-          "total_tokens": 7761,
-          "cached_tokens": 4736
+          "completion_tokens": 282,
+          "total_tokens": 7766,
+          "cached_tokens": 2944
         }
       },
       "delta": {
         "conclusions": 0,
         "evidence": 0,
-        "wall_ms": 8186,
+        "wall_ms": 5965,
         "steps": 0
       }
     },
@@ -486,7 +486,7 @@
         "evidence": 51,
         "rule_plan_coverage": 1.0,
         "need_coverage": 1.0,
-        "wall_ms": 16715,
+        "wall_ms": 14444,
         "metrics": 350,
         "tests": 50,
         "anomalies": 139,
@@ -495,25 +495,25 @@
       "agent": {
         "status": "succeeded",
         "steps": 3,
-        "terminate_reason": "model_finished",
+        "terminate_reason": "budget_exhausted",
         "conclusions": 41,
         "evidence": 41,
         "rule_plan_coverage": 0.5833,
         "need_coverage": 1.0,
-        "wall_ms": 14149,
+        "wall_ms": 13471,
         "tokens": {
           "calls": 4,
-          "max_call_tokens": 1205,
+          "max_call_tokens": 1186,
           "prompt_tokens": 4293,
-          "completion_tokens": 201,
-          "total_tokens": 4494,
-          "cached_tokens": 3072
+          "completion_tokens": 178,
+          "total_tokens": 4471,
+          "cached_tokens": 1920
         }
       },
       "delta": {
         "conclusions": -10,
         "evidence": -10,
-        "wall_ms": -2566,
+        "wall_ms": -973,
         "steps": -2
       }
     },
@@ -529,7 +529,7 @@
         "evidence": 51,
         "rule_plan_coverage": 1.0,
         "need_coverage": 1.0,
-        "wall_ms": 16571,
+        "wall_ms": 13879,
         "metrics": 350,
         "tests": 50,
         "anomalies": 139,
@@ -543,20 +543,20 @@
         "evidence": 34,
         "rule_plan_coverage": 0.75,
         "need_coverage": 1.0,
-        "wall_ms": 19345,
+        "wall_ms": 16400,
         "tokens": {
           "calls": 3,
-          "max_call_tokens": 1441,
+          "max_call_tokens": 1454,
           "prompt_tokens": 3362,
-          "completion_tokens": 136,
-          "total_tokens": 3498,
-          "cached_tokens": 2048
+          "completion_tokens": 154,
+          "total_tokens": 3516,
+          "cached_tokens": 1408
         }
       },
       "delta": {
         "conclusions": -17,
         "evidence": -17,
-        "wall_ms": 2774,
+        "wall_ms": 2521,
         "steps": -3
       }
     },
@@ -570,7 +570,7 @@
         "evidence": 51,
         "rule_plan_coverage": 1.0,
         "need_coverage": null,
-        "wall_ms": 16958,
+        "wall_ms": 14485,
         "metrics": 350,
         "tests": 50,
         "anomalies": 139,
@@ -584,26 +584,26 @@
         "evidence": 40,
         "rule_plan_coverage": 0.5,
         "need_coverage": null,
-        "wall_ms": 12322,
+        "wall_ms": 11865,
         "tokens": {
           "calls": 3,
-          "max_call_tokens": 1155,
+          "max_call_tokens": 1157,
           "prompt_tokens": 3063,
-          "completion_tokens": 138,
-          "total_tokens": 3201,
-          "cached_tokens": 2048
+          "completion_tokens": 150,
+          "total_tokens": 3213,
+          "cached_tokens": 1408
         }
       },
       "delta": {
         "conclusions": -11,
         "evidence": -11,
-        "wall_ms": -4636,
+        "wall_ms": -2620,
         "steps": -3
       }
     }
   ],
   "scope_note": "同批 13 个天气用例、同一份 12 项规则计划；覆盖率为「分析是否执行」，不代表检出结果的正确性",
-  "generated_at": "2026-11-04T13:02:08",
+  "generated_at": "2026-11-14T10:55:06",
   "thresholds": {
     "pipeline_success": 1.0,
     "agent_success": 1.0,
