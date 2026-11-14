@@ -17,6 +17,7 @@ from .anomaly import (EXTREME_MIN_POINTS, EXTREME_QUANTILE, MIN_ANOMALY_POINTS,
                       extreme_examined)
 from .quality import LEVEL_SHIFT_MIN_POINTS, ROBUST_Z_THRESHOLD
 from .scenarios.base import ScenarioContext
+from .verify import evidence_coverage
 
 MAX_TABLE_ROWS = 120
 # 质量表逐段列出区间（最多与 runs 的上限一致）；结论里只取前 3 段。
@@ -554,9 +555,19 @@ def render_report(
         lines.append("")
         lines.append(f"  - 证据指标：{', '.join(metric_ids) if metric_ids else '（无）'}")
         lines.append(f"  - 证据产物：{', '.join(art_ids) if art_ids else '（无）'}")
+        data_refs = sorted({r for e in evs for r in (getattr(e, "data_refs", None) or [])})
+        lines.append(f"  - 数据位置：{', '.join('`' + r + '`' for r in data_refs) if data_refs else '（无）'}")
         lines.append(f"  - 计算位置：{', '.join(sorted({e.code_ref for e in evs})) or '（无）'}")
         if c.limitations:
             lines.append(f"  - 限制：{c.limitations}")
+        lines.append("")
+
+    cov = evidence_coverage(conclusions, evidences)
+    if cov.get("numeric_conclusions"):
+        lines.append(f"> **证据可定位率 {cov['numeric_locatable']}/{cov['numeric_conclusions']}"
+                     f"（{cov['numeric_locatable_rate']:.0%}）**：含小数的结论里，能指到具体指标"
+                     f"（`metric_ids`）或 `result.data` 节点（`data_refs`）的比例。"
+                     f"免责声明、方法说明这类不带数字的结论不计入分母。")
         lines.append("")
 
     # 10) 图表与产物

@@ -5,6 +5,19 @@
 
 ## 未发布
 
+**新增：证据链补齐（A5）——每条结论的数字都能指回一个节点**
+
+- `Evidence` 新增 `data_refs`：指向 `result.data` 的路径（`data.anomalies[3]`、
+  `data.spectrum[0]` 这类），用于周期、极值、异常点、变化点、质量计数这些**不在指标表里**的量。
+  此前 weather 的 51 条结论有 27 条只能给空 `metric_ids`，`verify` 的数值抽查整条跳过它们。
+- `verify` 的数值比对改为**按引用取数**（不再拿全库数值兜底），并允许 ×100 / ×1000 两种
+  量纲换算；新增 `evidence_ref_broken`（引用解析不到）与 `evidence_coverage`。
+- 报告第 9 节每条结论多一行「数据位置」，章节末尾印「证据可定位率」（分母只含带小数的结论）。
+- 补三个落盘字段让数字有出处：`QualityReport.robust_z_threshold`、
+  `SpectrumResult.dominant_period_value/unit`、股票场景 `data.lookahead_threshold`。
+- 实测（`--strict-verify`）：weather 46/46 含小数结论可定位、0 失配；stock 7/7、0 失配。
+  结论文本、指标条数、22 项评估指标均未变。
+
 **新增：股票场景接入 Agent（E4，解除暂缓）**
 
 - `agent_runtime.AGENT_TOOLS_BY_SCENE` 按场景登记白名单，天气与股票共用 5 个通用工具；

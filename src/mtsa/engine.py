@@ -888,35 +888,9 @@ def _run_analysis_impl(request: AnalysisRequest, verbose: bool, run_id: str,
     # 在 result.json 里没有同名记录，按硬判定处理会把正常运行全部判死。
     issues = (verify_mod.check_no_evidence(conclusions)
               + verify_mod.figure_problems(specs, artifacts, clean.frame.columns))
-    if request.strict_verify:
-        # 只在显式开启时做：结论里的派生值（差值/占比/周期倒数）在 result.json
-        # 里没有同名记录，默认跑会把正常结果刷成一堆提示。
-        pool = verify_mod.numeric_pool(
-            [mtab, *spectra, *tests, *anomalies, *change_points, extremes, qrep])
-        issues += verify_mod.check_conclusion_numbers(conclusions, evidences, pool)
-    no_evidence = [i.payload.get("ids", []) for i in issues if i.kind == "no_evidence"]
-    errors = [i for i in issues if i.severity == "error"]
-    for issue in errors:
-        warnings.append(issue.detail)
-    summary = {"no_evidence_conclusions": len(no_evidence)}
-    if errors or fig_repairs:
-        summary.update({"errors": len(errors), "figure_reruns": len(fig_repairs)})
-    if request.strict_verify:
-        summary["advisory"] = len(issues) - len(errors)
-    timer.run("verify", lambda: summary)
-    verify_block = None
-    if issues or fig_repairs:
-        verify_block = {
-            "passed": not errors,
-            "errors": len(errors),
-            "advisory": len(issues) - len(errors),
-            "issues": [i.to_dict() for i in issues],
-            "reruns": fig_repairs,
-            "policy": "只允许调整图表 spec；不改阈值、不删结论",
-        }
-
-    result.status = "succeeded"
-    data = {
+    # 证据引用的目标视图：`data_refs` 指向这里。先按落盘结构构造一份，
+    # 校验就能在写盘前解析引用；落盘时直接展开，避免两处各写一遍。
+    evidence_view = {
         "profile": profile.model_dump(mode="json"),
         "quality": qrep.model_dump(mode="json"),
         "plan": plan.model_dump(mode="json"),
@@ -934,8 +908,51 @@ def _run_analysis_impl(request: AnalysisRequest, verbose: bool, run_id: str,
         "anomalies": [a.model_dump(mode="json") for a in anomalies],
         "change_points": [c.model_dump(mode="json") for c in change_points],
         "extremes": extremes,
-        **({"forecast": forecast_res} if forecast_res is not None else {}),
         "lookahead": leak,
+        # 股票场景把泄漏判据一起落盘：结论里写「低于 0.80」，这个 0.80 必须有出处。
+        # 只在 stock 场景出现，避免给天气结果平白加一个从未用到的键。
+        **({"lookahead_threshold": stock_scene.LOOKAHEAD_CORR_THRESHOLD}
+           if plan.scene_id == "stock" else {}),
+    }
+    if request.strict_verify:
+        # 只在显式开启时做：结论里的派生值（差值/占比/周期倒数）在 result.json
+        # 里没有同名记录，默认跑会把正常结果刷成一堆提示。
+        pool = verify_mod.numeric_pool(
+            [mtab, *spectra, *tests, *anomalies, *change_points, extremes, qrep])
+        metric_values = {r.metric_id: r.value
+                         for r in list(mtab.rows) + list(extra.rows)
+                         if r.value is not None}
+        issues += verify_mod.check_conclusion_numbers(
+            conclusions, evidences, pool, data=evidence_view,
+            metric_values=metric_values)
+    no_evidence = [i.payload.get("ids", []) for i in issues if i.kind == "no_evidence"]
+    errors = [i for i in issues if i.severity == "error"]
+    for issue in errors:
+        warnings.append(issue.detail)
+    summary = {"no_evidence_conclusions": len(no_evidence)}
+    if errors or fig_repairs:
+        summary.update({"errors": len(errors), "figure_reruns": len(fig_repairs)})
+    if request.strict_verify:
+        summary["advisory"] = len(issues) - len(errors)
+    timer.run("verify", lambda: summary)
+    verify_block = None
+    if issues or fig_repairs or request.strict_verify:
+        # strict 模式即使一条问题都没有也落 coverage——否则「0 问题」和「没检查」
+        # 在 result.json 里长得一样。
+        verify_block = {
+            "passed": not errors,
+            "errors": len(errors),
+            "advisory": len(issues) - len(errors),
+            "issues": [i.to_dict() for i in issues],
+            "reruns": fig_repairs,
+            "evidence_coverage": verify_mod.evidence_coverage(conclusions, evidences),
+            "policy": "只允许调整图表 spec；不改阈值、不删结论",
+        }
+
+    result.status = "succeeded"
+    data = {
+        **evidence_view,
+        **({"forecast": forecast_res} if forecast_res is not None else {}),
         **({"verify": verify_block} if verify_block else {}),
     }
     if agent_info is not None and replay_source is not None:

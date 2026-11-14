@@ -140,6 +140,120 @@ def numeric_pool(objects: Iterable[Any]) -> set[float]:
     return pool
 
 
+# ---------------- 数据引用（A5 证据链） ----------------
+
+_REF_PART = re.compile(r"^([A-Za-z_][A-Za-z0-9_]*)((?:\[\d+\])*)$")
+
+
+def resolve_ref(data: Any, ref: str) -> tuple[bool, Any]:
+    """把 `data.quality.issues[3].count` 解析成值，返回（是否解析成功, 值）。
+
+    只支持两种语法：点号取字典键、方括号取列表下标。刻意不支持通配与表达式——
+    引用必须能一眼看出指向哪个节点，否则它就不算「可定位」。
+    """
+    path = ref[5:] if ref.startswith("data.") else ref
+    if not path:
+        return False, None
+    node = data
+    for part in path.split("."):
+        m = _REF_PART.match(part)
+        if not m:
+            return False, None
+        key, idx_text = m.group(1), m.group(2)
+        if not isinstance(node, dict) or key not in node:
+            return False, None
+        node = node[key]
+        for idx in re.findall(r"\[(\d+)\]", idx_text):
+            i = int(idx)
+            if not isinstance(node, list) or i >= len(node):
+                return False, None
+            node = node[i]
+    return True, node
+
+
+def _numbers_under(node: Any) -> set[float]:
+    out: set[float] = set()
+
+    def walk(n: Any) -> None:
+        if isinstance(n, bool) or n is None:
+            return
+        if isinstance(n, (int, float)):
+            out.add(float(n))
+        elif isinstance(n, str):
+            # 有些数值只以文本形式存在（如 `method="...threshold=8.0"`、
+            # `dominant_period="23.27 小时"`）。它们同样是落盘值，按同一个小数
+            # 正则抽出来即可——只抽带小数点的，日期与计数不会被误当成度量。
+            for tok in NUMBER_RE.findall(n):
+                out.add(float(tok))
+        elif isinstance(n, dict):
+            for v in n.values():
+                walk(v)
+        elif isinstance(n, (list, tuple)):
+            for v in n:
+                walk(v)
+
+    walk(node)
+    return out
+
+
+def refs_numbers(data: Any, refs: Iterable[str]) -> tuple[set[float], list[str]]:
+    """收集引用节点下的全部数值；同时返回解析失败的引用（用于报错）。"""
+    values: set[float] = set()
+    broken: list[str] = []
+    for ref in refs or []:
+        ok, node = resolve_ref(data, ref)
+        if not ok:
+            broken.append(ref)
+            continue
+        values |= _numbers_under(node)
+    return values, broken
+
+
+def evidence_coverage(conclusions: Iterable[Any], evidences: Iterable[Any]) -> dict:
+    """统计「结论的每个数字能不能回到一个已落盘节点」。
+
+    分三种口径，避免用一个比率掩盖不同问题：
+
+    - `with_metric_id`：证据挂了指标编号（可在 `data.metrics` 里查到值）；
+    - `with_data_ref`：证据挂了 `data.*` 节点（周期/极值/异常点这类不在指标表里的量）；
+    - `numeric_locatable_rate`：**只统计含小数的结论**。免责声明、方法说明这类
+      没有数值的结论本来就不需要来源，把它们算进分母会把比率稀释成好看的数字。
+    """
+    by_id = {e.evidence_id: e for e in evidences}
+    total = metric = ref = numeric = numeric_locatable = 0
+    for c in conclusions:
+        total += 1
+        evs = [by_id[i] for i in c.evidence_ids if i in by_id]
+        has_m = any(getattr(e, "metric_ids", None) for e in evs)
+        has_r = any(getattr(e, "data_refs", None) for e in evs)
+        metric += int(has_m)
+        ref += int(has_r)
+        if NUMBER_RE.search(c.text or ""):
+            numeric += 1
+            numeric_locatable += int(has_m or has_r)
+    return {
+        "conclusions": total,
+        "with_metric_id": metric,
+        "with_data_ref": ref,
+        "numeric_conclusions": numeric,
+        "numeric_locatable": numeric_locatable,
+        "numeric_locatable_rate": (round(numeric_locatable / numeric, 4) if numeric else None),
+    }
+
+
+# 结论里的数字常做过量纲换算：比例写成百分比（×100）、秒写成毫秒（×1000）。
+# 这类换算不改变可复算性，比对时按这两个倍率各试一次，避免把格式化当成失配。
+_SCALES: tuple[float, ...] = (1.0, 100.0, 1000.0)
+
+
+def _matches(value: float, tol: float, targets: set[float]) -> bool:
+    for x in targets:
+        for k in _SCALES:
+            if abs(value - x * k) <= tol or abs(value - x / k) <= tol:
+                return True
+    return False
+
+
 def _tolerance(literal: str) -> float:
     mantissa, _, exp = literal.partition("e")
     decimals = len(mantissa.split(".")[1]) if "." in mantissa else 0
@@ -148,34 +262,59 @@ def _tolerance(literal: str) -> float:
 
 
 def check_conclusion_numbers(conclusions: Iterable[Any], evidences: Iterable[Any],
-                             pool: set[float]) -> list[VerifyIssue]:
-    """保守检查：结论里的小数必须能在已落盘的数值里找到。
+                             pool: set[float], data: Any = None,
+                             metric_values: Optional[dict[str, float]] = None) -> list[VerifyIssue]:
+    """保守检查：结论里的小数必须能在**它自己引用的**数值里找到。
 
     只报 advisory。命中的常见原因是派生值（差值、占比、周期倒数），不是错误，
     所以既不改文本也不当作失败——但会出现在 `data.verify` 里，供人工抽查。
+
+    `data` / `metric_values` 是 A5 加的：有 `data_refs` 的结论按引用节点取数，
+    不再拿全库数值兜底。过去只比全局池子，等于「这个数在结果里任何地方出现过就算过」，
+    周期、极值、异常点这些描述性结论根本进不了检查（它们没有 metric_ids，被整条跳过）。
     """
-    if not pool:
+    if not pool and data is None:
         return []
     by_id = {e.evidence_id: e for e in evidences}
     flagged: list[dict] = []
+    broken: list[dict] = []
     for c in conclusions:
-        cited = []
+        cited: list[str] = []
+        refs: list[str] = []
         for eid in getattr(c, "evidence_ids", []) or []:
             ev = by_id.get(eid)
             if ev is not None:
                 cited.extend(getattr(ev, "metric_ids", []) or [])
-        if not cited:
+                refs.extend(getattr(ev, "data_refs", []) or [])
+        if not cited and not refs:
             continue
+        target: set[float] = set()
+        if metric_values:
+            target |= {float(metric_values[m]) for m in cited if m in metric_values}
+        if data is not None and refs:
+            values, missing = refs_numbers(data, refs)
+            target |= values
+            if missing:
+                broken.append({"conclusion_id": c.conclusion_id, "refs": missing[:4]})
+        if not target:
+            target = pool
         for literal in NUMBER_RE.findall(c.text or ""):
             value = float(literal)
-            tol = _tolerance(literal)
-            if not any(abs(value - x) <= max(tol, 1e-12) for x in pool):
+            tol = max(_tolerance(literal), 1e-12)
+            if not _matches(value, tol, target):
                 flagged.append({"conclusion_id": c.conclusion_id, "number": literal,
-                                "cited_metrics": cited[:4]})
-    if not flagged:
-        return []
-    return [VerifyIssue(
-        kind="conclusion_number_unmatched", severity="advisory", repair=None,
-        detail=(f"{len(flagged)} 个结论数值在已落盘的指标里找不到同值；"
-                "多为派生值（差值/占比/周期倒数），仅作抽查线索，不影响结论成立性"),
-        payload={"count": len(flagged), "samples": flagged[:10]})]
+                                "cited_metrics": cited[:4], "cited_refs": refs[:3]})
+    issues: list[VerifyIssue] = []
+    if flagged:
+        issues.append(VerifyIssue(
+            kind="conclusion_number_unmatched", severity="advisory", repair=None,
+            detail=(f"{len(flagged)} 个结论数值在它自己引用的指标/数据节点里找不到同值；"
+                    "多为派生值（差值/占比/周期倒数），仅作抽查线索，不影响结论成立性"),
+            payload={"count": len(flagged), "samples": flagged[:10]}))
+    if broken:
+        issues.append(VerifyIssue(
+            kind="evidence_ref_broken", severity="advisory", repair=None,
+            detail=(f"{len(broken)} 条结论的数据引用解析不到节点；"
+                    "引用应指向 `result.data` 里真实存在的键或下标"),
+            payload={"count": len(broken), "samples": broken[:10]}))
+    return issues

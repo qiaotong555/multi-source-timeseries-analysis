@@ -423,6 +423,7 @@ def check_quality(
         out_of_order=out_of_order,
         gap_count=gap_count,
         anomaly_candidate_count=candidate,
+        robust_z_threshold=ROBUST_Z_THRESHOLD,
         # as_of 取数据自身截止时间而非墙钟时间：保证同输入重复运行完全一致
         as_of=(str(parsed_time.dropna().max()) if parsed_time is not None
                and parsed_time.notna().any() else ""),

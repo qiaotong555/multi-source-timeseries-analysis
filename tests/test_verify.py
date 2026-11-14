@@ -146,3 +146,66 @@ def test_repair_only_touches_columns():
     assert fixed == [{"id": "a", "kind": "series", "title": "T", "columns": ["x"],
                       "groupby": "month"}]
     assert info["dropped_columns"] == {"a": ["gone"]}
+
+
+# ---------------- A5 证据链：data_refs ----------------
+
+def _ev_refs(eid, refs, metrics=()):
+    return Evidence(evidence_id=eid, claim="c", metric_ids=list(metrics),
+                    artifact_ids=[], data_refs=list(refs), code_ref="test")
+
+
+def test_resolve_ref_handles_dict_list_and_bad_syntax():
+    data = {"spectrum": [{"dominant_period_value": 23.27}],
+            "quality": {"issues": [{"count": 71}]}}
+    ok, value = verify.resolve_ref(data, "data.spectrum[0].dominant_period_value")
+    assert ok and value == 23.27
+    ok, value = verify.resolve_ref(data, "data.quality.issues[0].count")
+    assert ok and value == 71
+    for bad in ("data.spectrum[3].x", "data.nope.y", "data.quality..x", ""):
+        ok, _ = verify.resolve_ref(data, bad)
+        assert not ok, bad
+
+
+def test_number_check_uses_cited_ref_not_global_pool():
+    """结论引用了哪个节点，就只在该节点里找数——不能拿全库数值兜底。"""
+    data = {"anomalies": [{"value": 92.085, "score": 132.38}]}
+    cons = [Conclusion(conclusion_id="c1", category="异常检测",
+                       text="取值 92.085，稳健 Z=132.38，另一处 7.77", evidence_ids=["e1"])]
+    evs = [_ev_refs("e1", ["data.anomalies[0]"])]
+    issues = verify.check_conclusion_numbers(cons, evs, {7.77}, data=data)
+    flagged = [s["number"] for s in issues[0].payload["samples"]]
+    # 7.77 在全局池子里有，但不在引用的异常点里 → 仍要标出来
+    assert flagged == ["7.77"]
+
+
+def test_number_check_accepts_percent_and_string_values():
+    data = {"spectrum": [{"band_power": {"低频": 0.93125},
+                          "dominant_period": "23.27 小时",
+                          "method": "welch(nperseg=256), threshold=8.0"}]}
+    cons = [Conclusion(conclusion_id="c1", category="周期",
+                       text="占比 93.12%，周期 23.27 小时，阈值 8.0", evidence_ids=["e1"])]
+    issues = verify.check_conclusion_numbers(cons, [_ev_refs("e1", ["data.spectrum[0]"])],
+                                             set(), data=data)
+    assert issues == []      # ×100 换算、文本里的数值都应命中
+
+
+def test_broken_ref_is_reported():
+    cons = [Conclusion(conclusion_id="c1", category="x", text="值 1.5",
+                       evidence_ids=["e1"])]
+    issues = verify.check_conclusion_numbers(cons, [_ev_refs("e1", ["data.gone[0]"])],
+                                             set(), data={"anomalies": []})
+    kinds = [i.kind for i in issues]
+    assert "evidence_ref_broken" in kinds
+
+
+def test_evidence_coverage_counts_only_numeric_conclusions():
+    cons = [Conclusion(conclusion_id="c1", category="a", text="均值 1.5", evidence_ids=["e1"]),
+            Conclusion(conclusion_id="c2", category="b", text="不构成投资建议", evidence_ids=["e2"]),
+            Conclusion(conclusion_id="c3", category="c", text="差值 2.5", evidence_ids=["e3"])]
+    evs = [_ev("e1", ["m1"]), _ev("e2", []), _ev_refs("e3", ["data.x[0]"])]
+    cov = verify.evidence_coverage(cons, evs)
+    assert cov["conclusions"] == 3
+    assert cov["numeric_conclusions"] == 2      # 免责声明不进分母
+    assert cov["numeric_locatable"] == 2
+    assert cov["numeric_locatable_rate"] == 1.0

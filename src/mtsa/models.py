@@ -185,6 +185,9 @@ class QualityReport(MtsaModel):
     out_of_order: int = 0
     gap_count: int = 0
     anomaly_candidate_count: int = 0
+    # 判「候选异常」用的稳健 Z 阈值。写进报告是为了让结论里的 5.0 有出处：
+    # 它来自 quality.ROBUST_Z_THRESHOLD 这个常量，不落在任何指标行里。
+    robust_z_threshold: float = 5.0
     as_of: str = ""
 
 
@@ -245,6 +248,10 @@ class SpectrumResult(MtsaModel):
     power: list[float] = Field(default_factory=list)
     dominant_freq: Optional[float] = None
     dominant_period: Optional[str] = None
+    # 与 `dominant_period` 同源同精度的数值与单位：文本给人看，这两个给证据链核对
+    # （结论写「周期 23.27 小时」，`data.spectrum[i].dominant_period_value` 就是 23.27）。
+    dominant_period_value: Optional[float] = None
+    dominant_period_unit: Optional[str] = None
     band_power: dict[str, float] = Field(default_factory=dict)
     method: str = "welch"
 
@@ -299,6 +306,12 @@ class Evidence(MtsaModel):
     claim: str
     metric_ids: list[str] = Field(default_factory=list)
     artifact_ids: list[str] = Field(default_factory=list)
+    # 非指标类证据的定位：指向 `result.data` 里的具体节点，如
+    # `data.spectrum[0].dominant_period`、`data.quality.issues[3].count`。
+    # 周期、极值、异常点、变化点这些数字不在指标表里（指标表只放可跨场景复用的
+    # 统计量），过去只能给空 metric_ids——于是 `verify` 的数值抽查直接跳过它们。
+    # 有了 refs，结论里的每个数都能回到一个可复算的节点。
+    data_refs: list[str] = Field(default_factory=list)
     code_ref: str
     caveat: str = ""
 

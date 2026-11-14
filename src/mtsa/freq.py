@@ -5,6 +5,8 @@
 """
 from __future__ import annotations
 
+from typing import Optional
+
 import numpy as np
 import pandas as pd
 from scipy import signal
@@ -22,17 +24,29 @@ def sampling_rate_hz(index: pd.Index) -> float:
     return float("nan")
 
 
-def _period_label(freq: float) -> str:
-    if freq <= 0:
-        return "无穷大（直流/趋势）"
+def _period_parts(freq: float) -> tuple[Optional[float], str, int]:
+    """把主频换算成「数值 + 单位 + 小数位」。
+
+    单独拆出来是为了让 `SpectrumResult.dominant_period_value` 与显示文本用**同一套**
+    四舍五入：结论里写 23.27 小时，结果里就要能查到 23.27，而不是 23.2715。
+    """
+    if freq is None or freq <= 0:
+        return None, "无穷大（直流/趋势）", 0
     sec = 1.0 / freq
     if sec < 90:
-        return f"{sec:.1f} 秒"
+        return round(sec, 1), "秒", 1
     if sec < 5400:
-        return f"{sec / 60:.1f} 分钟"
+        return round(sec / 60, 1), "分钟", 1
     if sec < 172800:
-        return f"{sec / 3600:.2f} 小时"
-    return f"{sec / 86400:.2f} 天"
+        return round(sec / 3600, 2), "小时", 2
+    return round(sec / 86400, 2), "天", 2
+
+
+def _period_label(freq: float) -> str:
+    value, unit, ndigits = _period_parts(freq)
+    if value is None:
+        return unit
+    return f"{value:.{ndigits}f} {unit}"
 
 
 def analyze_spectrum(clean: CleanDataset, plan: AnalysisPlan) -> list[SpectrumResult]:
@@ -76,6 +90,8 @@ def analyze_spectrum(clean: CleanDataset, plan: AnalysisPlan) -> list[SpectrumRe
             power=[round(float(x), 10) for x in power[::step]],
             dominant_freq=round(dom_f, 8),
             dominant_period=_period_label(dom_f),
+            dominant_period_value=_period_parts(dom_f)[0],
+            dominant_period_unit=_period_parts(dom_f)[1],
             band_power={k: round(v, 6) for k, v in bands.items()},
             method=f"welch(nperseg={nperseg})",
         ))

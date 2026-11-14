@@ -306,11 +306,13 @@ class StockAdapter(ScenarioAdapter):
         nid = [0]
         close = ctx.plan.parameters.get("close_column")
 
-        def add(category, text, metric_ids, artifact_ids, code_ref, caveat=""):
+        def add(category, text, metric_ids, artifact_ids, code_ref, caveat="",
+                data_refs=()):
             nid[0] += 1
             eid = f"ev_{nid[0]:03d}"
             evidences.append(Evidence(evidence_id=eid, claim=text, metric_ids=metric_ids,
-                                      artifact_ids=artifact_ids, code_ref=code_ref, caveat=caveat))
+                                      artifact_ids=artifact_ids, code_ref=code_ref,
+                                      caveat=caveat, data_refs=list(data_refs)))
             conclusions.append(Conclusion(conclusion_id=f"con_{nid[0]:03d}", category=category,
                                           text=text, evidence_ids=[eid], limitations=caveat))
 
@@ -359,7 +361,8 @@ class StockAdapter(ScenarioAdapter):
             add("数据校验", text,
                 [], [], "src/mtsa/scenarios/stock.py::check_lookahead",
                 "该检查只能识别显式泄漏，无法排除特征构造中的隐性泄漏；"
-                "未进入检查的列不受这条结论保护")
+                "未进入检查的列不受这条结论保护",
+                data_refs=["data.lookahead", "data.lookahead_threshold"])
 
         vp = m("stk.volprice.corr_vol_absret")
         if vp and vp.value is not None:
@@ -397,11 +400,13 @@ class StockAdapter(ScenarioAdapter):
         else:
             cols = {a.column for a in ctx.anomalies}
             top = max(ctx.anomalies, key=lambda a: abs(a.score))
+            top_idx = next(i for i, a in enumerate(ctx.anomalies) if a is top)
             add("异常检测",
                 f"检出 {n_anom} 个异常点，覆盖 {len(cols)} 条序列；偏离最大的是 "
                 f"{top.column} 的 {top.timestamp}（{top.score:.2f}σ，值 {top.value:.4g}）。",
                 [], ["art_fig_anomaly"], "src/mtsa/scenarios/stock.py::conclusions",
-                "异常点是相对自身基线的统计偏离，不构成买卖信号")
+                "异常点是相对自身基线的统计偏离，不构成买卖信号",
+                data_refs=[f"data.anomalies[{top_idx}]"])
 
         n_cp = len(ctx.change_points)
         if not ctx.tool_ran("detect_change_points"):
@@ -418,12 +423,14 @@ class StockAdapter(ScenarioAdapter):
         else:
             cols = {c.column for c in ctx.change_points}
             cp = max(ctx.change_points, key=lambda c: abs(c.statistic))
+            cp_idx = next(i for i, c in enumerate(ctx.change_points) if c is cp)
             add("变化点",
                 f"检出 {n_cp} 个变化点，覆盖 {len(cols)} 条序列；最强的一处在 "
                 f"{cp.column} 的 {cp.timestamp}（{cp.kind}，统计量 {cp.statistic:.2f}，"
                 f"置信度 {cp.confidence}）。",
                 [], ["art_fig_anomaly"], "src/mtsa/scenarios/stock.py::conclusions",
-                "变化点时间戳的定位误差约为窗口一半，不是精确时刻；不构成买卖信号")
+                "变化点时间戳的定位误差约为窗口一半，不是精确时刻；不构成买卖信号",
+                data_refs=[f"data.change_points[{cp_idx}]"])
 
         add("免责声明",
             "本分析为统计计算结果，不构成任何投资建议或买卖依据，不代表未来收益。",

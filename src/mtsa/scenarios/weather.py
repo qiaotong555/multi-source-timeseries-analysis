@@ -317,31 +317,34 @@ class WeatherAdapter(ScenarioAdapter):
         evidences: list[Evidence] = []
         nid = [0]
 
-        def add(category, text, metric_ids, artifact_ids, code_ref, caveat=""):
+        def add(category, text, metric_ids, artifact_ids, code_ref, caveat="",
+                data_refs=()):
             nid[0] += 1
             eid = f"ev_{nid[0]:03d}"
             cid = f"con_{nid[0]:03d}"
             evidences.append(Evidence(evidence_id=eid, claim=text, metric_ids=metric_ids,
-                                      artifact_ids=artifact_ids, code_ref=code_ref, caveat=caveat))
+                                      artifact_ids=artifact_ids, code_ref=code_ref,
+                                      caveat=caveat, data_refs=list(data_refs)))
             conclusions.append(Conclusion(conclusion_id=cid, category=category, text=text,
                                           evidence_ids=[eid], limitations=caveat))
 
         frame = ctx.clean.frame
         conv = ctx.clean.unit_conversions
         if conv:
-            for c in conv:
+            for i, c in enumerate(conv):
                 seg = f"{c.get('start_time') or '起始'} ~ {c.get('end_time') or '序列末尾'}"
                 who = f"（分组 {c['group_value']}）" if c.get("group_value") else ""
                 add("数据口径",
                     f"字段 {c['column']}{who} 在 {seg} 区间被识别为华氏度段，共 {c['rows']} 个采样点，"
                     f"已统一换算为摄氏度（区间中位数 {c['median_before']:.2f} → {c['median_after']:.2f}）。",
                     [], ["art_clean_csv"], "src/mtsa/preprocess.py::_apply_unit_conversions",
-                    "换算依据为前后中位数比值落在华氏—摄氏区间，属推断，需与数据来源方确认")
+                    "换算依据为前后中位数比值落在华氏—摄氏区间，属推断，需与数据来源方确认",
+                    data_refs=[f"data.clean.unit_conversions[{i}]"])
 
         # 质量问题：每条 issue 生成一条「数据口径」结论；没有问题时也要明确说「未发现」。
         issues = list(ctx.quality.issues)
         if issues:
-            for iss in issues[:8]:
+            for i, iss in enumerate(issues[:8]):
                 where = []
                 if iss.column:
                     where.append(f"列 {iss.column}")
@@ -352,11 +355,17 @@ class WeatherAdapter(ScenarioAdapter):
                     f"{iss.code}：{prefix}{iss.detail}（数量 {iss.count}）"
                     f"{_issue_range_text(iss)}。",
                     [], ["art_clean_csv"], "src/mtsa/quality.py::check_quality",
-                    "质量检查只报告，不修改原始数据；对应清洗动作见报告第 4 节")
+                    "质量检查只报告，不修改原始数据；对应清洗动作见报告第 4 节",
+                    # 候选异常点的阈值（5.0）是模块常量，不在 issue 里，
+                    # 引到整个 quality 节点才能解析到 robust_z_threshold。
+                    data_refs=(["data.quality"] if iss.code == "OUTLIER_CANDIDATE"
+                               else ["data.quality.missing_ratio"] if iss.code == "MISSING_VALUES"
+                               else [f"data.quality.issues[{i}]"]))
             if len(issues) > 8:
                 add("数据口径",
                     f"另有 {len(issues) - 8} 条质量问题未逐条列出，详见报告第 2 节。",
-                    [], ["art_clean_csv"], "src/mtsa/quality.py::check_quality")
+                    [], ["art_clean_csv"], "src/mtsa/quality.py::check_quality",
+                    data_refs=["data.quality.issues"])
         else:
             n_cols = len(ctx.quality.missing_ratio or {})
             add("数据口径",
@@ -383,14 +392,16 @@ class WeatherAdapter(ScenarioAdapter):
                     "Mann-Kendall 要求观测独立；未做季节调整时强季节周期会污染趋势检验，"
                     "应以月度均值斜率与 STL 趋势项为准")
 
-            spec = next((s for s in ctx.spectrum if s.column == col), None)
+            spec_idx = next((i for i, s in enumerate(ctx.spectrum) if s.column == col), None)
+            spec = ctx.spectrum[spec_idx] if spec_idx is not None else None
             if spec and spec.dominant_freq:
                 add("周期",
                     f"{col}：功率谱主频 {spec.dominant_freq:.6g} Hz，对应周期 {spec.dominant_period}；"
                     f"低/中/高频能量占比 {spec.band_power.get('低频', 0):.2%} / "
                     f"{spec.band_power.get('中频', 0):.2%} / {spec.band_power.get('高频', 0):.2%}。",
                     [], ["art_fig_spectrum"], "src/mtsa/freq.py::analyze_spectrum",
-                    "Welch 法主频分辨率受 nperseg 限制；短样本下周期估计不稳定")
+                    "Welch 法主频分辨率受 nperseg 限制；短样本下周期估计不稳定",
+                    data_refs=[f"data.spectrum[{spec_idx}]"])
 
             amp = ctx.metric(f"wx.seasonal.monthly_amplitude:{col}")
             hot = ctx.metric(f"wx.seasonal.hottest_month:{col}")
@@ -432,6 +443,7 @@ class WeatherAdapter(ScenarioAdapter):
 
         # 异常与变化点
         if ctx.anomalies:
+            anom_pos = {id(a): i for i, a in enumerate(ctx.anomalies)}
             by_col: dict[str, list] = {}
             for a in ctx.anomalies:
                 by_col.setdefault(a.column, []).append(a)
@@ -441,14 +453,16 @@ class WeatherAdapter(ScenarioAdapter):
                     f"{col}：检出 {len(items)} 个异常点，最显著者位于 {worst.timestamp}，"
                     f"取值 {worst.value:.3f}，稳健 Z={worst.score:.2f}（方法：{worst.method}）。",
                     [], ["art_fig_anomaly"], "src/mtsa/anomaly.py::detect_anomalies",
-                    "阈值与窗口为可配置参数；极端值与真实事件需业务确认")
+                    "阈值与窗口为可配置参数；极端值与真实事件需业务确认",
+                    data_refs=[f"data.anomalies[{anom_pos[id(worst)]}]"])
         if ctx.change_points:
             cp = ctx.change_points[0]
             add("变化点",
                 f"{cp.column} 在 {cp.timestamp}（第 {cp.index} 个采样点）存在均值突变，"
                 f"前后中位数 {cp.before:.3f} → {cp.after:.3f}，统计量 {cp.statistic:.2f}。",
                 [], ["art_fig_anomaly"], "src/mtsa/anomaly.py::detect_change_points",
-                "二分分割受最大深度限制，密集变化点可能被合并")
+                "二分分割受最大深度限制，密集变化点可能被合并",
+                data_refs=["data.change_points[0]"])
 
         # 零检出：只有「工具确实执行过」才能说「未发现」。
         # 且执行范围必须写实检列数与实检窗口——目标列数会让 N 虚高
@@ -468,7 +482,8 @@ class WeatherAdapter(ScenarioAdapter):
                 f"未发现异常点（{method}已对 {n_run}/{n_total} 条目标序列执行检测；"
                 f"有效点少于 {MIN_ANOMALY_POINTS} 的列不参与，插补点不计入）。",
                 [], ["art_fig_anomaly"], "src/mtsa/anomaly.py::detect_anomalies",
-                "未检出不等于不存在；阈值与窗口可配置，极端事件需业务确认")
+                "未检出不等于不存在；阈值与窗口可配置，极端事件需业务确认",
+                data_refs=["data.plan.parameters"])
         if ctx.tool_ran("detect_change_points") and not ctx.change_points:
             min_len = change_point_min_len(len(frame))
             n_run = examined_series(frame, ctx.plan.target_columns, 4 * min_len)
@@ -476,7 +491,8 @@ class WeatherAdapter(ScenarioAdapter):
                 f"未发现均值突变（二分分割；已对 {n_run}/{n_total} 条目标序列执行检测，"
                 f"最小段长 {min_len} 点，序列有效点须 ≥ {4 * min_len} 点才纳入）。",
                 [], ["art_fig_anomaly"], "src/mtsa/anomaly.py::detect_change_points",
-                "未检出不等于不存在；密集或幅度较小的变化点可能低于检出下限")
+                "未检出不等于不存在；密集或幅度较小的变化点可能低于检出下限",
+                data_refs=["data.plan.parameters"])
 
         # 绝对极端：与统计异常分开报告。
         # agent 分支仍要求 detect_anomalies 真跑过（D3 的「不替 agent 扩权」）；
@@ -484,7 +500,7 @@ class WeatherAdapter(ScenarioAdapter):
         # 否则会出现「表里有点、结论里没提」的半截状态。
         exts = list(getattr(ctx, "extremes", None) or [])
         if exts and (ctx.executed_tools is None or ctx.tool_ran("detect_anomalies")):
-            for e in exts[:3]:
+            for ei, e in enumerate(exts[:3]):
                 tail_cn = "高" if e.get("tail") == "high" else "低"
                 runs = e.get("runs") or []
                 longest = max(runs, key=lambda r: r.get("count") or 0) if runs else {}
@@ -496,7 +512,8 @@ class WeatherAdapter(ScenarioAdapter):
                     f"{e.get('run_count')} 段；{seg}。"
                     f"这是按本列经验分位判定的绝对极端，不等同于统计异常。",
                     [], ["art_clean_csv"], "src/mtsa/anomaly.py::detect_extremes",
-                    "分位阈值随数据分布变化；换站点或季节需重新确认")
+                    "分位阈值随数据分布变化；换站点或季节需重新确认",
+                    data_refs=[f"data.extremes[{ei}]"])
 
         # 预测（F）：只在开启 --forecast 时存在；单独分类，不混进解释性结论。
         fc = getattr(ctx, "forecast", None)
