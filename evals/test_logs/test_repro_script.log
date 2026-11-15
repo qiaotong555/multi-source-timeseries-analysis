@@ -1,0 +1,22 @@
+# test_repro_script
+# status=PASS exit=0 duration=36.93s passed=2 failed=0 errors=0
+..                                                                       [100%]
+============================== warnings summary ===============================
+tests/test_repro_script.py: 12 warnings
+  <repo>\src\mtsa\stats_tests.py:141: InterpolationWarning: The test statistic is outside of the range of p-values available in the look-up table. The actual p-value is smaller than the p-value returned.
+    kpss_res = kpss(vals, regression="c", nlags="auto", result_object=False)
+
+tests/test_repro_script.py::test_rule_plan_writes_planner_and_mode
+tests/test_repro_script.py::test_rule_plan_writes_planner_and_mode
+tests/test_repro_script.py::test_rule_plan_writes_planner_and_mode
+tests/test_repro_script.py::test_rule_plan_writes_planner_and_mode
+tests/test_repro_script.py::test_planner_matches_actual_plan_source
+tests/test_repro_script.py::test_planner_matches_actual_plan_source
+tests/test_repro_script.py::test_planner_matches_actual_plan_source
+tests/test_repro_script.py::test_planner_matches_actual_plan_source
+  <repo>\src\mtsa\stats_tests.py:141: InterpolationWarning: The test statistic is outside of the range of p-values available in the look-up table. The actual p-value is greater than the p-value returned.
+    kpss_res = kpss(vals, regression="c", nlags="auto", result_object=False)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+2 passed, 20 warnings in 34.21s
+
