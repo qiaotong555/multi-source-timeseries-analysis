@@ -884,7 +884,11 @@ def _run_analysis_impl(request: AnalysisRequest, verbose: bool, run_id: str,
         dataset_info["forecast_horizon"] = forecast_res["horizon"]
     rep_art = report_mod.render_report(ctx, artifacts, conclusions, evidences, qrep, profile,
                                        dataset_info, outdir, warnings, agent=agent_info)
-    script_art = report_mod.write_repro_script(dataset_info, outdir)
+    # 复现脚本要能复现「同一套计划」：rule 原样写；llm 与 cache 都归到 llm
+    # （cache 是 LLM 路径的计划缓存）；replay 无法独立复现，不写。
+    _ps = plan.plan_source or "rule"
+    repro_planner = "rule" if _ps == "rule" else ("llm" if _ps in ("llm", "cache") else None)
+    script_art = report_mod.write_repro_script(dataset_info, outdir, planner=repro_planner)
     artifacts.extend([rep_art, script_art])
     timer.run("render_report", lambda: {"conclusions": len(conclusions), "evidence": len(evidences)})
 

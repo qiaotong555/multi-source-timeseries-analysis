@@ -655,7 +655,8 @@ def write_metrics_csv(metrics, scenario_metrics, outdir: str) -> list[Artifact]:
     return out
 
 
-def write_repro_script(dataset_info: dict, outdir: str) -> Artifact:
+def write_repro_script(dataset_info: dict, outdir: str,
+                       planner: Optional[str] = None) -> Artifact:
     os.makedirs(outdir, exist_ok=True)
     path = os.path.join(outdir, "reproduce.py")
     # 开启预测时把参数写进脚本，否则「复现」复现出来的是一份没有预测的报告
@@ -663,6 +664,13 @@ def write_repro_script(dataset_info: dict, outdir: str) -> Artifact:
     if dataset_info.get("forecast"):
         forecast_args = ('\n        "--forecast",\n'
                          '        "--forecast-horizon", "%s",' % dataset_info.get("forecast_horizon"))
+    # 计划器与模式必须写进脚本（A2 之后补，#41 才发现）：不带 --planner 时
+    # 服务端会按 MTSA_PLANNER 走 auto，有模型就换成模型出的计划——实测 9 项变 4 项，
+    # 「复现」复现出来的是另一份报告。
+    planner_args = ('\n        "--planner", "%s",' % planner) if planner else ""
+    mode_args = ""
+    if dataset_info.get("mode"):
+        mode_args = '\n        "--mode", "%s",' % dataset_info["mode"]
     # 数据说明也要进脚本：否则复现出来的报告少了这一段，两份产物对不上。
     note_args = ""
     if dataset_info.get("dataset_note"):
@@ -683,7 +691,7 @@ if __name__ == "__main__":
         "--scene", "{dataset_info.get("scene_id")}",
         "--input", r"{dataset_info.get("input_path")}",
         "--question", "{dataset_info.get("question")}",
-        "--seed", "{dataset_info.get("seed")}",{forecast_args}{note_args}
+        "--seed", "{dataset_info.get("seed")}",{planner_args}{mode_args}{forecast_args}{note_args}
     ]
     raise SystemExit(main())
 '''
